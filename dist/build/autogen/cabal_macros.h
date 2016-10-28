@@ -70,20 +70,6 @@
   (major1) == 1 && (major2) <  1 || \
   (major1) == 1 && (major2) == 1 && (minor) <= 0)
 
-/* package repa-3.4.1.2 */
-#define VERSION_repa "3.4.1.2"
-#define MIN_VERSION_repa(major1,major2,minor) (\
-  (major1) <  3 || \
-  (major1) == 3 && (major2) <  4 || \
-  (major1) == 3 && (major2) == 4 && (minor) <= 1)
-
-/* package repa-algorithms-3.4.1.1 */
-#define VERSION_repa_algorithms "3.4.1.1"
-#define MIN_VERSION_repa_algorithms(major1,major2,minor) (\
-  (major1) <  3 || \
-  (major1) == 3 && (major2) <  4 || \
-  (major1) == 3 && (major2) == 4 && (minor) <= 1)
-
 /* package split-0.2.3.1 */
 #define VERSION_split "0.2.3.1"
 #define MIN_VERSION_split(major1,major2,minor) (\
