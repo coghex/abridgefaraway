@@ -21,7 +21,6 @@ main = do
   texs <- initGL win
   let emptymap :: Array U DIM2 Int; emptymap = randomishIntArray ( Z :. (60::Int) :. (90::Int)) 0 0 1
   w1 <- buildWorld emptymap
-  print w1
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
   GLFW.setKeyCallback win (Just keyPressed)
