@@ -1,7 +1,5 @@
 module World where
 import System.Random
-import Data.Array.Repa hiding((++), repr, map)
-import Data.Array.Repa.Eval
 import Language.Haskell.Interpreter
 import Data.List.Split
 
@@ -40,20 +38,18 @@ stripMap _          = [[]]
 flattenMap :: [[Int]] -> [Int]
 flattenMap xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 
-buildWorld :: Array U DIM2 Int -> IO (Array U DIM2 Int)
+buildWorld :: [Int] -> IO ([Int])
 buildWorld m = do
   x <- randomN 90
   y <- randomN 60
-  t <-  randomN 6
+  t <- randomN 6
 
-  let mapl = toList m
-  let mapexp = chunksOf 90 mapl
+  let mapexp = chunksOf 90 m
   let mapnew = zip (map workRows mapexp) [0..60]
   let map2 = seedWorld t x y mapnew
   let map3 = stripMap map2
   let map4 = flattenMap map3
-  let mapr = fromListUnboxed (extent m) (map (addn 0) map4)
-  return mapr
+  return map4
 
 
 randomN :: Int -> IO Int

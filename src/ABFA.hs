@@ -1,7 +1,5 @@
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Data.ByteString.Internal as BSI
-import Data.Array.Repa hiding((++))
-import Data.Array.Repa.Algorithms.Randomish ( randomishIntArray )
 import System.Exit ( exitWith, ExitCode(..) )
 import Control.Monad ( forever )
 import Control.Monad.State
@@ -19,7 +17,7 @@ main = do
   Just win <- GLFW.createWindow 800 600 "A Bridge Far Away..." Nothing Nothing
   GLFW.makeContextCurrent (Just win)
   texs <- initGL win
-  let emptymap :: Array U DIM2 Int; emptymap = randomishIntArray ( Z :. (60::Int) :. (90::Int)) 0 0 1
+  let emptymap = take (60*90) (repeat 0);
   w1 <- buildWorld emptymap
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
@@ -27,5 +25,5 @@ main = do
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs emptymap win
+    drawScene texs w1 win
     GLFW.swapBuffers win

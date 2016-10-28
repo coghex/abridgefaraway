@@ -91,6 +91,13 @@
   (major1) == 0 && (major2) <  2 || \
   (major1) == 0 && (major2) == 2 && (minor) <= 3)
 
+/* package type-operators-0.1.0.4 */
+#define VERSION_type_operators "0.1.0.4"
+#define MIN_VERSION_type_operators(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  1 || \
+  (major1) == 0 && (major2) == 1 && (minor) <= 0)
+
 /* tool alex-3.2.1 */
 #define TOOL_VERSION_alex "3.2.1"
 #define MIN_TOOL_VERSION_alex(major1,major2,minor) (\
