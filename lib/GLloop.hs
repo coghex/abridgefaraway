@@ -21,10 +21,12 @@ drawWorld :: [GLuint] -> [([(Int, Int)], Int)] -> [IO()]
 drawWorld texs m = map (drawRow texs) m
   
 drawRow :: [GLuint] -> ([(Int, Int)], Int) -> IO ()
-drawRow texs (a,b) = resequence_ (map (drawSpot texs b) a)
+--drawRow texs (a,59) = return ()
+--drawRow texs (a,58) = return ()
+drawRow texs (a,b)  = resequence_ (map (drawSpot texs b) a)
 
 drawSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
-drawSpot texs y (t,x) = (drawTile texs x y t)
+drawSpot texs y  (t,x) = (drawTile texs x y t)
 
 drawTile :: [GLuint] -> Int -> Int -> Int -> IO ()
 drawTile texs x y t = do
@@ -32,7 +34,7 @@ drawTile texs x y t = do
   --                       .|. gl_DEPTH_BUFFER_BIT
   glLoadIdentity  -- reset view
 
-  glTranslatef ((fromIntegral x)-45) ((fromIntegral y)-35) (-100.0)
+  glTranslatef ((fromIntegral x)-60) ((fromIntegral y)-45) (-200.0)
   glBindTexture gl_TEXTURE_2D (texs!!t)
   glBegin gl_QUADS
   glTexCoord2f   0    0
@@ -57,11 +59,11 @@ drawTile texs x y t = do
 
 drawScene :: [GLuint] -> [Int] -> GLFW.Window -> IO ()
 drawScene texs mmap win = do
-  let mapexp = chunksOf 90 mmap
-  let mapnew = zip (map workRows mapexp) [0..60]
-
+  let mapexp = chunksOf 120 mmap
+  let mapnew = zip (map workRows mapexp) [0..90]
   sceneSetup 0
   --drawTile texs 0 0 2
   --drawTile texs 0 2 1
   resequence_ (drawWorld texs mapnew)
   glFlush
+

@@ -59,7 +59,7 @@ resizeScene _   width height = do
   glViewport 0 0 (fromIntegral width) (fromIntegral height)
   glMatrixMode gl_PROJECTION
   glLoadIdentity
-  gluPerspective 45 (fromIntegral width/fromIntegral height) 0.1 100
+  gluPerspective 45 (fromIntegral width/fromIntegral height) 0.1 500
   glMatrixMode gl_MODELVIEW
   glLoadIdentity
   glFlush
