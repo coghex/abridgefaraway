@@ -17,17 +17,22 @@ sceneSetup x = do
                          .|. gl_DEPTH_BUFFER_BIT
   --glLoadIdentity
 
-getPos :: Int -> (Int, Int)
-getPos 0 = (0,0)
-getPos x = ((90 `quot` x),(60 `mod` x))
+drawWorld :: [GLuint] -> [([(Int, Int)], Int)] -> [IO()]
+drawWorld texs m = map (drawRow texs) m
+  
+drawRow :: [GLuint] -> ([(Int, Int)], Int) -> IO ()
+drawRow texs (a,b) = resequence_ (map (drawSpot texs b) a)
+
+drawSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
+drawSpot texs y (t,x) = (drawTile texs x y t)
 
 drawTile :: [GLuint] -> Int -> Int -> Int -> IO ()
-drawTile texs y x t = do
+drawTile texs x y t = do
   -- glClear $ fromIntegral  $  gl_COLOR_BUFFER_BIT
   --                       .|. gl_DEPTH_BUFFER_BIT
   glLoadIdentity  -- reset view
 
-  glTranslatef (fromIntegral x) (fromIntegral y) (-100.0)
+  glTranslatef ((fromIntegral x)-45) ((fromIntegral y)-35) (-100.0)
   glBindTexture gl_TEXTURE_2D (texs!!t)
   glBegin gl_QUADS
   glTexCoord2f   0    0
@@ -56,7 +61,7 @@ drawScene texs mmap win = do
   let mapnew = zip (map workRows mapexp) [0..60]
 
   sceneSetup 0
-  drawTile texs 0 0 2
-  drawTile texs 0 10 1
-  -- resequence_ (drawRow texs (getY mapnew) 3)
+  --drawTile texs 0 0 2
+  --drawTile texs 0 2 1
+  resequence_ (drawWorld texs mapnew)
   glFlush
