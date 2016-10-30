@@ -4,26 +4,30 @@ import Language.Haskell.Interpreter
 import Data.List.Split
 import Control.Monad
 
+mapsize = 10
+
 addn      :: Int -> Int -> Int
 addn n x  =  x + n
 
-distance :: Int -> Int -> Int -> Int -> Int
-distance x1 y1 x2 y2 = do
-  ((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1))
+distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int
+distance a b x1 y1 x2 y2 = do
+  let p1 = ((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1))
+  let p2 = ((x2-a)*(x2-a))+((y2-b)*(y2-b))
+  p1*p2
 
-seedTile :: Int -> Int -> Int -> Int -> Int -> (Int, Int) ->  (Int, Int)
-seedTile s tile x1 y1 x2 t
-  | ((fst t) >= 5) && (distance x1 y1 x2 (snd t) <= (s*s)) = (tile, (snd t)) 
-  | ((fst t) <  5) && (distance x1 y1 x2 (snd t) <= ((s*s)-25)) = (tile, (snd t))
+seedTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) ->  (Int, Int)
+seedTile a b s tile x1 y1 x2 t
+  | ((fst t) >= 5) && (distance a b x1 y1 x2 (snd t) <= (s*s*s*s)) = (tile, (snd t)) 
+  | ((fst t) <  5) && (distance a b x1 y1 x2 (snd t) <= (s*s*s*s)) = (tile, (snd t))
   | otherwise                                              = ((fst t), (snd t))
 
-seedRow :: Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-seedRow s tile x y r = do
-  (map (seedTile s tile x y (snd r)) (fst r), (snd r))
+seedRow :: Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+seedRow a b s tile x y r = do
+  (map (seedTile a b s tile x y (snd r)) (fst r), (snd r))
 
-seedWorld :: Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
-seedWorld s tile x y l = do
-  map (seedRow s tile x y) l
+seedWorld :: Int -> Int -> Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
+seedWorld a b s tile x y l = do
+  map (seedRow a b s tile x y) l
 
 workRows :: [Int] -> [(Int,Int)]
 workRows l = do
@@ -43,20 +47,20 @@ flattenMap xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
 randomList bnds n = take n . randomRs bnds
 
-buildList :: ([a], [a], [a], [a]) -> [(a, a, a, a)]
-buildList ([],[],[],[]) = []
-buildList (a:as, b:bs, c:cs, d:ds) = [(a,b,c,d)] ++ buildList (as, bs, cs, ds)
+buildList :: ([a], [a], [a], [a], [a], [a]) -> [(a, a, a, a, a, a)]
+buildList ([], [], [], [], [], []) = []
+buildList (a:as, b:bs, c:cs, d:ds, e:es, f:fs) = [(a, b, c, d, e, f)] ++ buildList (as, bs, cs, ds, es, fs)
 
-buildMap :: [([(Int, Int)], Int)] -> [(Int, Int, Int, Int)] -> [([(Int, Int)], Int)]
+buildMap :: [([(Int, Int)], Int)] -> [(Int, Int, Int, Int, Int, Int)] -> [([(Int, Int)], Int)]
 buildMap m []           = m
-buildMap m ((a,b,c,d):xs) = do
-  buildMap (seedWorld d c a b m) xs
+buildMap m ((a, b, c, d, e, f):xs) = do
+  buildMap (seedWorld a b f e c d m) xs
 
 buildWorld :: [Int] -> IO ([Int])
 buildWorld m = do
   
   seed <- newStdGen
-  let x = buildList $ (randomList (1, 90::Int) 10 seed, randomList (1, 60::Int) 10 seed, randomList (1, 5::Int) 10 seed, randomList (2, 10::Int) 10 seed)
+  let x = buildList $ (randomList (2, 90::Int) mapsize seed, randomList (2, 60::Int) mapsize seed, randomList (1, 90::Int) mapsize seed, randomList (1, 60::Int) mapsize seed, randomList (1, 4::Int) mapsize seed, randomList (10, 20::Int) mapsize seed)
 
   let mapexp = chunksOf 90 m
   let mapnew = zip (map workRows mapexp) [0..60]
