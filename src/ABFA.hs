@@ -17,7 +17,7 @@ main = do
   Just win <- GLFW.createWindow 800 600 "A Bridge Far Away..." Nothing Nothing
   GLFW.makeContextCurrent (Just win)
   texs <- initGL win
-  let emptymap = take (60*90) (repeat 0);
+  let emptymap = take (60*90) (repeat 5);
   w1 <- buildWorld emptymap
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)

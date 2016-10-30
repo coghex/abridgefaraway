@@ -49,6 +49,13 @@
   (major1) == 0 && (major2) <  5 || \
   (major1) == 0 && (major2) == 5 && (minor) <= 3)
 
+/* package containers-0.5.8.1 */
+#define VERSION_containers "0.5.8.1"
+#define MIN_VERSION_containers(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  5 || \
+  (major1) == 0 && (major2) == 5 && (minor) <= 8)
+
 /* package hint-0.6.0 */
 #define VERSION_hint "0.6.0"
 #define MIN_VERSION_hint(major1,major2,minor) (\
