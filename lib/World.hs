@@ -70,6 +70,34 @@ makeCoords m (l:ls) (k:ks) = do
   m2 <- buildWorld m (fst k) (snd k) (fst l) (snd l)
   makeCoords m2 ls ks
 
+isCoast :: [([(Int, Int)], Int)] -> Int -> Int -> Int -> Bool
+isCoast _ 0 _ _   = False
+isCoast _ 1 _ _   = False
+isCoast _ 2 _ _   = False
+isCoast _ 3 _ _   = False
+isCoast _ 4 _ _   = False
+isCoast _ 5 i 120 = False
+isCoast l 5 i j   = if (fst ((fst (l !! (i+1)) !! (j)))) == 7 then True else False
+isCoast _ 6 _ _   = False
+isCoast _ 7 _ _   = False
+isCoast l a i j   = False
+
+coastRow :: [([(Int, Int)], Int)] -> Int -> (Int, Int) -> (Int, Int)
+coastRow m i (a, j) | (isCoast m a i j) = (6, j)
+                    | otherwise         = (a, j)
+
+buildCoast :: [([(Int, Int)], Int)] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+buildCoast mapa (m, a) = (map (coastRow mapa a) m, a)
+
+makeCoast :: [Int] -> IO [Int]
+makeCoast m = do
+  let mapexp = chunksOf 120 m
+  let mapnew = zip (map workRows mapexp) [0..90]
+  let map0 = map (buildCoast mapnew) mapnew
+  let map1 = stripMap map0
+  let map2 = flattenMap map1
+  return map2
+
 makeIce :: [Int] -> IO [Int]
 makeIce m = do
   let mapexp = chunksOf 120 m
