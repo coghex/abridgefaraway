@@ -3,6 +3,7 @@ import System.Random
 import Language.Haskell.Interpreter
 import Data.List.Split
 import Control.Monad
+import Settings
 
 addn      :: Int -> Int -> Int
 addn n x  =  x + n
@@ -17,11 +18,11 @@ distance tile a b c d x1 y1 x2 y2 = do
 
 seedTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) ->  (Int, Int)
 -- for rows: seedTile _ _ _ _ _ _    _  _  _  (a, 0) = (7, 0)
-seedTile _ _ _ _ _ _    _  _  0  (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  1  (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  2  (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  88 (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  89 (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  0        (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  1        (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  2        (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  (88)     (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  (89)     (a, i) = (7, i)
 seedTile a b c d s tile x1 y1 x2 t
   | (distance tile a b c d x1 y1 x2 (snd t) <= (50*s*s)) = (tile, (snd t)) 
   | otherwise                                              = ((fst t), (snd t))
@@ -39,7 +40,7 @@ seedWorld a b c d s tile x y l = do
 
 workRows :: [Int] -> [(Int,Int)]
 workRows l = do
-  zip l [0..120]
+  zip l [0..mapw]
 
 stripRow :: [(Int, Int)] -> [Int]
 stripRow ((a,b):ys) = a : stripRow ys
@@ -71,16 +72,16 @@ makeCoords m (l:ls) (k:ks) = do
   makeCoords m2 ls ks
 
 isCoast :: [([(Int, Int)], Int)] -> Int -> Int -> Int -> Bool
-isCoast _ 0 _ _   = False
-isCoast _ 1 _ _   = False
-isCoast _ 2 _ _   = False
-isCoast _ 3 _ _   = False
-isCoast _ 4 _ _   = False
-isCoast _ 5 i 120 = False
-isCoast l 5 i j   = if (fst ((fst (l !! (i+1)) !! (j)))) == 7 then True else False
-isCoast _ 6 _ _   = False
-isCoast _ 7 _ _   = False
-isCoast l a i j   = False
+isCoast _ 0 _ _    = False
+isCoast _ 1 _ _    = False
+isCoast _ 2 _ _    = False
+isCoast _ 3 _ _    = False
+isCoast _ 4 _ _    = False
+isCoast l 5 i j    | (j==mapw) = False
+                   | otherwise = (if (fst ((fst (l !! (i+1)) !! (j)))) == 7 then True else False)
+isCoast _ 6 _ _    = False
+isCoast _ 7 _ _    = False
+isCoast l a i j    = False
 
 coastRow :: [([(Int, Int)], Int)] -> Int -> (Int, Int) -> (Int, Int)
 coastRow m i (a, j) | (isCoast m a i j) = (6, j)
@@ -97,11 +98,11 @@ findRiver m (x, y) = if (fst ((fst (m !! (x-1))) !! (y-1)) == 5) then (x, y, Fal
 makeRiver :: [Int] -> Int -> IO [Int]
 makeRiver l s = do
   seed <- newStdGen
-  let rx = randomList (0, 90::Int) s seed
-  let ry = randomList (0, 120::Int) s seed
+  let rx = randomList (0, maph) s seed
+  let ry = randomList (0, mapw) s seed
   let r = zip rx ry
-  let mapexp = chunksOf 120 l
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw l
+  let mapnew = zip (map workRows mapexp) [0..maph]
   let riverb = map (findRiver mapnew) r
   let map1 = stripMap mapnew
   let map2 = flattenMap map1

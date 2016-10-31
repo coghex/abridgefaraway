@@ -9,6 +9,7 @@ import Util
 import GLinit
 import GLloop
 import World
+import Settings
 
 main :: IO ()
 main = do
@@ -19,12 +20,12 @@ main = do
   texs <- initGL win
   seed <- newStdGen
   len <- randomN 1 15
-  let xargs = randomList (0, 90::Int) len seed
-  let yargs = randomList (0, 120::Int) len seed
+  let xargs = randomList (0, maph) len seed
+  let yargs = randomList (0, mapw) len seed
   let xsize = randomList (5, 15::Int) len seed
   let ysize = randomList (6, 16::Int) len seed
 
-  let emptymap = take (90*120) (repeat 5);
+  let emptymap = take (maph*mapw) (repeat 5);
   w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
   w1 <- makeIce w0
   w2 <- makeCoast w1
