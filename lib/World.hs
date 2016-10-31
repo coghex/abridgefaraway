@@ -89,6 +89,25 @@ coastRow m i (a, j) | (isCoast m a i j) = (6, j)
 buildCoast :: [([(Int, Int)], Int)] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
 buildCoast mapa (m, a) = (map (coastRow mapa a) m, a)
 
+findRiver :: [([(Int, Int)], Int)] -> (Int, Int) -> (Int, Int, Bool)
+findRiver _ (0, y) = (0, y, False)
+findRiver _ (x, 0) = (x, 0, False)
+findRiver m (x, y) = if (fst ((fst (m !! (x-1))) !! (y-1)) == 5) then (x, y, False) else (x, y, True)
+
+makeRiver :: [Int] -> Int -> IO [Int]
+makeRiver l s = do
+  seed <- newStdGen
+  let rx = randomList (0, 90::Int) s seed
+  let ry = randomList (0, 120::Int) s seed
+  let r = zip rx ry
+  let mapexp = chunksOf 120 l
+  let mapnew = zip (map workRows mapexp) [0..90]
+  let riverb = map (findRiver mapnew) r
+  let map1 = stripMap mapnew
+  let map2 = flattenMap map1
+
+  return map2
+
 makeCoast :: [Int] -> IO [Int]
 makeCoast m = do
   let mapexp = chunksOf 120 m
@@ -125,8 +144,24 @@ buildWorld m s1 s2 y1 y2 = do
 
   let map3 = stripMap (map2)
   let map4 = flattenMap map3
-  return map4
+  
+  makeRiver map4 mapsize
 
+changeSpot :: Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+changeSpot x y j t (a, i) | ((x==i) && (y==j)) = (t, i)
+                          | otherwise          = (a, i)
+
+changeRow :: Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+changeRow x y t m = ((map (changeSpot x y (snd m) t) (fst m)), (snd m))
+
+changeTile :: [Int] -> (Int, Int) -> Int -> IO ([Int])
+changeTile m (x, y) t = do
+  let mapexp = chunksOf 120 m
+  let mapnew = zip (map workRows mapexp) [0..90]
+  let map0 = map (changeRow x y t) mapnew
+  let map1 = stripMap map0
+  let map2 = flattenMap map1
+  return (map2)
 
 randomN :: Int -> Int -> IO Int
 randomN min max = do

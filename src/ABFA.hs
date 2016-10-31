@@ -28,7 +28,7 @@ main = do
   w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
   w1 <- makeIce w0
   w2 <- makeCoast w1
-  -- w2 <- buildWorld w1 50 100
+  w3 <- changeTile w2 (1, 1) 7
 
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
@@ -36,5 +36,5 @@ main = do
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs w2 win
+    drawScene texs w3 win
     GLFW.swapBuffers win
