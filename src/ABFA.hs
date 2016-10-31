@@ -26,7 +26,7 @@ main = do
 
   let emptymap = take (90*120) (repeat 5);
   w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
-  -- w1 <- buildWorld w0 50 50
+  w1 <- makeIce w0
   -- w2 <- buildWorld w1 50 100
 
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
@@ -35,5 +35,5 @@ main = do
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs w0 win
+    drawScene texs w1 win
     GLFW.swapBuffers win

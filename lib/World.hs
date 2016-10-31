@@ -16,6 +16,12 @@ distance tile a b c d x1 y1 x2 y2 = do
   p1*p2*t*t
 
 seedTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) ->  (Int, Int)
+-- for rows: seedTile _ _ _ _ _ _    _  _  _  (a, 0) = (7, 0)
+seedTile _ _ _ _ _ _    _  _  0  (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  1  (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  2  (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  88 (a, i) = (7, i)
+seedTile _ _ _ _ _ _    _  _  89 (a, i) = (7, i)
 seedTile a b c d s tile x1 y1 x2 t
   | (distance tile a b c d x1 y1 x2 (snd t) <= (50*s*s)) = (tile, (snd t)) 
   | otherwise                                              = ((fst t), (snd t))
@@ -27,7 +33,7 @@ seedRow a b c d s tile x y r = do
 seedWorld :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
 -- seedWorld a b c d s 0    x y l = l
 seedWorld a b c d s 4    x y l = l
--- seedWorld a b c d s 5    x y l = l
+seedWorld a b c d s 6    x y l = l
 seedWorld a b c d s tile x y l = do
   map (seedRow a b c d s tile x y) l
 
@@ -63,6 +69,21 @@ makeCoords m []     _      = return m
 makeCoords m (l:ls) (k:ks) = do
   m2 <- buildWorld m (fst k) (snd k) (fst l) (snd l)
   makeCoords m2 ls ks
+
+makeIce :: [Int] -> IO [Int]
+makeIce m = do
+  let mapexp = chunksOf 120 m
+  let mapnew = zip (map workRows mapexp) [0..90]
+  mapsize <- randomN 250 500
+  seed <- newStdGen
+  let x = buildList $ (randomList (2, 10::Int) mapsize seed, randomList (0, 120::Int) mapsize seed, randomList (1, 9::Int) mapsize seed, randomList (1, 119::Int) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (2, 118::Int) mapsize seed, randomList (7, 7::Int) mapsize seed, randomList (5, 10::Int) mapsize seed)
+
+  let map0 = buildMap mapnew x
+  let y = buildList $ (randomList (82, 90::Int) mapsize seed, randomList (0, 120::Int) mapsize seed, randomList (81, 89::Int) mapsize seed, randomList (1, 119::Int) mapsize seed, randomList (85, 88::Int) mapsize seed, randomList (2, 118::Int) mapsize seed, randomList (7, 7::Int) mapsize seed, randomList (5, 10::Int) mapsize seed)
+  let map0a = buildMap map0 y
+  let map1 = stripMap map0a
+  let map2 = flattenMap map1
+  return map2
 
 buildWorld :: [Int] -> Int -> Int -> Int -> Int -> IO ([Int])
 buildWorld m s1 s2 y1 y2 = do
