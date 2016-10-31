@@ -21,9 +21,11 @@ main = do
   len <- randomN 1 15
   let xargs = randomList (0, 90::Int) len seed
   let yargs = randomList (0, 120::Int) len seed
+  let xsize = randomList (5, 15::Int) len seed
+  let ysize = randomList (6, 16::Int) len seed
 
   let emptymap = take (90*120) (repeat 5);
-  w0 <- makeCoords emptymap ((zip xargs yargs))
+  w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
   -- w1 <- buildWorld w0 50 50
   -- w2 <- buildWorld w1 50 100
 

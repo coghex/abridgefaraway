@@ -58,17 +58,17 @@ buildMap m []           = m
 buildMap m ((a, b, c, d, e, f, g, h):xs) = do
   buildMap (seedWorld a b c d h g e f m) xs
 
-makeCoords :: [Int] -> [(Int, Int)] -> IO ([Int])
-makeCoords m []   = return m
-makeCoords m (l:ls) = do
-  m2 <- buildWorld m (fst l) (snd l)
-  makeCoords m2 ls
+makeCoords :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> IO ([Int])
+makeCoords m []     _      = return m
+makeCoords m (l:ls) (k:ks) = do
+  m2 <- buildWorld m (fst k) (snd k) (fst l) (snd l)
+  makeCoords m2 ls ks
 
-buildWorld :: [Int] -> Int -> Int -> IO ([Int])
-buildWorld m y1 y2 = do
+buildWorld :: [Int] -> Int -> Int -> Int -> Int -> IO ([Int])
+buildWorld m s1 s2 y1 y2 = do
   mapsize <- randomN 10 50 
   seed <- newStdGen
-  let x = buildList $ (randomList ((y1-10), (y1+10)) mapsize seed, randomList ((y2-10), (y2+10)) mapsize seed, randomList ((y1-11), (y1+11)) mapsize seed, randomList ((y2-12), (y2+12)) mapsize seed, randomList ((y1-13), (y1+13)) mapsize seed, randomList ((y2-14), (y2+14)) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (5, 25::Int) mapsize seed)
+  let x = buildList $ (randomList ((y1-s1), (y1+s1)) mapsize seed, randomList ((y2-s2), (y2+s2)) mapsize seed, randomList ((y1-s1-1), (y1+s1+1)) mapsize seed, randomList ((y2-s2-2), (y2+s2+2)) mapsize seed, randomList ((y1-s1-3), (y1+s1+3)) mapsize seed, randomList ((y2-s2-4), (y2+s2+4)) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (5, 25::Int) mapsize seed)
 
   let mapexp = chunksOf 120 m
   let mapnew = zip (map workRows mapexp) [0..90]
