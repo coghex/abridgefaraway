@@ -17,15 +17,21 @@ main = do
   Just win <- GLFW.createWindow 1600 1200 "A Bridge Far Away..." Nothing Nothing
   GLFW.makeContextCurrent (Just win)
   texs <- initGL win
+  seed <- newStdGen
+  len <- randomN 1 15
+  let xargs = randomList (0, 90::Int) len seed
+  let yargs = randomList (0, 120::Int) len seed
 
   let emptymap = take (90*120) (repeat 5);
-  w1 <- buildWorld emptymap 50 50
-  w2 <- buildWorld w1 50 100
+  w0 <- makeCoords emptymap ((zip xargs yargs))
+  -- w1 <- buildWorld w0 50 50
+  -- w2 <- buildWorld w1 50 100
+
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
   GLFW.setKeyCallback win (Just keyPressed)
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs w2 win
+    drawScene texs w0 win
     GLFW.swapBuffers win

@@ -58,6 +58,12 @@ buildMap m []           = m
 buildMap m ((a, b, c, d, e, f, g, h):xs) = do
   buildMap (seedWorld a b c d h g e f m) xs
 
+makeCoords :: [Int] -> [(Int, Int)] -> IO ([Int])
+makeCoords m []   = return m
+makeCoords m (l:ls) = do
+  m2 <- buildWorld m (fst l) (snd l)
+  makeCoords m2 ls
+
 buildWorld :: [Int] -> Int -> Int -> IO ([Int])
 buildWorld m y1 y2 = do
   mapsize <- randomN 10 50 
