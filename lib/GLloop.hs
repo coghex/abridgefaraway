@@ -7,6 +7,7 @@ import Data.Bits ( (.|.) )
 import Control.Monad.Identity (runIdentity)
 import World
 import Data.List.Split
+import Settings
 
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ()) 
@@ -59,8 +60,8 @@ drawTile texs x y t = do
 
 drawScene :: [GLuint] -> [Int] -> GLFW.Window -> IO ()
 drawScene texs mmap win = do
-  let mapexp = chunksOf 120 mmap
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw mmap
+  let mapnew = zip (map workRows mapexp) [0..maph]
   sceneSetup 0
   --drawTile texs 0 0 2
   --drawTile texs 0 2 1

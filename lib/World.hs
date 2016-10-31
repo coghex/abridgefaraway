@@ -21,11 +21,10 @@ seedTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int,
 seedTile _ _ _ _ _ _    _  _  0        (a, i) = (7, i)
 seedTile _ _ _ _ _ _    _  _  1        (a, i) = (7, i)
 seedTile _ _ _ _ _ _    _  _  2        (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  (88)     (a, i) = (7, i)
-seedTile _ _ _ _ _ _    _  _  (89)     (a, i) = (7, i)
 seedTile a b c d s tile x1 y1 x2 t
-  | (distance tile a b c d x1 y1 x2 (snd t) <= (50*s*s)) = (tile, (snd t)) 
-  | otherwise                                              = ((fst t), (snd t))
+  | ((x2==(maph-1))||(x2==(maph-2)))                                   = (7, (snd t))
+  | (distance tile a b c d x1 y1 x2 (snd t) <= (500)) = (tile, (snd t)) 
+  | otherwise                                            = ((fst t), (snd t))
 
 seedRow :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
 seedRow a b c d s tile x y r = do
@@ -111,8 +110,8 @@ makeRiver l s = do
 
 makeCoast :: [Int] -> IO [Int]
 makeCoast m = do
-  let mapexp = chunksOf 120 m
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw m
+  let mapnew = zip (map workRows mapexp) [0..maph]
   let map0 = map (buildCoast mapnew) mapnew
   let map1 = stripMap map0
   let map2 = flattenMap map1
@@ -120,14 +119,14 @@ makeCoast m = do
 
 makeIce :: [Int] -> IO [Int]
 makeIce m = do
-  let mapexp = chunksOf 120 m
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw m
+  let mapnew = zip (map workRows mapexp) [0..maph]
   mapsize <- randomN 250 500
   seed <- newStdGen
-  let x = buildList $ (randomList (2, 10::Int) mapsize seed, randomList (0, 120::Int) mapsize seed, randomList (1, 9::Int) mapsize seed, randomList (1, 119::Int) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (2, 118::Int) mapsize seed, randomList (7, 7::Int) mapsize seed, randomList (5, 10::Int) mapsize seed)
+  let x = buildList $ (randomList (2, 10::Int) mapsize seed, randomList (0, mapw) mapsize seed, randomList (1, 9::Int) mapsize seed, randomList (1, (mapw-1)) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (2, (mapw-2)) mapsize seed, randomList (ntiles, ntiles) mapsize seed, randomList (5, 10::Int) mapsize seed)
 
   let map0 = buildMap mapnew x
-  let y = buildList $ (randomList (82, 90::Int) mapsize seed, randomList (0, 120::Int) mapsize seed, randomList (81, 89::Int) mapsize seed, randomList (1, 119::Int) mapsize seed, randomList (85, 88::Int) mapsize seed, randomList (2, 118::Int) mapsize seed, randomList (7, 7::Int) mapsize seed, randomList (5, 10::Int) mapsize seed)
+  let y = buildList $ (randomList ((maph-8), maph) mapsize seed, randomList (0, mapw) mapsize seed, randomList ((maph-9), (maph-1)) mapsize seed, randomList (1, (mapw-1)) mapsize seed, randomList ((maph-5), (maph-2)) mapsize seed, randomList (2, (mapw-2)) mapsize seed, randomList (ntiles, ntiles) mapsize seed, randomList (5, 10::Int) mapsize seed)
   let map0a = buildMap map0 y
   let map1 = stripMap map0a
   let map2 = flattenMap map1
@@ -139,8 +138,8 @@ buildWorld m s1 s2 y1 y2 = do
   seed <- newStdGen
   let x = buildList $ (randomList ((y1-s1), (y1+s1)) mapsize seed, randomList ((y2-s2), (y2+s2)) mapsize seed, randomList ((y1-s1-1), (y1+s1+1)) mapsize seed, randomList ((y2-s2-2), (y2+s2+2)) mapsize seed, randomList ((y1-s1-3), (y1+s1+3)) mapsize seed, randomList ((y2-s2-4), (y2+s2+4)) mapsize seed, randomList (0, 5::Int) mapsize seed, randomList (5, 25::Int) mapsize seed)
 
-  let mapexp = chunksOf 120 m
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw m
+  let mapnew = zip (map workRows mapexp) [0..maph]
   let map2 = buildMap mapnew x
 
   let map3 = stripMap (map2)
@@ -157,8 +156,8 @@ changeRow x y t m = ((map (changeSpot x y (snd m) t) (fst m)), (snd m))
 
 changeTile :: [Int] -> (Int, Int) -> Int -> IO ([Int])
 changeTile m (x, y) t = do
-  let mapexp = chunksOf 120 m
-  let mapnew = zip (map workRows mapexp) [0..90]
+  let mapexp = chunksOf mapw m
+  let mapnew = zip (map workRows mapexp) [0..maph]
   let map0 = map (changeRow x y t) mapnew
   let map1 = stripMap map0
   let map2 = flattenMap map1

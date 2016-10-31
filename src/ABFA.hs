@@ -15,7 +15,7 @@ main :: IO ()
 main = do
   True <- GLFW.init
   GLFW.defaultWindowHints
-  Just win <- GLFW.createWindow 1600 1200 "A Bridge Far Away..." Nothing Nothing
+  Just win <- GLFW.createWindow pixelsw pixelsh "A Bridge Far Away..." Nothing Nothing
   GLFW.makeContextCurrent (Just win)
   texs <- initGL win
   seed <- newStdGen
@@ -29,7 +29,6 @@ main = do
   w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
   w1 <- makeIce w0
   w2 <- makeCoast w1
-  w3 <- changeTile w2 (1, 1) 7
 
   GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
@@ -37,5 +36,5 @@ main = do
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs w3 win
+    drawScene texs w2 win
     GLFW.swapBuffers win
