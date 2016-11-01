@@ -8,6 +8,8 @@ data Env = Env
   , envWindow     :: !GLFW.Window
   }
 
+data GameS = SWorld | SMenu
+
 data State = State
   { stateWindowWidth  :: !Int
   , stateWindowHeight :: !Int
@@ -15,6 +17,14 @@ data State = State
   , stateDragging     :: !Bool
   , stateDragStartX   :: !Double
   , stateDragStartY   :: !Double
+  , stateMap          :: ![Int]
+  , stateGame         :: !GameS
+  , stateXs           :: [Int]
+  , stateYs           :: [Int]
+  , stateXSizes       :: [Int]
+  , stateYSizes       :: [Int]
+  , stateXRands       :: [Int]
+  , stateYRands       :: [Int]
   }
 
 data Event =

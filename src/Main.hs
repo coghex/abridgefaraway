@@ -7,6 +7,7 @@ import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
 import Data.List (intercalate)
 import Data.Maybe (catMaybes)
 import Text.PrettyPrint
+import System.Random
 
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
@@ -14,6 +15,7 @@ import qualified Graphics.UI.GLFW as GLFW
 
 import GameInit
 import State
+import World
 
 -- Game type
 type Game = RWST Env () State IO
@@ -53,6 +55,8 @@ main = do
     GL.normalize  GL.$= GL.Enabled
 
     (fbWidth, fbHeight) <- GLFW.getFramebufferSize win
+    seed <- newStdGen
+    len <- randomN 1 15
 
     let env = Env
           { envEventsChan      = eventsChan
@@ -65,6 +69,14 @@ main = do
           , stateDragging     = False
           , stateDragStartX   = 0
           , stateDragStartY   = 0
+          , stateMap          = (take (90*120) (repeat 5))
+          , stateGame         = SWorld
+          , stateXs           = (randomList (0, 90::Int) len seed)
+          , stateYs           = (randomList (0,120::Int) len seed)
+          , stateXSizes       = (randomList (5, 15::Int) len seed)
+          , stateYSizes       = (randomList (6, 16::Int) len seed)
+          , stateXRands       = (randomList (1, 89::Int) len seed)
+          , stateYRands       = (randomList (2, 88::Int) len seed)
           }
     -- run game
     runGame env state
