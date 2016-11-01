@@ -65,18 +65,6 @@ buildMap m []           = m
 buildMap m ((a, b, c, d, e, f, g, h):xs) = do
   buildMap (seedWorld a b c d h g e f m) xs
 
-makeState :: WorldArgs -> IO WorldArgs
-makeState (WorldArgs pos ran siz m win texs) = do
-  m2 <- makeCoords m pos siz
-  let x = WorldArgs pos ran siz m2 win texs
-  return x
-
-makeCoords :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> IO ([Int])
-makeCoords m []     _      = return m
-makeCoords m (l:ls) (k:ks) = do
-  m2 <- buildWorld m (fst k) (snd k) (fst l) (snd l)
-  makeCoords m2 ls ks
-
 isCoast :: [([(Int, Int)], Int)] -> Int -> Int -> Int -> Bool
 isCoast _ 0 _ _    = False
 isCoast _ 1 _ _    = False
@@ -138,6 +126,18 @@ makeIce (WorldArgs pos ran siz m win texs)  = do
   let map1 = stripMap map0a
   let map2 = flattenMap map1
   return (WorldArgs pos ran siz map2 win texs)
+
+makeState :: WorldArgs -> IO WorldArgs
+makeState (WorldArgs pos ran siz m win texs) = do
+  m2 <- makeCoords m pos (ran !! 0) siz
+  let x = WorldArgs pos ran siz m2 win texs
+  return x
+
+makeCoords :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> IO ([Int])
+makeCoords m []     _      _      = return m
+makeCoords m (l:ls) (j:js) (k:ks) = do
+  m2 <- buildWorld m (fst k) (snd k) (fst l) (snd l)
+  makeCoords m2 ls js ks
 
 buildWorld :: [Int] -> Int -> Int -> Int -> Int -> IO ([Int])
 buildWorld m s1 s2 y1 y2 = do
