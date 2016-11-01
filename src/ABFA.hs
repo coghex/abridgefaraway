@@ -1,5 +1,6 @@
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Data.ByteString.Internal as BSI
+import Graphics.GL
 import System.Exit ( exitWith, ExitCode(..) )
 import Control.Monad ( forever )
 import Control.Monad.State
@@ -10,6 +11,7 @@ import GLinit
 import GLloop
 import World
 import Settings
+import State
 
 main :: IO ()
 main = do
@@ -18,6 +20,7 @@ main = do
   Just win <- GLFW.createWindow pixelsw pixelsh "A Bridge Far Away..." Nothing Nothing
   GLFW.makeContextCurrent (Just win)
   texs <- initGL win
+
   seed <- newStdGen
   len <- randomN 1 15
   let xargs = randomList (0, maph) len seed
@@ -26,6 +29,7 @@ main = do
   let ysize = randomList (6, 16::Int) len seed
 
   let emptymap = take (maph*mapw) (repeat 5);
+  let w = packArgs xargs yargs xsize ysize emptymap win texs
   w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
   w1 <- makeIce w0
   w2 <- makeCoast w1
