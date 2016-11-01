@@ -6,7 +6,7 @@ import Graphics.GL
 data WorldArgs = WorldArgs { posArgs :: [(Int, Int)]
                            , ranArgs :: [(Int, Int)]
                            , sizArgs :: [(Int, Int)]
-                           , map :: [Int]
+                           , themap :: [Int]
                            , win :: GLFW.Window
                            , texs :: [GLuint]
                            }

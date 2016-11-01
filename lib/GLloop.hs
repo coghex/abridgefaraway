@@ -8,6 +8,7 @@ import Control.Monad.Identity (runIdentity)
 import World
 import Data.List.Split
 import Settings
+import State
 
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ()) 
@@ -58,8 +59,8 @@ drawTile texs x y t = do
   glEnd
   -- glFlush
 
-drawScene :: [GLuint] -> [Int] -> GLFW.Window -> IO ()
-drawScene texs mmap win = do
+drawScene :: WorldArgs -> GLFW.Window -> IO ()
+drawScene (WorldArgs pos ran siz mmap win texs) w = do
   let mapexp = chunksOf mapw mmap
   let mapnew = zip (map workRows mapexp) [0..maph]
   sceneSetup 0

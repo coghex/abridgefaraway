@@ -4,6 +4,7 @@ import Language.Haskell.Interpreter
 import Data.List.Split
 import Control.Monad
 import Settings
+import State
 
 addn      :: Int -> Int -> Int
 addn n x  =  x + n
@@ -64,6 +65,12 @@ buildMap m []           = m
 buildMap m ((a, b, c, d, e, f, g, h):xs) = do
   buildMap (seedWorld a b c d h g e f m) xs
 
+makeState :: WorldArgs -> IO WorldArgs
+makeState (WorldArgs pos ran siz m win texs) = do
+  m2 <- makeCoords m pos siz
+  let x = WorldArgs pos ran siz m2 win texs
+  return x
+
 makeCoords :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> IO ([Int])
 makeCoords m []     _      = return m
 makeCoords m (l:ls) (k:ks) = do
@@ -108,17 +115,17 @@ makeRiver l s = do
 
   return map2
 
-makeCoast :: [Int] -> IO [Int]
-makeCoast m = do
+makeCoast :: WorldArgs -> IO WorldArgs
+makeCoast (WorldArgs pos ran siz m win texs) = do
   let mapexp = chunksOf mapw m
   let mapnew = zip (map workRows mapexp) [0..maph]
   let map0 = map (buildCoast mapnew) mapnew
   let map1 = stripMap map0
   let map2 = flattenMap map1
-  return map2
+  return (WorldArgs pos ran siz map2 win texs)
 
-makeIce :: [Int] -> IO [Int]
-makeIce m = do
+makeIce :: WorldArgs -> IO WorldArgs
+makeIce (WorldArgs pos ran siz m win texs)  = do
   let mapexp = chunksOf mapw m
   let mapnew = zip (map workRows mapexp) [0..maph]
   mapsize <- randomN 250 500
@@ -130,7 +137,7 @@ makeIce m = do
   let map0a = buildMap map0 y
   let map1 = stripMap map0a
   let map2 = flattenMap map1
-  return map2
+  return (WorldArgs pos ran siz map2 win texs)
 
 buildWorld :: [Int] -> Int -> Int -> Int -> Int -> IO ([Int])
 buildWorld m s1 s2 y1 y2 = do

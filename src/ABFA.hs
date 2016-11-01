@@ -30,15 +30,17 @@ main = do
 
   let emptymap = take (maph*mapw) (repeat 5);
   let w = packArgs xargs yargs xsize ysize emptymap win texs
-  w0 <- makeCoords emptymap (zip xargs yargs) (zip xsize ysize)
-  w1 <- makeIce w0
-  w2 <- makeCoast w1
+  w1 <- makeState w
+  w2 <- makeIce w1
+  w3 <- makeCoast w2
 
-  GLFW.setWindowRefreshCallback win (Just (drawScene texs emptymap))
+  let w0 = themap w3
+
+  GLFW.setWindowRefreshCallback win (Just (drawScene w3))
   GLFW.setFramebufferSizeCallback win (Just resizeScene)
   GLFW.setKeyCallback win (Just keyPressed)
   GLFW.setWindowCloseCallback win (Just shutdown)
   forever $ do
     GLFW.pollEvents
-    drawScene texs w2 win
+    drawScene w3 win
     GLFW.swapBuffers win
