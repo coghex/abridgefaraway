@@ -1,7 +1,7 @@
 module GLinit where
 
-import Graphics.Rendering.OpenGL.Raw
-import Graphics.Rendering.GLU.Raw
+import Graphics.GL
+import Graphics.GLU
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Data.ByteString.Internal as BSI
 import System.Exit ( exitWith, ExitCode(..) )
@@ -11,13 +11,13 @@ import Paths
 
 initGL :: GLFW.Window -> IO [GLuint]
 initGL win = do
-  glEnable gl_TEXTURE_2D
-  glShadeModel gl_SMOOTH
+  glEnable GL_TEXTURE_2D
+  glShadeModel GL_SMOOTH
   glClearColor 0 0 0 0
   glClearDepth 1
-  glEnable gl_DEPTH_TEST
-  glDepthFunc gl_LEQUAL
-  glHint gl_PERSPECTIVE_CORRECTION_HINT gl_NICEST
+  glEnable GL_DEPTH_TEST
+  glDepthFunc GL_LEQUAL
+  glHint GL_PERSPECTIVE_CORRECTION_HINT GL_NICEST
   (w, h) <- GLFW.getFramebufferSize win
   resizeScene win w h
   loadWTextures "maps/"
@@ -46,23 +46,23 @@ loadGLTextures fn = do
   let (ptr, off, _) = BSI.toForeignPtr pd
   withForeignPtr ptr $ \p -> do
     let p' = p `plusPtr` off
-    glBindTexture gl_TEXTURE_2D tex
-    glTexImage2D gl_TEXTURE_2D 0 3
-      (fromIntegral w) (fromIntegral h) 0 gl_RGB gl_UNSIGNED_BYTE
+    glBindTexture GL_TEXTURE_2D tex
+    glTexImage2D GL_TEXTURE_2D 0 3
+      (fromIntegral w) (fromIntegral h) 0 GL_RGB GL_UNSIGNED_BYTE
       p'
-    let glLinear = fromIntegral gl_LINEAR
-    glTexParameteri gl_TEXTURE_2D gl_TEXTURE_MIN_FILTER glLinear
-    glTexParameteri gl_TEXTURE_2D gl_TEXTURE_MAG_FILTER glLinear
+    let glLinear = fromIntegral GL_LINEAR
+    glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER glLinear
+    glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER glLinear
   return tex
 
 resizeScene :: GLFW.WindowSizeCallback
 resizeScene win w     0      = resizeScene win w 1
 resizeScene _   width height = do
   glViewport 0 0 (fromIntegral width) (fromIntegral height)
-  glMatrixMode gl_PROJECTION
+  glMatrixMode GL_PROJECTION
   glLoadIdentity
   gluPerspective 45 (fromIntegral width/fromIntegral height) 0.1 500
-  glMatrixMode gl_MODELVIEW
+  glMatrixMode GL_MODELVIEW
   glLoadIdentity
   glFlush
 

@@ -14,19 +14,26 @@
   (major1) == 1 && (major2) <  4 || \
   (major1) == 1 && (major2) == 4 && (minor) <= 8)
 
-/* package GLURaw-1.4.0.2 */
-#define VERSION_GLURaw "1.4.0.2"
+/* package GLURaw-2.0.0.2 */
+#define VERSION_GLURaw "2.0.0.2"
 #define MIN_VERSION_GLURaw(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  4 || \
-  (major1) == 1 && (major2) == 4 && (minor) <= 0)
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  0 || \
+  (major1) == 2 && (major2) == 0 && (minor) <= 0)
 
-/* package OpenGLRaw-1.5.0.1 */
-#define VERSION_OpenGLRaw "1.5.0.1"
+/* package OpenGL-3.0.1.0 */
+#define VERSION_OpenGL "3.0.1.0"
+#define MIN_VERSION_OpenGL(major1,major2,minor) (\
+  (major1) <  3 || \
+  (major1) == 3 && (major2) <  0 || \
+  (major1) == 3 && (major2) == 0 && (minor) <= 1)
+
+/* package OpenGLRaw-3.2.3.0 */
+#define VERSION_OpenGLRaw "3.2.3.0"
 #define MIN_VERSION_OpenGLRaw(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  5 || \
-  (major1) == 1 && (major2) == 5 && (minor) <= 0)
+  (major1) <  3 || \
+  (major1) == 3 && (major2) <  2 || \
+  (major1) == 3 && (major2) == 2 && (minor) <= 3)
 
 /* package base-4.9.0.0 */
 #define VERSION_base "4.9.0.0"

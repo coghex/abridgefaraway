@@ -1,7 +1,7 @@
 module GLloop where
 
-import Graphics.Rendering.OpenGL.Raw
-import Graphics.Rendering.GLU.Raw
+import Graphics.GL
+import Graphics.GLU
 import qualified Graphics.UI.GLFW as GLFW
 import Data.Bits ( (.|.) )
 import Control.Monad.Identity (runIdentity)
@@ -14,8 +14,8 @@ resequence_ = foldr (>>) (return ())
 
 sceneSetup :: Int -> IO ()
 sceneSetup x = do
-  glClear $ fromIntegral  $  gl_COLOR_BUFFER_BIT
-                         .|. gl_DEPTH_BUFFER_BIT
+  glClear $ fromIntegral  $  GL_COLOR_BUFFER_BIT
+                         .|. GL_DEPTH_BUFFER_BIT
   --glLoadIdentity
 
 drawWorld :: [GLuint] -> [([(Int, Int)], Int)] -> [IO()]
@@ -36,8 +36,8 @@ drawTile texs x y t = do
   glLoadIdentity  -- reset view
 
   glTranslatef ((fromIntegral x)-60) ((fromIntegral y)-45) (-200.0)
-  glBindTexture gl_TEXTURE_2D (texs!!t)
-  glBegin gl_QUADS
+  glBindTexture GL_TEXTURE_2D (texs!!t)
+  glBegin GL_QUADS
   glTexCoord2f   0    0
   glVertex3f   (-1) (-1)    1  -- bottom left of quad (Front)
   glTexCoord2f   1    0
