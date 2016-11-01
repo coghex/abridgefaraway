@@ -12,42 +12,11 @@ import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
 import qualified Graphics.UI.GLFW as GLFW
 
--- enviornmental variables
-data Env = Env
-  { envEventsChan    :: TQueue Event
-  , envWindow        :: !GLFW.Window
-  }
-
--- current state
-data State = State
-  { stateWindowWidth      :: !Int
-  , stateWindowHeight     :: !Int
-  , stateMouseDown        :: !Bool
-  , stateDragging         :: !Bool
-  , stateDragStartX       :: !Double
-  , stateDragStartY       :: !Double
-  }
+import GameInit
+import State
 
 -- Game type
 type Game = RWST Env () State IO
-
--- Events that we can process
-data Event =
-    EventError           !GLFW.Error !String
-  | EventWindowPos       !GLFW.Window !Int !Int
-  | EventWindowSize      !GLFW.Window !Int !Int
-  | EventWindowClose     !GLFW.Window
-  | EventWindowRefresh   !GLFW.Window
-  | EventWindowFocus     !GLFW.Window !GLFW.FocusState
-  | EventWindowIconify   !GLFW.Window !GLFW.IconifyState
-  | EventFramebufferSize !GLFW.Window !Int !Int
-  | EventMouseButton     !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
-  | EventCursorPos       !GLFW.Window !Double !Double
-  | EventCursorEnter     !GLFW.Window !GLFW.CursorState
-  | EventScroll          !GLFW.Window !Double !Double
-  | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
-  | EventChar            !GLFW.Window !Char
-  deriving Show
 
 -- main function
 main :: IO ()
@@ -57,7 +26,6 @@ main = do
 
   -- event queue
   eventsChan <- newTQueueIO :: IO (TQueue Event)
-
   -- create window
   withWindow screenw screenh "A Bridge Far Away..." $ \win -> do
     GLFW.setErrorCallback                             $ Just $ errorCallback           eventsChan
@@ -76,6 +44,13 @@ main = do
     GLFW.setCharCallback                          win $ Just $ charCallback            eventsChan
 
     GLFW.swapInterval 1
+    GL.position (GL.Light 0) GL.$= GL.Vertex4 5 5 10 0
+    GL.light    (GL.Light 0) GL.$= GL.Enabled
+    GL.lighting   GL.$= GL.Enabled
+    GL.cullFace   GL.$= Just GL.Back
+    GL.depthFunc  GL.$= Just GL.Less
+    GL.clearColor GL.$= GL.Color4 0.05 0.05 0.05 1
+    GL.normalize  GL.$= GL.Enabled
 
     (fbWidth, fbHeight) <- GLFW.getFramebufferSize win
 
@@ -152,6 +127,7 @@ runGame :: Env -> State -> IO ()
 runGame env state = do
   printInstructions
   -- this is where we GLinit stuff
+  gameInit env state
   void $ evalRWST (adjustWindow >> run) env state
 
 
@@ -159,7 +135,7 @@ runGame env state = do
 run :: Game ()
 run = do
   win <- asks envWindow
-  -- here is where we draw stuff
+  -- here is where we draw stuff (remember liftIO)
   liftIO $ do
     GLFW.swapBuffers win
     GL.flush
