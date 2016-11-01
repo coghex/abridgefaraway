@@ -18,9 +18,6 @@ initGLTexs win = do
   glClearDepth 1
   glEnable GL_DEPTH_TEST
   glDepthFunc GL_LEQUAL
-  glHint GL_PERSPECTIVE_CORRECTION_HINT GL_NICEST
-  (w, h) <- GLFW.getFramebufferSize win
-  resizeScene win w h
   loadWTextures "maps/"
 
 loadWTextures :: String -> IO [GLuint]
