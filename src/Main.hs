@@ -20,22 +20,7 @@ import qualified Graphics.UI.GLFW as GLFW
 
 import World
 import Util
-
-data Env = Env
-    { envEventsChan   :: TQueue Event
-    , envWindow       :: !GLFW.Window
-    , envGridWidth    :: !Int
-    , envGridHeight   :: !Int
-    }
-
-data State = State
-    { stateGrid :: ![Int]
-    , stateTexs :: ![GL.GLuint]
-    }
-
-data Event =
-      EventError !GLFW.Error !String
-    | EventKey   !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
+import State
 
 -- Game type
 type Game = RWST Env () State IO
@@ -60,7 +45,8 @@ main = do
         GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
         GLFW.swapInterval 0
  
-  --      init2DGL screenw screenh
+        len <- randomN 1 15
+        seed <- newStdGen
         texs <- liftIO $ initTexs window
         let env = Env
                 { envEventsChan   = eventsChan
@@ -69,8 +55,15 @@ main = do
                 , envGridHeight   = gridh
                 }
             state = State
-                { stateGrid = []
-                , stateTexs = texs
+                { stateGrid = (take (90*120) (repeat 5))
+                , stateTexs         = texs
+                , stateGame         = SWorld
+                , stateXs           = (randomList (0,120::Int) len seed)
+                , stateYs           = (randomList (0, 90::Int) len seed)
+                , stateXSizes       = (randomList (5, 15::Int) len seed)
+                , stateYSizes       = (randomList (6, 16::Int) len seed)
+                , stateXRands       = (randomList (1,119::Int) len seed)
+                , stateYRands       = (randomList (2, 88::Int) len seed)
                 }
         void $ evalRWST run env state
 
@@ -94,19 +87,17 @@ myPoints = [ (sin (2*pi*k/4), cos (2*pi*k/4), 0) | k <- [1..4] ]
 draw :: Game ()
 draw = do
   state <- get
+  env   <- ask
   liftIO $ do
     GL.clear [GL.ColorBuffer]
     sceneSetup
-    drawTile (stateTexs state) 0 0 1
+    --drawTile (stateTexs state) 1 1 1
+    --GL.translate (GL.Vector3 60.0 45.0 0.0 :: GL.Vector3 GL.GLfloat)
+    drawScene state (envWindow env)
     --GL.renderPrimitive GL.Points $
     --  mapM_ (\(x, y, z) -> GL.vertex $ GL.Vertex3 x y z) myPoints 
     GL.flush
 
---init2DGL w h = do
-  --GL.matrixMode GL.$= GL.Projection
-  --GL.loadIdentity
-  --GLU.ortho2D 0.0 (1600) 0.0 (1200)
-  --GL.translate (GL.Vector3 60.0 45.0 0.0 :: GL.Vector3 GL.GLfloat)
    
 errorCallback :: TQueue Event -> GLFW.Error -> String -> IO ()
 errorCallback tc e s            = atomically $ writeTQueue tc $ EventError e s
