@@ -24,6 +24,8 @@ data State = State
     , stateXRands     :: ![Int]
     , stateYRands     :: ![Int]
     , stateSeeds      :: ![Int]
+    , stateIceXRands  :: ![Int]
+    , stateIceYRands  :: ![Int]
     }
 
 data Event =

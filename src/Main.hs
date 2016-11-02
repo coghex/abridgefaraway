@@ -45,7 +45,7 @@ main = do
         GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
         GLFW.swapInterval 0
  
-        len <- randomN 1 15
+        len <- randomN 200 1000
         seed <- newStdGen
         texs <- liftIO $ initTexs window
         let l = (take (90*120) (repeat 5))
@@ -61,11 +61,13 @@ main = do
                 , stateGame         = SWorld
                 , stateXs           = (randomList (0, 90::Int) len seed)
                 , stateYs           = (randomList (0,120::Int) len seed)
-                , stateXSizes       = (randomList (10, 15::Int) len seed)
-                , stateYSizes       = (randomList (11, 16::Int) len seed)
+                , stateXSizes       = (randomList (10, 35::Int) len seed)
+                , stateYSizes       = (randomList (11, 34::Int) len seed)
                 , stateXRands       = (randomList (1, 88::Int) len seed)
                 , stateYRands       = (randomList (2,119::Int) len seed)
                 , stateSeeds        = (randomList (0,  7::Int) len seed)
+                , stateIceXRands    = (randomList (1,118::Int) len seed)
+                , stateIceYRands    = (randomList (0, 10::Int) len seed)
                 }
 
         let state2 = buildMap state

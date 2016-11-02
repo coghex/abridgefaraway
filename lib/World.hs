@@ -106,6 +106,7 @@ seedRow x y xsiz ysiz xran yran tile m = do
 seedWorld :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
 seedWorld _ _ _    _    _    _    4    m = m
 seedWorld _ _ _    _    _    _    6    m = m
+seedWorld _ _ _    _    _    _    7    m = m
 seedWorld x y xsiz ysiz xran yran tile m = do
   map (seedRow x y xsiz ysiz xran yran tile) m
 
@@ -134,9 +135,12 @@ buildMap state = do
   let xran = stateXRands state
   let yran = stateYRands state
   let ssed = stateSeeds state
+  let ixr = stateIceXRands state
+  let iyr = stateIceYRands state
   let l = seedMap texs grid xs ys xsiz ysiz xran yran ssed
+  let l2 = iceMap l xran yran xsiz ysiz ixr iyr
   State
-    { stateGrid      = l
+    { stateGrid      = l2
     , stateTexs      = texs
     , stateGame      = SWorld
     , stateXs        = xs
@@ -146,7 +150,19 @@ buildMap state = do
     , stateXRands    = xran
     , stateYRands    = yran
     , stateSeeds     = ssed
+    , stateIceXRands = ixr
+    , stateIceYRands = iyr
     }
+
+iceMap :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+iceMap l xran yran xsiz ysiz ixr iyr = do
+  let mapexp = chunksOf 120 l
+  let mapnew = zip (map workRows mapexp) [0..90]
+  --let x = buildList (ixr, iyr, xsiz, ysiz, xran, yran, (take 6 (repeat (length ixr))))
+  --let map0 = buildWorld mapnew x
+  let map1 = stripMap mapnew
+  let map2 = flattenMap map1
+  map2
 
 randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
 randomList bnds n = take n . randomRs bnds
