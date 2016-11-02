@@ -112,6 +112,13 @@
   (major1) == 2 && (major2) <  4 || \
   (major1) == 2 && (major2) == 4 && (minor) <= 4)
 
+/* package time-1.6.0.1 */
+#define VERSION_time "1.6.0.1"
+#define MIN_VERSION_time(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  6 || \
+  (major1) == 1 && (major2) == 6 && (minor) <= 0)
+
 /* package transformers-0.5.2.0 */
 #define VERSION_transformers "0.5.2.0"
 #define MIN_VERSION_transformers(major1,major2,minor) (\
