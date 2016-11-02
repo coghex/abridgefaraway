@@ -59,13 +59,13 @@ main = do
                 { stateGrid         = l
                 , stateTexs         = texs
                 , stateGame         = SWorld
-                , stateXs           = (randomList (0,120::Int) len seed)
-                , stateYs           = (randomList (0, 90::Int) len seed)
-                , stateXSizes       = (randomList (5, 15::Int) len seed)
-                , stateYSizes       = (randomList (6, 16::Int) len seed)
-                , stateXRands       = (randomList (1,119::Int) len seed)
-                , stateYRands       = (randomList (2, 88::Int) len seed)
-                , stateSeeds        = (randomList (0, 7::Int) len seed)
+                , stateXs           = (randomList (0, 90::Int) len seed)
+                , stateYs           = (randomList (0,120::Int) len seed)
+                , stateXSizes       = (randomList (10, 15::Int) len seed)
+                , stateYSizes       = (randomList (11, 16::Int) len seed)
+                , stateXRands       = (randomList (1, 88::Int) len seed)
+                , stateYRands       = (randomList (2,119::Int) len seed)
+                , stateSeeds        = (randomList (0,  7::Int) len seed)
                 }
 
         let state2 = buildMap state

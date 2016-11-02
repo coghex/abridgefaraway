@@ -41,7 +41,7 @@ distance tile a b x1 y1 x2 y2 = do
   let t = tile+1
   let p1 = ((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1))
   let p2 = ((x2-a)*(x2-a))+((y2-b)*(y2-b))
-  p1*p2*t*t
+  p1*p2*t
 
 drawWorld :: [GLuint] -> [([(Int, Int)], Int)] -> [IO()]
 drawWorld texs m = map (drawRow texs) m
@@ -96,7 +96,7 @@ seedTile _ _ _    _    _    _    _    2  (a, i) = (7, i)
 seedTile _ _ _    _    _    _    _    88 (a, i) = (7, i)
 seedTile _ _ _    _    _    _    _    89 (a, i) = (7, i)
 seedTile x y xsiz ysiz xran yran tile j  m
-  | (distance tile x y xran yran j (snd m) <= (500*xsiz*ysiz)) = (tile, (snd m))
+  | (distance tile xran yran x y j (snd m) <= (100*xsiz*ysiz)) = (tile, (snd m))
   | otherwise                                           = ((fst m), (snd m))
 
 seedRow :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
@@ -170,4 +170,3 @@ changeTile m (x, y) t = do
   let map1 = stripMap map0
   let map2 = flattenMap map1
   map2
-
