@@ -18,6 +18,9 @@ import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
 import qualified Graphics.UI.GLFW as GLFW
 
+import World
+import Util
+
 data Env = Env
     { envEventsChan   :: TQueue Event
     , envWindow       :: !GLFW.Window
@@ -27,6 +30,7 @@ data Env = Env
 
 data State = State
     { stateGrid :: ![Int]
+    , stateTexs :: ![GL.GLuint]
     }
 
 data Event =
@@ -51,11 +55,13 @@ main = do
   eventsChan <- newTQueueIO :: IO (TQueue Event)
   runOnAllCores
 
-  withWindow screenw screenh "Game of Life" $ \window -> do
+  withWindow screenw screenh "A Bridge Far Away..." $ \window -> do
         GLFW.setErrorCallback        $ Just $ errorCallback eventsChan
         GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
         GLFW.swapInterval 0
-        init2DGL gridw gridh
+ 
+  --      init2DGL screenw screenh
+        texs <- liftIO $ initTexs window
         let env = Env
                 { envEventsChan   = eventsChan
                 , envWindow       = window
@@ -64,6 +70,7 @@ main = do
                 }
             state = State
                 { stateGrid = []
+                , stateTexs = texs
                 }
         void $ evalRWST run env state
 
@@ -82,23 +89,24 @@ run = timedLoop $ \lastTick tick -> do
     liftIO $ not <$> GLFW.windowShouldClose window
 
 myPoints :: [(GL.GLfloat,GL.GLfloat,GL.GLfloat)]
-myPoints = [ (sin (2*pi*k/12), cos (2*pi*k/12), 0) | k <- [1..12] ]
+myPoints = [ (sin (2*pi*k/4), cos (2*pi*k/4), 0) | k <- [1..4] ]
 
 draw :: Game ()
 draw = do
+  state <- get
   liftIO $ do
     GL.clear [GL.ColorBuffer]
-    GL.windowPos (GL.Vertex2 0 0 :: GL.Vertex2 GL.GLint)
-    GL.renderPrimitive GL.Triangles $
-      mapM_ (\(x, y, z) -> GL.vertex $ GL.Vertex3 (10*x) (10*y) z) myPoints
+    sceneSetup
+    drawTile (stateTexs state) 0 0 1
+    --GL.renderPrimitive GL.Points $
+    --  mapM_ (\(x, y, z) -> GL.vertex $ GL.Vertex3 x y z) myPoints 
     GL.flush
 
-init2DGL :: Int -> Int -> IO ()
-init2DGL w h = do
-  GL.matrixMode GL.$= GL.Projection
-  GL.loadIdentity
-  GLU.ortho2D 0.0 (fromIntegral w) 0.0 (fromIntegral h)
-  GL.translate (GL.Vector3 60.0 45.0 0.0 :: GL.Vector3 GL.GLfloat)
+--init2DGL w h = do
+  --GL.matrixMode GL.$= GL.Projection
+  --GL.loadIdentity
+  --GLU.ortho2D 0.0 (1600) 0.0 (1200)
+  --GL.translate (GL.Vector3 60.0 45.0 0.0 :: GL.Vector3 GL.GLfloat)
    
 errorCallback :: TQueue Event -> GLFW.Error -> String -> IO ()
 errorCallback tc e s            = atomically $ writeTQueue tc $ EventError e s
