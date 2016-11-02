@@ -23,6 +23,7 @@ data State = State
     , stateYSizes     :: ![Int]
     , stateXRands     :: ![Int]
     , stateYRands     :: ![Int]
+    , stateSeeds      :: ![Int]
     }
 
 data Event =

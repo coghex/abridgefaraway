@@ -48,7 +48,9 @@ loadWTextures fn = do
   t4 <- loadGLTextures (fn ++ "beach/worldbeach.bmp")
   t5 <- loadGLTextures (fn ++ "imp/worldimp.bmp")
   t6 <- loadGLTextures (fn ++ "sea/worldsea.bmp")
-  return [t1, t2, t3, t4, t5, t6]
+  t7 <- loadGLTextures (fn ++ "sea/worldcoast.bmp")
+  t8 <- loadGLTextures (fn ++ "sea/worldice.bmp")
+  return [t1, t2, t3, t4, t5, t6, t7, t8]
 
 loadGLTextures :: String -> IO GLuint
 loadGLTextures fn = do

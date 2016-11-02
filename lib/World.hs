@@ -25,6 +25,17 @@ workRows l = do
 expandMap :: [Int] -> [([(Int, Int)], Int)]
 expandMap m = zip (map workRows (chunksOf 120 m)) [0..90]
 
+flattenMap :: [[Int]] -> [Int]
+flattenMap xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
+
+stripRow :: [(Int, Int)] -> [Int]
+stripRow ((a,b):ys) = a : stripRow ys
+stripRow _          = []
+
+stripMap :: [([(Int, Int)], Int)] -> [[Int]]
+stripMap ((a,b):ys) = (stripRow a) : stripMap ys
+stripMap _          = [[]]
+
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance tile a b x1 y1 x2 y2 = do
   let t = tile+1
@@ -74,9 +85,89 @@ drawScene state win = do
   resequence_ (drawWorld (stateTexs state) mapnew)
   glFlush
 
+buildList :: ([a], [a], [a], [a], [a], [a], [a]) -> [(a, a, a, a, a, a, a)]
+buildList ([], [], [], [], [], [], []) = []
+buildList (a:as, b:bs, c:cs, d:ds, e:es, f:fs, g:gs) = [(a, b, c, d, e, f, g)] ++ buildList (as, bs, cs, ds, es, fs, gs)
+
+seedTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+seedTile _ _ _    _    _    _    _    0  (a, i) = (7, i)
+seedTile _ _ _    _    _    _    _    1  (a, i) = (7, i)
+seedTile _ _ _    _    _    _    _    2  (a, i) = (7, i)
+seedTile _ _ _    _    _    _    _    88 (a, i) = (7, i)
+seedTile _ _ _    _    _    _    _    89 (a, i) = (7, i)
+seedTile x y xsiz ysiz xran yran tile j  m
+  | (distance tile x y xran yran j (snd m) <= (500*xsiz*ysiz)) = (tile, (snd m))
+  | otherwise                                           = ((fst m), (snd m))
+
+seedRow :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+seedRow x y xsiz ysiz xran yran tile m = do
+  (map (seedTile x y xsiz ysiz xran yran tile (snd m)) (fst m), (snd m))
+
+seedWorld :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
+seedWorld _ _ _    _    _    _    4    m = m
+seedWorld _ _ _    _    _    _    6    m = m
+seedWorld x y xsiz ysiz xran yran tile m = do
+  map (seedRow x y xsiz ysiz xran yran tile) m
+
+buildWorld :: [([(Int, Int)], Int)] -> [(Int, Int, Int, Int, Int, Int, Int)] -> [([(Int, Int)], Int)]
+buildWorld m []           = m
+buildWorld m ((x, y, xsiz, ysiz, xran, yran, tile):xs) = do
+  buildWorld (seedWorld x y xsiz ysiz xran yran tile m) xs
+
+seedMap :: [GLuint] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+seedMap texs l xs ys xsiz ysiz xran yran tile = do
+  let x = buildList (xs, ys, xsiz, ysiz, xran, yran, tile)
+  let mapexp = expandMap l
+  let map2 = buildWorld mapexp x
+  let map3 = stripMap map2
+  let map4 = flattenMap map3
+  map4
+
+buildMap :: State -> State
+buildMap state = do
+  let texs = stateTexs state
+  let grid = stateGrid state
+  let xs = stateXs state
+  let ys = stateYs state
+  let xsiz = stateXSizes state
+  let ysiz = stateYSizes state
+  let xran = stateXRands state
+  let yran = stateYRands state
+  let ssed = stateSeeds state
+  let l = seedMap texs grid xs ys xsiz ysiz xran yran ssed
+  State
+    { stateGrid      = l
+    , stateTexs      = texs
+    , stateGame      = SWorld
+    , stateXs        = xs
+    , stateYs        = ys
+    , stateXSizes    = xsiz
+    , stateYSizes    = ysiz
+    , stateXRands    = xran
+    , stateYRands    = yran
+    , stateSeeds     = ssed
+    }
+
 randomList :: (Random a) => (a,a) -> Int -> StdGen -> [a]
 randomList bnds n = take n . randomRs bnds
 
 randomN :: Int -> Int -> IO Int
 randomN min max = do
   getStdRandom $ randomR(min, max)
+
+changeSpot :: Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+changeSpot x y j t (a, i) | ((x==i) && (y==j)) = (t, i)
+                          | otherwise          = (a, i)
+
+changeRow :: Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+changeRow x y t m = ((map (changeSpot x y (snd m) t) (fst m)), (snd m))
+
+changeTile :: [Int] -> (Int, Int) -> Int -> [Int]
+changeTile m (x, y) t = do
+  let mapexp = chunksOf 120 m
+  let mapnew = zip (map workRows mapexp) [0..90]
+  let map0 = map (changeRow x y t) mapnew
+  let map1 = stripMap map0
+  let map2 = flattenMap map1
+  map2
+

@@ -48,6 +48,7 @@ main = do
         len <- randomN 1 15
         seed <- newStdGen
         texs <- liftIO $ initTexs window
+        let l = (take (90*120) (repeat 5))
         let env = Env
                 { envEventsChan   = eventsChan
                 , envWindow       = window
@@ -55,7 +56,7 @@ main = do
                 , envGridHeight   = gridh
                 }
             state = State
-                { stateGrid = (take (90*120) (repeat 5))
+                { stateGrid         = l
                 , stateTexs         = texs
                 , stateGame         = SWorld
                 , stateXs           = (randomList (0,120::Int) len seed)
@@ -64,8 +65,14 @@ main = do
                 , stateYSizes       = (randomList (6, 16::Int) len seed)
                 , stateXRands       = (randomList (1,119::Int) len seed)
                 , stateYRands       = (randomList (2, 88::Int) len seed)
+                , stateSeeds        = (randomList (0, 7::Int) len seed)
                 }
-        void $ evalRWST run env state
+
+        let state2 = buildMap state
+        print $ stateXs state
+        --print $ liftIO $ l
+        
+        void $ evalRWST run env state2
 
 run :: Game ()
 run = timedLoop $ \lastTick tick -> do
