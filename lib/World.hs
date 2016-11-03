@@ -106,7 +106,7 @@ seedRow x y xsiz ysiz xran yran tile m = do
 seedWorld :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
 seedWorld _ _ _    _    _    _    4    m = m
 seedWorld _ _ _    _    _    _    6    m = m
-seedWorld _ _ _    _    _    _    7    m = m
+--seedWorld _ _ _    _    _    _    7    m = m
 seedWorld x y xsiz ysiz xran yran tile m = do
   map (seedRow x y xsiz ysiz xran yran tile) m
 
@@ -135,32 +135,54 @@ buildMap state = do
   let xran = stateXRands state
   let yran = stateYRands state
   let ssed = stateSeeds state
-  let ixr = stateIceXRands state
-  let iyr = stateIceYRands state
+  let nixs = stateNIceXs state
+  let niys = stateNIceYs state
+  let sixs = stateSIceXs state
+  let siys = stateSIceYs state
+  let nisx = stateNIceSizeX state
+  let nisy = stateNIceSizeY state
+  let sisx = stateSIceSizeX state
+  let sisy = stateSIceSizeY state
+  let nixr = stateNIceXRands state
+  let niyr = stateNIceYRands state
+  let sixr = stateSIceXRands state
+  let siyr = stateSIceYRands state
+  let il = stateIList state
   let l = seedMap texs grid xs ys xsiz ysiz xran yran ssed
-  let l2 = iceMap l xran yran xsiz ysiz ixr iyr
+  let l2 = iceMap l sixr siyr sixs siys sisx sisy il
   State
-    { stateGrid      = l2
-    , stateTexs      = texs
-    , stateGame      = SWorld
-    , stateXs        = xs
-    , stateYs        = ys
-    , stateXSizes    = xsiz
-    , stateYSizes    = ysiz
-    , stateXRands    = xran
-    , stateYRands    = yran
-    , stateSeeds     = ssed
-    , stateIceXRands = ixr
-    , stateIceYRands = iyr
+    { stateGrid       = l2
+    , stateTexs       = texs
+    , stateGame       = SWorld
+    , stateXs         = xs
+    , stateYs         = ys
+    , stateXSizes     = xsiz
+    , stateYSizes     = ysiz
+    , stateXRands     = xran
+    , stateYRands     = yran
+    , stateSeeds      = ssed
+    , stateNIceXs     = nixs
+    , stateNIceYs     = niys
+    , stateSIceXs     = sixs
+    , stateSIceYs     = siys
+    , stateNIceSizeX  = nisx
+    , stateNIceSizeY  = nisy
+    , stateSIceSizeX  = sisx
+    , stateSIceSizeY  = sisy
+    , stateNIceXRands = nixr
+    , stateNIceYRands = niyr
+    , stateSIceXRands = sixr
+    , stateSIceYRands = siyr
+    , stateIList      = il
     }
 
-iceMap :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
-iceMap l xran yran xsiz ysiz ixr iyr = do
+iceMap :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+iceMap l ixr iyr ixsize iysize ixs iys il = do
   let mapexp = chunksOf 120 l
   let mapnew = zip (map workRows mapexp) [0..90]
-  --let x = buildList (ixr, iyr, xsiz, ysiz, xran, yran, (take 6 (repeat (length ixr))))
-  --let map0 = buildWorld mapnew x
-  let map1 = stripMap mapnew
+  let x = buildList (ixs, iys, ixsize, iysize, ixr, iyr, il)
+  let map0 = buildWorld mapnew x
+  let map1 = stripMap map0
   let map2 = flattenMap map1
   map2
 

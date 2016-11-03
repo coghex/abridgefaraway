@@ -61,17 +61,27 @@ main = do
                 , stateGame         = SWorld
                 , stateXs           = (randomList (0, 90::Int) len seed)
                 , stateYs           = (randomList (0,120::Int) len seed)
-                , stateXSizes       = (randomList (10, 35::Int) len seed)
-                , stateYSizes       = (randomList (11, 34::Int) len seed)
-                , stateXRands       = (randomList (1, 88::Int) len seed)
-                , stateYRands       = (randomList (2,119::Int) len seed)
+                , stateXSizes       = (randomList (2, 35::Int) len seed)
+                , stateYSizes       = (randomList (3, 34::Int) len seed)
+                , stateXRands       = (randomList (1, 89::Int) len seed)
+                , stateYRands       = (randomList (1,119::Int) len seed)
                 , stateSeeds        = (randomList (0,  7::Int) len seed)
-                , stateIceXRands    = (randomList (1,118::Int) len seed)
-                , stateIceYRands    = (randomList (0, 10::Int) len seed)
+                , stateNIceXs       = (randomList (0,  5::Int) len seed)
+                , stateNIceYs       = (randomList (4,116::Int) len seed)
+                , stateSIceXs       = (randomList (0,  6::Int) len seed)
+                , stateSIceYs       = (randomList (5,115::Int) len seed)
+                , stateNIceSizeX    = (randomList (1,  9::Int) len seed)
+                , stateNIceSizeY    = (randomList (2,  8::Int) len seed)
+                , stateSIceSizeX    = (randomList (3,  7::Int) len seed)
+                , stateSIceSizeY    = (randomList (1,  5::Int) len seed)
+                , stateNIceXRands   = (randomList (0,  4::Int) len seed)
+                , stateNIceYRands   = (randomList (5,119::Int) len seed)
+                , stateSIceXRands   = (randomList (1,  5::Int) len seed)
+                , stateSIceYRands   = (randomList (1, 119::Int) len seed)
+                , stateIList        = (randomList (7,  7::Int) len seed)
                 }
 
         let state2 = buildMap state
-        print $ stateXs state
         --print $ liftIO $ l
         
         void $ evalRWST run env state2

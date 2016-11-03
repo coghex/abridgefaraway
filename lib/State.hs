@@ -24,8 +24,19 @@ data State = State
     , stateXRands     :: ![Int]
     , stateYRands     :: ![Int]
     , stateSeeds      :: ![Int]
-    , stateIceXRands  :: ![Int]
-    , stateIceYRands  :: ![Int]
+    , stateNIceXs     :: ![Int]
+    , stateNIceYs     :: ![Int]
+    , stateSIceXs     :: ![Int]
+    , stateSIceYs     :: ![Int]
+    , stateNIceSizeX  :: ![Int]
+    , stateNIceSizeY  :: ![Int]
+    , stateSIceSizeX  :: ![Int]
+    , stateSIceSizeY  :: ![Int]
+    , stateNIceXRands :: ![Int]
+    , stateNIceYRands :: ![Int]
+    , stateSIceXRands :: ![Int]
+    , stateSIceYRands :: ![Int]
+    , stateIList      :: ![Int]
     }
 
 data Event =
