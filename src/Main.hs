@@ -45,6 +45,7 @@ main = do
     texs <- liftIO $ initTexs window
     seed <- newStdGen
     let l = (take (90*120) (repeat 5))
+    let contl = buildList2 ((randomList (10, 110) 10 seed), (randomList (10, 80) 10 seed)) 
     let env = Env
             { envEventsChan = eventsChan
             , envWindow     = window
@@ -55,12 +56,12 @@ main = do
             { stateGrid     = l
             , stateTexs     = texs
             , stateGame     = SWorld
-            , stateConts    = buildList2 ((randomList (0, 120) 10 seed), (randomList (0, 90) 10 seed))
-            , stateSeeds    = makeSeeds 10 0 seed
-            , stateRands    = [[]]
+            , stateConts    = contl
+            , stateSeeds    = makeSeeds contl 0 seed
+            , stateRands    = makeSeeds contl 20 seed
             }
-    print $ stateSeeds state
-    void $ evalRWST run env state
+    let state2 = buildGrid state
+    void $ evalRWST run env state2
 
 -- GLloop
 run :: Game ()

@@ -19,6 +19,17 @@ workRows :: [Int] -> [(Int, Int)]
 workRows l = do
   zip l [0..120]
 
+flattenMap :: [[Int]] -> [Int]
+flattenMap xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
+
+stripMap :: [([(Int, Int)], Int)] -> [[Int]]
+stripMap ((a,b):ys) = (stripRow a) : stripMap ys
+stripMap _          = [[]]
+
+stripRow :: [(Int, Int)] -> [Int]
+stripRow ((a,b):ys) = a : stripRow ys
+stripRow _          = []
+
 sceneSetup :: IO ()
 sceneSetup = do
   glClear $ fromIntegral  $  GL_COLOR_BUFFER_BIT
@@ -56,6 +67,6 @@ drawRow texs (a, b) = resequence_ (map (drawSpot texs b) a)
 drawSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
 drawSpot texs y (t,x) = (drawTile texs x y t)
 
-makeSeeds :: Int -> Int -> StdGen -> [[(Int, Int)]]
-makeSeeds 0   _ _    = []
-makeSeeds len r seed = (buildList2 ((randomList (0, 120) 5 seed), (randomList (0,90) 5 seed))):(makeSeeds (len-1) (r+1) (mkStdGen (r+1)))
+makeSeeds :: [(Int, Int)] -> Int -> StdGen -> [[(Int, Int)]]
+makeSeeds []         _ _    = []
+makeSeeds ((x,y):xs) r seed = (buildList2 ((randomList ((x-10), (x+10)) 5 seed), (randomList ((y-10),(y+10)) 5 seed))):(makeSeeds xs (r+1) (mkStdGen (r+1)))
