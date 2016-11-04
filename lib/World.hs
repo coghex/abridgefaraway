@@ -15,10 +15,13 @@ iceGrid state = do
       sts = stateTileSizes state
       str = stateTileRands state
       scs = stateContSizes state
-      sis = stateIceSizes state
-      si = stateIces state
-      sir = stateIceRands state
-      newgrid = iceMap state sis si sir grid
+      sis = stateSIceSizes state
+      si = stateSIces state
+      sir = stateSIceRands state
+      nsis = stateNIceSizes state
+      nsi = stateNIces state
+      nsir = stateNIceRands state
+      newgrid = iceMap state nsis nsi nsir (iceMap state sis si sir grid)
   
   State
     { stateGrid = newgrid
@@ -30,9 +33,12 @@ iceGrid state = do
     , stateTileSizes = sts
     , stateTileRands = str
     , stateContSizes = scs
-    , stateIceSizes = sis
-    , stateIces = si
-    , stateIceRands = sir
+    , stateSIceSizes = sis
+    , stateSIces = si
+    , stateSIceRands = sir
+    , stateNIceSizes = nsis
+    , stateNIces = nsi
+    , stateNIceRands = nsir
     }
 
 iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -65,9 +71,12 @@ buildGrid state = do
       sts = stateTileSizes state
       str = stateTileRands state
       scs = stateContSizes state
-      sis = stateIceSizes state
-      si = stateIces state
-      sir = stateIceRands state
+      sis = stateSIceSizes state
+      si = stateSIces state
+      sir = stateSIceRands state
+      nsis = stateNIceSizes state
+      nsi = stateNIces state
+      nsir = stateNIceRands state
   
   State
     { stateGrid = newgrid
@@ -79,9 +88,13 @@ buildGrid state = do
     , stateTileSizes = sts
     , stateTileRands = str
     , stateContSizes = scs
-    , stateIceSizes = sis
-    , stateIces = si
-    , stateIceRands = sir
+    , stateSIceSizes = sis
+    , stateSIces = si
+    , stateSIceRands = sir
+    , stateNIceSizes = nsis
+    , stateNIces = nsi
+    , stateNIceRands = nsir
+
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]
