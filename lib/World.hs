@@ -4,6 +4,55 @@ import State
 import Draw
 import Settings
 
+iceGrid :: State -> State
+iceGrid state = do
+  let grid = stateGrid state
+      texs = stateTexs state
+      gme = stateGame state
+      conts = stateConts state
+      seeds = stateSeeds state
+      rands = stateRands state
+      sts = stateTileSizes state
+      str = stateTileRands state
+      scs = stateContSizes state
+      sis = stateIceSizes state
+      si = stateIces state
+      sir = stateIceRands state
+      newgrid = iceMap state sis si sir grid
+  
+  State
+    { stateGrid = newgrid
+    , stateTexs = texs
+    , stateGame = gme
+    , stateConts = conts
+    , stateSeeds = seeds
+    , stateRands = rands
+    , stateTileSizes = sts
+    , stateTileRands = str
+    , stateContSizes = scs
+    , stateIceSizes = sis
+    , stateIces = si
+    , stateIceRands = sir
+    }
+
+iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
+iceMap _     []         []       []         g = g
+iceMap state ((a,b):ssis) ((c,d):ssi) ((e,f):ssir) g = do
+  let newmap = expandMap g
+      map0 = map (iceRow state c d a b e f) newmap
+      map3 = stripMap map0
+      map4 = flattenMap map3
+  iceMap state ssis ssi ssir map4
+
+iceRow :: State -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+iceRow state x y sx sy rx ry l = ((map (iceTile state x y sx sy rx ry (snd l)) (fst l)), (snd l))
+
+iceTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+iceTile state x y sx sy rx ry j (t, i)
+  | ((j==0) || (j==1) || (j==2) || (j==88) || (j==89) || (j==88)) = (7, i)
+  | (distance i j x y rx ry t) <= (100*sx*sy)                     = (7, i)
+  | otherwise                                                     = (t, i)
+
 buildGrid :: State -> State
 buildGrid state = do
   let grid = stateGrid state
@@ -15,6 +64,10 @@ buildGrid state = do
       newgrid = seedConts state grid conts continents seeds rands
       sts = stateTileSizes state
       str = stateTileRands state
+      scs = stateContSizes state
+      sis = stateIceSizes state
+      si = stateIces state
+      sir = stateIceRands state
   
   State
     { stateGrid = newgrid
@@ -25,6 +78,10 @@ buildGrid state = do
     , stateRands = rands
     , stateTileSizes = sts
     , stateTileRands = str
+    , stateContSizes = scs
+    , stateIceSizes = sis
+    , stateIces = si
+    , stateIceRands = sir
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]
@@ -49,10 +106,11 @@ seedRow state c w x y z (t1, t2) = (map (seedTile state c t2 w x y z) t1, t2)
 seedTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedTile state c j w x y z (t, i)
   | (randstate >= 6) || (randstate == 4) = (t, i)
-  | distance i j w x y z t <= t*5000     = (randstate, i)
+  | distance i j w x y z t <= maxdist    = (randstate, i)
   | otherwise                            = (t, i)
   where
     randstate = (stateTileRands state) !! c
+    maxdist = 1000 * (fst ((stateContSizes state) !! c))
 
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do

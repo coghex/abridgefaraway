@@ -10,3 +10,4 @@ seatile = 5::Int
 maxcontsize = 10::Int
 ntiles = 7::Int
 nspots = 50::Int
+nices = 100::Int

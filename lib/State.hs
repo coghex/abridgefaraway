@@ -22,6 +22,10 @@ data State = State
     , stateRands      :: ![[(Int, Int)]]
     , stateTileSizes  :: ![Int]
     , stateTileRands  :: ![Int]
+    , stateContSizes  :: ![(Int, Int)]
+    , stateIceSizes   :: ![(Int, Int)]
+    , stateIces       :: ![(Int, Int)]
+    , stateIceRands   :: ![(Int, Int)]
     }
 
 data Event =

@@ -45,6 +45,10 @@ main = do
     let contl1 = buildList2 ((randomList (fudge, (gridw-fudge)) continents seed), (randomList (fudge, (gridh-fudge)) continents seed)) 
     let contl2 = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) continents seed), (randomList ((fudge+1), (gridh-fudge-1)) continents seed)) 
     let contl3 = buildList2 ((randomList ((fudge+2), (gridw-fudge-2)) continents seed), (randomList ((fudge+2), (gridh-fudge-2)) continents seed)) 
+    let contl4 = buildList2 ((randomList ((0), (fudge)) (continents+1) seed), (randomList ((0), (fudge-1)) (continents+1) seed)) 
+    let contl5 = buildList2 ((randomList ((0), (fudge-5)) nices seed), (randomList ((0), (fudge-6)) nices seed)) 
+    let contl6 = buildList2 ((randomList ((2), (gridw-2)) nices seed), (randomList ((0), (fudge-4)) nices seed)) 
+    let contl7 = buildList2 ((randomList ((1), (gridw-1)) nices seed), (randomList ((1), (fudge-4)) nices seed)) 
     let env = Env
             { envEventsChan  = eventsChan
             , envWindow      = window
@@ -60,10 +64,14 @@ main = do
             , stateRands     = makeSeeds contl3 (2*continents) s1 s2
             , stateTileSizes = (randomList (0, maxcontsize) (gridw*gridh+fudge) seed)
             , stateTileRands = (randomList (0, ntiles) (continents+1) seed)
+            , stateContSizes = contl4
+            , stateIceSizes  = contl5
+            , stateIces      = contl6
+            , stateIceRands  = contl7
             }
     let state2 = buildGrid state
-    print $ stateSeeds state
-    void $ evalRWST run env state2
+    let state3 = iceGrid state2
+    void $ evalRWST run env state3
 
 -- GLloop
 run :: Game ()
