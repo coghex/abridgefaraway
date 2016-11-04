@@ -47,18 +47,20 @@ main = do
     let l = (take (90*120) (repeat 5))
     let contl = buildList2 ((randomList (10, 110) 10 seed), (randomList (10, 80) 10 seed)) 
     let env = Env
-            { envEventsChan = eventsChan
-            , envWindow     = window
-            , envGridWidth  = gridw
-            , envGridHeight = gridh
+            { envEventsChan  = eventsChan
+            , envWindow      = window
+            , envGridWidth   = gridw
+            , envGridHeight  = gridh
             }
         state = State
-            { stateGrid     = l
-            , stateTexs     = texs
-            , stateGame     = SWorld
-            , stateConts    = contl
-            , stateSeeds    = makeSeeds contl 0 seed
-            , stateRands    = makeSeeds contl 20 seed
+            { stateGrid      = l
+            , stateTexs      = texs
+            , stateGame      = SWorld
+            , stateConts     = contl
+            , stateSeeds     = makeSeeds contl 0 seed
+            , stateRands     = makeSeeds contl 20 seed
+            , stateTileSizes = (randomList (0, 10::Int) (90*120) seed)
+            , stateTileRands = (randomList (0, 7::Int) 11 seed)
             }
     let state2 = buildGrid state
     void $ evalRWST run env state2

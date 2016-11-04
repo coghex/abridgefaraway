@@ -20,6 +20,8 @@ data State = State
     , stateConts      :: ![(Int, Int)]
     , stateSeeds      :: ![[(Int, Int)]]
     , stateRands      :: ![[(Int, Int)]]
+    , stateTileSizes  :: ![Int]
+    , stateTileRands  :: ![Int]
     }
 
 data Event =
