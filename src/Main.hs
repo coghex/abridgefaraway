@@ -1,17 +1,11 @@
 module Main (main) where
 
-import Control.Concurrent.STM (TQueue, atomically, newTQueueIO, tryReadTQueue, writeTQueue)
-import Control.Concurrent (forkIO, getNumCapabilities, setNumCapabilities, threadDelay)
-import Control.Monad (unless, when, void)
-import Control.Monad.RWS.Strict (RWST, ask, asks, evalRWST, get, liftIO, modify, put)
-import Control.Monad.Trans.Maybe (MaybeT(..), runMaybeT)
-import Control.Monad.Reader (ReaderT, runReaderT, MonadReader)
+import Control.Monad (when, void)
 import Control.Monad.Trans (MonadIO)
-import Data.List (intercalate)
-import Data.Maybe (catMaybes)
+import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST)
+import Control.Concurrent (setNumCapabilities, threadDelay)
+import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
-import Text.PrettyPrint
-import System.Random
 import qualified GHC.Conc (getNumProcessors)
 
 import qualified Graphics.Rendering.OpenGL as GL
@@ -21,6 +15,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import World
 import Util
 import State
+import Draw
 
 -- Game type
 type Game = RWST Env () State IO
@@ -32,76 +27,50 @@ runOnAllCores = GHC.Conc.getNumProcessors >>= setNumCapabilities
 -- main function
 main :: IO ()
 main = do
+  -- screen size and map size
   let screenw = 1600
       screenh = 1200
       gridw   = 120
       gridh   = 90
 
+  -- IO Queue
   eventsChan <- newTQueueIO :: IO (TQueue Event)
   runOnAllCores
-
   withWindow screenw screenh "A Bridge Far Away..." $ \window -> do
-        GLFW.setErrorCallback        $ Just $ errorCallback eventsChan
-        GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
-        GLFW.swapInterval 0
- 
-        len <- randomN 200 1000
-        seed <- newStdGen
-        texs <- liftIO $ initTexs window
-        let l = (take (90*120) (repeat 5))
-        let env = Env
-                { envEventsChan   = eventsChan
-                , envWindow       = window
-                , envGridWidth    = gridw
-                , envGridHeight   = gridh
-                }
-            state = State
-                { stateGrid         = l
-                , stateTexs         = texs
-                , stateGame         = SWorld
-                , stateXs           = (randomList (0, 90::Int) len seed)
-                , stateYs           = (randomList (0,120::Int) len seed)
-                , stateXSizes       = (randomList (2, 35::Int) len seed)
-                , stateYSizes       = (randomList (3, 34::Int) len seed)
-                , stateXRands       = (randomList (1, 89::Int) len seed)
-                , stateYRands       = (randomList (1,119::Int) len seed)
-                , stateSeeds        = (randomList (0,  7::Int) len seed)
-                , stateNIceXs       = (randomList (0,  5::Int) len seed)
-                , stateNIceYs       = (randomList (4,116::Int) len seed)
-                , stateSIceXs       = (randomList (0,  6::Int) len seed)
-                , stateSIceYs       = (randomList (5,115::Int) len seed)
-                , stateNIceSizeX    = (randomList (1,  9::Int) len seed)
-                , stateNIceSizeY    = (randomList (2,  8::Int) len seed)
-                , stateSIceSizeX    = (randomList (3,  7::Int) len seed)
-                , stateSIceSizeY    = (randomList (1,  5::Int) len seed)
-                , stateNIceXRands   = (randomList (0,  4::Int) len seed)
-                , stateNIceYRands   = (randomList (5,119::Int) len seed)
-                , stateSIceXRands   = (randomList (1,  5::Int) len seed)
-                , stateSIceYRands   = (randomList (1, 119::Int) len seed)
-                , stateIList        = (randomList (7,  7::Int) len seed)
-                }
+    GLFW.setErrorCallback        $ Just $ errorCallback eventsChan
+    GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
+    GLFW.swapInterval 0
+    texs <- liftIO $ initTexs window
+    let l = (take (90*120) (repeat 5))
+    let env = Env
+            { envEventsChan = eventsChan
+            , envWindow     = window
+            , envGridWidth  = gridw
+            , envGridHeight = gridh
+            }
+        state = State
+            { stateGrid     = l
+            , stateTexs     = texs
+            , stateGame     = SWorld
+            , stateConts    = []
+            , stateSeeds    = [[]]
+            , stateRands    = [[]]
+            }
+    void $ evalRWST run env state
 
-        let state2 = buildMap state
-        --print $ liftIO $ l
-        
-        void $ evalRWST run env state2
-
+-- GLloop
 run :: Game ()
 run = timedLoop $ \lastTick tick -> do
-    draw
-    window <- asks envWindow
-    liftIO $ do
-        GLFW.swapBuffers window
-        --                         -- GL.finish
-        GLFW.pollEvents
-        err <- GL.get GL.errors
-        mapM_ print err
-        whileM_ ((\cur -> (cur - tick) < (1.0 / 60.0)) <$> getCurTick) (threadDelay 100)
-    processEvents
-    liftIO $ not <$> GLFW.windowShouldClose window
-
-myPoints :: [(GL.GLfloat,GL.GLfloat,GL.GLfloat)]
-myPoints = [ (sin (2*pi*k/4), cos (2*pi*k/4), 0) | k <- [1..4] ]
+  draw
+  window <- asks envWindow
+  liftIO $ do
+    GLFW.swapBuffers window
+    GLFW.pollEvents
+    err <- GL.get GL.errors
+    mapM_ print err
+    whileM_ ((\cur -> (cur - tick) < (1.0 / 60.0)) <$> getCurTick) (threadDelay 100)
+  processEvents
+  liftIO $ not <$> GLFW.windowShouldClose window
 
 draw :: Game ()
 draw = do
@@ -111,33 +80,12 @@ draw = do
     GL.clear [GL.ColorBuffer]
     sceneSetup
     --drawTile (stateTexs state) 1 1 1
-    --GL.translate (GL.Vector3 60.0 45.0 0.0 :: GL.Vector3 GL.GLfloat)
+    --drawTile (stateTexs state) 2 2 1
+    --drawTile (stateTexs state) 3 3 1
     drawScene state (envWindow env)
-    --GL.renderPrimitive GL.Points $
-    --  mapM_ (\(x, y, z) -> GL.vertex $ GL.Vertex3 x y z) myPoints 
     GL.flush
 
-   
-errorCallback :: TQueue Event -> GLFW.Error -> String -> IO ()
-errorCallback tc e s            = atomically $ writeTQueue tc $ EventError e s
-keyCallback   :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys -> IO ()
-keyCallback   tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
-
-withWindow :: Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()
-withWindow w h title f = do
-  GLFW.setErrorCallback $ Just simpleErrorCallback
-  True <- GLFW.init 
-  GLFW.windowHint $ GLFW.WindowHint'Resizable False
-  Just window <- GLFW.createWindow w h title Nothing Nothing
-  GLFW.makeContextCurrent $ Just window
-  f window
-  GLFW.setErrorCallback $ Just simpleErrorCallback
-  GLFW.destroyWindow window
-  GLFW.terminate
-  where
-    simpleErrorCallback e s = putStrLn $ show e ++ " " ++  show s
-
-
+-- thread loop function
 timedLoop :: MonadIO m => (Double -> Double -> m Bool) -> m ()
 timedLoop f = loop 0.0
   where
@@ -146,36 +94,60 @@ timedLoop f = loop 0.0
       quit <- f lastTick tick
       when quit $ loop tick
 
+-- while monad loop
 whileM_ :: (Monad m) => m Bool -> m () -> m ()
 whileM_ p f = do
   x <- p
   when x $ do f >> whileM_ p f
 
+-- time tick function
 getCurTick :: IO Double
 getCurTick = do
   tickUCT <- getCurrentTime
   return (fromIntegral (round $ utctDayTime tickUCT * 1000000 :: Integer) / 1000000.0 :: Double)
 
+-- process events
 processEvents :: Game ()
 processEvents = do
-    tc <- asks envEventsChan
-    me <- liftIO $ atomically $ tryReadTQueue tc
-    case me of
-        Just e -> do
-            processEvent e
-            processEvents
-        Nothing -> return ()
+  tc <- asks envEventsChan
+  me <- liftIO $ atomically $ tryReadTQueue tc
+  case me of
+    Just e -> do
+      processEvent e
+      processEvents
+    Nothing -> return ()
 
 processEvent :: Event -> Game ()
 processEvent ev =
-    case ev of
-        (EventError e s) -> do
-            window <- asks envWindow
-            liftIO $ do
-                putStrLn $ "error " ++ show e ++ " " ++ show s
-                GLFW.setWindowShouldClose window True
-        (EventKey window k _ ks _) ->
-            when (ks == GLFW.KeyState'Pressed) $ do
-                when (k == GLFW.Key'Escape) $
-                    liftIO $ GLFW.setWindowShouldClose window True
+  case ev of
+    (EventError e s) -> do
+      window <- asks envWindow
+      liftIO $ do
+        putStrLn $ "error " ++ show e ++ " " ++ show s
+        GLFW.setWindowShouldClose window True
+    (EventKey window k _ ks _) ->
+      when (ks == GLFW.KeyState'Pressed) $ do
+        when (k == GLFW.Key'Escape) $
+          liftIO $ GLFW.setWindowShouldClose window True
 
+-- GLFW window opening
+withWindow :: Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()
+withWindow w h title f = do
+  GLFW.setErrorCallback $ Just glfwErrorCallback
+  True <- GLFW.init
+  GLFW.windowHint $ GLFW.WindowHint'Resizable False
+  Just window <- GLFW.createWindow w h title Nothing Nothing
+  GLFW.makeContextCurrent $ Just window
+  f window
+  -- i dont know why this is done twice
+  GLFW.setErrorCallback $ Just glfwErrorCallback
+  GLFW.destroyWindow window
+  GLFW.terminate
+  where
+    glfwErrorCallback e s = putStrLn $ show e ++ " " ++ show s
+
+-- callbacks
+errorCallback :: TQueue Event -> GLFW.Error -> String -> IO ()
+errorCallback tc e s            = atomically $ writeTQueue tc $ EventError e s
+keyCallback   :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys -> IO ()
+keyCallback   tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
