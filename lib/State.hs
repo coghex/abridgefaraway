@@ -29,6 +29,9 @@ data State = State
     , stateNIceSizes  :: ![(Int, Int)]
     , stateNIces      :: ![(Int, Int)]
     , stateNIceRands  :: ![(Int, Int)]
+    , stateZazzs      :: ![(Int, Int)]
+    , stateZazzSizes  :: ![(Int, Int)]
+    , stateZazzRands  :: ![(Int, Int)]
     }
 
 data Event =

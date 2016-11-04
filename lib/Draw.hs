@@ -68,6 +68,6 @@ drawRow texs (a, b) = resequence_ (map (drawSpot texs b) a)
 drawSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
 drawSpot texs y (t,x) = (drawTile texs x y t)
 
-makeSeeds :: [(Int, Int)] -> Int -> StdGen -> StdGen -> [[(Int, Int)]]
-makeSeeds []         _ _  _  = []
-makeSeeds ((x,y):xs) r s1 s2 = (buildList2 ((randomList ((x-fudge), (x+fudge)) nspots s1), (randomList ((y-fudge),(y+fudge)) nspots s2))):(makeSeeds xs (r+1) (mkStdGen (r+1)) (mkStdGen (r-1)))
+makeSeeds :: [(Int, Int)] -> Int -> StdGen -> StdGen -> [Int] -> [[(Int, Int)]]
+makeSeeds []         _ _  _  _               = []
+makeSeeds ((x,y):xs) r s1 s2 (nspot:nspots) = (buildList2 ((randomList ((x-fudge), (x+fudge)) (nspot) s1), (randomList ((y-fudge),(y+fudge)) (nspot) s2))):(makeSeeds xs (r+1) (mkStdGen (r+1)) (mkStdGen (r-1)) nspots)

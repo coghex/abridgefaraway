@@ -41,6 +41,8 @@ main = do
     seed <- newStdGen
     s1 <- newStdGen
     s2 <- newStdGen
+    continents <- randomN 2 25
+    let nspots = randomList (25, 100::Int) continents seed
     let l = (take (gridh*gridw) (repeat seatile))
     let contl1 = buildList2 ((randomList (fudge, (gridw-fudge)) continents seed), (randomList (fudge, (gridh-fudge)) continents seed)) 
     let contl2 = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) continents seed), (randomList ((fudge+1), (gridh-fudge-1)) continents seed)) 
@@ -52,6 +54,10 @@ main = do
     let contl8 = buildList2 ((randomList ((0), (fudge-7)) nices seed), (randomList ((0), (fudge-6)) nices seed)) 
     let contl9 = buildList2 ((randomList ((2), (gridw-2)) nices seed), (randomList ((gridh-6), (gridh)) nices seed)) 
     let contl10 = buildList2 ((randomList ((1), (gridw-1)) nices seed), (randomList ((gridh-5), (gridh-1)) nices seed)) 
+    let contl11 = buildList2 ((randomList ((0), (gridw)) nices seed), (randomList ((0), (gridh)) nices seed)) 
+    let contl12 = buildList2 ((randomList ((2), (gridw-1)) nices seed), (randomList ((2), (gridh)) nices seed)) 
+    let contl13 = buildList2 ((randomList ((1), (gridw-2)) nices seed), (randomList ((1), (gridh-1)) nices seed)) 
+
     let env = Env
             { envEventsChan  = eventsChan
             , envWindow      = window
@@ -63,8 +69,8 @@ main = do
             , stateTexs      = texs
             , stateGame      = SWorld
             , stateConts     = contl1
-            , stateSeeds     = makeSeeds contl2 0 s1 s2
-            , stateRands     = makeSeeds contl3 (2*continents) s1 s2
+            , stateSeeds     = makeSeeds contl2 0 s1 s2 nspots
+            , stateRands     = makeSeeds contl3 (2*continents) s1 s2 nspots
             , stateTileSizes = (randomList (0, maxcontsize) (gridw*gridh+fudge) seed)
             , stateTileRands = (randomList (0, ntiles) (continents+1) seed)
             , stateContSizes = contl4
@@ -74,10 +80,14 @@ main = do
             , stateNIceSizes = contl8
             , stateNIces     = contl9
             , stateNIceRands = contl10
+            , stateZazzs     = contl11
+            , stateZazzSizes = contl12
+            , stateZazzRands = contl13
             }
-    let state2 = buildGrid state
+    let state2 = buildGrid state continents
     let state3 = iceGrid state2
-    void $ evalRWST run env state3
+    let state4 = zazzGrid state3
+    void $ evalRWST run env state4
 
 -- GLloop
 run :: Game ()
