@@ -2,6 +2,7 @@ module World where
 
 import State
 import Draw
+import Settings
 
 buildGrid :: State -> State
 buildGrid state = do
@@ -11,7 +12,7 @@ buildGrid state = do
       conts = stateConts state
       seeds = stateSeeds state
       rands = stateRands state
-      newgrid = seedConts state grid conts 10 seeds rands
+      newgrid = seedConts state grid conts continents seeds rands
       sts = stateTileSizes state
       str = stateTileRands state
   
@@ -47,15 +48,18 @@ seedRow state c w x y z (t1, t2) = (map (seedTile state c t2 w x y z) t1, t2)
 
 seedTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedTile state c j w x y z (t, i)
-  | distance i j w x y z t <= 5000 = (((stateTileRands state) !! c), i)
-  | otherwise                      = (t, i)
+  | (randstate >= 6) || (randstate == 4) = (t, i)
+  | distance i j w x y z t <= t*5000     = (randstate, i)
+  | otherwise                            = (t, i)
+  where
+    randstate = (stateTileRands state) !! c
 
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
-  t*p1*p2
+  p1*p2
 
 flatIndex :: Int -> Int -> Int
-flatIndex x y = (((x) `quot` 120)+((y) `mod` 90))
+flatIndex x y = (((x) `quot` gridw)+((y) `mod` gridh))
 

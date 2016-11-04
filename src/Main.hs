@@ -18,6 +18,7 @@ import Util
 import State
 import Draw
 import Rand
+import Settings
 
 -- Game type
 type Game = RWST Env () State IO
@@ -29,12 +30,6 @@ runOnAllCores = GHC.Conc.getNumProcessors >>= setNumCapabilities
 -- main function
 main :: IO ()
 main = do
-  -- screen size and map size
-  let screenw = 1600
-      screenh = 1200
-      gridw   = 120
-      gridh   = 90
-
   -- IO Queue
   eventsChan <- newTQueueIO :: IO (TQueue Event)
   runOnAllCores
@@ -46,10 +41,10 @@ main = do
     seed <- newStdGen
     s1 <- newStdGen
     s2 <- newStdGen
-    let l = (take (90*120) (repeat 5))
-    let contl1 = buildList2 ((randomList (10, 110) 10 seed), (randomList (10, 80) 10 seed)) 
-    let contl2 = buildList2 ((randomList (11, 109) 10 seed), (randomList (11, 79) 10 seed)) 
-    let contl3 = buildList2 ((randomList (12, 108) 10 seed), (randomList (12, 78) 10 seed)) 
+    let l = (take (gridh*gridw) (repeat seatile))
+    let contl1 = buildList2 ((randomList (fudge, (gridw-fudge)) continents seed), (randomList (fudge, (gridh-fudge)) continents seed)) 
+    let contl2 = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) continents seed), (randomList ((fudge+1), (gridh-fudge-1)) continents seed)) 
+    let contl3 = buildList2 ((randomList ((fudge+2), (gridw-fudge-2)) continents seed), (randomList ((fudge+2), (gridh-fudge-2)) continents seed)) 
     let env = Env
             { envEventsChan  = eventsChan
             , envWindow      = window
@@ -62,9 +57,9 @@ main = do
             , stateGame      = SWorld
             , stateConts     = contl1
             , stateSeeds     = makeSeeds contl2 0 s1 s2
-            , stateRands     = makeSeeds contl3 20 s1 s2
-            , stateTileSizes = (randomList (0, 10::Int) (91*121) seed)
-            , stateTileRands = (randomList (0, 7::Int) 11 seed)
+            , stateRands     = makeSeeds contl3 (2*continents) s1 s2
+            , stateTileSizes = (randomList (0, maxcontsize) (gridw*gridh+fudge) seed)
+            , stateTileRands = (randomList (0, ntiles) (continents+1) seed)
             }
     let state2 = buildGrid state
     print $ stateSeeds state

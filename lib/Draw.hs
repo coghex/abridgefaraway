@@ -8,16 +8,17 @@ import qualified Graphics.UI.GLFW as GLFW
 
 import State
 import Rand
+import Settings
 
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
 
 expandMap :: [Int] -> [([(Int, Int)], Int)]
-expandMap m = zip (map workRows (chunksOf 120 m)) [0..90]
+expandMap m = zip (map workRows (chunksOf gridw m)) [0..gridh]
 
 workRows :: [Int] -> [(Int, Int)]
 workRows l = do
-  zip l [0..120]
+  zip l [0..gridw]
 
 flattenMap :: [[Int]] -> [Int]
 flattenMap xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
@@ -38,7 +39,7 @@ sceneSetup = do
 drawTile :: [GLuint] -> Int -> Int -> Int -> IO ()
 drawTile texs x y t = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - 60.0)) (2*((fromIntegral y) - 45.0)) (-400)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-400)
 
   glBindTexture GL_TEXTURE_2D (texs !! t)
   glBegin GL_QUADS
@@ -69,4 +70,4 @@ drawSpot texs y (t,x) = (drawTile texs x y t)
 
 makeSeeds :: [(Int, Int)] -> Int -> StdGen -> StdGen -> [[(Int, Int)]]
 makeSeeds []         _ _  _  = []
-makeSeeds ((x,y):xs) r s1 s2 = (buildList2 ((randomList ((x-10), (x+10)) 5 s1), (randomList ((y-10),(y+10)) 5 s2))):(makeSeeds xs (r+1) (mkStdGen (r+1)) (mkStdGen (r-1)))
+makeSeeds ((x,y):xs) r s1 s2 = (buildList2 ((randomList ((x-fudge), (x+fudge)) nspots s1), (randomList ((y-fudge),(y+fudge)) nspots s2))):(makeSeeds xs (r+1) (mkStdGen (r+1)) (mkStdGen (r-1)))
