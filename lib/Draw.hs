@@ -1,11 +1,13 @@
 module Draw where
 
 import Data.Bits ((.|.))
-import Data.List.Split ( chunksOf )
+import Data.List.Split (chunksOf)
 import Graphics.GL
+import System.Random (StdGen, mkStdGen)
 import qualified Graphics.UI.GLFW as GLFW
 
 import State
+import Rand
 
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
@@ -53,3 +55,7 @@ drawRow texs (a, b) = resequence_ (map (drawSpot texs b) a)
 
 drawSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
 drawSpot texs y (t,x) = (drawTile texs x y t)
+
+makeSeeds :: Int -> Int -> StdGen -> [[(Int, Int)]]
+makeSeeds 0   _ _    = []
+makeSeeds len r seed = (buildList2 ((randomList (0, 120) 5 seed), (randomList (0,90) 5 seed))):(makeSeeds (len-1) (r+1) (mkStdGen (r+1)))

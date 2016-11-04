@@ -6,6 +6,7 @@ import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST)
 import Control.Concurrent (setNumCapabilities, threadDelay)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
+import System.Random (newStdGen)
 import qualified GHC.Conc (getNumProcessors)
 
 import qualified Graphics.Rendering.OpenGL as GL
@@ -16,6 +17,7 @@ import World
 import Util
 import State
 import Draw
+import Rand
 
 -- Game type
 type Game = RWST Env () State IO
@@ -41,6 +43,7 @@ main = do
     GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
     GLFW.swapInterval 0
     texs <- liftIO $ initTexs window
+    seed <- newStdGen
     let l = (take (90*120) (repeat 5))
     let env = Env
             { envEventsChan = eventsChan
@@ -52,10 +55,11 @@ main = do
             { stateGrid     = l
             , stateTexs     = texs
             , stateGame     = SWorld
-            , stateConts    = []
-            , stateSeeds    = [[]]
+            , stateConts    = buildList2 ((randomList (0, 120) 10 seed), (randomList (0, 90) 10 seed))
+            , stateSeeds    = makeSeeds 10 0 seed
             , stateRands    = [[]]
             }
+    print $ stateSeeds state
     void $ evalRWST run env state
 
 -- GLloop
