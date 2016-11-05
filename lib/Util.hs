@@ -57,7 +57,8 @@ loadWTextures fn = do
   t6 <- loadGLTextures (fn ++ "sea/worldsea.bmp")
   t7 <- loadGLTextures (fn ++ "sea/worldcoast.bmp")
   t8 <- loadGLTextures (fn ++ "sea/worldice.bmp")
-  return [t1, t2, t3, t4, t5, t6, t7, t8]
+  t9 <- runMaybeT $ loadGLPngTextures ("data/wcursor.png")
+  return [t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)]
 
 loadGLTextures :: String -> IO GLuint
 loadGLTextures fn = do
@@ -79,14 +80,22 @@ loadGLTextures fn = do
     glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER glLinear
   return tex
 
-loadGLPngTextures :: MonadIO m => String -> MaybeT m ()
+fromJust :: Maybe a -> a
+fromJust Nothing = error "Maybe.fromJust: Nothing"
+fromJust (Just x) = x
+
+loadGLPngTextures :: MonadIO m => String -> MaybeT m (GLuint)
 loadGLPngTextures fn = do
-  fp <- liftIO $ JT.readPng "data/wcursor.png"
+  fp <- liftIO $ JT.readPng fn
   (JT.Image texWidth texHeight texData) <- MaybeT $ case fp of
     (Right (JT.ImageRGBA8 i)) -> return $ Just i
     (Left s)                  -> liftIO (print s) >> return Nothing
     _                         -> return Nothing
-  return ()
+  texID <- liftIO $ alloca $ \texIDPtr -> do
+    glGenTextures 1 texIDPtr
+    peek texIDPtr
+  return texID
+  --return ()
 
 bitmapLoad :: FilePath -> IO (Maybe Image)
 bitmapLoad f = do
