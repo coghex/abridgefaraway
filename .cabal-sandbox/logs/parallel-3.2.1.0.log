@@ -1,0 +1,13 @@
+cabal: Entering directory '/tmp/cabal-tmp-31374/parallel-3.2.1.0'
+Configuring parallel-3.2.1.0...
+Building parallel-3.2.1.0...
+Preprocessing library parallel-3.2.1.0...
+[1 of 3] Compiling Control.Parallel ( Control/Parallel.hs, dist/dist-sandbox-b0155bc7/build/Control/Parallel.o )
+[2 of 3] Compiling Control.Seq      ( Control/Seq.hs, dist/dist-sandbox-b0155bc7/build/Control/Seq.o )
+[3 of 3] Compiling Control.Parallel.Strategies ( Control/Parallel/Strategies.hs, dist/dist-sandbox-b0155bc7/build/Control/Parallel/Strategies.o )
+Creating package registration file:
+/tmp/pkgConf-parallel-3.2.1114161612484353895.0
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/parallel-3.2.1.0-6VcN0yUHtcs831TgbJiSSi
+Registering parallel-3.2.1.0...
+cabal: Leaving directory '/tmp/cabal-tmp-31374/parallel-3.2.1.0'

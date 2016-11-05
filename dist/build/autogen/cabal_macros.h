@@ -42,6 +42,13 @@
   (major1) == 4 && (major2) <  9 || \
   (major1) == 4 && (major2) == 9 && (minor) <= 0)
 
+/* package boundingboxes-0.2.3 */
+#define VERSION_boundingboxes "0.2.3"
+#define MIN_VERSION_boundingboxes(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  2 || \
+  (major1) == 0 && (major2) == 2 && (minor) <= 3)
+
 /* package bytestring-0.10.8.1 */
 #define VERSION_bytestring "0.10.8.1"
 #define MIN_VERSION_bytestring(major1,major2,minor) (\
@@ -55,6 +62,20 @@
   (major1) <  0 || \
   (major1) == 0 && (major2) <  5 || \
   (major1) == 0 && (major2) == 5 && (minor) <= 3)
+
+/* package freetype2-0.1.1 */
+#define VERSION_freetype2 "0.1.1"
+#define MIN_VERSION_freetype2(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  1 || \
+  (major1) == 0 && (major2) == 1 && (minor) <= 1)
+
+/* package linear-1.20.5 */
+#define VERSION_linear "1.20.5"
+#define MIN_VERSION_linear(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  20 || \
+  (major1) == 1 && (major2) == 20 && (minor) <= 5)
 
 /* package mtl-2.2.1 */
 #define VERSION_mtl "2.2.1"

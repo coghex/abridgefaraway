@@ -1,0 +1,26 @@
+cabal: Entering directory '/tmp/cabal-tmp-31372/kan-extensions-5.0.1'
+Configuring kan-extensions-5.0.1...
+Building kan-extensions-5.0.1...
+Preprocessing library kan-extensions-5.0.1...
+[ 1 of 12] Compiling Data.Functor.Day ( src/Data/Functor/Day.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Day.o )
+[ 2 of 12] Compiling Data.Functor.Day.Curried ( src/Data/Functor/Day/Curried.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Day/Curried.o )
+[ 3 of 12] Compiling Data.Functor.Contravariant.Coyoneda ( src/Data/Functor/Contravariant/Coyoneda.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Contravariant/Coyoneda.o )
+[ 4 of 12] Compiling Data.Functor.Contravariant.Yoneda ( src/Data/Functor/Contravariant/Yoneda.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Contravariant/Yoneda.o )
+[ 5 of 12] Compiling Data.Functor.Contravariant.Day ( src/Data/Functor/Contravariant/Day.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Contravariant/Day.o )
+[ 6 of 12] Compiling Data.Functor.Kan.Ran ( src/Data/Functor/Kan/Ran.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Kan/Ran.o )
+[ 7 of 12] Compiling Data.Functor.Yoneda ( src/Data/Functor/Yoneda.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Yoneda.o )
+[ 8 of 12] Compiling Control.Monad.Codensity ( src/Control/Monad/Codensity.hs, dist/dist-sandbox-b0155bc7/build/Control/Monad/Codensity.o )
+[ 9 of 12] Compiling Data.Functor.Kan.Lan ( src/Data/Functor/Kan/Lan.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Kan/Lan.o )
+[10 of 12] Compiling Data.Functor.Coyoneda ( src/Data/Functor/Coyoneda.hs, dist/dist-sandbox-b0155bc7/build/Data/Functor/Coyoneda.o )
+
+src/Data/Functor/Coyoneda.hs:183:10: warning: [-Wredundant-constraints]
+    • Redundant constraint: Functor f
+    • In the instance declaration for ‘Read (Coyoneda f a)’
+[11 of 12] Compiling Control.Comonad.Density ( src/Control/Comonad/Density.hs, dist/dist-sandbox-b0155bc7/build/Control/Comonad/Density.o )
+[12 of 12] Compiling Control.Monad.Co ( src/Control/Monad/Co.hs, dist/dist-sandbox-b0155bc7/build/Control/Monad/Co.o )
+Creating package registration file:
+/tmp/pkgConf-kan-extensions-5.01476153275213975407.1
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/kan-extensions-5.0.1-HCwpR1kJCH08kDNLqeLZsT
+Registering kan-extensions-5.0.1...
+cabal: Leaving directory '/tmp/cabal-tmp-31372/kan-extensions-5.0.1'

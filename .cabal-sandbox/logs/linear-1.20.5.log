@@ -1,0 +1,45 @@
+cabal: Entering directory '/tmp/cabal-tmp-31372/linear-1.20.5'
+[1 of 1] Compiling Main             ( /tmp/cabal-tmp-31372/linear-1.20.5/dist/dist-sandbox-b0155bc7/setup/setup.hs, /tmp/cabal-tmp-31372/linear-1.20.5/dist/dist-sandbox-b0155bc7/setup/Main.o )
+Linking /tmp/cabal-tmp-31372/linear-1.20.5/dist/dist-sandbox-b0155bc7/setup/setup ...
+Configuring linear-1.20.5...
+Building linear-1.20.5...
+Preprocessing library linear-1.20.5...
+[ 1 of 22] Compiling Linear.Instances ( src/Linear/Instances.hs, dist/dist-sandbox-b0155bc7/build/Linear/Instances.o )
+[ 2 of 22] Compiling Linear.Vector    ( src/Linear/Vector.hs, dist/dist-sandbox-b0155bc7/build/Linear/Vector.o )
+[ 3 of 22] Compiling Linear.Epsilon   ( src/Linear/Epsilon.hs, dist/dist-sandbox-b0155bc7/build/Linear/Epsilon.o )
+[ 4 of 22] Compiling Linear.Metric    ( src/Linear/Metric.hs, dist/dist-sandbox-b0155bc7/build/Linear/Metric.o )
+[ 5 of 22] Compiling Linear.V0        ( src/Linear/V0.hs, dist/dist-sandbox-b0155bc7/build/Linear/V0.o )
+[ 6 of 22] Compiling Linear.V1        ( src/Linear/V1.hs, dist/dist-sandbox-b0155bc7/build/Linear/V1.o )
+[ 7 of 22] Compiling Linear.V2        ( src/Linear/V2.hs, dist/dist-sandbox-b0155bc7/build/Linear/V2.o )
+[ 8 of 22] Compiling Linear.V3        ( src/Linear/V3.hs, dist/dist-sandbox-b0155bc7/build/Linear/V3.o )
+[ 9 of 22] Compiling Linear.V4        ( src/Linear/V4.hs, dist/dist-sandbox-b0155bc7/build/Linear/V4.o )
+[10 of 22] Compiling Linear.Plucker   ( src/Linear/Plucker.hs, dist/dist-sandbox-b0155bc7/build/Linear/Plucker.o )
+[11 of 22] Compiling Linear.V         ( src/Linear/V.hs, dist/dist-sandbox-b0155bc7/build/Linear/V.o )
+
+src/Linear/V.hs:161:3: warning: [-Wredundant-constraints]
+    • Redundant constraint: Reifies n Int
+    • In the type signature for:
+           go :: Reifies n Int => (Proxy (ReifiedDim n) -> a) -> proxy n -> a
+      In an equation for ‘reifyDim’:
+          reifyDim i f
+            = reify i (go f)
+            where
+                go :: Reifies n Int => (Proxy (ReifiedDim n) -> a) -> proxy n -> a
+                go g _ = g Proxy
+[12 of 22] Compiling Linear.Plucker.Coincides ( src/Linear/Plucker/Coincides.hs, dist/dist-sandbox-b0155bc7/build/Linear/Plucker/Coincides.o )
+[13 of 22] Compiling Linear.Conjugate ( src/Linear/Conjugate.hs, dist/dist-sandbox-b0155bc7/build/Linear/Conjugate.o )
+[14 of 22] Compiling Linear.Quaternion ( src/Linear/Quaternion.hs, dist/dist-sandbox-b0155bc7/build/Linear/Quaternion.o )
+[15 of 22] Compiling Linear.Trace     ( src/Linear/Trace.hs, dist/dist-sandbox-b0155bc7/build/Linear/Trace.o )
+[16 of 22] Compiling Linear.Matrix    ( src/Linear/Matrix.hs, dist/dist-sandbox-b0155bc7/build/Linear/Matrix.o )
+[17 of 22] Compiling Linear.Projection ( src/Linear/Projection.hs, dist/dist-sandbox-b0155bc7/build/Linear/Projection.o )
+[18 of 22] Compiling Linear.Affine    ( src/Linear/Affine.hs, dist/dist-sandbox-b0155bc7/build/Linear/Affine.o )
+[19 of 22] Compiling Linear.Binary    ( src/Linear/Binary.hs, dist/dist-sandbox-b0155bc7/build/Linear/Binary.o )
+[20 of 22] Compiling Linear.Algebra   ( src/Linear/Algebra.hs, dist/dist-sandbox-b0155bc7/build/Linear/Algebra.o )
+[21 of 22] Compiling Linear.Covector  ( src/Linear/Covector.hs, dist/dist-sandbox-b0155bc7/build/Linear/Covector.o )
+[22 of 22] Compiling Linear           ( src/Linear.hs, dist/dist-sandbox-b0155bc7/build/Linear.o )
+Creating package registration file:
+/tmp/pkgConf-linear-1.206013856441172755590.5
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/linear-1.20.5-GaIMgy0F8EGGqaV3PX1FfN
+Registering linear-1.20.5...
+cabal: Leaving directory '/tmp/cabal-tmp-31372/linear-1.20.5'

@@ -1,0 +1,24 @@
+cabal: Entering directory '/tmp/cabal-tmp-6272/AC-Vector-2.3.2'
+Configuring AC-Vector-2.3.2...
+Building AC-Vector-2.3.2...
+Preprocessing library AC-Vector-2.3.2...
+[ 1 of 14] Compiling Data.Vector.Class ( Data/Vector/Class.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Class.o )
+[ 2 of 14] Compiling Data.Vector.V1   ( Data/Vector/V1.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/V1.o )
+[ 3 of 14] Compiling Data.Vector.V2   ( Data/Vector/V2.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/V2.o )
+[ 4 of 14] Compiling Data.Vector.V3   ( Data/Vector/V3.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/V3.o )
+[ 5 of 14] Compiling Data.Vector.V4   ( Data/Vector/V4.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/V4.o )
+[ 6 of 14] Compiling Data.Vector.Transform.T1 ( Data/Vector/Transform/T1.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform/T1.o )
+[ 7 of 14] Compiling Data.Vector.Transform.T2 ( Data/Vector/Transform/T2.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform/T2.o )
+[ 8 of 14] Compiling Data.Vector.Transform.T3 ( Data/Vector/Transform/T3.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform/T3.o )
+[ 9 of 14] Compiling Data.Vector.Transform.T4 ( Data/Vector/Transform/T4.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform/T4.o )
+[10 of 14] Compiling Data.BoundingBox.Range ( Data/BoundingBox/Range.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/Range.o )
+[11 of 14] Compiling Data.BoundingBox.B1 ( Data/BoundingBox/B1.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/B1.o )
+[12 of 14] Compiling Data.BoundingBox.B2 ( Data/BoundingBox/B2.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/B2.o )
+[13 of 14] Compiling Data.BoundingBox.B3 ( Data/BoundingBox/B3.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/B3.o )
+[14 of 14] Compiling Data.BoundingBox.B4 ( Data/BoundingBox/B4.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/B4.o )
+Creating package registration file:
+/tmp/pkgConf-AC-Vector-2.335005211521595368.2
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/AC-Vector-2.3.2-Hhn6HGU4foOCybyNZwQyj6
+Registering AC-Vector-2.3.2...
+cabal: Leaving directory '/tmp/cabal-tmp-6272/AC-Vector-2.3.2'

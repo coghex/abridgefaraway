@@ -1,0 +1,39 @@
+cabal: Entering directory '/tmp/cabal-tmp-31376/primitive-0.6.1.0'
+Configuring primitive-0.6.1.0...
+Building primitive-0.6.1.0...
+Preprocessing library primitive-0.6.1.0...
+[ 1 of 10] Compiling Data.Primitive.Internal.Compat ( Data/Primitive/Internal/Compat.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/Internal/Compat.o )
+[ 2 of 10] Compiling Data.Primitive.MachDeps ( Data/Primitive/MachDeps.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/MachDeps.o )
+[ 3 of 10] Compiling Data.Primitive.Internal.Operations ( Data/Primitive/Internal/Operations.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/Internal/Operations.o )
+[ 4 of 10] Compiling Control.Monad.Primitive ( Control/Monad/Primitive.hs, dist/dist-sandbox-b0155bc7/build/Control/Monad/Primitive.o )
+
+Control/Monad/Primitive.hs:41:1: warning: [-Wdeprecations]
+    Module ‘Control.Monad.Trans.Error’ is deprecated:
+      Use Control.Monad.Trans.Except instead
+
+Control/Monad/Primitive.hs:100:11: warning: [-Wdeprecations]
+    In the use of type constructor or class ‘Error’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+
+Control/Monad/Primitive.hs:100:47: warning: [-Wdeprecations]
+    In the use of type constructor or class ‘ErrorT’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+
+Control/Monad/Primitive.hs:101:19: warning: [-Wdeprecations]
+    In the use of type constructor or class ‘ErrorT’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+[ 5 of 10] Compiling Data.Primitive.Types ( Data/Primitive/Types.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/Types.o )
+[ 6 of 10] Compiling Data.Primitive.Array ( Data/Primitive/Array.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/Array.o )
+[ 7 of 10] Compiling Data.Primitive.ByteArray ( Data/Primitive/ByteArray.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/ByteArray.o )
+[ 8 of 10] Compiling Data.Primitive.Addr ( Data/Primitive/Addr.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/Addr.o )
+[ 9 of 10] Compiling Data.Primitive   ( Data/Primitive.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive.o )
+[10 of 10] Compiling Data.Primitive.MutVar ( Data/Primitive/MutVar.hs, dist/dist-sandbox-b0155bc7/build/Data/Primitive/MutVar.o )
+Creating package registration file:
+/tmp/pkgConf-primitive-0.6.114693480941956297539.0
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/primitive-0.6.1.0-Ip44DqhfCp21tTUYbecwa
+Registering primitive-0.6.1.0...
+cabal: Leaving directory '/tmp/cabal-tmp-31376/primitive-0.6.1.0'

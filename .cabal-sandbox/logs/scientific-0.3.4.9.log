@@ -1,0 +1,17 @@
+cabal: Entering directory '/tmp/cabal-tmp-31372/scientific-0.3.4.9'
+Configuring scientific-0.3.4.9...
+Building scientific-0.3.4.9...
+Preprocessing library scientific-0.3.4.9...
+[1 of 7] Compiling GHC.Integer.Logarithms.Compat ( src/GHC/Integer/Logarithms/Compat.hs, dist/dist-sandbox-b0155bc7/build/GHC/Integer/Logarithms/Compat.o )
+[2 of 7] Compiling GHC.Integer.Compat ( src/GHC/Integer/Compat.hs, dist/dist-sandbox-b0155bc7/build/GHC/Integer/Compat.o )
+[3 of 7] Compiling Math.NumberTheory.Logarithms ( src/Math/NumberTheory/Logarithms.hs, dist/dist-sandbox-b0155bc7/build/Math/NumberTheory/Logarithms.o )
+[4 of 7] Compiling Utils            ( src/Utils.hs, dist/dist-sandbox-b0155bc7/build/Utils.o )
+[5 of 7] Compiling Data.Scientific  ( src/Data/Scientific.hs, dist/dist-sandbox-b0155bc7/build/Data/Scientific.o )
+[6 of 7] Compiling Data.Text.Lazy.Builder.Scientific ( src/Data/Text/Lazy/Builder/Scientific.hs, dist/dist-sandbox-b0155bc7/build/Data/Text/Lazy/Builder/Scientific.o )
+[7 of 7] Compiling Data.ByteString.Builder.Scientific ( src/Data/ByteString/Builder/Scientific.hs, dist/dist-sandbox-b0155bc7/build/Data/ByteString/Builder/Scientific.o )
+Creating package registration file:
+/tmp/pkgConf-scientific-0.3.419399644432112255763.9
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/scientific-0.3.4.9-KQvl6DuSgymKHg5mCjC8vW
+Registering scientific-0.3.4.9...
+cabal: Leaving directory '/tmp/cabal-tmp-31372/scientific-0.3.4.9'

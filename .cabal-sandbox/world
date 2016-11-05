@@ -1,3 +1,7 @@
+boundingboxes -any
+ac-vector-fancy -any
+freetype2 -any
+linear -any
 stm -any
 opengl -any
 glfw-b -any

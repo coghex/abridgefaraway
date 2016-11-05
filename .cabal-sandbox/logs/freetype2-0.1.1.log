@@ -1,0 +1,136 @@
+cabal: Entering directory '/tmp/cabal-tmp-4609/freetype2-0.1.1'
+Configuring freetype2-0.1.1...
+Building freetype2-0.1.1...
+Preprocessing library freetype2-0.1.1...
+BBox.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BBox_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Bitmap.hsc:9:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Bitmap_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+BitmapSize.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BitmapSize_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+CharMap.hsc:17:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/CharMap_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Generic.hsc:10:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Generic_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Glyph.hsc:17:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Glyph_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+GlyphMetrics.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/GlyphMetrics_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Memory.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Memory_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+OpenArgs.hsc:15:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/OpenArgs_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Outline.hsc:19:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Outline_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Parameter.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Parameter_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+RasterParams.hsc:23:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/RasterParams_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Size.hsc:17:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Size_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+SizeMetrics.hsc:11:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeMetrics_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+SizeRequest.hsc:12:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeRequest_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Stream.hsc:27:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Stream_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+Span.hsc:10:0: warning: "hsc_alignment" redefined
+In file included from dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Span_hsc_make.c:1:0:
+/usr/lib/ghc-8.0.1/template-hsc.h:88:0: note: this is the location of the previous definition
+ #define hsc_alignment(t...) \
+ 
+[ 1 of 31] Compiling Graphics.Rendering.FreeType.Internal.Renderer ( Graphics/Rendering/FreeType/Internal/Renderer.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Renderer.o )
+[ 2 of 31] Compiling Graphics.Rendering.FreeType.Internal.Span ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Span.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Span.o )
+[ 3 of 31] Compiling Graphics.Rendering.FreeType.Internal.Module ( Graphics/Rendering/FreeType/Internal/Module.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Module.o )
+[ 4 of 31] Compiling Graphics.Rendering.FreeType.Internal.SubGlyph ( Graphics/Rendering/FreeType/Internal/SubGlyph.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SubGlyph.o )
+[ 5 of 31] Compiling Graphics.Rendering.FreeType.Internal.Generic ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Generic.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Generic.o )
+[ 6 of 31] Compiling Graphics.Rendering.FreeType.Internal.Driver ( Graphics/Rendering/FreeType/Internal/Driver.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Driver.o )
+[ 7 of 31] Compiling Graphics.Rendering.FreeType.Internal.FaceType ( Graphics/Rendering/FreeType/Internal/FaceType.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/FaceType.o )
+[ 8 of 31] Compiling Graphics.Rendering.FreeType.Internal.Bitmap ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Bitmap.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Bitmap.o )
+[ 9 of 31] Compiling Graphics.Rendering.FreeType.Internal.Memory ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Memory.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Memory.o )
+[10 of 31] Compiling Graphics.Rendering.FreeType.Internal.Stream ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Stream.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Stream.o )
+[11 of 31] Compiling Graphics.Rendering.FreeType.Internal.Library ( Graphics/Rendering/FreeType/Internal/Library.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Library.o )
+[12 of 31] Compiling Graphics.Rendering.FreeType.Internal.PrimitiveTypes ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/PrimitiveTypes.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/PrimitiveTypes.o )
+[13 of 31] Compiling Graphics.Rendering.FreeType.Internal.Matrix ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Matrix.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Matrix.o )
+[14 of 31] Compiling Graphics.Rendering.FreeType.Internal.Vector ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Vector.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Vector.o )
+[15 of 31] Compiling Graphics.Rendering.FreeType.Internal.Glyph ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Glyph.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Glyph.o )
+[16 of 31] Compiling Graphics.Rendering.FreeType.Internal.SizeRequest ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeRequest.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeRequest.o )
+[17 of 31] Compiling Graphics.Rendering.FreeType.Internal.CharMap ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/CharMap.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/CharMap.o )
+[18 of 31] Compiling Graphics.Rendering.FreeType.Internal.Outline ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Outline.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Outline.o )
+[19 of 31] Compiling Graphics.Rendering.FreeType.Internal.OutlineGlyph ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/OutlineGlyph.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/OutlineGlyph.o )
+[20 of 31] Compiling Graphics.Rendering.FreeType.Internal.BBox ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BBox.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BBox.o )
+[21 of 31] Compiling Graphics.Rendering.FreeType.Internal.RasterParams ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/RasterParams.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/RasterParams.o )
+[22 of 31] Compiling Graphics.Rendering.FreeType.Internal.BitmapGlyph ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BitmapGlyph.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BitmapGlyph.o )
+[23 of 31] Compiling Graphics.Rendering.FreeType.Internal.BitmapSize ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BitmapSize.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/BitmapSize.o )
+
+Graphics/Rendering/FreeType/Internal/BitmapSize.hsc:25:10: warning: [-Wmissing-methods]
+    • No explicit implementation for
+        either ‘poke’ or ‘pokeElemOff’ or ‘pokeByteOff’
+    • In the instance declaration for ‘Storable FT_Bitmap_Size’
+[24 of 31] Compiling Graphics.Rendering.FreeType.Internal.GlyphMetrics ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/GlyphMetrics.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/GlyphMetrics.o )
+[25 of 31] Compiling Graphics.Rendering.FreeType.Internal.GlyphSlot ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/GlyphSlot.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/GlyphSlot.o )
+[26 of 31] Compiling Graphics.Rendering.FreeType.Internal.Parameter ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Parameter.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Parameter.o )
+[27 of 31] Compiling Graphics.Rendering.FreeType.Internal.OpenArgs ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/OpenArgs.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/OpenArgs.o )
+
+Graphics/Rendering/FreeType/Internal/OpenArgs.hsc:31:10: warning: [-Wmissing-methods]
+    • No explicit implementation for
+        either ‘poke’ or ‘pokeElemOff’ or ‘pokeByteOff’
+    • In the instance declaration for ‘Storable FT_Open_Args’
+[28 of 31] Compiling Graphics.Rendering.FreeType.Internal.SizeMetrics ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeMetrics.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/SizeMetrics.o )
+[29 of 31] Compiling Graphics.Rendering.FreeType.Internal.Size ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Size.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Size.o )
+[30 of 31] Compiling Graphics.Rendering.FreeType.Internal.Face ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Face.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal/Face.o )
+[31 of 31] Compiling Graphics.Rendering.FreeType.Internal ( dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal.hs, dist/dist-sandbox-b0155bc7/build/Graphics/Rendering/FreeType/Internal.o )
+Creating package registration file:
+/tmp/pkgConf-freetype2-0.17833686901102520059.1
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/freetype2-0.1.1-HSw4T9f14sTRBjdEGbgB7
+Registering freetype2-0.1.1...
+cabal: Leaving directory '/tmp/cabal-tmp-4609/freetype2-0.1.1'

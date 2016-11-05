@@ -1,0 +1,18 @@
+cabal: Entering directory '/tmp/cabal-tmp-31378/unordered-containers-0.2.7.1'
+Configuring unordered-containers-0.2.7.1...
+Building unordered-containers-0.2.7.1...
+Preprocessing library unordered-containers-0.2.7.1...
+[1 of 8] Compiling Data.HashMap.UnsafeShift ( Data/HashMap/UnsafeShift.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/UnsafeShift.o )
+[2 of 8] Compiling Data.HashMap.PopCount ( Data/HashMap/PopCount.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/PopCount.o )
+[3 of 8] Compiling Data.HashMap.Unsafe ( Data/HashMap/Unsafe.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/Unsafe.o )
+[4 of 8] Compiling Data.HashMap.Array ( Data/HashMap/Array.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/Array.o )
+[5 of 8] Compiling Data.HashMap.Base ( Data/HashMap/Base.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/Base.o )
+[6 of 8] Compiling Data.HashMap.Strict ( Data/HashMap/Strict.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/Strict.o )
+[7 of 8] Compiling Data.HashMap.Lazy ( Data/HashMap/Lazy.hs, dist/dist-sandbox-b0155bc7/build/Data/HashMap/Lazy.o )
+[8 of 8] Compiling Data.HashSet     ( Data/HashSet.hs, dist/dist-sandbox-b0155bc7/build/Data/HashSet.o )
+Creating package registration file:
+/tmp/pkgConf-unordered-containers-0.2.71610120709791698927.1
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/unordered-containers-0.2.7.1-6bkbSof1XWh4GgTlyLgquv
+Registering unordered-containers-0.2.7.1...
+cabal: Leaving directory '/tmp/cabal-tmp-31378/unordered-containers-0.2.7.1'

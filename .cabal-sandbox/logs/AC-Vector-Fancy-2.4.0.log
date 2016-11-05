@@ -1,0 +1,16 @@
+cabal: Entering directory '/tmp/cabal-tmp-6272/AC-Vector-Fancy-2.4.0'
+Configuring AC-Vector-Fancy-2.4.0...
+Building AC-Vector-Fancy-2.4.0...
+Preprocessing library AC-Vector-Fancy-2.4.0...
+[1 of 6] Compiling Data.Vector.Fancy ( Data/Vector/Fancy.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Fancy.o )
+[2 of 6] Compiling Data.Vector.Transform.Fancy ( Data/Vector/Transform/Fancy.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform/Fancy.o )
+[3 of 6] Compiling Data.Vector.Transform ( Data/Vector/Transform.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector/Transform.o )
+[4 of 6] Compiling Data.Vector      ( Data/Vector.hs, dist/dist-sandbox-b0155bc7/build/Data/Vector.o )
+[5 of 6] Compiling Data.BoundingBox.Fancy ( Data/BoundingBox/Fancy.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox/Fancy.o )
+[6 of 6] Compiling Data.BoundingBox ( Data/BoundingBox.hs, dist/dist-sandbox-b0155bc7/build/Data/BoundingBox.o )
+Creating package registration file:
+/tmp/pkgConf-AC-Vector-Fancy-2.42145174067468703135.0
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/AC-Vector-Fancy-2.4.0-GgBvk2Cocjt7AV7IbLGLS4
+Registering AC-Vector-Fancy-2.4.0...
+cabal: Leaving directory '/tmp/cabal-tmp-6272/AC-Vector-Fancy-2.4.0'
