@@ -1,0 +1,15 @@
+cabal: Entering directory '/tmp/cabal-tmp-6679/zlib-0.6.1.2'
+Configuring zlib-0.6.1.2...
+Building zlib-0.6.1.2...
+Preprocessing library zlib-0.6.1.2...
+[1 of 5] Compiling Codec.Compression.Zlib.Stream ( dist/dist-sandbox-b0155bc7/build/Codec/Compression/Zlib/Stream.hs, dist/dist-sandbox-b0155bc7/build/Codec/Compression/Zlib/Stream.o )
+[2 of 5] Compiling Codec.Compression.Zlib.Internal ( Codec/Compression/Zlib/Internal.hs, dist/dist-sandbox-b0155bc7/build/Codec/Compression/Zlib/Internal.o )
+[3 of 5] Compiling Codec.Compression.Zlib.Raw ( Codec/Compression/Zlib/Raw.hs, dist/dist-sandbox-b0155bc7/build/Codec/Compression/Zlib/Raw.o )
+[4 of 5] Compiling Codec.Compression.Zlib ( Codec/Compression/Zlib.hs, dist/dist-sandbox-b0155bc7/build/Codec/Compression/Zlib.o )
+[5 of 5] Compiling Codec.Compression.GZip ( Codec/Compression/GZip.hs, dist/dist-sandbox-b0155bc7/build/Codec/Compression/GZip.o )
+Creating package registration file:
+/tmp/pkgConf-zlib-0.6.13040891721303455736.2
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/zlib-0.6.1.2-3sjfdoEPlrt37YiyVABDl7
+Registering zlib-0.6.1.2...
+cabal: Leaving directory '/tmp/cabal-tmp-6679/zlib-0.6.1.2'

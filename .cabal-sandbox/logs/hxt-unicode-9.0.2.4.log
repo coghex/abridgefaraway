@@ -1,0 +1,15 @@
+cabal: Entering directory '/tmp/cabal-tmp-16684/hxt-unicode-9.0.2.4'
+Configuring hxt-unicode-9.0.2.4...
+Building hxt-unicode-9.0.2.4...
+Preprocessing library hxt-unicode-9.0.2.4...
+[1 of 5] Compiling Data.String.UTF8 ( src/Data/String/UTF8.hs, dist/dist-sandbox-b0155bc7/build/Data/String/UTF8.o )
+[2 of 5] Compiling Data.String.UTF8Decoding ( src/Data/String/UTF8Decoding.hs, dist/dist-sandbox-b0155bc7/build/Data/String/UTF8Decoding.o )
+[3 of 5] Compiling Data.String.EncodingNames ( src/Data/String/EncodingNames.hs, dist/dist-sandbox-b0155bc7/build/Data/String/EncodingNames.o )
+[4 of 5] Compiling Data.Char.IsoLatinTables ( src/Data/Char/IsoLatinTables.hs, dist/dist-sandbox-b0155bc7/build/Data/Char/IsoLatinTables.o )
+[5 of 5] Compiling Data.String.Unicode ( src/Data/String/Unicode.hs, dist/dist-sandbox-b0155bc7/build/Data/String/Unicode.o )
+Creating package registration file:
+/tmp/pkgConf-hxt-unicode-9.0.25726603361159126505.4
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/hxt-unicode-9.0.2.4-AEIThHBnNFILy3JikxDDI3
+Registering hxt-unicode-9.0.2.4...
+cabal: Leaving directory '/tmp/cabal-tmp-16684/hxt-unicode-9.0.2.4'

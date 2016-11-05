@@ -1,0 +1,14 @@
+cabal: Entering directory '/tmp/cabal-tmp-16687/hxt-charproperties-9.2.0.1'
+Configuring hxt-charproperties-9.2.0.1...
+Building hxt-charproperties-9.2.0.1...
+Preprocessing library hxt-charproperties-9.2.0.1...
+[1 of 4] Compiling Data.Set.CharSet ( src/Data/Set/CharSet.hs, dist/dist-sandbox-b0155bc7/build/Data/Set/CharSet.o )
+[2 of 4] Compiling Data.Char.Properties.XMLCharProps ( src/Data/Char/Properties/XMLCharProps.hs, dist/dist-sandbox-b0155bc7/build/Data/Char/Properties/XMLCharProps.o )
+[3 of 4] Compiling Data.Char.Properties.UnicodeCharProps ( src/Data/Char/Properties/UnicodeCharProps.hs, dist/dist-sandbox-b0155bc7/build/Data/Char/Properties/UnicodeCharProps.o )
+[4 of 4] Compiling Data.Char.Properties.UnicodeBlocks ( src/Data/Char/Properties/UnicodeBlocks.hs, dist/dist-sandbox-b0155bc7/build/Data/Char/Properties/UnicodeBlocks.o )
+Creating package registration file:
+/tmp/pkgConf-hxt-charproperties-9.2.011311762291653377373.1
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/hxt-charproperties-9.2.0.1-L1rhanzXQ304SfBOSkeXkX
+Registering hxt-charproperties-9.2.0.1...
+cabal: Leaving directory '/tmp/cabal-tmp-16687/hxt-charproperties-9.2.0.1'

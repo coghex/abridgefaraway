@@ -28,6 +28,27 @@
   (major1) == 2 && (major2) <  0 || \
   (major1) == 2 && (major2) == 0 && (minor) <= 0)
 
+/* package GLUT-2.7.0.10 */
+#define VERSION_GLUT "2.7.0.10"
+#define MIN_VERSION_GLUT(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  7 || \
+  (major1) == 2 && (major2) == 7 && (minor) <= 0)
+
+/* package GLUtil-0.9.1.0 */
+#define VERSION_GLUtil "0.9.1.0"
+#define MIN_VERSION_GLUtil(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  9 || \
+  (major1) == 0 && (major2) == 9 && (minor) <= 1)
+
+/* package JuicyPixels-3.2.8 */
+#define VERSION_JuicyPixels "3.2.8"
+#define MIN_VERSION_JuicyPixels(major1,major2,minor) (\
+  (major1) <  3 || \
+  (major1) == 3 && (major2) <  2 || \
+  (major1) == 3 && (major2) == 2 && (minor) <= 8)
+
 /* package OpenGL-3.0.1.0 */
 #define VERSION_OpenGL "3.0.1.0"
 #define MIN_VERSION_OpenGL(major1,major2,minor) (\
@@ -111,6 +132,13 @@
   (major1) <  1 || \
   (major1) == 1 && (major2) <  6 || \
   (major1) == 1 && (major2) == 6 && (minor) <= 0)
+
+/* package transformers-0.5.2.0 */
+#define VERSION_transformers "0.5.2.0"
+#define MIN_VERSION_transformers(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  5 || \
+  (major1) == 0 && (major2) == 5 && (minor) <= 2)
 
 /* tool alex-3.2.1 */
 #define TOOL_VERSION_alex "3.2.1"

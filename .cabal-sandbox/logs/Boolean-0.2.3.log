@@ -1,0 +1,18 @@
+cabal: Entering directory '/tmp/cabal-tmp-16684/Boolean-0.2.3'
+Configuring Boolean-0.2.3...
+Building Boolean-0.2.3...
+Preprocessing library Boolean-0.2.3...
+[1 of 3] Compiling Data.Boolean     ( src/Data/Boolean.hs, dist/dist-sandbox-b0155bc7/build/Data/Boolean.o )
+[2 of 3] Compiling Data.Boolean.Overload ( src/Data/Boolean/Overload.hs, dist/dist-sandbox-b0155bc7/build/Data/Boolean/Overload.o )
+[3 of 3] Compiling Data.Boolean.Numbers ( src/Data/Boolean/Numbers.hs, dist/dist-sandbox-b0155bc7/build/Data/Boolean/Numbers.o )
+
+src/Data/Boolean/Numbers.hs:159:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: IfB a
+    • In the type signature for:
+           evenB :: (IfB a, EqB a, IntegralB a) => a -> BooleanOf a
+Creating package registration file:
+/tmp/pkgConf-Boolean-0.210599613932089018456.3
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/Boolean-0.2.3-JYotQglXhtoJXpADNau8XH
+Registering Boolean-0.2.3...
+cabal: Leaving directory '/tmp/cabal-tmp-16684/Boolean-0.2.3'

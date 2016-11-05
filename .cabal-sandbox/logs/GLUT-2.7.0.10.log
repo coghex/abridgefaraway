@@ -1,0 +1,34 @@
+cabal: Entering directory '/tmp/cabal-tmp-5829/GLUT-2.7.0.10'
+Configuring GLUT-2.7.0.10...
+Building GLUT-2.7.0.10...
+Preprocessing library GLUT-2.7.0.10...
+[ 1 of 24] Compiling Graphics.UI.GLUT.Raw.Tokens ( src/Graphics/UI/GLUT/Raw/Tokens.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Raw/Tokens.o )
+[ 2 of 24] Compiling Graphics.UI.GLUT.Raw.Fonts ( src/Graphics/UI/GLUT/Raw/Fonts.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Raw/Fonts.o )
+[ 3 of 24] Compiling Graphics.UI.GLUT.Raw.Callbacks ( src/Graphics/UI/GLUT/Raw/Callbacks.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Raw/Callbacks.o )
+[ 4 of 24] Compiling Graphics.UI.GLUT.Raw.Functions ( src/Graphics/UI/GLUT/Raw/Functions.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Raw/Functions.o )
+[ 5 of 24] Compiling Graphics.UI.GLUT.Raw ( src/Graphics/UI/GLUT/Raw.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Raw.o )
+[ 6 of 24] Compiling Graphics.UI.GLUT.Types ( src/Graphics/UI/GLUT/Types.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Types.o )
+[ 7 of 24] Compiling Graphics.UI.GLUT.QueryUtils ( src/Graphics/UI/GLUT/QueryUtils.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/QueryUtils.o )
+[ 8 of 24] Compiling Graphics.UI.GLUT.GameMode ( src/Graphics/UI/GLUT/GameMode.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/GameMode.o )
+[ 9 of 24] Compiling Graphics.UI.GLUT.DeviceControl ( src/Graphics/UI/GLUT/DeviceControl.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/DeviceControl.o )
+[10 of 24] Compiling Graphics.UI.GLUT.Debugging ( src/Graphics/UI/GLUT/Debugging.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Debugging.o )
+[11 of 24] Compiling Graphics.UI.GLUT.Objects ( src/Graphics/UI/GLUT/Objects.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Objects.o )
+[12 of 24] Compiling Graphics.UI.GLUT.Fonts ( src/Graphics/UI/GLUT/Fonts.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Fonts.o )
+[13 of 24] Compiling Graphics.UI.GLUT.Colormap ( src/Graphics/UI/GLUT/Colormap.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Colormap.o )
+[14 of 24] Compiling Graphics.UI.GLUT.Overlay ( src/Graphics/UI/GLUT/Overlay.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Overlay.o )
+[15 of 24] Compiling Graphics.UI.GLUT.Window ( src/Graphics/UI/GLUT/Window.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Window.o )
+[16 of 24] Compiling Graphics.UI.GLUT.State ( src/Graphics/UI/GLUT/State.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/State.o )
+[17 of 24] Compiling Graphics.UI.GLUT.Callbacks.Registration ( src/Graphics/UI/GLUT/Callbacks/Registration.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Callbacks/Registration.o )
+[18 of 24] Compiling Graphics.UI.GLUT.Menu ( src/Graphics/UI/GLUT/Menu.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Menu.o )
+[19 of 24] Compiling Graphics.UI.GLUT.Callbacks.Window ( src/Graphics/UI/GLUT/Callbacks/Window.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Callbacks/Window.o )
+[20 of 24] Compiling Graphics.UI.GLUT.Callbacks.Global ( src/Graphics/UI/GLUT/Callbacks/Global.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Callbacks/Global.o )
+[21 of 24] Compiling Graphics.UI.GLUT.Callbacks ( src/Graphics/UI/GLUT/Callbacks.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Callbacks.o )
+[22 of 24] Compiling Graphics.UI.GLUT.Begin ( src/Graphics/UI/GLUT/Begin.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Begin.o )
+[23 of 24] Compiling Graphics.UI.GLUT.Initialization ( src/Graphics/UI/GLUT/Initialization.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT/Initialization.o )
+[24 of 24] Compiling Graphics.UI.GLUT ( src/Graphics/UI/GLUT.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLUT.o )
+Creating package registration file:
+/tmp/pkgConf-GLUT-2.7.07833686901102520059.10
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/GLUT-2.7.0.10-BYguETEkuwmIhw4e04H7Pn
+Registering GLUT-2.7.0.10...
+cabal: Leaving directory '/tmp/cabal-tmp-5829/GLUT-2.7.0.10'

@@ -5,14 +5,21 @@ import Data.Serialize.Get ( Get, runGet, getWord32le, getWord16le
                           , skip, getByteString )
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Internal as BSI
-import Foreign ( Ptr, pokeElemOff, peekElemOff, plusPtr
-               , withForeignPtr, peek, alloca )
+import Foreign ( Ptr, pokeElemOff, peekElemOff, plusPtr, withForeignPtr, peek, alloca, free, malloc, ptrToIntPtr )
 import Graphics.GL
-import Control.Monad.RWS.Strict (put)
+import Control.Monad.RWS.Strict (put, liftIO)
+import Control.Monad.Trans.Maybe
+import Control.Monad.IO.Class
 import qualified Graphics.UI.GLFW as GLFW
 import Graphics.GLU
+import Graphics.GLUtil
+import qualified Codec.Picture as JT
+import Graphics.UI.GLUT
+import Graphics.Rendering.OpenGL.GL.Texturing
+import System.Exit
 
 import Paths
+
 
 data Image = Image !Int !Int !BS.ByteString
 
@@ -72,6 +79,15 @@ loadGLTextures fn = do
     glTexParameteri GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER glLinear
   return tex
 
+loadGLPngTextures :: MonadIO m => String -> MaybeT m ()
+loadGLPngTextures fn = do
+  fp <- liftIO $ JT.readPng "data/wcursor.png"
+  (JT.Image texWidth texHeight texData) <- MaybeT $ case fp of
+    (Right (JT.ImageRGBA8 i)) -> return $ Just i
+    (Left s)                  -> liftIO (print s) >> return Nothing
+    _                         -> return Nothing
+  return ()
+
 bitmapLoad :: FilePath -> IO (Maybe Image)
 bitmapLoad f = do
   bs <- BS.readFile f
@@ -82,7 +98,7 @@ bitmapLoad f = do
       withForeignPtr ptr $ bgr2rgb len offset
       return $! Just i
 
--- | Returns a bitmap in bgr format.
+-- | Returns a bitmap in bgr format
 getBitmap :: Get Image
 getBitmap = do
   skip 18
@@ -108,3 +124,5 @@ bgr2rgb n o p = do
     [0,3..n-3]
   where
   p' = p `plusPtr` o
+
+

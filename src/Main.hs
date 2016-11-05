@@ -118,7 +118,7 @@ draw SWorld = do
   env   <- ask
   state <- get
   liftIO $ do
-    GL.clear [GL.ColorBuffer]
+    --GL.clear [GL.ColorBuffer]
     sceneSetup
     --drawTile (stateTexs state) 1 1 1
     --drawTile (stateTexs state) 2 2 1
@@ -126,10 +126,16 @@ draw SWorld = do
     drawScene state (envWindow env)
     GL.flush
 draw _     = liftIO $ do
-    GL.clear [GL.ColorBuffer]
-    font <- createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
-    setFontFaceSize font 24 72
-    renderFont font "hello" Front
+    --GL.clear [GL.ColorBuffer]
+    sceneSetup
+    GL.preservingMatrix $ do
+      let x = -50.0::GL.GLfloat
+      let y = 0.0::GL.GLfloat
+      let z = 1::GL.GLfloat
+      GL.translate $ GL.Vector3 x y z
+      font <- createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
+      setFontFaceSize font 24 24
+      renderFont font "A Bridge Far Away..." Front
     GL.flush
 
 -- thread loop function

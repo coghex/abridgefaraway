@@ -1,0 +1,48 @@
+cabal: Entering directory '/tmp/cabal-tmp-6678/GLUtil-0.9.1.0'
+Configuring GLUtil-0.9.1.0...
+Building GLUtil-0.9.1.0...
+Preprocessing library GLUtil-0.9.1.0...
+[ 1 of 14] Compiling Graphics.GLUtil.Camera3D ( src/Graphics/GLUtil/Camera3D.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Camera3D.o )
+
+src/Graphics/GLUtil/Camera3D.hs:110:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: Epsilon a
+    • In the type signature for:
+           dolly :: (Conjugate a, Epsilon a, RealFloat a) =>
+                    V3 a -> Camera a -> Camera a
+
+src/Graphics/GLUtil/Camera3D.hs:133:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: Epsilon a
+    • In the type signature for:
+           projectionMatrix :: (Conjugate a, Epsilon a, RealFloat a) =>
+                               a -> a -> a -> a -> M44 a
+
+src/Graphics/GLUtil/Camera3D.hs:145:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: Num a
+    • In the type signature for:
+           orthoMatrix :: (Num a, Fractional a) =>
+                          a -> a -> a -> a -> a -> a -> M44 a
+
+src/Graphics/GLUtil/Camera3D.hs:154:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: Epsilon a
+    • In the type signature for:
+           camMatrix :: (Conjugate a, Epsilon a, RealFloat a) =>
+                        Camera a -> M44 a
+[ 2 of 14] Compiling Graphics.GLUtil.Camera2D ( src/Graphics/GLUtil/Camera2D.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Camera2D.o )
+[ 3 of 14] Compiling Graphics.GLUtil.Viewport ( src/Graphics/GLUtil/Viewport.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Viewport.o )
+[ 4 of 14] Compiling Graphics.GLUtil.Linear ( src/Graphics/GLUtil/Linear.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Linear.o )
+[ 5 of 14] Compiling Graphics.GLUtil.TypeMapping ( src/Graphics/GLUtil/TypeMapping.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/TypeMapping.o )
+[ 6 of 14] Compiling Graphics.GLUtil.VertexArrayObjects ( src/Graphics/GLUtil/VertexArrayObjects.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/VertexArrayObjects.o )
+[ 7 of 14] Compiling Graphics.GLUtil.GLError ( src/Graphics/GLUtil/GLError.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/GLError.o )
+[ 8 of 14] Compiling Graphics.GLUtil.Textures ( src/Graphics/GLUtil/Textures.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Textures.o )
+[ 9 of 14] Compiling Graphics.GLUtil.JuicyTextures ( src/Graphics/GLUtil/JuicyTextures.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/JuicyTextures.o )
+[10 of 14] Compiling Graphics.GLUtil.Shaders ( src/Graphics/GLUtil/Shaders.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Shaders.o )
+[11 of 14] Compiling Graphics.GLUtil.ShaderProgram ( src/Graphics/GLUtil/ShaderProgram.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/ShaderProgram.o )
+[12 of 14] Compiling Graphics.GLUtil.Drawing ( src/Graphics/GLUtil/Drawing.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/Drawing.o )
+[13 of 14] Compiling Graphics.GLUtil.BufferObjects ( src/Graphics/GLUtil/BufferObjects.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil/BufferObjects.o )
+[14 of 14] Compiling Graphics.GLUtil  ( src/Graphics/GLUtil.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLUtil.o )
+Creating package registration file:
+/tmp/pkgConf-GLUtil-0.9.110599613932089018456.0
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/GLUtil-0.9.1.0-BTLkmEmBwYSGlGaHiSQAeP
+Registering GLUtil-0.9.1.0...
+cabal: Leaving directory '/tmp/cabal-tmp-6678/GLUtil-0.9.1.0'

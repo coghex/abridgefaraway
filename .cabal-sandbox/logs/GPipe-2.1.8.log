@@ -1,0 +1,459 @@
+cabal: Entering directory '/tmp/cabal-tmp-16684/GPipe-2.1.8'
+Configuring GPipe-2.1.8...
+Building GPipe-2.1.8...
+Preprocessing library GPipe-2.1.8...
+[ 1 of 28] Compiling Data.SNMap       ( src/Data/SNMap.hs, dist/dist-sandbox-b0155bc7/build/Data/SNMap.o )
+[ 2 of 28] Compiling Graphics.GPipe.Internal.Orphans ( src/Graphics/GPipe/Internal/Orphans.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Orphans.o )
+[ 3 of 28] Compiling Graphics.GPipe.Internal.Format ( src/Graphics/GPipe/Internal/Format.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Format.o )
+[ 4 of 28] Compiling Graphics.GPipe.Internal.Expr ( src/Graphics/GPipe/Internal/Expr.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Expr.o )
+
+src/Graphics/GPipe/Internal/Expr.hs:879:11: warning: [-Winline-rule-shadowing]
+    Rule "distanceA/dist4" may never fire
+      because ‘distanceA’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘distanceA’
+
+src/Graphics/GPipe/Internal/Expr.hs:880:11: warning: [-Winline-rule-shadowing]
+    Rule "distanceA/dist3" may never fire
+      because ‘distanceA’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘distanceA’
+
+src/Graphics/GPipe/Internal/Expr.hs:881:11: warning: [-Winline-rule-shadowing]
+    Rule "distanceA/dist2" may never fire
+      because ‘distanceA’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘distanceA’
+
+src/Graphics/GPipe/Internal/Expr.hs:897:11: warning: [-Winline-rule-shadowing]
+    Rule "minB/S" may never fire because ‘minB’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘minB’
+
+src/Graphics/GPipe/Internal/Expr.hs:898:11: warning: [-Winline-rule-shadowing]
+    Rule "maxB/S" may never fire because ‘maxB’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘maxB’
+
+src/Graphics/GPipe/Internal/Expr.hs:923:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_21vm" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:924:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_31vm" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:925:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_41vm" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:933:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_21mv" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:934:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_31mv" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:935:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_41mv" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:943:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_21mm" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:944:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_31mm" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:945:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_41mm" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:954:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_12" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:955:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_13" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:956:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_14" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:957:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_12" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:958:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_13" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:959:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_14" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:960:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_12" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:961:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_13" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:962:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_14" may never fire because ‘outer’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘outer’
+
+src/Graphics/GPipe/Internal/Expr.hs:981:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_12m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:982:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_13m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:983:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_21_14m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:984:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_12m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:985:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_13m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:986:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_31_14m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:987:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_12m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:988:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_13m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:989:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_41_14m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1010:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_22" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1011:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_32" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1012:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_42" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1013:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_23" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1014:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_33" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1015:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_43" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1016:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_24" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1017:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_34" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1018:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_44" may never fire because ‘*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1038:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_22m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1039:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_32m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1040:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_42m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1041:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_23m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1042:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_33m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1043:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_43m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1044:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_12_24m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1045:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_13_34m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1046:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_14_44m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1066:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_22_21" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1067:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_23_31" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1068:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_24_41" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1069:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_32_21" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1070:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_33_31" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1071:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_34_41" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1072:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_42_21" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1073:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_43_31" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1074:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_44_41" may never fire because ‘!*’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*’
+
+src/Graphics/GPipe/Internal/Expr.hs:1094:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_22_21m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1095:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_23_31m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1096:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_24_41m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1097:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_32_21m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1098:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_33_31m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1099:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_34_41m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1100:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_42_21m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1101:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_43_31m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1102:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_44_41m" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1123:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_22_22" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1124:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_23_32" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1125:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_24_42" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1126:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_22_23" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1127:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_23_33" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1128:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_24_43" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1129:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_22_24" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1130:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_23_34" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1131:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_24_44" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1152:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_32_22" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1153:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_33_32" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1154:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_34_42" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1155:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_32_23" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1156:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_33_33" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1157:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_34_43" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1158:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_32_24" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1159:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_33_34" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1160:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_34_44" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1181:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_42_22" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1182:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_43_32" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1183:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_44_42" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1184:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_42_23" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1185:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_43_33" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1186:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_44_43" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1187:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_42_24" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1188:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_43_34" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+
+src/Graphics/GPipe/Internal/Expr.hs:1189:11: warning: [-Winline-rule-shadowing]
+    Rule "mul_44_44" may never fire because ‘!*!’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘!*!’
+[ 5 of 28] Compiling Graphics.GPipe.Internal.Context ( src/Graphics/GPipe/Internal/Context.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Context.o )
+
+src/Graphics/GPipe/Internal/Context.hs:49:1: warning: [-Wdeprecations]
+    Module ‘Control.Monad.Trans.Error’ is deprecated:
+      Use Control.Monad.Trans.Except instead
+
+src/Graphics/GPipe/Internal/Context.hs:167:33: warning: [-Wdeprecations]
+    In the use of type constructor or class ‘ErrorT’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+
+src/Graphics/GPipe/Internal/Context.hs:174:96: warning: [-Wdeprecations]
+    In the use of ‘runErrorT’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+
+src/Graphics/GPipe/Internal/Context.hs:207:1: warning: [-Winline-rule-shadowing]
+    Rule "liftContextIO >>= liftContextIO >>= x" may never fire
+      because rule "Class op >>=" for ‘>>=’ might fire first
+    Probable fix: add phase [n] or [~n] to the competing rule
+
+src/Graphics/GPipe/Internal/Context.hs:207:1: warning: [-Winline-rule-shadowing]
+    Rule "liftContextIO >>= liftContextIO >>= x" may never fire
+      because ‘liftContextIO’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘liftContextIO’
+
+src/Graphics/GPipe/Internal/Context.hs:208:1: warning: [-Winline-rule-shadowing]
+    Rule "liftContextIO >>= liftContextIO" may never fire
+      because ‘liftContextIO’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘liftContextIO’
+[ 6 of 28] Compiling Graphics.GPipe.Internal.Compiler ( src/Graphics/GPipe/Internal/Compiler.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Compiler.o )
+[ 7 of 28] Compiling Graphics.GPipe.Internal.Buffer ( src/Graphics/GPipe/Internal/Buffer.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Buffer.o )
+[ 8 of 28] Compiling Graphics.GPipe.Internal.Shader ( src/Graphics/GPipe/Internal/Shader.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Shader.o )
+
+src/Graphics/GPipe/Internal/Shader.hs:43:1: warning: [-Wdeprecations]
+    Module ‘Control.Monad.Trans.Error’ is deprecated:
+      Use Control.Monad.Trans.Except instead
+
+src/Graphics/GPipe/Internal/Shader.hs:129:39: warning: [-Wdeprecations]
+    In the use of ‘throwError’
+    (imported from Control.Monad.Trans.Error):
+    Deprecated: "Use Control.Monad.Trans.Except instead"
+[ 9 of 28] Compiling Graphics.GPipe.Internal.Texture ( src/Graphics/GPipe/Internal/Texture.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Texture.o )
+[10 of 28] Compiling Graphics.GPipe.Internal.PrimitiveArray ( src/Graphics/GPipe/Internal/PrimitiveArray.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/PrimitiveArray.o )
+[11 of 28] Compiling Graphics.GPipe.Internal.Uniform ( src/Graphics/GPipe/Internal/Uniform.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/Uniform.o )
+[12 of 28] Compiling Graphics.GPipe.Internal.PrimitiveStream ( src/Graphics/GPipe/Internal/PrimitiveStream.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/PrimitiveStream.o )
+[13 of 28] Compiling Graphics.GPipe.Internal.FragmentStream ( src/Graphics/GPipe/Internal/FragmentStream.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/FragmentStream.o )
+[14 of 28] Compiling Graphics.GPipe.Internal.FrameBuffer ( src/Graphics/GPipe/Internal/FrameBuffer.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Internal/FrameBuffer.o )
+[15 of 28] Compiling Graphics.GPipe.Orphans ( src/Graphics/GPipe/Orphans.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Orphans.o )
+[16 of 28] Compiling Graphics.GPipe.Sampler ( src/Graphics/GPipe/Sampler.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Sampler.o )
+[17 of 28] Compiling Graphics.GPipe.Texture ( src/Graphics/GPipe/Texture.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Texture.o )
+[18 of 28] Compiling Graphics.GPipe.Uniform ( src/Graphics/GPipe/Uniform.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Uniform.o )
+[19 of 28] Compiling Graphics.GPipe.Expr ( src/Graphics/GPipe/Expr.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Expr.o )
+[20 of 28] Compiling Graphics.GPipe.Shader ( src/Graphics/GPipe/Shader.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Shader.o )
+[21 of 28] Compiling Graphics.GPipe.FrameBuffer ( src/Graphics/GPipe/FrameBuffer.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/FrameBuffer.o )
+[22 of 28] Compiling Graphics.GPipe.FragmentStream ( src/Graphics/GPipe/FragmentStream.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/FragmentStream.o )
+[23 of 28] Compiling Graphics.GPipe.PrimitiveStream ( src/Graphics/GPipe/PrimitiveStream.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/PrimitiveStream.o )
+[24 of 28] Compiling Graphics.GPipe.PrimitiveArray ( src/Graphics/GPipe/PrimitiveArray.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/PrimitiveArray.o )
+[25 of 28] Compiling Graphics.GPipe.Buffer ( src/Graphics/GPipe/Buffer.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Buffer.o )
+[26 of 28] Compiling Graphics.GPipe.Format ( src/Graphics/GPipe/Format.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Format.o )
+[27 of 28] Compiling Graphics.GPipe.Context ( src/Graphics/GPipe/Context.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe/Context.o )
+[28 of 28] Compiling Graphics.GPipe   ( src/Graphics/GPipe.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GPipe.o )
+Creating package registration file:
+/tmp/pkgConf-GPipe-2.19439477391984210012.8
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/GPipe-2.1.8-L7UKGEoTTrsFH6pHpSDrB1
+Registering GPipe-2.1.8...
+cabal: Leaving directory '/tmp/cabal-tmp-16684/GPipe-2.1.8'

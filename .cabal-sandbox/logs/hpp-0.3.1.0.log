@@ -1,0 +1,35 @@
+cabal: Entering directory '/tmp/cabal-tmp-6678/hpp-0.3.1.0'
+Configuring hpp-0.3.1.0...
+Building hpp-0.3.1.0...
+Preprocessing library hpp-0.3.1.0...
+[ 1 of 12] Compiling Hpp.Tokens       ( src/Hpp/Tokens.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Tokens.o )
+[ 2 of 12] Compiling Hpp.String       ( src/Hpp/String.hs, dist/dist-sandbox-b0155bc7/build/Hpp/String.o )
+[ 3 of 12] Compiling Hpp.Expr         ( src/Hpp/Expr.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Expr.o )
+[ 4 of 12] Compiling Hpp.Env          ( src/Hpp/Env.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Env.o )
+[ 5 of 12] Compiling Hpp.Config       ( src/Hpp/Config.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Config.o )
+[ 6 of 12] Compiling Hpp.Types        ( src/Hpp/Types.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Types.o )
+[ 7 of 12] Compiling Hpp.Streamer     ( src/Hpp/Streamer.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Streamer.o )
+
+src/Hpp/Streamer.hs:352:5: warning: [-Winline-rule-shadowing]
+    Rule "hpp: metamorph/mapping" may never fire
+      because ‘metamorph’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘metamorph’
+
+src/Hpp/Streamer.hs:354:5: warning: [-Winline-rule-shadowing]
+    Rule "hpp: mapping/metamorph" may never fire
+      because ‘metamorph’ might inline first
+    Probable fix: add an INLINE[n] or NOINLINE[n] pragma for ‘metamorph’
+[ 8 of 12] Compiling Hpp.Parser       ( src/Hpp/Parser.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Parser.o )
+[ 9 of 12] Compiling Hpp.Expansion    ( src/Hpp/Expansion.hs, dist/dist-sandbox-b0155bc7/build/Hpp/Expansion.o )
+[10 of 12] Compiling Hpp.StreamIO     ( src/Hpp/StreamIO.hs, dist/dist-sandbox-b0155bc7/build/Hpp/StreamIO.o )
+[11 of 12] Compiling Hpp              ( src/Hpp.hs, dist/dist-sandbox-b0155bc7/build/Hpp.o )
+[12 of 12] Compiling Hpp.CmdLine      ( src/Hpp/CmdLine.hs, dist/dist-sandbox-b0155bc7/build/Hpp/CmdLine.o )
+Preprocessing executable 'hpp' for hpp-0.3.1.0...
+[1 of 1] Compiling Main             ( src/Main.hs, dist/dist-sandbox-b0155bc7/build/hpp/hpp-tmp/Main.o )
+Linking dist/dist-sandbox-b0155bc7/build/hpp/hpp ...
+Creating package registration file: /tmp/pkgConf-hpp-0.3.1278722862233665123.0
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/hpp-0.3.1.0-2jzYFEarQeR4FlYQJH6WMw
+Installing executable(s) in /home/fatty/abridgefaraway/.cabal-sandbox/bin
+Registering hpp-0.3.1.0...
+cabal: Leaving directory '/tmp/cabal-tmp-6678/hpp-0.3.1.0'

@@ -550,3 +550,190 @@ dependencies: base-4.9.0.0
 install-outcome: InstallOk
 docs-outcome: NotTried
 tests-outcome: NotTried
+
+package: Boolean-0.2.3
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: GPipe-2.1.8
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: Boolean-0.2.3 base-4.9.0.0 containers-0.5.7.1
+              exception-transformers-0.4.0.4 gl-0.7.8.1 hashtables-1.2.1.0
+              linear-1.20.5 transformers-0.5.2.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: exception-transformers-0.4.0.4
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0 stm-2.4.4.1 transformers-0.5.2.0
+              transformers-compat-0.5.1.4
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: gl-0.7.8.1
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: usenativewindowslibraries useglxgetprocaddress
+dependencies: base-4.9.0.0 containers-0.5.7.1 directory-1.2.6.2
+              filepath-1.4.1.0 fixed-0.2.1.1 half-0.2.2.3 hxt-9.3.1.16
+              split-0.2.3.1 transformers-0.5.2.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hashtables-1.2.1.0
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: unsafe-tricks -sse42 -portable -debug -bounds-checking
+dependencies: base-4.9.0.0 ghc-prim-0.5.0.0 hashable-1.2.4.0
+              primitive-0.6.1.0 vector-0.11.0.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hxt-9.3.1.16
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: -network-uri
+dependencies: base-4.9.0.0 binary-0.8.3.0 bytestring-0.10.8.1
+              containers-0.5.7.1 deepseq-1.4.2.0 directory-1.2.6.2
+              filepath-1.4.1.0 hxt-charproperties-9.2.0.1
+              hxt-regex-xmlschema-9.2.0.3 hxt-unicode-9.0.2.4 mtl-2.2.1
+              network-uri-2.6.1.0 parsec-3.1.11
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hxt-charproperties-9.2.0.1
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hxt-regex-xmlschema-9.2.0.3
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: -profile
+dependencies: base-4.9.0.0 bytestring-0.10.8.1
+              hxt-charproperties-9.2.0.1 parsec-3.1.11 text-1.2.2.1
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hxt-unicode-9.0.2.4
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0 hxt-charproperties-9.2.0.1
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: network-uri-2.6.1.0
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0 deepseq-1.4.2.0 parsec-3.1.11
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: parsec-3.1.11
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0 bytestring-0.10.8.1 mtl-2.2.1
+              text-1.2.2.1
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: GLUT-2.7.0.10
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: usenativewindowslibraries -buildexamples
+dependencies: OpenGL-3.0.1.0 StateVar-1.1.0.4 array-0.5.1.1
+              base-4.9.0.0 containers-0.5.7.1 transformers-0.5.2.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: GLUtil-0.9.1.0
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: JuicyPixels-3.2.8 OpenGL-3.0.1.0 OpenGLRaw-3.2.3.0
+              array-0.5.1.1 base-4.9.0.0 bytestring-0.10.8.1 containers-0.5.7.1
+              directory-1.2.6.2 filepath-1.4.1.0 hpp-0.3.1.0 linear-1.20.5
+              transformers-0.5.2.0 vector-0.11.0.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: JuicyPixels-3.2.8
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: -mmap
+dependencies: base-4.9.0.0 binary-0.8.3.0 bytestring-0.10.8.1
+              containers-0.5.7.1 deepseq-1.4.2.0 mtl-2.2.1 primitive-0.6.1.0
+              transformers-0.5.2.0 vector-0.11.0.0 zlib-0.6.1.2
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: hpp-0.3.1.0
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0 directory-1.2.6.2 filepath-1.4.1.0
+              time-1.6.0.1 transformers-0.5.2.0 base-4.9.0.0 directory-1.2.6.2
+              filepath-1.4.1.0 time-1.6.0.1
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried
+
+package: zlib-0.6.1.2
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+flags: -non-blocking-ffi
+dependencies: base-4.9.0.0 bytestring-0.10.8.1
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried

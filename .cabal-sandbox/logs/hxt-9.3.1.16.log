@@ -1,0 +1,130 @@
+cabal: Entering directory '/tmp/cabal-tmp-16684/hxt-9.3.1.16'
+Configuring hxt-9.3.1.16...
+Building hxt-9.3.1.16...
+Preprocessing library hxt-9.3.1.16...
+[ 1 of 82] Compiling Text.XML.HXT.Parser.XmlCharParser ( src/Text/XML/HXT/Parser/XmlCharParser.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlCharParser.o )
+[ 2 of 82] Compiling Text.XML.HXT.DTDValidation.RE ( src/Text/XML/HXT/DTDValidation/RE.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/RE.o )
+[ 3 of 82] Compiling Text.XML.HXT.DOM.MimeTypeDefaults ( src/Text/XML/HXT/DOM/MimeTypeDefaults.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/MimeTypeDefaults.o )
+[ 4 of 82] Compiling Text.XML.HXT.DOM.MimeTypes ( src/Text/XML/HXT/DOM/MimeTypes.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/MimeTypes.o )
+[ 5 of 82] Compiling Text.XML.HXT.DOM.Util ( src/Text/XML/HXT/DOM/Util.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/Util.o )
+[ 6 of 82] Compiling Text.XML.HXT.DOM.XmlKeywords ( src/Text/XML/HXT/DOM/XmlKeywords.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/XmlKeywords.o )
+[ 7 of 82] Compiling Text.XML.HXT.Parser.ProtocolHandlerUtil ( src/Text/XML/HXT/Parser/ProtocolHandlerUtil.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/ProtocolHandlerUtil.o )
+[ 8 of 82] Compiling Text.XML.HXT.Version ( src/Text/XML/HXT/Version.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Version.o )
+[ 9 of 82] Compiling Text.XML.HXT.XMLSchema.DataTypeLibW3CNames ( src/Text/XML/HXT/XMLSchema/DataTypeLibW3CNames.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/XMLSchema/DataTypeLibW3CNames.o )
+[10 of 82] Compiling Text.XML.HXT.Parser.XmlEntities ( src/Text/XML/HXT/Parser/XmlEntities.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlEntities.o )
+[11 of 82] Compiling Text.XML.HXT.Parser.XhtmlEntities ( src/Text/XML/HXT/Parser/XhtmlEntities.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XhtmlEntities.o )
+[12 of 82] Compiling Text.XML.HXT.IO.GetFILE ( src/Text/XML/HXT/IO/GetFILE.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/IO/GetFILE.o )
+[13 of 82] Compiling Data.Function.Selector ( src/Data/Function/Selector.hs, dist/dist-sandbox-b0155bc7/build/Data/Function/Selector.o )
+[14 of 82] Compiling Data.Atom        ( src/Data/Atom.hs, dist/dist-sandbox-b0155bc7/build/Data/Atom.o )
+[15 of 82] Compiling Data.AssocList   ( src/Data/AssocList.hs, dist/dist-sandbox-b0155bc7/build/Data/AssocList.o )
+[16 of 82] Compiling Data.Tree.Class  ( src/Data/Tree/Class.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/Class.o )
+[17 of 82] Compiling Control.Arrow.ArrowState ( src/Control/Arrow/ArrowState.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowState.o )
+[18 of 82] Compiling Data.Tree.NavigatableTree.Class ( src/Data/Tree/NavigatableTree/Class.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/NavigatableTree/Class.o )
+[19 of 82] Compiling Data.Tree.NavigatableTree.XPathAxis ( src/Data/Tree/NavigatableTree/XPathAxis.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/NavigatableTree/XPathAxis.o )
+
+src/Data/Tree/NavigatableTree/XPathAxis.hs:104:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: NavigatableTree t
+    • In the type signature for:
+           selfAxis :: NavigatableTree t => t a -> [t a]
+[20 of 82] Compiling Control.FlatSeq  ( src/Control/FlatSeq.hs, dist/dist-sandbox-b0155bc7/build/Control/FlatSeq.o )
+[21 of 82] Compiling Data.Tree.NTree.TypeDefs ( src/Data/Tree/NTree/TypeDefs.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/NTree/TypeDefs.o )
+[22 of 82] Compiling Data.Tree.NTree.Edit ( src/Data/Tree/NTree/Edit.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/NTree/Edit.o )
+[23 of 82] Compiling Data.Tree.NTree.Zipper.TypeDefs ( src/Data/Tree/NTree/Zipper/TypeDefs.hs, dist/dist-sandbox-b0155bc7/build/Data/Tree/NTree/Zipper/TypeDefs.o )
+[24 of 82] Compiling Text.XML.HXT.DOM.QualifiedName ( src/Text/XML/HXT/DOM/QualifiedName.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/QualifiedName.o )
+
+src/Text/XML/HXT/DOM/QualifiedName.hs:562:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: NFData r
+    • In the type signature for:
+           changeNameCache :: NFData r => ChangeNameCache r -> r
+[25 of 82] Compiling Text.XML.HXT.DOM.TypeDefs ( src/Text/XML/HXT/DOM/TypeDefs.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/TypeDefs.o )
+[26 of 82] Compiling Text.XML.HXT.DOM.Interface ( src/Text/XML/HXT/DOM/Interface.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/Interface.o )
+[27 of 82] Compiling Text.XML.HXT.DOM.XmlNode ( src/Text/XML/HXT/DOM/XmlNode.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/XmlNode.o )
+[28 of 82] Compiling Text.XML.HXT.Parser.XmlTokenParser ( src/Text/XML/HXT/Parser/XmlTokenParser.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlTokenParser.o )
+[29 of 82] Compiling Text.XML.HXT.Parser.XmlDTDTokenParser ( src/Text/XML/HXT/Parser/XmlDTDTokenParser.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlDTDTokenParser.o )
+[30 of 82] Compiling Text.XML.HXT.DOM.ShowXml ( src/Text/XML/HXT/DOM/ShowXml.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/ShowXml.o )
+[31 of 82] Compiling Text.XML.HXT.DOM.FormatXmlTree ( src/Text/XML/HXT/DOM/FormatXmlTree.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DOM/FormatXmlTree.o )
+[32 of 82] Compiling Text.XML.HXT.Parser.XmlParsec ( src/Text/XML/HXT/Parser/XmlParsec.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlParsec.o )
+[33 of 82] Compiling Text.XML.HXT.Parser.HtmlParsec ( src/Text/XML/HXT/Parser/HtmlParsec.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/HtmlParsec.o )
+[34 of 82] Compiling Text.XML.HXT.Parser.XmlDTDParser ( src/Text/XML/HXT/Parser/XmlDTDParser.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Parser/XmlDTDParser.o )
+[35 of 82] Compiling Text.XML.HXT.Arrow.Pickle.Schema ( src/Text/XML/HXT/Arrow/Pickle/Schema.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Pickle/Schema.o )
+[36 of 82] Compiling Text.XML.HXT.Arrow.Pickle.DTD ( src/Text/XML/HXT/Arrow/Pickle/DTD.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Pickle/DTD.o )
+[37 of 82] Compiling Control.Arrow.ArrowList ( src/Control/Arrow/ArrowList.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowList.o )
+[38 of 82] Compiling Control.Arrow.ArrowNF ( src/Control/Arrow/ArrowNF.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowNF.o )
+[39 of 82] Compiling Control.Arrow.ArrowIf ( src/Control/Arrow/ArrowIf.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowIf.o )
+[40 of 82] Compiling Control.Arrow.ArrowNavigatableTree ( src/Control/Arrow/ArrowNavigatableTree.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowNavigatableTree.o )
+
+src/Control/Arrow/ArrowNavigatableTree.hs:207:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: NavigatableTree t
+    • In the type signature for:
+           moveOn :: (ArrowList a, NavigatableTree t) =>
+                     a (t b) (t b) -> a (t b) (t b)
+
+src/Control/Arrow/ArrowNavigatableTree.hs:221:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: ArrowList a
+    • In the type signature for:
+           changeThisTree :: (ArrowList a, ArrowIf a,
+                              NavigatableTreeToTree nt t, NavigatableTreeModify nt t) =>
+                             a (t b) (t b) -> a (nt b) (nt b)
+
+src/Control/Arrow/ArrowNavigatableTree.hs:231:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: ArrowList a
+    • In the type signature for:
+           substThisTree :: (ArrowList a, ArrowIf a,
+                             NavigatableTreeToTree nt t, NavigatableTreeModify nt t) =>
+                            t b -> a (nt b) (nt b)
+
+src/Control/Arrow/ArrowNavigatableTree.hs:270:1: warning: [-Wredundant-constraints]
+    • Redundant constraint: NavigatableTreeModify nt t
+    • In the type signature for:
+           addToOneSide :: (ArrowList a, NavigatableTreeToTree nt t,
+                            NavigatableTreeModify nt t) =>
+                           (Maybe (nt b) -> [t b] -> Maybe (nt b))
+                           -> a (t b) (t b) -> a (nt b) (nt b)
+[41 of 82] Compiling Control.Arrow.ArrowTree ( src/Control/Arrow/ArrowTree.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowTree.o )
+[42 of 82] Compiling Control.Arrow.ListArrow ( src/Control/Arrow/ListArrow.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ListArrow.o )
+[43 of 82] Compiling Control.Arrow.StateListArrow ( src/Control/Arrow/StateListArrow.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/StateListArrow.o )
+[44 of 82] Compiling Control.Arrow.NTreeEdit ( src/Control/Arrow/NTreeEdit.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/NTreeEdit.o )
+[45 of 82] Compiling Control.Arrow.ArrowIO ( src/Control/Arrow/ArrowIO.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowIO.o )
+[46 of 82] Compiling Control.Arrow.ArrowExc ( src/Control/Arrow/ArrowExc.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ArrowExc.o )
+[47 of 82] Compiling Control.Arrow.IOListArrow ( src/Control/Arrow/IOListArrow.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/IOListArrow.o )
+[48 of 82] Compiling Control.Arrow.IOStateListArrow ( src/Control/Arrow/IOStateListArrow.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/IOStateListArrow.o )
+[49 of 82] Compiling Text.XML.HXT.Arrow.XmlState.TypeDefs ( src/Text/XML/HXT/Arrow/XmlState/TypeDefs.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/TypeDefs.o )
+[50 of 82] Compiling Text.XML.HXT.Arrow.XmlState.MimeTypeTable ( src/Text/XML/HXT/Arrow/XmlState/MimeTypeTable.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/MimeTypeTable.o )
+[51 of 82] Compiling Text.XML.HXT.Arrow.XmlArrow ( src/Text/XML/HXT/Arrow/XmlArrow.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlArrow.o )
+[52 of 82] Compiling Text.XML.HXT.Arrow.XmlState.ErrorHandling ( src/Text/XML/HXT/Arrow/XmlState/ErrorHandling.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/ErrorHandling.o )
+[53 of 82] Compiling Text.XML.HXT.Arrow.XmlState.SystemConfig ( src/Text/XML/HXT/Arrow/XmlState/SystemConfig.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/SystemConfig.o )
+[54 of 82] Compiling Text.XML.HXT.Arrow.XmlOptions ( src/Text/XML/HXT/Arrow/XmlOptions.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlOptions.o )
+[55 of 82] Compiling Text.XML.HXT.Arrow.ParserInterface ( src/Text/XML/HXT/Arrow/ParserInterface.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/ParserInterface.o )
+[56 of 82] Compiling Text.XML.HXT.Arrow.Edit ( src/Text/XML/HXT/Arrow/Edit.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Edit.o )
+[57 of 82] Compiling Text.XML.HXT.Arrow.Namespace ( src/Text/XML/HXT/Arrow/Namespace.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Namespace.o )
+[58 of 82] Compiling Text.XML.HXT.Arrow.XmlState.TraceHandling ( src/Text/XML/HXT/Arrow/XmlState/TraceHandling.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/TraceHandling.o )
+[59 of 82] Compiling Text.XML.HXT.Arrow.XmlState.URIHandling ( src/Text/XML/HXT/Arrow/XmlState/URIHandling.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/URIHandling.o )
+[60 of 82] Compiling Text.XML.HXT.DTDValidation.TypeDefs ( src/Text/XML/HXT/DTDValidation/TypeDefs.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/TypeDefs.o )
+[61 of 82] Compiling Text.XML.HXT.DTDValidation.AttributeValueValidation ( src/Text/XML/HXT/DTDValidation/AttributeValueValidation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/AttributeValueValidation.o )
+[62 of 82] Compiling Text.XML.HXT.DTDValidation.DTDValidation ( src/Text/XML/HXT/DTDValidation/DTDValidation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/DTDValidation.o )
+[63 of 82] Compiling Text.XML.HXT.DTDValidation.DocTransformation ( src/Text/XML/HXT/DTDValidation/DocTransformation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/DocTransformation.o )
+[64 of 82] Compiling Text.XML.HXT.DTDValidation.XmlRE ( src/Text/XML/HXT/DTDValidation/XmlRE.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/XmlRE.o )
+[65 of 82] Compiling Text.XML.HXT.DTDValidation.DocValidation ( src/Text/XML/HXT/DTDValidation/DocValidation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/DocValidation.o )
+[66 of 82] Compiling Text.XML.HXT.DTDValidation.IdValidation ( src/Text/XML/HXT/DTDValidation/IdValidation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/IdValidation.o )
+[67 of 82] Compiling Text.XML.HXT.DTDValidation.Validation ( src/Text/XML/HXT/DTDValidation/Validation.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/DTDValidation/Validation.o )
+[68 of 82] Compiling Text.XML.HXT.Arrow.XmlState.RunIOStateArrow ( src/Text/XML/HXT/Arrow/XmlState/RunIOStateArrow.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState/RunIOStateArrow.o )
+[69 of 82] Compiling Text.XML.HXT.Arrow.XmlState ( src/Text/XML/HXT/Arrow/XmlState.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlState.o )
+[70 of 82] Compiling Text.XML.HXT.Arrow.DocumentInput ( src/Text/XML/HXT/Arrow/DocumentInput.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/DocumentInput.o )
+[71 of 82] Compiling Text.XML.HXT.Arrow.DTDProcessing ( src/Text/XML/HXT/Arrow/DTDProcessing.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/DTDProcessing.o )
+[72 of 82] Compiling Text.XML.HXT.Arrow.GeneralEntitySubstitution ( src/Text/XML/HXT/Arrow/GeneralEntitySubstitution.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/GeneralEntitySubstitution.o )
+[73 of 82] Compiling Text.XML.HXT.Arrow.ProcessDocument ( src/Text/XML/HXT/Arrow/ProcessDocument.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/ProcessDocument.o )
+[74 of 82] Compiling Control.Arrow.ListArrows ( src/Control/Arrow/ListArrows.hs, dist/dist-sandbox-b0155bc7/build/Control/Arrow/ListArrows.o )
+[75 of 82] Compiling Text.XML.HXT.Arrow.ReadDocument ( src/Text/XML/HXT/Arrow/ReadDocument.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/ReadDocument.o )
+[76 of 82] Compiling Text.XML.HXT.Arrow.XmlRegex ( src/Text/XML/HXT/Arrow/XmlRegex.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/XmlRegex.o )
+[77 of 82] Compiling Text.XML.HXT.Arrow.Binary ( src/Text/XML/HXT/Arrow/Binary.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Binary.o )
+[78 of 82] Compiling Text.XML.HXT.Arrow.DocumentOutput ( src/Text/XML/HXT/Arrow/DocumentOutput.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/DocumentOutput.o )
+[79 of 82] Compiling Text.XML.HXT.Arrow.WriteDocument ( src/Text/XML/HXT/Arrow/WriteDocument.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/WriteDocument.o )
+[80 of 82] Compiling Text.XML.HXT.Arrow.Pickle.Xml ( src/Text/XML/HXT/Arrow/Pickle/Xml.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Pickle/Xml.o )
+[81 of 82] Compiling Text.XML.HXT.Arrow.Pickle ( src/Text/XML/HXT/Arrow/Pickle.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Arrow/Pickle.o )
+[82 of 82] Compiling Text.XML.HXT.Core ( src/Text/XML/HXT/Core.hs, dist/dist-sandbox-b0155bc7/build/Text/XML/HXT/Core.o )
+Creating package registration file:
+/tmp/pkgConf-hxt-9.3.16105154341585990364.16
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/hxt-9.3.1.16-7K7ZB5MEwQZ2CH7ICdqORi
+Registering hxt-9.3.1.16...
+cabal: Leaving directory '/tmp/cabal-tmp-16684/hxt-9.3.1.16'

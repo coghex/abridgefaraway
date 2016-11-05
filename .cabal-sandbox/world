@@ -1,3 +1,6 @@
+glutil -any
+glut -any
+gpipe -any
 ftgl -any
 boundingboxes -any
 ac-vector-fancy -any
