@@ -4,7 +4,7 @@ import Control.Concurrent.STM (TQueue)
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 
-data GameState = SWorld | SMenu
+data GameState = SWorld | SMenu deriving (Eq)
 
 data Env = Env
     { envEventsChan   :: TQueue Event

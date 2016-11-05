@@ -2,7 +2,7 @@ module Main (main) where
 
 import Control.Monad (when, void)
 import Control.Monad.Trans (MonadIO)
-import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST)
+import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify)
 import Control.Concurrent (setNumCapabilities, threadDelay)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
@@ -96,7 +96,8 @@ main = do
 -- GLloop
 run :: Game ()
 run = timedLoop $ \lastTick tick -> do
-  draw
+  state <- get
+  draw (stateGame state)
   window <- asks envWindow
   liftIO $ do
     GLFW.swapBuffers window
@@ -107,10 +108,11 @@ run = timedLoop $ \lastTick tick -> do
   processEvents
   liftIO $ not <$> GLFW.windowShouldClose window
 
-draw :: Game ()
-draw = do
-  state <- get
+
+draw :: GameState -> Game ()
+draw SWorld = do
   env   <- ask
+  state <- get
   liftIO $ do
     GL.clear [GL.ColorBuffer]
     sceneSetup
@@ -118,6 +120,10 @@ draw = do
     --drawTile (stateTexs state) 2 2 1
     --drawTile (stateTexs state) 3 3 1
     drawScene state (envWindow env)
+    GL.flush
+draw _     = liftIO $ do
+    GL.clear [GL.ColorBuffer]
+    sceneSetup
     GL.flush
 
 -- thread loop function
@@ -162,8 +168,14 @@ processEvent ev =
         GLFW.setWindowShouldClose window True
     (EventKey window k _ ks _) ->
       when (ks == GLFW.KeyState'Pressed) $ do
+        state <- get
         when (k == GLFW.Key'Escape) $
           liftIO $ GLFW.setWindowShouldClose window True
+        when ((k == GLFW.Key'Space) && ((stateGame state) == SWorld)) $
+          modify $ \s -> s { stateGame = SMenu }
+        when ((k == GLFW.Key'Space) && ((stateGame state) == SMenu)) $
+          modify $ \s -> s { stateGame = SWorld }
+
 
 -- GLFW window opening
 withWindow :: Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()

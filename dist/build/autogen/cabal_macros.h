@@ -112,6 +112,13 @@
   (major1) == 3 && (major2) <  2 || \
   (major1) == 3 && (major2) == 2 && (minor) <= 1)
 
+/* tool cpphs-1.20.2 */
+#define TOOL_VERSION_cpphs "1.20.2"
+#define MIN_TOOL_VERSION_cpphs(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  20 || \
+  (major1) == 1 && (major2) == 20 && (minor) <= 2)
+
 /* tool gcc-6.2.1 */
 #define TOOL_VERSION_gcc "6.2.1"
 #define MIN_TOOL_VERSION_gcc(major1,major2,minor) (\
@@ -160,6 +167,13 @@
   (major1) <  0 || \
   (major1) == 0 && (major2) <  68 || \
   (major1) == 0 && (major2) == 68 && (minor) <= 0)
+
+/* tool hscolour-1.24 */
+#define TOOL_VERSION_hscolour "1.24"
+#define MIN_TOOL_VERSION_hscolour(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  24 || \
+  (major1) == 1 && (major2) == 24 && (minor) <= 0)
 
 /* tool pkg-config-0.29.1 */
 #define TOOL_VERSION_pkg_config "0.29.1"
