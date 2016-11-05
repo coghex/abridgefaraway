@@ -540,3 +540,13 @@ dependencies: base-4.9.0.0 lens-4.15.1
 install-outcome: InstallOk
 docs-outcome: NotTried
 tests-outcome: NotTried
+
+package: FTGL-2.1
+os: linux
+arch: x86_64
+compiler: ghc-8.0.1
+client: cabal-install-1.24.0.0
+dependencies: base-4.9.0.0
+install-outcome: InstallOk
+docs-outcome: NotTried
+tests-outcome: NotTried

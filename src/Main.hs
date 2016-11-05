@@ -7,6 +7,7 @@ import Control.Concurrent (setNumCapabilities, threadDelay)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen)
+import Graphics.Rendering.FTGL
 import qualified GHC.Conc (getNumProcessors)
 
 import qualified Graphics.Rendering.OpenGL as GL
@@ -19,7 +20,6 @@ import State
 import Draw
 import Rand
 import Settings
-import Fonts
 
 -- Game type
 type Game = RWST Env () State IO
@@ -45,6 +45,9 @@ main = do
     continents <- randomN 10 25
     nzazzs <- randomN 10 maxnzazzs
     nspotscont <- randomN 20 maxnspots
+
+
+
     let nspots = randomList (25, 100::Int) continents seed
     let l = (take (gridh*gridw) (repeat seatile))
     let contl1 = buildList2 ((randomList (fudge, (gridw-fudge)) continents seed), (randomList (fudge, (gridh-fudge)) continents seed)) 
@@ -124,7 +127,9 @@ draw SWorld = do
     GL.flush
 draw _     = liftIO $ do
     GL.clear [GL.ColorBuffer]
-    sceneSetup
+    font <- createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
+    setFontFaceSize font 24 72
+    renderFont font "hello" Front
     GL.flush
 
 -- thread loop function
