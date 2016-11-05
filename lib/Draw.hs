@@ -36,12 +36,30 @@ sceneSetup = do
   glClear $ fromIntegral  $  GL_COLOR_BUFFER_BIT
                          .|. GL_DEPTH_BUFFER_BIT
 
+drawCursor :: Int -> Int -> IO ()
+drawCursor x y = do
+  glLoadIdentity
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-400)
+  glDisable GL_BLEND
+  glColor3f 1 1 1
+  glBegin GL_QUADS
+  glTexCoord2f   0    0
+  glVertex3f   (-1) (-1)   1
+  glTexCoord2f   1    0
+  glVertex3f     1  (-1)   1
+  glTexCoord2f   1    1
+  glVertex3f     1    1    1
+  glTexCoord2f   0    1
+  glVertex3f   (-1)   1    1
+  glEnd
+
 drawTile :: [GLuint] -> Int -> Int -> Int -> IO ()
 drawTile texs x y t = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-400)
 
   glBindTexture GL_TEXTURE_2D (texs !! t)
+  glColor3f 1 1 1
   glBegin GL_QUADS
   glTexCoord2f   0    0
   glVertex3f   (-1) (-1)   1

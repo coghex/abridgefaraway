@@ -124,6 +124,7 @@ draw SWorld = do
     --drawTile (stateTexs state) 2 2 1
     --drawTile (stateTexs state) 3 3 1
     drawScene state (envWindow env)
+    drawCursor 1 1
     GL.flush
 draw _     = liftIO $ do
     --GL.clear [GL.ColorBuffer]
