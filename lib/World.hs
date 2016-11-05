@@ -24,7 +24,8 @@ zazzGrid state = do
       zs = stateZazzs state
       zss = stateZazzSizes state
       zrs = stateZazzRands state
-      newgrid = addZazz state grid zs zss zrs
+      zts = stateZazzTypes state
+      newgrid = addZazz state grid zs zss zrs zts
   
   State
     { stateGrid = newgrid
@@ -45,10 +46,28 @@ zazzGrid state = do
     , stateZazzs = zs
     , stateZazzSizes = zss
     , stateZazzRands = zrs
+    , stateZazzTypes = zts
     }
 
-addZazz :: State -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
-addZazz state g zs zss zrs = g
+addZazz :: State -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
+addZazz _     g []          []           []           []       = g
+addZazz state g ((a,b):szs) ((c,d):szss) ((e,f):szrs) (nt:nts) = do
+  let newmap = expandMap g
+      map0 = map (zazzRow state a b c d e f nt) newmap
+      map3 = stripMap map0
+      map4 = flattenMap map3
+  addZazz state map4 szs szss szrs nts
+
+zazzRow :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+zazzRow state a b c d e f t (l, j) = ((map (zazzSpot state j a b c d e f t) l), j)
+
+zazzSpot :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+zazzSpot state _ _ _ _ _ _ _ 6  (t, i)  = (t, i)
+zazzSpot state _ _ _ _ _ _ _ 7  (t, i)  = (t, i)
+zazzSpot state _ _ _ _ _ _ _ 8  (t, i)  = (t, i)
+zazzSpot state j a b c d e f nt (t, i)
+  | ((distance i j a b e f t) <= (c*d)) = (nt, i)
+  | otherwise                           = (t, i)
 
 iceGrid :: State -> State
 iceGrid state = do
@@ -70,6 +89,7 @@ iceGrid state = do
       zs = stateZazzs state
       zss = stateZazzSizes state
       zrs = stateZazzRands state
+      zts = stateZazzTypes state
       newgrid = iceMap state nsis nsi nsir (iceMap state sis si sir grid)
   
   State
@@ -91,6 +111,7 @@ iceGrid state = do
     , stateZazzs = zs
     , stateZazzSizes = zss
     , stateZazzRands = zrs
+    , stateZazzTypes = zts
     }
 
 iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -132,6 +153,7 @@ buildGrid state c = do
       zs = stateZazzs state
       zss = stateZazzSizes state
       zrs = stateZazzRands state
+      zts = stateZazzTypes state
   
   State
     { stateGrid = newgrid
@@ -152,6 +174,7 @@ buildGrid state c = do
     , stateZazzs = zs
     , stateZazzSizes = zss
     , stateZazzRands = zrs
+    , stateZazzTypes = zts
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]

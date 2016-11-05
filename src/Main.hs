@@ -41,22 +41,25 @@ main = do
     seed <- newStdGen
     s1 <- newStdGen
     s2 <- newStdGen
-    continents <- randomN 2 25
+    continents <- randomN 10 25
+    nzazzs <- randomN 10 maxnzazzs
+    nspotscont <- randomN 20 maxnspots
     let nspots = randomList (25, 100::Int) continents seed
     let l = (take (gridh*gridw) (repeat seatile))
     let contl1 = buildList2 ((randomList (fudge, (gridw-fudge)) continents seed), (randomList (fudge, (gridh-fudge)) continents seed)) 
     let contl2 = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) continents seed), (randomList ((fudge+1), (gridh-fudge-1)) continents seed)) 
     let contl3 = buildList2 ((randomList ((fudge+2), (gridw-fudge-2)) continents seed), (randomList ((fudge+2), (gridh-fudge-2)) continents seed)) 
-    let contl4 = buildList2 ((randomList ((0), (fudge)) (continents+1) seed), (randomList ((0), (fudge-1)) (continents+1) seed)) 
+    let contl4 = buildList2 ((randomList ((0), (fudge)) nspotscont seed), (randomList ((0), (fudge-1)) nspotscont seed)) 
     let contl5 = buildList2 ((randomList ((0), (fudge-5)) nices seed), (randomList ((0), (fudge-6)) nices seed)) 
     let contl6 = buildList2 ((randomList ((2), (gridw-2)) nices seed), (randomList ((0), (fudge-4)) nices seed)) 
     let contl7 = buildList2 ((randomList ((1), (gridw-1)) nices seed), (randomList ((1), (fudge-4)) nices seed)) 
     let contl8 = buildList2 ((randomList ((0), (fudge-7)) nices seed), (randomList ((0), (fudge-6)) nices seed)) 
     let contl9 = buildList2 ((randomList ((2), (gridw-2)) nices seed), (randomList ((gridh-6), (gridh)) nices seed)) 
     let contl10 = buildList2 ((randomList ((1), (gridw-1)) nices seed), (randomList ((gridh-5), (gridh-1)) nices seed)) 
-    let contl11 = buildList2 ((randomList ((0), (gridw)) nices seed), (randomList ((0), (gridh)) nices seed)) 
-    let contl12 = buildList2 ((randomList ((2), (gridw-1)) nices seed), (randomList ((2), (gridh)) nices seed)) 
-    let contl13 = buildList2 ((randomList ((1), (gridw-2)) nices seed), (randomList ((1), (gridh-1)) nices seed)) 
+    let contl11 = buildList2 ((randomList ((0), (gridw)) nzazzs seed), (randomList ((0), (gridh)) nzazzs seed)) 
+    let contl12 = buildList2 ((randomList ((2), (gridw-1)) nzazzs seed), (randomList ((2), (gridh)) nzazzs seed)) 
+    let contl13 = buildList2 ((randomList ((1), (gridw-2)) nzazzs seed), (randomList ((1), (gridh-1)) nzazzs seed)) 
+    let contl14 = (randomList ((1), (ntiles)) nzazzs seed)
 
     let env = Env
             { envEventsChan  = eventsChan
@@ -83,10 +86,11 @@ main = do
             , stateZazzs     = contl11
             , stateZazzSizes = contl12
             , stateZazzRands = contl13
+            , stateZazzTypes = contl14
             }
     let state2 = buildGrid state continents
-    let state3 = iceGrid state2
-    let state4 = zazzGrid state3
+    let state3 = zazzGrid state2
+    let state4 = iceGrid state3
     void $ evalRWST run env state4
 
 -- GLloop

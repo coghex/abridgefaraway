@@ -32,6 +32,7 @@ data State = State
     , stateZazzs      :: ![(Int, Int)]
     , stateZazzSizes  :: ![(Int, Int)]
     , stateZazzRands  :: ![(Int, Int)]
+    , stateZazzTypes  :: ![Int]
     }
 
 data Event =
