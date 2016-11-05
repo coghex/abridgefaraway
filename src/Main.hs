@@ -20,6 +20,8 @@ import State
 import Draw
 import Rand
 import Settings
+import Namegen
+import Names
 
 -- Game type
 type Game = RWST Env () State IO
@@ -34,6 +36,7 @@ main = do
   -- IO Queue
   eventsChan <- newTQueueIO :: IO (TQueue Event)
   runOnAllCores
+  
   withWindow screenw screenh "A Bridge Far Away..." $ \window -> do
     GLFW.setErrorCallback        $ Just $ errorCallback eventsChan
     GLFW.setKeyCallback   window $ Just $ keyCallback   eventsChan
@@ -42,10 +45,13 @@ main = do
     seed <- newStdGen
     s1 <- newStdGen
     s2 <- newStdGen
+
     continents <- randomN 10 25
     nzazzs <- randomN 10 maxnzazzs
     nspotscont <- randomN 20 maxnspots
-
+    let lang = fromSamples names
+    let genname = generateName lang continents
+    print genname
 
 
     let nspots = randomList (25, 100::Int) continents seed
