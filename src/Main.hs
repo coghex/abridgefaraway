@@ -19,6 +19,7 @@ import State
 import Draw
 import Rand
 import Settings
+import Fonts
 
 -- Game type
 type Game = RWST Env () State IO

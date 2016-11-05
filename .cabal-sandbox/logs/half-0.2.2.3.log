@@ -1,0 +1,50 @@
+cabal: Entering directory '/tmp/cabal-tmp-21281/half-0.2.2.3'
+Configuring half-0.2.2.3...
+Building half-0.2.2.3...
+Preprocessing library half-0.2.2.3...
+
+on the commandline: warning:
+    unrecognised warning flag: -fno-warn-missing-pat-syn-sigs
+[1 of 1] Compiling Numeric.Half     ( src/Numeric/Half.hs, dist/dist-sandbox-b0155bc7/build/Numeric/Half.o )
+
+src/Numeric/Half.hs:151:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: POS_INF :: Half
+
+src/Numeric/Half.hs:154:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: NEG_INF :: Half
+
+src/Numeric/Half.hs:157:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: QNaN :: Half
+
+src/Numeric/Half.hs:160:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: SNaN :: Half
+
+src/Numeric/Half.hs:163:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: HALF_MIN :: Half
+
+src/Numeric/Half.hs:166:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: HALF_NRM_MIN :: Half
+
+src/Numeric/Half.hs:169:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: HALF_MAX :: Half
+
+src/Numeric/Half.hs:172:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature: HALF_EPSILON :: Half
+
+src/Numeric/Half.hs:175:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature:
+      HALF_DIG :: forall a. (Num a, Eq a) => a
+
+src/Numeric/Half.hs:178:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature:
+      HALF_MIN_10_EXP :: forall a. (Num a, Eq a) => a
+
+src/Numeric/Half.hs:181:1: warning: [-Wmissing-signatures]
+    Top-level binding with no type signature:
+      HALF_MAX_10_EXP :: forall a. (Num a, Eq a) => a
+Creating package registration file:
+/tmp/pkgConf-half-0.2.29398195822001100545.3
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/half-0.2.2.3-BFHx0LiJemg6baNXrjGThF
+Registering half-0.2.2.3...
+cabal: Leaving directory '/tmp/cabal-tmp-21281/half-0.2.2.3'

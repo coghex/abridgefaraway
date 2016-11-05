@@ -1,0 +1,16 @@
+cabal: Entering directory '/tmp/cabal-tmp-21277/GLURaw-2.0.0.2'
+Configuring GLURaw-2.0.0.2...
+Building GLURaw-2.0.0.2...
+Preprocessing library GLURaw-2.0.0.2...
+[1 of 6] Compiling Graphics.GLU.TypesInternal ( src/Graphics/GLU/TypesInternal.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU/TypesInternal.o )
+[2 of 6] Compiling Graphics.GLU.Callbacks ( src/Graphics/GLU/Callbacks.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU/Callbacks.o )
+[3 of 6] Compiling Graphics.GLU.Types ( src/Graphics/GLU/Types.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU/Types.o )
+[4 of 6] Compiling Graphics.GLU.Tokens ( src/Graphics/GLU/Tokens.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU/Tokens.o )
+[5 of 6] Compiling Graphics.GLU.Functions ( src/Graphics/GLU/Functions.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU/Functions.o )
+[6 of 6] Compiling Graphics.GLU     ( src/Graphics/GLU.hs, dist/dist-sandbox-b0155bc7/build/Graphics/GLU.o )
+Creating package registration file:
+/tmp/pkgConf-GLURaw-2.0.01194953865894429689.2
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/GLURaw-2.0.0.2-ATKM5ekkZUD6BA8HjfX7rE
+Registering GLURaw-2.0.0.2...
+cabal: Leaving directory '/tmp/cabal-tmp-21277/GLURaw-2.0.0.2'

@@ -1,0 +1,15 @@
+cabal: Entering directory '/tmp/cabal-tmp-21278/bindings-DSL-1.0.23'
+Configuring bindings-DSL-1.0.23...
+Building bindings-DSL-1.0.23...
+Preprocessing library bindings-DSL-1.0.23...
+[1 of 1] Compiling Bindings.Utilities ( Bindings/Utilities.hs, dist/dist-sandbox-b0155bc7/build/Bindings/Utilities.o )
+
+Bindings/Utilities.hs:2:1: warning: [-Wtabs]
+    Tab character found here, and in 11 further locations.
+    Please use spaces instead.
+Creating package registration file:
+/tmp/pkgConf-bindings-DSL-1.05117023052084420925.23
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/bindings-DSL-1.0.23-GUrVdpTUVQC2JWoov2sGwA
+Registering bindings-DSL-1.0.23...
+cabal: Leaving directory '/tmp/cabal-tmp-21278/bindings-DSL-1.0.23'

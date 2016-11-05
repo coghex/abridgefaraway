@@ -1,0 +1,13 @@
+cabal: Entering directory '/tmp/cabal-tmp-21277/GLFW-b-1.4.8.1'
+Configuring GLFW-b-1.4.8.1...
+Building GLFW-b-1.4.8.1...
+Preprocessing library GLFW-b-1.4.8.1...
+[1 of 3] Compiling Graphics.UI.GLFW.Types ( Graphics/UI/GLFW/Types.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLFW/Types.o )
+[2 of 3] Compiling Graphics.UI.GLFW.C ( Graphics/UI/GLFW/C.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLFW/C.o )
+[3 of 3] Compiling Graphics.UI.GLFW ( Graphics/UI/GLFW.hs, dist/dist-sandbox-b0155bc7/build/Graphics/UI/GLFW.o )
+Creating package registration file:
+/tmp/pkgConf-GLFW-b-1.4.81376710097927612902.1
+Installing library in
+/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/GLFW-b-1.4.8.1-Al6jnUrPA9PAgpgZuphRiw
+Registering GLFW-b-1.4.8.1...
+cabal: Leaving directory '/tmp/cabal-tmp-21277/GLFW-b-1.4.8.1'
