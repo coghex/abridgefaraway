@@ -212,10 +212,19 @@ draw SWorld = do
         --renderFont font "A Bridge Far Away..." Front
     GL.flush
 
+draw SZone     = do
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText 1 95 24 72 "A Bridge Far Away..."
+
 draw _     = do
   state <- get
   liftIO $ do
-    drawText 1 95 "A Bridge Far Away..."
+    beginDrawText
+    drawText 1 95 24 72 "A Bridge Far Away..."
+    drawText 1 75 12 36 "press c to create a world"
+
 
 -- thread loop function
 timedLoop :: MonadIO m => (Double -> Double -> m Bool) -> m ()

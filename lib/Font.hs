@@ -16,18 +16,22 @@ import qualified Graphics.Rendering.FTGL as FTGL
 import FontLoad
 import FontUtils
 import Draw
+import Settings
 
-drawText :: Int -> Int -> String -> IO ()
-drawText x y str = do
+beginDrawText :: IO ()
+beginDrawText = do
   sceneSetup
   blend                      $= Enabled
   blendFunc                  $= (SrcAlpha, OneMinusSrcAlpha)
+
+drawText :: Int -> Int -> Int -> Int -> String -> IO ()
+drawText x y sx sy str = do
   loadIdentity
   translate $ Vector3 (2*((fromIntegral x) - (fromIntegral 60))) (2*((fromIntegral y) - (fromIntegral 45))) (-400::GLfloat)
   color (Color3 1 1 1 :: Color3 GLfloat)
   -- you need to draw a square here
   font <- FTGL.createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
-  FTGL.setFontFaceSize font 24 72
+  FTGL.setFontFaceSize font sx sy
   FTGL.renderFont font str FTGL.Front
   
 
