@@ -15,6 +15,8 @@ data Env = Env
 
 data State = State
     { stateGrid       :: ![Int]
+    , stateScreenWidth  :: !Int
+    , stateScreenHeight :: !Int
     , stateTexs       :: ![GL.GLuint]
     , stateGame       :: !GameState
     , stateConts      :: ![(Int, Int)]
@@ -36,6 +38,7 @@ data State = State
     , stateCursor     :: !Bool
     , stateCursorX    :: !Int
     , stateCursorY    :: !Int
+    , stateAlphabet   :: ![GL.TextureObject]
     }
 
 data Event =
@@ -53,4 +56,5 @@ data Event =
   | EventScroll          !GLFW.Window !Double !Double
   | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
   | EventChar            !GLFW.Window !Char
+  | EventWindowResize    !GLFW.Window !Int !Int
   deriving Show

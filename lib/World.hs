@@ -7,6 +7,8 @@ import Settings
 zazzGrid :: State -> State
 zazzGrid state = do
   let grid = stateGrid state
+      ssw = stateScreenWidth state
+      ssh = stateScreenHeight state
       texs = stateTexs state
       gme = stateGame state
       conts = stateConts state
@@ -28,10 +30,13 @@ zazzGrid state = do
       scx = stateCursorX state
       scy = stateCursorY state
       scursor = stateCursor state
+      salph = stateAlphabet state
       newgrid = addZazz state grid zs zss zrs zts
   
   State
     { stateGrid = newgrid
+    , stateScreenWidth = ssw
+    , stateScreenHeight = ssh
     , stateTexs = texs
     , stateGame = gme
     , stateConts = conts
@@ -53,6 +58,7 @@ zazzGrid state = do
     , stateCursorX = scx
     , stateCursorY = scy
     , stateCursor = scursor
+    , stateAlphabet = salph
     }
 
 addZazz :: State -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -75,9 +81,14 @@ zazzSpot state j a b c d e f nt (t, i)
   | ((distance i j a b e f t) <= (c*d)) = (nt, i)
   | otherwise                           = (t, i)
 
+findTileType :: [Int] -> Int -> Int -> Int
+findTileType grid x y = (grid !! (flatIndex x y))
+
 iceGrid :: State -> State
 iceGrid state = do
   let grid = stateGrid state
+      ssw = stateScreenWidth state
+      ssh = stateScreenHeight state
       texs = stateTexs state
       gme = stateGame state
       conts = stateConts state
@@ -99,10 +110,13 @@ iceGrid state = do
       scursor = stateCursor state
       scx = stateCursorX state
       scy = stateCursorY state
+      salph = stateAlphabet state
       newgrid = iceMap state nsis nsi nsir (iceMap state sis si sir grid)
   
   State
     { stateGrid = newgrid
+    , stateScreenWidth = ssw
+    , stateScreenHeight = ssh
     , stateTexs = texs
     , stateGame = gme
     , stateConts = conts
@@ -124,6 +138,7 @@ iceGrid state = do
     , stateCursor = scursor
     , stateCursorX = scx
     , stateCursorY = scy
+    , stateAlphabet = salph
     }
 
 iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -147,6 +162,8 @@ iceTile state x y sx sy rx ry j (t, i)
 buildGrid :: State -> Int -> State
 buildGrid state c = do
   let grid = stateGrid state
+      ssw = stateScreenWidth state
+      ssh = stateScreenHeight state
       texs = stateTexs state
       gme = stateGame state
       conts = stateConts state
@@ -169,9 +186,12 @@ buildGrid state c = do
       scx = stateCursorX state
       scy = stateCursorY state
       scursor = stateCursor state
+      salph = stateAlphabet state
   
   State
     { stateGrid = newgrid
+    , stateScreenWidth = ssw
+    , stateScreenHeight = ssh
     , stateTexs = texs
     , stateGame = gme
     , stateConts = conts
@@ -193,6 +213,7 @@ buildGrid state c = do
     , stateCursor = scursor
     , stateCursorX = scx
     , stateCursorY = scy
+    , stateAlphabet = salph
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]

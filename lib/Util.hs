@@ -19,6 +19,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing
 import System.Exit
 
 import Paths
+import Font
 
 
 data Image = Image !Int !Int !BS.ByteString
@@ -34,7 +35,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO [GLuint]
+initTexs :: GLFW.Window -> IO ([GLuint], [TextureObject])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -47,7 +48,7 @@ initTexs win = do
   resizeScene win w h
   loadWTextures "maps/"
 
-loadWTextures :: String -> IO ([GLuint])
+loadWTextures :: String -> IO ([GLuint], [TextureObject])
 loadWTextures fn = do
   t1 <- loadGLTextures (fn ++ "plains/worldplains.bmp")
   t2 <- loadGLTextures (fn ++ "fields/worldfields.bmp")
@@ -58,7 +59,9 @@ loadWTextures fn = do
   t7 <- loadGLTextures (fn ++ "sea/worldcoast.bmp")
   t8 <- loadGLTextures (fn ++ "sea/worldice.bmp")
   t9 <- runMaybeT $ loadGLPngTextures ("data/wcursor.png")
-  return [t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)]
+  fonttex <- loadCharacter "data/fonts/amatic/AmaticSC-Regular.ttf" 'A' 24
+  
+  return ([t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)], [fonttex])
 
 loadGLTextures :: String -> IO GLuint
 loadGLTextures fn = do

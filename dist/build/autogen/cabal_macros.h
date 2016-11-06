@@ -63,6 +63,13 @@
   (major1) == 3 && (major2) <  2 || \
   (major1) == 3 && (major2) == 2 && (minor) <= 3)
 
+/* package array-0.5.1.1 */
+#define VERSION_array "0.5.1.1"
+#define MIN_VERSION_array(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  5 || \
+  (major1) == 0 && (major2) == 5 && (minor) <= 1)
+
 /* package base-4.9.0.0 */
 #define VERSION_base "4.9.0.0"
 #define MIN_VERSION_base(major1,major2,minor) (\
@@ -146,6 +153,13 @@
   (major1) <  0 || \
   (major1) == 0 && (major2) <  5 || \
   (major1) == 0 && (major2) == 5 && (minor) <= 2)
+
+/* package vector-0.11.0.0 */
+#define VERSION_vector "0.11.0.0"
+#define MIN_VERSION_vector(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  11 || \
+  (major1) == 0 && (major2) == 11 && (minor) <= 0)
 
 /* tool alex-3.2.1 */
 #define TOOL_VERSION_alex "3.2.1"
