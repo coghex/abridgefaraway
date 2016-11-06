@@ -140,6 +140,7 @@ main = do
             , stateZazzSizes = contl12
             , stateZazzRands = contl13
             , stateZazzTypes = contl14
+            , stateCursor    = False
             }
     let state2 = buildGrid state continents
     let state3 = zazzGrid state2
@@ -152,6 +153,13 @@ run = timedLoop $ \lastTick tick -> do
   state <- get
   draw (stateGame state)
   window <- asks envWindow
+  if ((round(tick) `mod` 1000)==0) then do
+    if ((stateCursor state)==True) then do
+      modify $ \s -> s { stateCursor = False }
+    else
+      modify $ \s -> s { stateCursor = True }
+  else
+    modify $ \s -> s { stateCursor = (stateCursor state) }
   liftIO $ do
     GLFW.swapBuffers window
     GLFW.pollEvents
@@ -173,7 +181,7 @@ draw SWorld = do
     --drawTile (stateTexs state) 2 2 1
     --drawTile (stateTexs state) 3 3 1
     drawScene state (envWindow env)
-    drawCursor 1 1
+    if (stateCursor state) then (drawCursor 1 1) else (drawCursor 2 1)
     GL.flush
 draw _     = liftIO $ do
     --GL.clear [GL.ColorBuffer]

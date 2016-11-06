@@ -25,6 +25,7 @@ zazzGrid state = do
       zss = stateZazzSizes state
       zrs = stateZazzRands state
       zts = stateZazzTypes state
+      scursor = stateCursor state
       newgrid = addZazz state grid zs zss zrs zts
   
   State
@@ -47,6 +48,7 @@ zazzGrid state = do
     , stateZazzSizes = zss
     , stateZazzRands = zrs
     , stateZazzTypes = zts
+    , stateCursor = scursor
     }
 
 addZazz :: State -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -90,6 +92,7 @@ iceGrid state = do
       zss = stateZazzSizes state
       zrs = stateZazzRands state
       zts = stateZazzTypes state
+      scursor = stateCursor state
       newgrid = iceMap state nsis nsi nsir (iceMap state sis si sir grid)
   
   State
@@ -112,6 +115,7 @@ iceGrid state = do
     , stateZazzSizes = zss
     , stateZazzRands = zrs
     , stateZazzTypes = zts
+    , stateCursor = scursor
     }
 
 iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -154,6 +158,7 @@ buildGrid state c = do
       zss = stateZazzSizes state
       zrs = stateZazzRands state
       zts = stateZazzTypes state
+      scursor = stateCursor state
   
   State
     { stateGrid = newgrid
@@ -175,6 +180,7 @@ buildGrid state c = do
     , stateZazzSizes = zss
     , stateZazzRands = zrs
     , stateZazzTypes = zts
+    , stateCursor = scursor
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]
