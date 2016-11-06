@@ -23,6 +23,7 @@ import Settings
 import Namegen
 import Names
 import Font
+import Save
 
 -- Game type
 type Game = RWST Env () State IO
@@ -153,6 +154,7 @@ main = do
     let state3 = zazzGrid state2
     let state4 = iceGrid state3
     void $ evalRWST run env state4
+    
 
 -- GLloop
 run :: Game ()
@@ -259,11 +261,12 @@ processEvent ev =
       when (ks == GLFW.KeyState'Pressed) $ do
         state <- get
         env   <- ask
-        when (k == GLFW.Key'Escape) $
+        when (k == GLFW.Key'Escape) $ do
+          liftIO $ saveMap (stateGrid state)
           liftIO $ GLFW.setWindowShouldClose window True
         when ((k == GLFW.Key'Space) && ((stateGame state) == SWorld)) $
           modify $ \s -> s { stateGame = SMenu }
-        when ((k == GLFW.Key'Space) && ((stateGame state) == SMenu)) $
+        when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $
           modify $ \s -> s { stateGame = SWorld }
         when ((k == GLFW.Key'Up) && ((stateGame state) == SWorld) && ((stateCursorY state) <= (gridh-2))) $
           modify $ \s -> s { stateCursorY = ((stateCursorY state)+1) }
@@ -273,6 +276,7 @@ processEvent ev =
           modify $ \s -> s { stateCursorX = ((stateCursorX state)-1) }
         when ((k == GLFW.Key'Right) && ((stateGame state) == SWorld) && ((stateCursorX state) <= (gridw-2))) $
           modify $ \s -> s { stateCursorX = ((stateCursorX state)+1) }
+
     (EventFramebufferSize _ width height) -> do
       adjustWindow
     (EventWindowResize win w h) -> do
