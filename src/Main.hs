@@ -49,10 +49,19 @@ main = do
     continents <- randomN 10 25
     nzazzs <- randomN 10 maxnzazzs
     nspotscont <- randomN 20 maxnspots
-    let lang = fromSamples names
-    let genname = generateName lang continents
-    print genname
 
+    ns1 <- randomN 1 100
+    ns2 <- randomN 1 99
+    ns3 <- randomN 1 98
+    --let bnameslang = fromSamples bnames
+    --let gnameslang = fromSamples gnames
+    --let bsurnameslang = fromSamples patronymsuffixes
+    --let genname1 = StdBName (generateName bnameslang ns1) (generateName bnameslang ns2) (generateName bsurnameslang ns3)
+    let genperson1 = makePerson 10 Male ns1 ns2 ns3 9
+    printPerson genperson1
+    let genperson2 = makePerson 12 Female ns2 ns3 ns1 9
+    printPerson genperson2
+    
 
     let nspots = randomList (25, 100::Int) continents seed
     let l = (take (gridh*gridw) (repeat seatile))
