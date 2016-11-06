@@ -25,6 +25,8 @@ zazzGrid state = do
       zss = stateZazzSizes state
       zrs = stateZazzRands state
       zts = stateZazzTypes state
+      scx = stateCursorX state
+      scy = stateCursorY state
       scursor = stateCursor state
       newgrid = addZazz state grid zs zss zrs zts
   
@@ -48,6 +50,8 @@ zazzGrid state = do
     , stateZazzSizes = zss
     , stateZazzRands = zrs
     , stateZazzTypes = zts
+    , stateCursorX = scx
+    , stateCursorY = scy
     , stateCursor = scursor
     }
 
@@ -93,6 +97,8 @@ iceGrid state = do
       zrs = stateZazzRands state
       zts = stateZazzTypes state
       scursor = stateCursor state
+      scx = stateCursorX state
+      scy = stateCursorY state
       newgrid = iceMap state nsis nsi nsir (iceMap state sis si sir grid)
   
   State
@@ -116,6 +122,8 @@ iceGrid state = do
     , stateZazzRands = zrs
     , stateZazzTypes = zts
     , stateCursor = scursor
+    , stateCursorX = scx
+    , stateCursorY = scy
     }
 
 iceMap :: State -> [(Int, Int)] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
@@ -158,6 +166,8 @@ buildGrid state c = do
       zss = stateZazzSizes state
       zrs = stateZazzRands state
       zts = stateZazzTypes state
+      scx = stateCursorX state
+      scy = stateCursorY state
       scursor = stateCursor state
   
   State
@@ -181,6 +191,8 @@ buildGrid state c = do
     , stateZazzRands = zrs
     , stateZazzTypes = zts
     , stateCursor = scursor
+    , stateCursorX = scx
+    , stateCursorY = scy
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> Int -> [[(Int, Int)]] -> [[(Int, Int)]] -> [Int]

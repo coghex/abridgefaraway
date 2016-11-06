@@ -141,6 +141,8 @@ main = do
             , stateZazzRands = contl13
             , stateZazzTypes = contl14
             , stateCursor    = False
+            , stateCursorX   = 1
+            , stateCursorY   = 1
             }
     let state2 = buildGrid state continents
     let state3 = zazzGrid state2
@@ -153,7 +155,7 @@ run = timedLoop $ \lastTick tick -> do
   state <- get
   draw (stateGame state)
   window <- asks envWindow
-  if ((round(tick) `mod` 1000)==0) then do
+  if ((((round(100*tick)) `mod` 10)<2) && (((round(100*tick)) `mod` 10)>=0)) then do
     if ((stateCursor state)==True) then do
       modify $ \s -> s { stateCursor = False }
     else
@@ -181,7 +183,7 @@ draw SWorld = do
     --drawTile (stateTexs state) 2 2 1
     --drawTile (stateTexs state) 3 3 1
     drawScene state (envWindow env)
-    if (stateCursor state) then (drawCursor 1 1) else (drawCursor 2 1)
+    if (stateCursor state) then (drawTile (stateTexs state) (stateCursorX state) (stateCursorY state) 8) else (drawTile (stateTexs state) 200 100 8)
     GL.flush
 draw _     = liftIO $ do
     --GL.clear [GL.ColorBuffer]
@@ -245,6 +247,14 @@ processEvent ev =
           modify $ \s -> s { stateGame = SMenu }
         when ((k == GLFW.Key'Space) && ((stateGame state) == SMenu)) $
           modify $ \s -> s { stateGame = SWorld }
+        when ((k == GLFW.Key'Up) && ((stateGame state) == SWorld) && ((stateCursorY state) <= (gridh-2))) $
+          modify $ \s -> s { stateCursorY = ((stateCursorY state)+1) }
+        when ((k == GLFW.Key'Down) && ((stateGame state) == SWorld) && ((stateCursorY state) > 0)) $
+          modify $ \s -> s { stateCursorY = ((stateCursorY state)-1) }
+        when ((k == GLFW.Key'Left) && ((stateGame state) == SWorld) && ((stateCursorX state) > 0)) $
+          modify $ \s -> s { stateCursorX = ((stateCursorX state)-1) }
+        when ((k == GLFW.Key'Right) && ((stateGame state) == SWorld) && ((stateCursorX state) <= (gridw-2))) $
+          modify $ \s -> s { stateCursorX = ((stateCursorX state)+1) }
 
 
 -- GLFW window opening

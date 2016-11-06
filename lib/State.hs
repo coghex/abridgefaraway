@@ -34,6 +34,8 @@ data State = State
     , stateZazzRands  :: ![(Int, Int)]
     , stateZazzTypes  :: ![Int]
     , stateCursor     :: !Bool
+    , stateCursorX    :: !Int
+    , stateCursorY    :: !Int
     }
 
 data Event =
