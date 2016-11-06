@@ -53,20 +53,20 @@ main = do
     ns1 <- randomN 1 100
     ns2 <- randomN 1 99
     ns3 <- randomN 1 98
-    seed1 <- randomN 1 5
-    seed2 <- (randomN 2 6)
-    seed3 <- (randomN 3 7)
-    seed4 <- (randomN 4 8)
-    seed5 <- (randomN 5 9)
-    seed6 <- (randomN 6 10)
-    seed7 <- (randomN 7 11)
-    seed8 <- (randomN 8 12)
-    seed9 <- (randomN 9 13)
-    seed10 <- (randomN 10 14)
-    seed11 <- (randomN 11 15)
-    seed12 <- (randomN 12 16)
-    seed13 <- (randomN 13 17)
-    seed14 <- (randomN 14 18)
+    seed1 <- randomN 1 8
+    seed2 <- (randomN 2 9)
+    seed3 <- (randomN 3 10)
+    seed4 <- (randomN 4 11)
+    seed5 <- (randomN 5 12)
+    seed6 <- (randomN 6 13)
+    seed7 <- (randomN 7 14)
+    seed8 <- (randomN 8 15)
+    seed9 <- (randomN 9 16)
+    seed10 <- (randomN 10 17)
+    seed11 <- (randomN 11 18)
+    seed12 <- (randomN 12 19)
+    seed13 <- (randomN 13 20)
+    seed14 <- (randomN 14 21)
     let genperson1 = makePerson 10 Male (ns1+1) (ns2+1) (ns3+1) (seed1)
     printPerson genperson1
     let genperson2 = makePerson 12 Female (ns2+2) (ns3+2) (ns1+2) (seed2-1)

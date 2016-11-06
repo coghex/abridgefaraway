@@ -10,6 +10,9 @@ data Person = Person { personName :: Name
 data Name = StdBName String String String        | StdGName String String String
           | SglBName String                      | SglGName String
           | TitBName String String String String | TitGName String String String String
+          | AbvBName String String String String | AbvGName String String String String
+          | SdMBName String String String String | SdMGName String String String String
+          | TtEBName String String String String | TtEGName String String String String
 data Sex = Male | Female
 
 printPerson :: Person -> IO ()
@@ -22,6 +25,12 @@ printName (SglBName a)       = print a
 printName (SglGName a)       = print a
 printName (TitBName a b c d) = print (a ++ b ++ " " ++ c ++ d)
 printName (TitGName a b c d) = print (a ++ b ++ " " ++ c ++ d)
+printName (AbvBName a b c d) = print (a ++ " " ++ b ++ " " ++ c ++ d)
+printName (AbvGName a b c d) = print (a ++ " " ++ b ++ " " ++ c ++ d)
+printName (SdMBName a b c d) = print (a ++ b ++ c ++ d)
+printName (SdMGName a b c d) = print (a ++ b ++ c ++ d)
+printName (TtEBName a b c d) = print (a ++ " " ++ b ++ c ++ d)
+printName (TtEGName a b c d) = print (a ++ " " ++ b ++ c ++ d)
 
 makePerson :: Int -> Sex -> Int -> Int -> Int -> Int -> Person
 makePerson age Male   s1 s2 s3 1 = do
@@ -44,6 +53,65 @@ makePerson age Male   s1 s2 s3 2 = do
          , personSex  = Male
          , personAge  = age
          }
+makePerson age Female  s1 s2 s3 2 = do
+  let n1lang = fromSamples pretitlenames
+  let n2lang = fromSamples gnames
+  let n3lang = fromSamples bnames
+  let n4lang = fromSamples matronymsuffixes
+  Person { personName = (TitGName (generateName n1lang s1) (generateName n2lang s2) (generateName n3lang s3) (generateName n4lang s1))
+         , personSex  = Female
+         , personAge  = age
+         }
+makePerson age Male   s1 s2 s3 3 = do
+  let n1lang = fromSamples initials
+  let n2lang = fromSamples bnames
+  let n3lang = fromSamples patronymsuffixes
+  Person { personName = (AbvBName (generateName n1lang s1) (generateName n1lang s2) (generateName n2lang s3) (generateName n3lang s1))
+         , personSex  = Male
+         , personAge  = age
+         }
+makePerson age Female  s1 s2 s3 3 = do
+  let n1lang = fromSamples initials
+  let n2lang = fromSamples bnames
+  let n3lang = fromSamples matronymsuffixes
+  Person { personName = (AbvGName (generateName n1lang s1) (generateName n1lang s2) (generateName n2lang s3) (generateName n3lang s1))
+         , personSex  = Female
+         , personAge  = age
+         }
+makePerson age Male   s1 s2 s3 4 = do
+  let n1lang = fromSamples bnames
+  let n2lang = fromSamples middlenames
+  let n3lang = fromSamples patronymsuffixes
+  Person { personName = (SdMBName (generateName n1lang s1) (generateName n2lang s2) (generateName n1lang s2) (generateName n3lang s3))
+         , personSex  = Male
+         , personAge  = age
+         }
+makePerson age Female s1 s2 s3 4 = do
+  let n1lang = fromSamples gnames
+  let n2lang = fromSamples middlenames
+  let n3lang = fromSamples bnames
+  let n4lang = fromSamples matronymsuffixes
+  Person { personName = (SdMGName (generateName n1lang s1) (generateName n2lang s2) (generateName n1lang s2) (generateName n4lang s3))
+         , personSex  = Female
+         , personAge  = age
+         }
+makePerson age Male   s1 s2 s3 5 = do
+  let n1lang = fromSamples bnames
+  let n2lang = fromSamples patronymsuffixes
+  let n3lang = fromSamples suftitlenames
+  Person { personName = (TtEBName (generateName n1lang s1) (generateName n1lang s2) (generateName n2lang s2) (generateName n3lang s3))
+         , personSex  = Male
+         , personAge  = age
+         }
+makePerson age Female s1 s2 s3 5 = do
+  let n1lang = fromSamples gnames
+  let n2lang = fromSamples bnames
+  let n3lang = fromSamples matronymsuffixes
+  let n4lang = fromSamples suftitlenames
+  Person { personName = (TtEGName (generateName n1lang s1) (generateName n2lang s2) (generateName n3lang s2) (generateName n4lang s3))
+         , personSex  = Female
+         , personAge  = age
+         }
 makePerson age Male   s1 s2 s3 _ = do
   let n1lang = fromSamples bnames
   let n2lang = fromSamples patronymsuffixes
@@ -54,7 +122,7 @@ makePerson age Male   s1 s2 s3 _ = do
 makePerson age Female s1 s2 s3 _ = do
   let n1lang = fromSamples gnames
   let n2lang = fromSamples bnames
-  let n3lang = fromSamples patronymsuffixes
+  let n3lang = fromSamples matronymsuffixes
   Person { personName = (StdGName (generateName n1lang s1) (generateName n2lang s2) (generateName n3lang s3))
          , personSex  = Female
          , personAge  = age
@@ -68,13 +136,13 @@ bnames = ["Ahriman", "Desolat", "Abhorat", "Infern", "Infernus", "Amarath", "Ayy
 
 patronymsuffixes = ["aj", "ov", "ev", "ski", "in", "son", "ska", "sen", "poika", "oval", "fi", "escu", "ovich", "evich", "ich", "ovych", "yovych", "zoon", "arap", "heim", "gaard", "mann", "burgen", "fried", "os", "s", "aitos", "utis", "ytis", "enas", "unas", "inis", "ynis", "onis", "ius", "elis", "ak", "escu", "eanu", "aru", "enko", "yn", "nyj", "uk", "ych", "iv", "zadeh", "pur", "tabar", "nezhad", "bhai", "ge"]
 
-motronymsuffixes = ["ova", "eva", "ska", "ina", "na", "ou", "in", "a", "e", "iene", "te", "yte", "aite", "ovna", "evna", "yevna", "ivna", "bai", "ben"]
+matronymsuffixes = ["ova", "eva", "ska", "ina", "na", "ou", "in", "a", "e", "iene", "te", "yte", "aite", "ovna", "evna", "yevna", "ivna", "bai", "ben"]
 
 pretitlenames = ["Agha ", "Abd Al ", "Abdul ", "Abu ", "Sheikh ", "Hadj ", "Master ", "Sir ", "Lord ", "Dr. ", "Prof. ", "His Holiness ", "His Eminence ", "His Lordship ", "The Reverend ", "Elder ", "Rabbi ", "Earl of ", "Duke of ", "Marquis ", "Viscount ", "Baron ", "Herr ", "Frau", "Dom ", "Don "]
 
 suftitlenames = [" The Mutilated", "uddin", "-al-din", "allah", " Khan"]
 
-middlenames = [" Von ", " Van Der ", " El-", " of ", " ov ", " bin ", " ibn ", " Al-", " lal ", " Singh ", " Kaur ", " De ", " Du ", " av ", " af ", " ver ", " A "]
+middlenames = [" Von ", " Van Der ", " El-", " of ", " ov ", " bin ", " ibn ", " Al-", " lal ", " Singh ", " Kaur ", " De ", " Du ", " av ", " af ", " ver ", " A ", " A. ", " B. ", " C. ", " D. ", " E. ", " F. ", " G. ", " H. ", " I. ", " J. ", " K. ", " L. ", " M. ", " N. ", " O. ", " P. ", " Q. ", " R. ", " S. ", " T. ", " U. ", " V. ", " X. ", " Y. ", " Z. "]
 
 initials = ["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L.", "M.", "N.", "O.", "P.", "Q.", "R.", "S.", "T.", "U.", "V.", "X.", "Y.", "Z."]
 
