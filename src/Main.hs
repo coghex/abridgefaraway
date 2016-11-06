@@ -53,15 +53,49 @@ main = do
     ns1 <- randomN 1 100
     ns2 <- randomN 1 99
     ns3 <- randomN 1 98
-    --let bnameslang = fromSamples bnames
-    --let gnameslang = fromSamples gnames
-    --let bsurnameslang = fromSamples patronymsuffixes
-    --let genname1 = StdBName (generateName bnameslang ns1) (generateName bnameslang ns2) (generateName bsurnameslang ns3)
-    let genperson1 = makePerson 10 Male ns1 ns2 ns3 9
+    seed1 <- randomN 1 5
+    seed2 <- (randomN 2 6)
+    seed3 <- (randomN 3 7)
+    seed4 <- (randomN 4 8)
+    seed5 <- (randomN 5 9)
+    seed6 <- (randomN 6 10)
+    seed7 <- (randomN 7 11)
+    seed8 <- (randomN 8 12)
+    seed9 <- (randomN 9 13)
+    seed10 <- (randomN 10 14)
+    seed11 <- (randomN 11 15)
+    seed12 <- (randomN 12 16)
+    seed13 <- (randomN 13 17)
+    seed14 <- (randomN 14 18)
+    let genperson1 = makePerson 10 Male (ns1+1) (ns2+1) (ns3+1) (seed1)
     printPerson genperson1
-    let genperson2 = makePerson 12 Female ns2 ns3 ns1 9
+    let genperson2 = makePerson 12 Female (ns2+2) (ns3+2) (ns1+2) (seed2-1)
     printPerson genperson2
-    
+    let genperson3 = makePerson 10 Male (ns1+3) (ns2+3) (ns3+3) (seed3-2)
+    printPerson genperson3
+    let genperson4 = makePerson 12 Female (ns2+4) (ns3+4) (ns1+4) (seed4-3)
+    printPerson genperson4
+    let genperson5 = makePerson 10 Male (ns1+5) (ns2+5) (ns3+5) (seed5-4)
+    printPerson genperson5
+    let genperson6 = makePerson 12 Female (ns2+6) (ns3+6) (ns1+6) (seed6-5)
+    printPerson genperson6
+    let genperson7 = makePerson 10 Male (ns1+7) (ns2+7) (ns3+7) (seed7-6)
+    printPerson genperson7
+    let genperson8 = makePerson 12 Female (ns2+8) (ns3+8) (ns1+8) (seed8-7)
+    printPerson genperson8
+    let genperson9 = makePerson 10 Male (ns1+9) (ns2+9) (ns3+9) (seed9-8)
+    printPerson genperson9
+    let genperson10 = makePerson 12 Female (ns2+10) (ns3+10) (ns1+10) (seed10-9)
+    printPerson genperson10
+    let genperson11 = makePerson 10 Male (ns1+11) (ns2+11) (ns3+11) (seed11-10)
+    printPerson genperson11
+    let genperson12 = makePerson 12 Female (ns2+12) (ns3+12) (ns1+12) (seed12-11)
+    printPerson genperson12
+    let genperson13 = makePerson 10 Male (ns1+13) (ns2+13) (ns3+13) (seed13-12)
+    printPerson genperson13
+    let genperson14 = makePerson 12 Female (ns2+14) (ns3+14) (ns1+14) (seed14-13)
+    printPerson genperson14
+
 
     let nspots = randomList (25, 100::Int) continents seed
     let l = (take (gridh*gridw) (repeat seatile))

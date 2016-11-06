@@ -7,25 +7,51 @@ data Person = Person { personName :: Name
                      , personAge :: Int
                      }
 
-data Name = StdBName String String String | StdGName String String String
+data Name = StdBName String String String        | StdGName String String String
+          | SglBName String                      | SglGName String
+          | TitBName String String String String | TitGName String String String String
 data Sex = Male | Female
 
 printPerson :: Person -> IO ()
 printPerson (Person a b c) = printName a
 
 printName :: Name -> IO ()
-printName (StdBName a b c) = print (a ++ " " ++ b ++ c)
-printName (StdGName a b c) = print (a ++ " " ++ b ++ c)
+printName (StdBName a b c)   = print (a ++ " " ++ b ++ c)
+printName (StdGName a b c)   = print (a ++ " " ++ b ++ c)
+printName (SglBName a)       = print a
+printName (SglGName a)       = print a
+printName (TitBName a b c d) = print (a ++ b ++ " " ++ c ++ d)
+printName (TitGName a b c d) = print (a ++ b ++ " " ++ c ++ d)
 
 makePerson :: Int -> Sex -> Int -> Int -> Int -> Int -> Person
-makePerson age Male   s1 s2 s3 s4 = do
+makePerson age Male   s1 s2 s3 1 = do
+  let n1lang = fromSamples bnames
+  Person { personName = (SglBName (generateName n1lang s1))
+         , personSex  = Male
+         , personAge  = age
+         }
+makePerson age Female s1 s2 s3 1 = do
+  let n1lang = fromSamples gnames
+  Person { personName = (SglGName (generateName n1lang s1))
+         , personSex  = Female
+         , personAge  = age
+         }
+makePerson age Male   s1 s2 s3 2 = do
+  let n1lang = fromSamples pretitlenames
+  let n2lang = fromSamples bnames
+  let n3lang = fromSamples patronymsuffixes
+  Person { personName = (TitBName (generateName n1lang s1) (generateName n2lang s2) (generateName n2lang s3) (generateName n3lang s1))
+         , personSex  = Male
+         , personAge  = age
+         }
+makePerson age Male   s1 s2 s3 _ = do
   let n1lang = fromSamples bnames
   let n2lang = fromSamples patronymsuffixes
   Person { personName = (StdBName (generateName n1lang s1) (generateName n1lang s2) (generateName n2lang s3))
          , personSex  = Male
          , personAge  = age
          }
-makePerson age Female s1 s2 s3 s4 = do
+makePerson age Female s1 s2 s3 _ = do
   let n1lang = fromSamples gnames
   let n2lang = fromSamples bnames
   let n3lang = fromSamples patronymsuffixes
@@ -40,4 +66,15 @@ gnames = ["Aeshma", "Thelema", "Agiel", "Angra", "Haborym", "Aka", "Ala", "Amdus
 bnames = ["Ahriman", "Desolat", "Abhorat", "Infern", "Infernus", "Amarath", "Ayyavazh", "Aamon", "Amon", "Abbadon", "Apollyon", "Abezethibou", "Agaliarept", "Agrat", "Agares", "Agiel", "Angra", "Akem", "Akoman", "Akvan", "Alal", "Alastor", "Alloces", "Allocer", "Allu", "Amaymon", "Ancitif", "Anamalech", "Andras", "Andrealphus", "Andromalius", "Anzu", "Abzu", "Archon", "Asag", "Asakku", "Asmodai", "Asmodeus", "Astaroth", "Azazel", "Azi", "Abigor", "Abomin", "Aboryim", "Acheron", "Aeturn", "Agalloch", "Agath", "Alcest", "Nathrakh", "Antaeus", "Arcturus", "Armageddon", "Arvas", "Asgaroth", "Azaghal", "Anagnorisis", "Astennu", "Alver", "Ares", "Baal", "Balam", "Balberith", "Barbas", "Barbatos", "Barong", "Bathin", "Bathym", "Beherit", "Bifrons", "Botis", "Buer", "Bukavac", "Bune", "Bahimiron", "Sagoth", "Barathrum", "Beherit", "Borknar", "Bakken", "Caim", "Cain", "Charon", "Chemosh", "Choronzon", "Crocell", "Procell", "Culsu", "Cimenjes", "Kimaris", "Carach", "Angren", "Gorgor", "Cor", "Cultus", "Caligula", "Culto", "Csihar", "Dagon", "Dajjal", "Danjal", "Demiurge", "Demo", "Drekavac", "Dzoavits", "Darzamat", "Diaboli", "Dimmu", "Borgir", "Drottnar", "Drudkh", "Eblis", "Eligos", "Eisheth", "Eisen", "Ewigkiet", "Fenriz", "Focalor", "Goras", "Foras", "Forneus", "Fornicaticus", "Furcas", "Furfur", "Falkenbach", "Faust", "Fimbul", "Finn", "Fleurety", "Forest", "Frost", "Gaal", "Gaap", "Gaderel", "Gaki", "Gamigin", "Ghoul", "Gremory", "Gamorah", "Gedorah", "Grigori", "Gualichu", "Gusoyn", "Gaashiskagg", "Gallhammer", "Goatlord", "Gorgoroth", "Grim", "Haagenti", "Halphas", "Malthus", "Haures", "Havres", "Hantu", "Hel", "Holocausto", "Hortus", "Ifrit", "Ipos", "Ihsahn", "Ildjarn", "Infernal", "Infernum", "Incantion", "Inquinok", "Judas", "Kroni", "Krampus", "Kampfar", "Kekal", "Khold", "King", "Korovakill", "Krieg", "Kultus", "Lechies", "Leyak", "Lempo", "Laraje", "Leviathan", "Lengsel", "Kaos", "Lux", "Malphas", "Mammon", "Morax", "Masih", "Mephisto", "Mephistoles", "Mephistopheles", "Moloch", "Merihem", "Manegarm", "Manes", "Marduk", "Melechesh", "Mithotyn", "Moribund", "Mutilator", "Morgul", "Naberius", "Cerebere", "Nametar", "Naglfar", "Nargaroth", "Nazxul", "Necro", "Nefastus", "Nifel", "Nortt", "Onoskelis", "Orcus", "Orias", "Orobas", "Ode", "Ordog", "Oranssi", "Pazuzu", "Orctustus", "Oathean", "Paamon", "Pelesit", "Phenex", "Pithius", "Pocong", "Pontianak", "Puloman", "Peccatum", "Rahab", "Raum", "Ranove", "Ragnarok", "Ramsees", "Ragnarok", "Sabnock", "Saleos", "Samael", "Seir", "Shedim", "Sthenno", "Stolas", "Solas", "Suanggi", "Surgat", "Sabbat", "Salem", "Sammath", "Sarco", "Sargeist", "Setherial", "Sigh", "Skitliv", "Sodom", "Solefald", "Sturm", "Sabnock", "Saleos", "Tannin",  "Toyol", "Ukobach", "Valac", "Valefar", "Malephar", "Vanth", "Vassago", "Vassage", "Wendigo", "Vepar", "Yeqon", "Zagan", "Zepar", "Ziminiar", "Zozo", "Taake", "Thronar", "Thyr", "Tiamat", "Tormentor", "Tsatt", "Tsjuder", "Tvangeste", "Ulver", "Urgehal", "Valhall", "Ved", "Vince", "Venom", "Vital", "Vikal", "Vlad", "Von", "Vondur", "Vorkreist", "Vreid", "Watain", "Welt", "Wolf", "Wykked", "Wyrd", "Xasthur", "Zyklon", "Abaddon", "Abraxas", "Adramelech", "Agares", "Ahriman", "Alastor", "Alloces", "Amdusias", "Amduscias", "Amon", "Azazel", "Diabolos", "Abigor", "Seth", "Chernobog", "Addanc", "Baal", "Bereth", "Apep", "Morfran", "Zagan"]
 
 
-patronymsuffixes = ["son", "sen", "poika", "oval", "fi", "escu", "ovich", "evich", "ich", "ovych", "yovych", "zoon", "arap", "heim", "gaard", "mann", "burgen", "fried"]
+patronymsuffixes = ["aj", "ov", "ev", "ski", "in", "son", "ska", "sen", "poika", "oval", "fi", "escu", "ovich", "evich", "ich", "ovych", "yovych", "zoon", "arap", "heim", "gaard", "mann", "burgen", "fried", "os", "s", "aitos", "utis", "ytis", "enas", "unas", "inis", "ynis", "onis", "ius", "elis", "ak", "escu", "eanu", "aru", "enko", "yn", "nyj", "uk", "ych", "iv", "zadeh", "pur", "tabar", "nezhad", "bhai", "ge"]
+
+motronymsuffixes = ["ova", "eva", "ska", "ina", "na", "ou", "in", "a", "e", "iene", "te", "yte", "aite", "ovna", "evna", "yevna", "ivna", "bai", "ben"]
+
+pretitlenames = ["Agha ", "Abd Al ", "Abdul ", "Abu ", "Sheikh ", "Hadj ", "Master ", "Sir ", "Lord ", "Dr. ", "Prof. ", "His Holiness ", "His Eminence ", "His Lordship ", "The Reverend ", "Elder ", "Rabbi ", "Earl of ", "Duke of ", "Marquis ", "Viscount ", "Baron ", "Herr ", "Frau", "Dom ", "Don "]
+
+suftitlenames = [" The Mutilated", "uddin", "-al-din", "allah", " Khan"]
+
+middlenames = [" Von ", " Van Der ", " El-", " of ", " ov ", " bin ", " ibn ", " Al-", " lal ", " Singh ", " Kaur ", " De ", " Du ", " av ", " af ", " ver ", " A "]
+
+initials = ["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L.", "M.", "N.", "O.", "P.", "Q.", "R.", "S.", "T.", "U.", "V.", "X.", "Y.", "Z."]
+
