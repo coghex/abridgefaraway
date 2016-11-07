@@ -218,7 +218,14 @@ draw SZone     = do
   liftIO $ do
     beginDrawText
     drawText 1 95 24 72 "A Bridge Far Away..."
-
+draw SLoad     = do
+  state <- get
+  env   <- ask
+  liftIO $ do
+    beginDrawText
+    drawText 1 95 24 72 "Loading..."
+    liftIO $ loadedCallback (envEventsChan env)
+    --loadMapFromFile
 draw _     = do
   state <- get
   liftIO $ do
@@ -226,6 +233,7 @@ draw _     = do
     drawText 1 95 24 72 "A Bridge Far Away..."
     drawText 1 75 12 36 "press c to create a world"
     drawText 1 65 12 36 "press l to load a world"
+
 
 -- thread loop function
 timedLoop :: MonadIO m => (Double -> Double -> m Bool) -> m ()
@@ -279,12 +287,11 @@ processEvent ev =
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $
           modify $ \s -> s { stateGame = SZone }
         when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $ do
+          modify $ \s -> s { stateGame = SLoad }
           let state2 = buildGrid state (length (stateConts state))
           let state3 = zazzGrid state2
           let state4 = iceGrid state3
-          modify $ \s -> s { stateGame = SWorld
-                           , stateGrid = (stateGrid state4)
-                           }
+          modify $ \s -> s { stateGrid = (stateGrid state4) }
         when ((k == GLFW.Key'Space) && ((stateGame state) == SZone)) $
           modify $ \s -> s { stateGame = SMenu }
         when ((k == GLFW.Key'Space) && ((stateGame state) == SMenu)) $
@@ -309,6 +316,8 @@ processEvent ev =
                       , stateScreenWidth  = w
                       }
       adjustWindow
+    (EventLoaded) -> do
+      modify $ \s -> s { stateGame = SWorld }
 
 adjustWindow :: Game ()
 adjustWindow = do
@@ -350,3 +359,5 @@ keyCallback   :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState
 keyCallback   tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
 reshapeCallback :: TQueue Event -> GLFW.Window -> Int -> Int -> IO ()
 reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h
+loadedCallback :: TQueue Event -> IO ()
+loadedCallback tc = atomically $ writeTQueue tc $ EventLoaded

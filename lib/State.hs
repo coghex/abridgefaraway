@@ -4,7 +4,7 @@ import Control.Concurrent.STM (TQueue)
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 
-data GameState = SWorld | SZone | SMenu deriving (Eq)
+data GameState = SWorld | SZone | SMenu | SLoad deriving (Eq)
 
 data Env = Env
     { envEventsChan   :: TQueue Event
@@ -57,4 +57,5 @@ data Event =
   | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
   | EventChar            !GLFW.Window !Char
   | EventWindowResize    !GLFW.Window !Int !Int
+  | EventLoaded
   deriving Show
