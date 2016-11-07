@@ -150,10 +150,11 @@ main = do
             , stateCursorY    = 1
             , stateAlphabet   = alph
             }
-    let state2 = buildGrid state continents
-    let state3 = zazzGrid state2
-    let state4 = iceGrid state3
-    void $ evalRWST run env state4
+
+    --let state2 = buildGrid state continents
+    --let state3 = zazzGrid state2
+    --let state4 = iceGrid state3
+    void $ evalRWST run env state
     
 
 -- GLloop
@@ -224,7 +225,7 @@ draw _     = do
     beginDrawText
     drawText 1 95 24 72 "A Bridge Far Away..."
     drawText 1 75 12 36 "press c to create a world"
-
+    drawText 1 65 12 36 "press l to load a world"
 
 -- thread loop function
 timedLoop :: MonadIO m => (Double -> Double -> m Bool) -> m ()
@@ -275,8 +276,23 @@ processEvent ev =
           liftIO $ GLFW.setWindowShouldClose window True
         when ((k == GLFW.Key'Space) && ((stateGame state) == SWorld)) $
           modify $ \s -> s { stateGame = SMenu }
-        when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $
-          modify $ \s -> s { stateGame = SWorld }
+        when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $
+          modify $ \s -> s { stateGame = SZone }
+        when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $ do
+          let state2 = buildGrid state (length (stateConts state))
+          let state3 = zazzGrid state2
+          let state4 = iceGrid state3
+          modify $ \s -> s { stateGame = SWorld
+                           , stateGrid = (stateGrid state4)
+                           }
+        when ((k == GLFW.Key'Space) && ((stateGame state) == SZone)) $
+          modify $ \s -> s { stateGame = SMenu }
+        when ((k == GLFW.Key'Space) && ((stateGame state) == SMenu)) $
+          modify $ \s -> s { stateGame = SMenu }
+        when ((k == GLFW.Key'L) && ((stateGame state) == SMenu)) $ do
+          x <- liftIO loadMap
+          modify $ \s -> s { stateGrid = x
+                           , stateGame = SWorld }
         when ((k == GLFW.Key'Up) && ((stateGame state) == SWorld) && ((stateCursorY state) <= (gridh-2))) $
           modify $ \s -> s { stateCursorY = ((stateCursorY state)+1) }
         when ((k == GLFW.Key'Down) && ((stateGame state) == SWorld) && ((stateCursorY state) > 0)) $

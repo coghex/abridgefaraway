@@ -1,5 +1,7 @@
 module Save where
 import Data.List.Split
+import Text.Read
+import Util
 
 saveMap :: [Int] -> IO ()
 saveMap s = do
@@ -10,7 +12,7 @@ saveMap s = do
 loadMap :: IO ([Int])
 loadMap = do
   contents <- readFile "data/save.txt"
-  return $ map read (splitOn " " contents)
+  return $ init $ map read (splitOn " " contents)
 
 
 addSpace :: Int -> String
