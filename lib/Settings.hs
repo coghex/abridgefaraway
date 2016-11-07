@@ -12,3 +12,5 @@ ntiles = 7::Int
 nices = 200::Int
 maxnzazzs = 150::Int
 maxnspots = 50::Int
+zonew = 256::Int
+zoneh = 256::Int

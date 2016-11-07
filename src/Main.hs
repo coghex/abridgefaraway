@@ -24,6 +24,8 @@ import Namegen
 import Names
 import Font
 import Save
+import Zone
+import DrawZone
 
 -- Game type
 type Game = RWST Env () State IO
@@ -44,7 +46,7 @@ main = do
     GLFW.setKeyCallback        window $ Just $ keyCallback   eventsChan
     GLFW.setWindowSizeCallback window $ Just $ reshapeCallback eventsChan
     GLFW.swapInterval 0
-    (texs, alph) <- liftIO $ initTexs window
+    (texs, alph, ztexs) <- liftIO $ initTexs window
     seed <- newStdGen
     s1 <- newStdGen
     s2 <- newStdGen
@@ -149,6 +151,8 @@ main = do
             , stateCursorX    = 1
             , stateCursorY    = 1
             , stateAlphabet   = alph
+            , stateZones      = seedZone 1 1 5
+            , stateZoneTexs   = ztexs
             }
 
     --let state2 = buildGrid state continents
@@ -217,6 +221,7 @@ draw SZone     = do
   state <- get
   liftIO $ do
     beginDrawText
+    drawZone state (stateCursorX state) (stateCursorY state) 1
     drawText 1 95 24 72 "A Bridge Far Away..."
 draw SLoad     = do
   state <- get

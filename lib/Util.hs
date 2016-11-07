@@ -35,7 +35,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO ([GLuint], [TextureObject])
+initTexs :: GLFW.Window -> IO ([GLuint], [TextureObject], [[GLuint]])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -48,7 +48,19 @@ initTexs win = do
   resizeScene win w h
   loadWTextures "maps/"
 
-loadWTextures :: String -> IO ([GLuint], [TextureObject])
+loadZTextures :: String -> IO ([[GLuint]])
+loadZTextures fn = do
+  t1 <- loadGLTextures (fn ++ "plains/plains001.bmp")
+  t2 <- loadGLTextures (fn ++ "fields/fields001.bmp")
+  t3 <- loadGLTextures (fn ++ "fields/fields002.bmp")
+  t4 <- loadGLTextures (fn ++ "fields/fields003.bmp")
+  t5 <- loadGLTextures (fn ++ "fields/fields004.bmp")
+  t6 <- loadGLTextures (fn ++ "fields/fields005.bmp")
+  t7 <- loadGLTextures (fn ++ "fields/fields006.bmp")
+  t8 <- loadGLTextures (fn ++ "fields/fields007.bmp")
+  return ([[t1], [t2, t3, t4, t5, t6, t7, t8]])
+
+loadWTextures :: String -> IO ([GLuint], [TextureObject], [[GLuint]])
 loadWTextures fn = do
   t1 <- loadGLTextures (fn ++ "plains/worldplains.bmp")
   t2 <- loadGLTextures (fn ++ "fields/worldfields.bmp")
@@ -60,8 +72,9 @@ loadWTextures fn = do
   t8 <- loadGLTextures (fn ++ "sea/worldice.bmp")
   t9 <- runMaybeT $ loadGLPngTextures ("data/wcursor.png")
   fonttex <- loadCharacter "data/fonts/amatic/AmaticSC-Regular.ttf" 'A' 24
+  zt <- loadZTextures fn
   
-  return ([t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)], [fonttex])
+  return ([t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)], [fonttex], zt)
 
 loadGLTextures :: String -> IO GLuint
 loadGLTextures fn = do

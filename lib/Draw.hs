@@ -55,7 +55,7 @@ drawCursor :: Int -> Int -> IO ()
 drawCursor x y = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-400)
-  glDisable GL_BLEND
+  glEnable GL_BLEND
   glColor3f 1 1 1
   glBegin GL_QUADS
   glTexCoord2f   0    0

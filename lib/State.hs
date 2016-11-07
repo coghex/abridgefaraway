@@ -39,6 +39,8 @@ data State = State
     , stateCursorX    :: !Int
     , stateCursorY    :: !Int
     , stateAlphabet   :: ![GL.TextureObject]
+    , stateZones      :: ![[Int]]
+    , stateZoneTexs   :: ![[GL.GLuint]]
     }
 
 data Event =
