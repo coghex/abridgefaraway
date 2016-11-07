@@ -9,17 +9,17 @@ import World
 import State
 import Draw
 
-drawZone :: State -> Int -> Int -> Int -> IO ()
-drawZone state x y t = do
+drawZone :: State -> Int -> Int -> IO ()
+drawZone state x y = do
   let zonenew = expandZone ((stateZones state) !! (zoneFlatIndex x y))
-  resequence_ $ map (drawZoneRow ((stateZoneTexs state) !! t)) zonenew
+  resequence_ $ map (drawZoneRow (stateZoneTexs state)) zonenew
   glFlush
 
-drawZoneRow :: [GLuint] -> ([(Int, Int)], Int) -> IO ()
+drawZoneRow :: [[GLuint]] -> ([(Int, Int)], Int) -> IO ()
 drawZoneRow texs (a,b) = resequence_ (map (drawZoneSpot texs b) a)
 
-drawZoneSpot :: [GLuint] -> Int -> (Int, Int) -> IO ()
-drawZoneSpot texs y (t, x) = drawZoneTile texs x y t
+drawZoneSpot :: [[GLuint]] -> Int -> (Int, Int) -> IO ()
+drawZoneSpot texs y (t, x) = drawZoneTile (texs !! t) x y t
 
 drawZoneTile :: [GLuint] -> Int -> Int -> Int -> IO ()
 drawZoneTile texs x y t = do

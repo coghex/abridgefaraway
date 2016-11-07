@@ -151,7 +151,7 @@ main = do
             , stateCursorX    = 1
             , stateCursorY    = 1
             , stateAlphabet   = alph
-            , stateZones      = seedZone 1 1 5
+            , stateZones      = initZones 0
             , stateZoneTexs   = ztexs
             }
 
@@ -221,7 +221,7 @@ draw SZone     = do
   state <- get
   liftIO $ do
     beginDrawText
-    drawZone state (stateCursorX state) (stateCursorY state) 1
+    drawZone state (stateCursorX state) (stateCursorY state)
     drawText 1 95 24 72 "A Bridge Far Away..."
 draw SLoad     = do
   state <- get
@@ -289,8 +289,10 @@ processEvent ev =
           liftIO $ GLFW.setWindowShouldClose window True
         when ((k == GLFW.Key'Space) && ((stateGame state) == SWorld)) $
           modify $ \s -> s { stateGame = SMenu }
-        when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $
+        when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           modify $ \s -> s { stateGame = SZone }
+          --let state2 = buildZone state (stateCursorX state) (stateCursorY state)
+          --modify $ \s -> s { stateZones = state2 }
         when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $ do
           modify $ \s -> s { stateGame = SLoad }
           let state2 = buildGrid state (length (stateConts state))

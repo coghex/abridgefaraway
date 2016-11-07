@@ -50,15 +50,19 @@ initTexs win = do
 
 loadZTextures :: String -> IO ([[GLuint]])
 loadZTextures fn = do
-  t1 <- loadGLTextures (fn ++ "plains/plains001.bmp")
-  t2 <- loadGLTextures (fn ++ "fields/fields001.bmp")
-  t3 <- loadGLTextures (fn ++ "fields/fields002.bmp")
-  t4 <- loadGLTextures (fn ++ "fields/fields003.bmp")
-  t5 <- loadGLTextures (fn ++ "fields/fields004.bmp")
-  t6 <- loadGLTextures (fn ++ "fields/fields005.bmp")
-  t7 <- loadGLTextures (fn ++ "fields/fields006.bmp")
-  t8 <- loadGLTextures (fn ++ "fields/fields007.bmp")
-  return ([[t1], [t2, t3, t4, t5, t6, t7, t8]])
+  p1 <- loadGLTextures (fn ++ "plains/plains001.bmp")
+  f1 <- loadGLTextures (fn ++ "fields/fields001.bmp")
+  f2 <- loadGLTextures (fn ++ "fields/fields002.bmp")
+  f3 <- loadGLTextures (fn ++ "fields/fields003.bmp")
+  f4 <- loadGLTextures (fn ++ "fields/fields004.bmp")
+  f5 <- loadGLTextures (fn ++ "fields/fields005.bmp")
+  f6 <- loadGLTextures (fn ++ "fields/fields006.bmp")
+  f7 <- loadGLTextures (fn ++ "fields/fields007.bmp")
+  c1 <- loadGLTextures (fn ++ "crags/crags001.bmp")
+  b1 <- loadGLTextures (fn ++ "beach/beach001.bmp")
+  s1 <- loadGLTextures (fn ++ "sea/sea001.bmp")
+  
+  return ([[p1], [f1, f2, f3, f4, f5, f6, f7], [c1], [b1], [s1]])
 
 loadWTextures :: String -> IO ([GLuint], [TextureObject], [[GLuint]])
 loadWTextures fn = do
