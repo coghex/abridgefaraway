@@ -2,7 +2,9 @@ module DrawZone where
 
 import Data.List.Split (chunksOf)
 import Graphics.GL
+import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
+import Graphics.GLUtil
 import Zone
 import Settings
 import World
@@ -15,17 +17,17 @@ drawZone state x y = do
   resequence_ $ map (drawZoneRow (stateZoneTexs state)) zonenew
   glFlush
 
-drawZoneRow :: [[GLuint]] -> ([(Int, Int)], Int) -> IO ()
+drawZoneRow :: [[GL.TextureObject]] -> ([(Int, Int)], Int) -> IO ()
 drawZoneRow texs (a,b) = resequence_ (map (drawZoneSpot texs b) a)
 
-drawZoneSpot :: [[GLuint]] -> Int -> (Int, Int) -> IO ()
-drawZoneSpot texs y (t, x) = drawZoneTile (texs !! t) x y t
+drawZoneSpot :: [[GL.TextureObject]] -> Int -> (Int, Int) -> IO ()
+drawZoneSpot texs y (t, x) = withTextures2D (texs!!t) $ drawZoneTile (texs !! t) x y t
 
-drawZoneTile :: [GLuint] -> Int -> Int -> Int -> IO ()
+drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
 drawZoneTile texs x y t = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral zonew)/2))) (2*((fromIntegral y) - ((fromIntegral zoneh)/2))) (-400)
-  glBindTexture GL_TEXTURE_2D (texs !! t)
+  GL.textureBinding GL.Texture2D GL.$= Just (texs!!t)
   glColor3f 1 1 1
   drawSquare
 

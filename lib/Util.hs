@@ -11,6 +11,7 @@ import Control.Monad.RWS.Strict (put, liftIO)
 import Control.Monad.Trans.Maybe
 import Control.Monad.IO.Class
 import qualified Graphics.UI.GLFW as GLFW
+import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLU
 import Graphics.GLUtil
 import qualified Codec.Picture as JT
@@ -35,7 +36,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO ([GLuint], [TextureObject], [[GLuint]])
+initTexs :: GLFW.Window -> IO ([GLuint], [TextureObject], [[TextureObject]])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -48,23 +49,22 @@ initTexs win = do
   resizeScene win w h
   loadWTextures "maps/"
 
-loadZTextures :: String -> IO ([[GLuint]])
+loadZTextures :: String -> IO ([[TextureObject]])
 loadZTextures fn = do
-  p1 <- loadGLTextures (fn ++ "plains/plains001.bmp")
-  f1 <- loadGLTextures (fn ++ "fields/fields001.bmp")
-  f2 <- loadGLTextures (fn ++ "fields/fields002.bmp")
-  f3 <- loadGLTextures (fn ++ "fields/fields003.bmp")
-  f4 <- loadGLTextures (fn ++ "fields/fields004.bmp")
-  f5 <- loadGLTextures (fn ++ "fields/fields005.bmp")
-  f6 <- loadGLTextures (fn ++ "fields/fields006.bmp")
-  f7 <- loadGLTextures (fn ++ "fields/fields007.bmp")
-  c1 <- loadGLTextures (fn ++ "crags/crags001.bmp")
-  b1 <- loadGLTextures (fn ++ "beach/beach001.bmp")
-  s1 <- loadGLTextures (fn ++ "sea/sea001.bmp")
-  
+  p1 <- loadGLZTextures (fn ++ "plains/plains001.bmp")
+  f1 <- loadGLZTextures (fn ++ "fields/fields001.bmp")
+  f2 <- loadGLZTextures (fn ++ "fields/fields002.bmp")
+  f3 <- loadGLZTextures (fn ++ "fields/fields003.bmp")
+  f4 <- loadGLZTextures (fn ++ "fields/fields004.bmp")
+  f5 <- loadGLZTextures (fn ++ "fields/fields005.bmp")
+  f6 <- loadGLZTextures (fn ++ "fields/fields006.bmp")
+  f7 <- loadGLZTextures (fn ++ "fields/fields007.bmp")
+  c1 <- loadGLZTextures (fn ++ "crags/crags001.bmp")
+  b1 <- loadGLZTextures (fn ++ "beach/beach001.bmp")
+  s1 <- loadGLZTextures (fn ++ "sea/sea001.bmp")
   return ([[p1], [f1, f2, f3, f4, f5, f6, f7], [c1], [b1], [s1]])
 
-loadWTextures :: String -> IO ([GLuint], [TextureObject], [[GLuint]])
+loadWTextures :: String -> IO ([GLuint], [TextureObject], [[TextureObject]])
 loadWTextures fn = do
   t1 <- loadGLTextures (fn ++ "plains/worldplains.bmp")
   t2 <- loadGLTextures (fn ++ "fields/worldfields.bmp")
@@ -76,9 +76,16 @@ loadWTextures fn = do
   t8 <- loadGLTextures (fn ++ "sea/worldice.bmp")
   t9 <- runMaybeT $ loadGLPngTextures ("data/wcursor.png")
   fonttex <- loadCharacter "data/fonts/amatic/AmaticSC-Regular.ttf" 'A' 24
-  zt <- loadZTextures fn
+  zt <- loadZTextures ("data/"++fn)
   
   return ([t1, t2, t3, t4, t5, t6, t7, t8, (fromJust t9)], [fonttex], zt)
+
+loadGLZTextures :: String -> IO GL.TextureObject
+loadGLZTextures fn = do
+  t <- either error id <$> readTexture fn
+  textureFilter Texture2D $= ((Linear', Nothing), Linear')
+  texture2DWrap $= (Mirrored, ClampToEdge)
+  return t
 
 loadGLTextures :: String -> IO GLuint
 loadGLTextures fn = do
