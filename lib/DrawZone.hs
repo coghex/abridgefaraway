@@ -26,8 +26,8 @@ drawZoneSpot texs y (t, x) = withTextures2D (texs!!t) $ drawZoneTile (texs !! t)
 drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
 drawZoneTile texs x y t = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral zonew)/2))) (2*((fromIntegral y) - ((fromIntegral zoneh)/2))) (-400)
-  GL.textureBinding GL.Texture2D GL.$= Just (texs!!t)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral zonew)/2))) (2*((fromIntegral y) - ((fromIntegral zoneh)/2))) (-50)
+  GL.textureBinding GL.Texture2D GL.$= Just (texs!!0)
   glColor3f 1 1 1
   drawSquare
 

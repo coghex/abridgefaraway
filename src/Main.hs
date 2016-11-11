@@ -221,7 +221,7 @@ draw SZone     = do
   state <- get
   liftIO $ do
     beginDrawText
-    drawZone state (stateCursorX state) (stateCursorY state)
+    drawZone state (stateCursorX state) (stateCursorY state) 
     drawText 1 95 24 72 "A Bridge Far Away..."
 draw SLoad     = do
   state <- get
@@ -291,7 +291,7 @@ processEvent ev =
           modify $ \s -> s { stateGame = SMenu }
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           modify $ \s -> s { stateGame = SZone }
-          let state2 = buildZone state (stateCursorX state) (stateCursorY state)
+          let state2 = buildZone state (stateCursorX state) (stateCursorY state) ((stateGrid state) !! ((stateCursorX state)+(gridw*stateCursorY state)))
           modify $ \s -> s { stateZones = state2 }
         when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $ do
           modify $ \s -> s { stateGame = SLoad }

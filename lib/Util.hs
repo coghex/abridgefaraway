@@ -62,7 +62,7 @@ loadZTextures fn = do
   c1 <- loadGLZTextures (fn ++ "crags/crags001.bmp")
   b1 <- loadGLZTextures (fn ++ "beach/beach001.bmp")
   s1 <- loadGLZTextures (fn ++ "sea/sea001.bmp")
-  return ([[p1], [f1, f2, f3, f4, f5, f6, f7], [c1], [b1], [s1]])
+  return ([[p1], [f1, f2, f3, f4, f5, f6, f7], [c1], [b1], [], [s1], [], []])
 
 loadWTextures :: String -> IO ([GLuint], [TextureObject], [[TextureObject]])
 loadWTextures fn = do
