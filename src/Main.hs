@@ -291,8 +291,8 @@ processEvent ev =
           modify $ \s -> s { stateGame = SMenu }
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           modify $ \s -> s { stateGame = SZone }
-          --let state2 = buildZone state (stateCursorX state) (stateCursorY state)
-          --modify $ \s -> s { stateZones = state2 }
+          let state2 = buildZone state (stateCursorX state) (stateCursorY state)
+          modify $ \s -> s { stateZones = state2 }
         when ((k == GLFW.Key'C) && ((stateGame state) == SMenu)) $ do
           modify $ \s -> s { stateGame = SLoad }
           let state2 = buildGrid state (length (stateConts state))
