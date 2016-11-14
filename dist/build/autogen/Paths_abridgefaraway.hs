@@ -26,12 +26,12 @@ catchIO :: IO a -> (Exception.IOException -> IO a) -> IO a
 catchIO = Exception.catch
 
 version :: Version
-version = Version [0,3,0,1] []
+version = Version [1,0,0,0] []
 bindir, libdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/home/fatty/abridgefaraway/.cabal-sandbox/bin"
-libdir     = "/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/abridgefaraway-0.3.0.1"
-datadir    = "/home/fatty/abridgefaraway/.cabal-sandbox/share/x86_64-linux-ghc-8.0.1/abridgefaraway-0.3.0.1"
+libdir     = "/home/fatty/abridgefaraway/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/abridgefaraway-1.0.0.0"
+datadir    = "/home/fatty/abridgefaraway/.cabal-sandbox/share/x86_64-linux-ghc-8.0.1/abridgefaraway-1.0.0.0"
 libexecdir = "/home/fatty/abridgefaraway/.cabal-sandbox/libexec"
 sysconfdir = "/home/fatty/abridgefaraway/.cabal-sandbox/etc"
 
