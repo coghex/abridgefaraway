@@ -101,6 +101,7 @@ main = do
             , stateZazzTypes  = ztr
             , stateZone       = (take (gridw*gridh) (repeat 0))
             , stateCurrentZ   = (take (zonew*zoneh) (repeat 0))
+            , stateFits       = makeFits
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -210,7 +211,7 @@ processEvent ev =
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
           modify $ \s -> s { stateZone = newzones
-                           , stateCurrentZ = take (zoneh*zonew) (repeat $ getZoneType state (fst (stateCursor state)) (snd (stateCursor state)))
+                           , stateCurrentZ = initZone state 0
                            , stateGame = SZone }
         when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }

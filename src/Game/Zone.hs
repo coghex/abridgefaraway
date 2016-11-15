@@ -18,6 +18,48 @@ zoneMapper a (b, c)
   | a==c      = (1, c)
   | otherwise = (b, c)
 
+makeFits :: [[([Int], [Int], [Int], [Int])]] --s, w, n, e
+makeFits = [[]
+           ,[([]
+             ,[]
+             ,[]
+             ,[]
+             ),
+             ([3, 4, 5, 6, 7, 8, 15, 17, 22]
+             ,[2, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 22]
+             ,[6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 20, 21, 22]
+             ,[1, 2, 4, 5, 7, 8, 20, 21, 23, 24, 25]
+             ),
+             ([]
+             ,[]
+             ,[]
+             ,[]
+             )]
+           ]
+
+zFits :: State -> Int -> Int -> Bool
+zFits state x y = True
+
+initZone :: State -> Int -> [Int]
+initZone state t = do
+  let x = (take (zonew*zoneh) (repeat t))
+  let znew = expandZone x
+  let z0 = map (makeZone state) znew
+  let z1 = stripZone z0
+  flattenZone z1
+
+makeZone :: State -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+makeZone state (m, j) = ((map (makeZSpot j state) m),j)
+
+makeZSpot :: Int -> State -> (Int, Int) -> (Int, Int)
+makeZSpot j state (l, i) = ((seedZSpot state i j l), i)
+
+seedZSpot :: State -> Int -> Int -> Int -> Int
+seedZSpot state 128 128 l = 10
+seedZSpot state i j l
+  | zFits state i j       = l
+  | otherwise             = 0
+
 drawZone :: State -> [[GL.TextureObject]] -> IO ()
 drawZone state texs = do
   let x = fst (stateCursor state) 
@@ -47,6 +89,17 @@ expandZone m = zip (map workZRows (chunksOf zonew m)) [0..zoneh]
 workZRows :: [Int] -> [(Int, Int)]
 workZRows l = do
   zip l [0..zonew]
+
+stripZone :: [([(Int, Int)], Int)] -> [[Int]]
+stripZone ((a,b):ys) = (stripZRow a) : stripZone ys
+stripZone _          = [[]]
+
+stripZRow :: [(Int, Int)] -> [Int]
+stripZRow ((a, b):ys) = a : stripZRow ys
+stripZRow _           = []
+
+flattenZone :: [[Int]] -> [Int]
+flattenZone xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 
 drawZoneRow :: [[GL.TextureObject]] -> Int -> ([(Int, Int)], Int) -> IO ()
 drawZoneRow texs c (a,b) = resequence_ (map (drawZoneSpot texs c b) a)
