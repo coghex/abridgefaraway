@@ -6,7 +6,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL
 import System.Random
 
-data GameState = SWorld | SZone | SMenu | SLoad deriving (Eq)
+data GameState = SWorld | SZone | SMenu | SLoad | SFucked deriving (Eq)
 
 data Env = Env
     { envEventsChan   :: TQueue Event
@@ -14,6 +14,7 @@ data Env = Env
     , envFontBig      :: !FTGL.Font
     , envFontSmall    :: !FTGL.Font
     , envWTexs        :: ![GL.TextureObject]
+    , envZTexs        :: ![[GL.TextureObject]]
     , envSeeds        :: ![StdGen]
     }
 

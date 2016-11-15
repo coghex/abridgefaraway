@@ -21,6 +21,7 @@ import Game.Util
 import Game.World
 import Game.Draw
 import Game.Save
+import Game.Zone
 
 type Game = RWST Env () State IO
 
@@ -36,7 +37,7 @@ main = do
     GLFW.swapInterval 0
     f1 <- loadFont "data/fonts/amatic/AmaticSC-Regular.ttf"
     f2 <- loadFont "data/fonts/amatic/AmaticSC-Regular.ttf"
-    wtexs <- liftIO $ initTexs window
+    (wtexs, ztexs) <- liftIO $ initTexs window
     s1 <- newStdGen
     s2 <- newStdGen
     s3 <- newStdGen
@@ -70,6 +71,7 @@ main = do
             , envFontBig      = f1
             , envFontSmall    = f2
             , envWTexs        = wtexs
+            , envZTexs        = ztexs
             , envSeeds        = [s1, s2, s3, s4, s5, s6]
             }
         state = State
@@ -125,6 +127,7 @@ draw SMenu = do
     drawText (envFontBig env) 1 95 24 72 "A Bridge Far Away..."
     drawText (envFontSmall env) 1 75 12 36 "press c to create a world"
     drawText (envFontSmall env) 1 65 12 36 "press l to load a world"
+    drawText (envFontSmall env) 1 55 12 36 "press space to return to menu"
 draw SLoad = do
   env   <- ask
   state <- get
@@ -141,6 +144,13 @@ draw SWorld = do
       drawScene state (envWTexs env)
     GL.preservingMatrix $ do
       drawCursor state (envWTexs env)
+draw SZone  = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    GL.preservingMatrix $ do
+      drawZone state (envZTexs env)
 draw _     = do
   state <- get
   liftIO $ do
@@ -196,6 +206,10 @@ processEvent ev =
           liftIO $ GLFW.setWindowShouldClose window True
         when (k == GLFW.Key'Space) $ do
           modify $ \s -> s { stateGame = SMenu }
+        when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
+          let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
+          modify $ \s -> s { stateZone = newzones
+                           , stateGame = SZone }
         when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }
           let newstate = initWorld state (length (stateConts state))
