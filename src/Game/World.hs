@@ -37,6 +37,7 @@ initWorld state c = do
       szr  = stateZazzRands state
       szt  = stateZazzTypes state
       zone = stateZone      state
+      curz = stateCurrentZ  state
       g1   = seedConts state g0 sc ss srs c
       g2   = addZazz state g1 szc szs szr szt
       g3   = iceGrid state ssis ssic ssir g2
@@ -68,6 +69,7 @@ initWorld state c = do
     , stateZazzRands = szr
     , stateZazzTypes = szt
     , stateZone      = zone
+    , stateCurrentZ  = curz
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
