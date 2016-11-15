@@ -28,6 +28,11 @@ drawSquare = do
   glVertex3f   (-1)   1    1
   glEnd
 
+drawCursor :: State -> [GL.TextureObject] -> IO ()
+drawCursor state texs = do
+  withTextures2D [(last texs)] $ drawSceneTile [(last texs)] (fst (stateCursor state)) (snd (stateCursor state)) 0
+
+
 drawScene :: State -> [GL.TextureObject] -> IO ()
 drawScene state texs = do
   let gnew = expandGrid $ stateGrid state

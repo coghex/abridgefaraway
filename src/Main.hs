@@ -77,6 +77,7 @@ main = do
             , stateScreenW    = screenw
             , stateScreenH    = screenh
             , stateGrid       = (take (gridw*gridh) (repeat 4))
+            , stateCursor     = (5, 5)
             , stateNConts     = nconts
             , stateISpots     = inspots
             , stateZSpots     = zspots
@@ -96,6 +97,7 @@ main = do
             , stateZazzSizes  = zss
             , stateZazzRands  = zrs
             , stateZazzTypes  = ztr
+            , stateZone       = (take (gridw*gridh) (repeat 0))
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -137,6 +139,8 @@ draw SWorld = do
     GL.clear[GL.ColorBuffer, GL.DepthBuffer]
     GL.preservingMatrix $ do
       drawScene state (envWTexs env)
+    GL.preservingMatrix $ do
+      drawCursor state (envWTexs env)
 draw _     = do
   state <- get
   liftIO $ do
@@ -185,12 +189,14 @@ processEvent ev =
       when (ks == GLFW.KeyState'Pressed) $ do
         state <- get
         env   <- ask
-        when (k == GLFW.Key'Escape) $ do
+        when (k == GLFW.Key'Escape && (stateGame state) == SWorld) $ do
+          liftIO $ GLFW.setWindowShouldClose window True
           liftIO $ saveMap (stateGrid state)
+        when (k == GLFW.Key'Escape) $ do
           liftIO $ GLFW.setWindowShouldClose window True
         when (k == GLFW.Key'Space) $ do
           modify $ \s -> s { stateGame = SMenu }
-        when (k == GLFW.Key'C) $ do
+        when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }
           let newstate = initWorld state (length (stateConts state))
           modify $ \s -> s { stateGrid = (stateGrid newstate) }
@@ -198,6 +204,15 @@ processEvent ev =
           x <- liftIO loadMap
           modify $ \s -> s { stateGrid = x
                            , stateGame = SWorld }
+        when ((k == GLFW.Key'Right) && ((stateGame state) == SWorld) && (fst (stateCursor state) <= (gridw-2))) $
+          modify $ \s -> s { stateCursor = ((fst (stateCursor state))+1, ((snd (stateCursor state)))) }
+        when ((k == GLFW.Key'Left) && ((stateGame state) == SWorld) && (fst (stateCursor state) > (0))) $
+          modify $ \s -> s { stateCursor = ((fst (stateCursor state))-1, ((snd (stateCursor state)))) }
+
+        when ((k == GLFW.Key'Up) && ((stateGame state) == SWorld) && (snd (stateCursor state) <= (gridh-2))) $
+          modify $ \s -> s { stateCursor = (fst (stateCursor state), ((snd (stateCursor state))+1)) }
+        when ((k == GLFW.Key'Down) && ((stateGame state) == SWorld) && (snd (stateCursor state) > (0))) $
+          modify $ \s -> s { stateCursor = (fst (stateCursor state), ((snd (stateCursor state))-1)) }
     (EventFramebufferSize _ width height) -> do
       adjustWindow
     (EventWindowResize win w h) -> do

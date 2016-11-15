@@ -16,6 +16,7 @@ initWorld state c = do
       w    = stateScreenW   state
       h    = stateScreenH   state
       g0   = stateGrid      state
+      scur = stateCursor    state
       ncs  = stateNConts    state
       is   = stateISpots    state
       nzs  = stateZSpots    state
@@ -35,6 +36,7 @@ initWorld state c = do
       szs  = stateZazzSizes state
       szr  = stateZazzRands state
       szt  = stateZazzTypes state
+      zone = stateZone      state
       g1   = seedConts state g0 sc ss srs c
       g2   = addZazz state g1 szc szs szr szt
       g3   = iceGrid state ssis ssic ssir g2
@@ -45,6 +47,7 @@ initWorld state c = do
     , stateScreenW   = w
     , stateScreenH   = h
     , stateGrid      = g4
+    , stateCursor    = scur
     , stateNConts    = ncs
     , stateISpots    = is
     , stateZSpots    = nzs
@@ -64,6 +67,7 @@ initWorld state c = do
     , stateZazzSizes = szs
     , stateZazzRands = szr
     , stateZazzTypes = szt
+    , stateZone      = zone
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]

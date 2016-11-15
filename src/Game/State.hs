@@ -22,6 +22,7 @@ data State = State
     , stateScreenW    :: !Int
     , stateScreenH    :: !Int
     , stateGrid       :: ![Int]
+    , stateCursor     :: !(Int, Int)
     , stateNConts     :: !Int
     , stateISpots     :: !Int
     , stateZSpots     :: !Int
@@ -41,6 +42,7 @@ data State = State
     , stateZazzSizes  :: ![(Int, Int)]
     , stateZazzRands  :: ![(Int, Int)]
     , stateZazzTypes  :: ![Int]
+    , stateZone       :: ![Int]
     }
 
 data Event =

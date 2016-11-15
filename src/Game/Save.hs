@@ -6,8 +6,12 @@ import Game.Util
 saveMap :: [Int] -> IO ()
 saveMap s = do
   let fileName = "data/save.txt"
-  let writeData = (foldl1 ((++)) (map addSpace s))
-  writeFile fileName writeData
+  f <- loadMap
+  if (f == s) then do
+    return ()
+  else do
+    let writeData = (foldl1 ((++)) (map addSpace s))
+    writeFile fileName writeData
 
 loadMap :: IO ([Int])
 loadMap = do

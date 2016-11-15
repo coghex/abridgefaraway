@@ -73,6 +73,7 @@ loadZTextures fn = do
 
 loadWTextures :: String -> IO ([TextureObject])
 loadWTextures fn = do
+  t0 <- loadGLZTextures (fn ++ "wcursor.png")
   t1 <- loadGLZTextures (fn ++ "plains/worldplains.png")
   t2 <- loadGLZTextures (fn ++ "fields/worldfields.png")
   t3 <- loadGLZTextures (fn ++ "crags/worldcrags.png")
@@ -81,7 +82,7 @@ loadWTextures fn = do
   t6 <- loadGLZTextures (fn ++ "ice/worldice.png")
   
   --return ([t1, t2, t3, t4, t5, t6, t7, t8], (zt!!0), zt)
-  return ([t1, t2, t3, t4, t5, t6])
+  return ([t1, t2, t3, t4, t5, t6, t0])
 
 loadGLZTextures :: String -> IO GL.TextureObject
 loadGLZTextures fn = do
