@@ -46,6 +46,7 @@ data State = State
     , stateZone       :: ![Int]
     , stateCurrentZ   :: ![Int]
     , stateFits       :: ![[([Int], [Int], [Int], [Int])]]
+    , stateZSeeded    :: ![Bool]
     }
 
 data Event =

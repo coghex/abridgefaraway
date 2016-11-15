@@ -102,6 +102,7 @@ main = do
             , stateZone       = (take (gridw*gridh) (repeat 0))
             , stateCurrentZ   = (take (zonew*zoneh) (repeat 0))
             , stateFits       = makeFits
+            , stateZSeeded    = take (zonew*zoneh) (repeat False)
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -210,8 +211,10 @@ processEvent ev =
           modify $ \s -> s { stateGame = SMenu }
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
+          sg <- liftIO $ newStdGen
+          let rand = randomList (10, 15) (zonew*zoneh) sg
           modify $ \s -> s { stateZone = newzones
-                           , stateCurrentZ = initZone state 0
+                           , stateCurrentZ = initZone state rand 0
                            , stateGame = SZone }
         when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }

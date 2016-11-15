@@ -1,6 +1,7 @@
 module Game.Zone where
 
 import Data.List.Split (chunksOf)
+import System.Random
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import Game.Settings
@@ -37,28 +38,29 @@ makeFits = [[]
              )]
            ]
 
-zFits :: State -> Int -> Int -> Bool
-zFits state x y = True
+zFits :: State -> Int -> Int -> Int -> Int -> Bool
+zFits state x y t1 t2 = True
 
-initZone :: State -> Int -> [Int]
-initZone state t = do
+initZone :: State -> [Int] -> Int -> [Int]
+initZone state r t = do
   let x = (take (zonew*zoneh) (repeat t))
   let znew = expandZone x
-  let z0 = map (makeZone state) znew
+  let z0 = map (makeZone state r) znew
   let z1 = stripZone z0
   flattenZone z1
 
-makeZone :: State -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-makeZone state (m, j) = ((map (makeZSpot j state) m),j)
+makeZone :: State -> [Int] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+makeZone state r (m, j) = ((map (makeZSpot r j state) m),j)
 
-makeZSpot :: Int -> State -> (Int, Int) -> (Int, Int)
-makeZSpot j state (l, i) = ((seedZSpot state i j l), i)
+makeZSpot :: [Int] -> Int -> State -> (Int, Int) -> (Int, Int)
+makeZSpot r j state (l, i) = ((seedZSpot state r i j l), i)
 
-seedZSpot :: State -> Int -> Int -> Int -> Int
-seedZSpot state 128 128 l = 10
-seedZSpot state i j l
-  | zFits state i j       = l
-  | otherwise             = 0
+seedZSpot :: State -> [Int] -> Int -> Int -> Int -> Int
+seedZSpot state r 128 128 l = 10
+seedZSpot state r 129 128 l = r!!0
+seedZSpot state r i j l
+  | zFits state i j (r!!(i+(j*zonew))) l = r!!(i+(j*zonew))
+  | otherwise                            = 0
 
 drawZone :: State -> [[GL.TextureObject]] -> IO ()
 drawZone state texs = do
