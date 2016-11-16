@@ -221,7 +221,7 @@ processEvent ev =
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
           sg <- liftIO $ newStdGen
-          let rand = randomList (9, 14) (zonew*zoneh) sg
+          let rand = randomList (10, 15) (zonew*zoneh) sg
           modify $ \s -> s { stateZone = newzones
                            , stateCurrentZ = initZone state rand 0
                            , stateGame = SZone }
