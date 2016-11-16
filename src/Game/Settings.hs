@@ -22,3 +22,7 @@ minzazzsize = 100::Int
 maxzazzsize = 150::Int
 minzspots = 10::Int
 maxzspots = 50::Int
+minnbushes = 100::Int
+maxnbushes = 1000::Int
+minbushsize = 8::Int
+maxbushsize = 16::Int

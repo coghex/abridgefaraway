@@ -47,6 +47,7 @@ main = do
     nconts <- randomN minnconts maxnconts
     inspots <- randomN mininspots maxinspots
     zspots <- randomN minzspots maxzspots
+    nbush <- randomN minnbushes maxnbushes
     let nspots = randomList (minnspots, maxnspots) nconts s1
         conts = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
         seeds = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) nconts s3), (randomList ((fudge+1), (gridh-fudge-1)) nconts s4))
@@ -63,6 +64,10 @@ main = do
         zss = buildList2 ((randomList (minzazzsize, maxzazzsize) zspots s2), (randomList (minzazzsize, maxzazzsize) zspots s3))
         zrs = buildList2 ((randomList (1, (gridw-1)) zspots s2), (randomList (1, (gridh-1)) zspots s1))
         ztr = randomList (0, 5::Int) zspots s1
+        bushes = buildList2 ((randomList (0, zonew) nbush s3), (randomList (0, zoneh) nbush s4))
+        brands = buildList2 ((randomList (1, (zonew-1)) nbush s6), (randomList (1, (zoneh-1)) nbush s5))
+        bsiz = randomList (minbushsize, maxbushsize) nbush s6
+
         
         
     let env = Env
@@ -101,8 +106,9 @@ main = do
             , stateZazzTypes  = ztr
             , stateZone       = (take (gridw*gridh) (repeat 0))
             , stateCurrentZ   = (take (zonew*zoneh) (repeat 0))
-            , stateFits       = makeFits
-            , stateZSeeded    = take (zonew*zoneh) (repeat False)
+            , stateBushes     = bushes
+            , stateBRands     = brands
+            , stateBSizes     = bsiz
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -212,7 +218,7 @@ processEvent ev =
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
           sg <- liftIO $ newStdGen
-          let rand = randomList (10, 15) (zonew*zoneh) sg
+          let rand = randomList (9, 14) (zonew*zoneh) sg
           modify $ \s -> s { stateZone = newzones
                            , stateCurrentZ = initZone state rand 0
                            , stateGame = SZone }

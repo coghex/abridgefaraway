@@ -8,6 +8,7 @@ import Game.Settings
 import Game.State
 import Game.Draw
 import Game.Rand
+import Game.World
 
 setZone :: [Int] -> Int -> Int -> [Int]
 setZone a x y = do
@@ -19,35 +20,30 @@ zoneMapper a (b, c)
   | a==c      = (1, c)
   | otherwise = (b, c)
 
-makeFits :: [[([Int], [Int], [Int], [Int])]] --s, w, n, e
-makeFits = [[]
-           ,[([]
-             ,[]
-             ,[]
-             ,[]
-             ),
-             ([3, 4, 5, 6, 7, 8, 15, 17, 22]
-             ,[2, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 22]
-             ,[6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 20, 21, 22]
-             ,[1, 2, 4, 5, 7, 8, 20, 21, 23, 24, 25]
-             ),
-             ([]
-             ,[]
-             ,[]
-             ,[]
-             )]
-           ]
+bushMapper :: State -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [([(Int, Int)], Int)] -> [([(Int, Int)], Int)]
+bushMapper _     _ []         []           []        z = z
+bushMapper state r ((x,y):xs) ((x2,y2):ys) ((x3):zs) z = do
+  let zn = map (makeZoneBush state r x y x2 y2 x3) z
+  bushMapper state r xs ys zs zn
 
-zFits :: State -> Int -> Int -> Int -> Int -> Bool
-zFits state x y t1 t2 = True
+makeZoneBush :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+makeZoneBush state r x y x2 y2 s (t, j) = ((map (makeZoneBushSpot state r j x y x2 y2 s) t), j)
+
+makeZoneBushSpot :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+makeZoneBushSpot state r j x y x2 y2 s (t, i)
+  | (i>=zonew)||(j>=zoneh)                              = (t,i)
+  | (distance (i) (j) (x) (y) x2 y2 1) < 5000*s = (4, i)
+  | otherwise                                           = (t, i)
 
 initZone :: State -> [Int] -> Int -> [Int]
 initZone state r t = do
   let x = (take (zonew*zoneh) (repeat t))
   let znew = expandZone x
   let z0 = map (makeZone state r) znew
-  let z1 = stripZone z0
-  flattenZone z1
+  --let z1 = map (makeZoneBush state r 0 0) z0
+  let z1 = bushMapper state r (stateBushes state) (stateBRands state) (stateBSizes state) z0
+  let z2 = stripZone z1
+  flattenZone z2
 
 makeZone :: State -> [Int] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
 makeZone state r (m, j) = ((map (makeZSpot r j state) m),j)
@@ -56,11 +52,7 @@ makeZSpot :: [Int] -> Int -> State -> (Int, Int) -> (Int, Int)
 makeZSpot r j state (l, i) = ((seedZSpot state r i j l), i)
 
 seedZSpot :: State -> [Int] -> Int -> Int -> Int -> Int
-seedZSpot state r 128 128 l = 10
-seedZSpot state r 129 128 l = r!!0
-seedZSpot state r i j l
-  | zFits state i j (r!!(i+(j*zonew))) l = r!!(i+(j*zonew))
-  | otherwise                            = 0
+seedZSpot state r i j l = r!!(i+(j*zonew))
 
 drawZone :: State -> [[GL.TextureObject]] -> IO ()
 drawZone state texs = do

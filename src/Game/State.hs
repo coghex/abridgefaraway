@@ -45,8 +45,9 @@ data State = State
     , stateZazzTypes  :: ![Int]
     , stateZone       :: ![Int]
     , stateCurrentZ   :: ![Int]
-    , stateFits       :: ![[([Int], [Int], [Int], [Int])]]
-    , stateZSeeded    :: ![Bool]
+    , stateBushes     :: ![(Int, Int)]
+    , stateBRands     :: ![(Int, Int)]
+    , stateBSizes     :: ![Int]
     }
 
 data Event =
