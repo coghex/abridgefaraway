@@ -54,12 +54,12 @@ makeZSpot r j state (l, i) = ((seedZSpot state r i j l), i)
 seedZSpot :: State -> [Int] -> Int -> Int -> Int -> Int
 seedZSpot state r i j l = r!!(i+(j*zonew))
 
-drawZone :: State -> [[GL.TextureObject]] -> IO ()
-drawZone state texs = do
+drawZone :: State -> GL.GLfloat -> GL.GLfloat -> [[GL.TextureObject]] -> IO ()
+drawZone state camx camy texs = do
   let x = fst (stateCursor state) 
   let y = snd (stateCursor state)
   let znew = expandZone $ stateCurrentZ state
-  resequence_ (map (drawZoneRow texs (getZoneType state x y)) znew)
+  resequence_ (map (drawZoneRow texs camx camy (getZoneType state x y)) znew)
   GL.flush
 --let x = fst (stateCursor state) 
   --let y = snd (stateCursor state)
@@ -68,10 +68,10 @@ drawZone state texs = do
   --drawZoneSpot texs 0 0 10 t
 
 
-drawZoneSpot :: [[GL.TextureObject]] -> Int -> Int -> (Int, Int) -> IO ()
-drawZoneSpot texs c y (t, x)
-  | (c==4)               = withTextures2D [((texs!!c)!!0)] $ drawZoneTile (texs!!c) (x) (y) t
-  | (c >= 0) && (c < 4)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x) (y) t
+drawZoneSpot :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> Int -> (Int, Int) -> IO ()
+drawZoneSpot texs camx camy c y (t, x)
+  | (c==4)               = withTextures2D [((texs!!c)!!0)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t
+  | (c >= 0) && (c < 4)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t
   | otherwise            = print "no tex"
 
 getZoneType :: State -> Int -> Int -> Int
@@ -95,5 +95,5 @@ stripZRow _           = []
 flattenZone :: [[Int]] -> [Int]
 flattenZone xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 
-drawZoneRow :: [[GL.TextureObject]] -> Int -> ([(Int, Int)], Int) -> IO ()
-drawZoneRow texs c (a,b) = resequence_ (map (drawZoneSpot texs c b) a)
+drawZoneRow :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> ([(Int, Int)], Int) -> IO ()
+drawZoneRow texs camx camy c (a,b) = resequence_ (map (drawZoneSpot texs camx camy c b) a)

@@ -44,6 +44,9 @@ data State = State
     , stateZazzRands  :: ![(Int, Int)]
     , stateZazzTypes  :: ![Int]
     , stateZone       :: ![Int]
+    , stateZoneCamx   :: !GL.GLfloat
+    , stateZoneCamy   :: !GL.GLfloat
+    , stateZoneCamz   :: !GL.GLfloat
     , stateCurrentZ   :: ![Int]
     , stateBushes     :: ![(Int, Int)]
     , stateBRands     :: ![(Int, Int)]

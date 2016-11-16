@@ -105,6 +105,9 @@ main = do
             , stateZazzRands  = zrs
             , stateZazzTypes  = ztr
             , stateZone       = (take (gridw*gridh) (repeat 0))
+            , stateZoneCamx   = 0.0
+            , stateZoneCamy   = 0.0
+            , stateZoneCamz   = 0.0
             , stateCurrentZ   = (take (zonew*zoneh) (repeat 0))
             , stateBushes     = bushes
             , stateBRands     = brands
@@ -159,7 +162,7 @@ draw SZone  = do
   liftIO $ do
     GL.clear[GL.ColorBuffer, GL.DepthBuffer]
     GL.preservingMatrix $ do
-      drawZone state (envZTexs env)
+      drawZone state (stateZoneCamx state) (stateZoneCamy state) (envZTexs env)
 draw _     = do
   state <- get
   liftIO $ do
@@ -239,6 +242,15 @@ processEvent ev =
           modify $ \s -> s { stateCursor = (fst (stateCursor state), ((snd (stateCursor state))+1)) }
         when ((k == GLFW.Key'Down) && ((stateGame state) == SWorld) && (snd (stateCursor state) > (0))) $
           modify $ \s -> s { stateCursor = (fst (stateCursor state), ((snd (stateCursor state))-1)) }
+        when ((k==GLFW.Key'Right) && ((stateGame state) == SZone)) $ do
+          modify $ \s -> s { stateZoneCamx = ((stateZoneCamx state) - 1.0) }
+        when ((k==GLFW.Key'Left) && ((stateGame state) == SZone)) $ do
+          modify $ \s -> s { stateZoneCamx = ((stateZoneCamx state) + 1.0) }
+        when ((k==GLFW.Key'Up) && ((stateGame state) == SZone)) $ do
+          modify $ \s -> s { stateZoneCamy = ((stateZoneCamy state) - 1.0) }
+        when ((k==GLFW.Key'Down) && ((stateGame state) == SZone)) $ do
+          modify $ \s -> s { stateZoneCamy = ((stateZoneCamy state) + 1.0) }
+
     (EventFramebufferSize _ width height) -> do
       adjustWindow
     (EventWindowResize win w h) -> do
