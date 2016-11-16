@@ -29,10 +29,19 @@ bushMapper state r ((x,y):xs) ((x2,y2):ys) ((x3):zs) z = do
 makeZoneBush :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
 makeZoneBush state r x y x2 y2 s (t, j) = ((map (makeZoneBushSpot state r j x y x2 y2 s) t), j)
 
+bushQuadrant :: Int -> Int -> Int -> Int -> Int
+bushQuadrant x1 y1 x2 y2
+  | ((x1-x2)>=0) && ((y1-y2)>=0) = 3
+  | ((x1-x2)>=0) && ((y1-y2)<0)  = 1
+  | ((x1-x2)<0) && ((y1-y2)>=0)  = 7
+  | ((x1-x2)<0) && ((y1-y2)<0)   = 5
+  | otherwise                    = 4
+
 makeZoneBushSpot :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 makeZoneBushSpot state r j x y x2 y2 s (t, i)
   | (i>=zonew)||(j>=zoneh)                              = (t,i)
-  | (distance (i) (j) (x) (y) x2 y2 1) < 5000*s = (4, i)
+  | (distance (i) (j) (x) (y) x2 y2 1) < 2000*s = (4, i)
+  | ((distance (i) (j) (x) (y) x2 y2 1) < 3000*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 2000*s) = ((bushQuadrant i j x y), i)
   | otherwise                                           = (t, i)
 
 initZone :: State -> [Int] -> Int -> [Int]
