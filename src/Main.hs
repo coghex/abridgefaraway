@@ -227,7 +227,7 @@ processEvent ev =
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
           sg <- liftIO $ newStdGen
           let rand = randomList (10, 15) (zonew*zoneh) sg
-          let newpaths = initPath 64 64 2 (statePaths state) (statePathRands state)
+          let newpaths = initPath 64 64 0 0 (statePaths state) (statePathRands state)
           modify $ \s -> s { stateZone = newzones
                            , stateCurrentZ = initZone state rand 0
                            , stateGame = SZone
