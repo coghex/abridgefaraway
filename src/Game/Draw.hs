@@ -67,4 +67,4 @@ expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]
 
 workRows :: [Int] -> [(Int, Int)]
 workRows l = do
-  zip l [0..zonew]
+  zip l [0..gridw]
