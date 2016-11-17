@@ -113,12 +113,31 @@ initPath x y 1   2 z (6:rands) = do
 initPath x y 1   3 z (6:rands) = do
   let z0 = setZ 6 x y z
   initPath (x+1) y 4 6 z0 rands
+initPath x y 2   7 z (6:rands) = do
+  let z0 = setZ 6 x y z
+  initPath x (y+1) 3 6 z0 rands
 initPath x y 1   21 z (6:rands) = do
   let z0 = setZ 6 x y z
   initPath (x+1) y 4 6 z0 rands
 initPath x y 1   22 z (6:rands) = do
   let z0 = setZ 6 x y z
   initPath (x+1) y 4 6 z0 rands
+---------------------------------------------------------------
+-- paths8
+---------------------------------------------------------------
+initPath x y 0   0 z (7:rands) = do
+  let z0 = setZ 7 x y z
+  let z1 = initPath (x-1) y 2 7 z0 rands
+  initPath (x+1) y 4 7 z1 rands
+initPath x y 4   6 z (7:rands) = do
+  let z0 = setZ 7 x y z
+  initPath (x+1) y 4 7 z0 rands
+initPath x y 2   7 z (7:rands) = do
+  let z0 = setZ 7 x y z
+  initPath (x-1) y 2 7 z0 rands
+initPath x y 4   7 z (7:rands) = do
+  let z0 = setZ 7 x y z
+  initPath (x+1) y 4 7 z0 rands
 ---------------------------------------------------------------
 -- paths22
 ---------------------------------------------------------------
