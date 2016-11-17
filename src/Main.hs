@@ -68,6 +68,7 @@ main = do
         bushes = buildList2 ((randomList (0, zonew) nbush s3), (randomList (0, zoneh) nbush s4))
         brands = buildList2 ((randomList (1, (zonew-1)) nbush s6), (randomList (1, (zoneh-1)) nbush s5))
         bsiz = randomList (minbushsize, maxbushsize) nbush s6
+        pathrands = randomList (0, npaths) pathlen s1
 
         
         
@@ -113,7 +114,9 @@ main = do
             , stateBushes     = bushes
             , stateBRands     = brands
             , stateBSizes     = bsiz
-            , statePaths      = initPath (64) (64) (take (zonew*zoneh) (repeat 0))
+            , statePaths      = (take (zonew*zoneh) (repeat 0))
+            , statePathRands  = pathrands
+
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -224,9 +227,12 @@ processEvent ev =
           let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
           sg <- liftIO $ newStdGen
           let rand = randomList (10, 15) (zonew*zoneh) sg
+          let newpaths = initPath 64 64 2 (statePaths state) (statePathRands state)
           modify $ \s -> s { stateZone = newzones
                            , stateCurrentZ = initZone state rand 0
-                           , stateGame = SZone }
+                           , stateGame = SZone
+                           , statePaths = newpaths
+                           }
         when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }
           let newstate = initWorld state (length (stateConts state))

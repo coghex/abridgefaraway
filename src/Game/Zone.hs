@@ -87,8 +87,8 @@ drawPathRow :: [[GL.TextureObject]] -> Int -> Int -> ([(Int, Int)], Int) -> IO (
 drawPathRow texs camx camy (a, b) = resequence_ (map (drawPathSpot texs camx camy b) a)
 
 drawPathSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> (Int, Int) -> IO ()
-drawPathSpot texs camx camy j (1, i) = withTextures2D [((texs!!4)!!6)] $ drawZoneTile (texs!!4) (i+camx) (j+camy) 0
-drawPathSpot _    _    _    _ _      = return ()
+drawPathSpot _    _    _    _ (0, i) = return ()
+drawPathSpot texs camx camy j (t, i) = withTextures2D [((texs!!4)!!t)] $ drawZoneTile (texs!!4) (i+camx) (j+camy) 0
 
 drawZoneSpot :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> Int -> (Int, Int) -> IO ()
 drawZoneSpot texs camx camy c y (t, x)

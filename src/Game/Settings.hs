@@ -26,3 +26,6 @@ minnbushes = 10::Int
 maxnbushes = 100::Int
 minbushsize = 10::Int
 maxbushsize = 15::Int
+
+npaths = 40::Int
+pathlen = 100::Int
