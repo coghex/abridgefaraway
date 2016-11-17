@@ -41,7 +41,7 @@ makeZoneBushSpot :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> 
 makeZoneBushSpot state r j x y x2 y2 s (t, i)
   | (i>=zonew)||(j>=zoneh)                              = (t,i)
   | (distance (i) (j) (x) (y) x2 y2 1) < 1000*s = (5, i)
-  | ((distance (i) (j) (x) (y) x2 y2 1) < 1500*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 1000*s) = ((bushQuadrant i j x2 y2), i)
+  | ((distance (i) (j) (x) (y) x2 y2 1) < 1500*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 1000*s) = ((bushQuadrant i j x y), i)
   | otherwise                                           = (t, i)
 
 initZone :: State -> [Int] -> Int -> [Int]
@@ -69,6 +69,7 @@ drawZone state camx camy texs = do
   let y = snd (stateCursor state)
   let znew = expandZone $ stateCurrentZ state
   resequence_ (map (drawZoneRow texs camx camy (getZoneType state x y)) znew)
+  drawPaths texs (round camx) (round camy) (statePaths state)
   GL.flush
 --let x = fst (stateCursor state) 
   --let y = snd (stateCursor state)
@@ -76,6 +77,18 @@ drawZone state camx camy texs = do
   --withTextures2D [((texs!!1)!!10)] $ drawZoneTile (texs!!1) 120 90 10
   --drawZoneSpot texs 0 0 10 t
 
+
+drawPaths :: [[GL.TextureObject]] -> Int -> Int -> [Int] -> IO ()
+drawPaths texs camx camy z = do
+  let z0 = expandZone z
+  resequence_ (map (drawPathRow texs camx camy) z0)
+
+drawPathRow :: [[GL.TextureObject]] -> Int -> Int -> ([(Int, Int)], Int) -> IO ()
+drawPathRow texs camx camy (a, b) = resequence_ (map (drawPathSpot texs camx camy b) a)
+
+drawPathSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> (Int, Int) -> IO ()
+drawPathSpot texs camx camy j (1, i) = withTextures2D [((texs!!4)!!6)] $ drawZoneTile (texs!!4) (i+camx) (j+camy) 0
+drawPathSpot _    _    _    _ _      = return ()
 
 drawZoneSpot :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> Int -> (Int, Int) -> IO ()
 drawZoneSpot texs camx camy c y (t, x)

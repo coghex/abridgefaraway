@@ -22,6 +22,7 @@ import Game.World
 import Game.Draw
 import Game.Save
 import Game.Zone
+import Game.Road
 
 type Game = RWST Env () State IO
 
@@ -112,6 +113,7 @@ main = do
             , stateBushes     = bushes
             , stateBRands     = brands
             , stateBSizes     = bsiz
+            , statePaths      = initPath (64) (64) (take (zonew*zoneh) (repeat 0))
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state

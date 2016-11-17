@@ -44,6 +44,7 @@ initWorld state c = do
       sb   = stateBushes    state
       sbr  = stateBRands    state
       sbs  = stateBSizes    state
+      sps  = statePaths     state
       g1   = seedConts state g0 sc ss srs c
       g2   = addZazz state g1 szc szs szr szt
       g3   = iceGrid state ssis ssic ssir g2
@@ -82,6 +83,7 @@ initWorld state c = do
     , stateBushes    = sb
     , stateBRands    = sbr
     , stateBSizes    = sbs
+    , statePaths     = sps
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
