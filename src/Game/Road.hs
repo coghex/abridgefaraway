@@ -4,7 +4,8 @@ import Game.Zone
 
 initPath :: Int -> Int -> Int -> Int -> [Int] -> [Int] -> [Int]
 initPath x y dir t z []        = z
------------------------------------------------------------------
+-- paths2
+--------------------------------------------------------------
 initPath x y 0   0 z (2:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 2) z0
@@ -12,6 +13,7 @@ initPath x y 0   0 z (2:rands) = do
   let z3 = flattenZone z2
   let z4 = initPath x (y+1) 3 2 z3 rands
   initPath x (y-1) 1 2 z4 rands
+-----------------------------------------
 initPath x y 1   2 z (2:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 2) z0
@@ -24,6 +26,7 @@ initPath x y 3   2 z (2:rands) = do
   let z2 = stripZone z1
   let z3 = flattenZone z2
   initPath x (y+1) 3 2 z3 rands
+-----------------------------------------
 initPath x y 1   21 z (2:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 2) z0
@@ -36,7 +39,22 @@ initPath x y 3   21 z (2:rands) = do
   let z2 = stripZone z1
   let z3 = flattenZone z2
   initPath x (y+1) 3 2 z3 rands
------------------------------------------------------------------
+-----------------------------------------
+initPath x y 1   22 z (2:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 2) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y-1) 1 2 z3 rands
+initPath x y 3   22 z (2:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 2) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y+1) 3 2 z3 rands
+---------------------------------------------------------------
+-- paths22
+---------------------------------------------------------------
 initPath x y 0   0 z (21:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 21) z0
@@ -44,6 +62,7 @@ initPath x y 0   0 z (21:rands) = do
   let z3 = flattenZone z2
   let z4 = initPath x (y+1) 3 21 z3 rands
   initPath x (y-1) 1 21 z4 rands
+-----------------------------------------
 initPath x y 1   2 z (21:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 21) z0
@@ -56,6 +75,7 @@ initPath x y 3   2 z (21:rands) = do
   let z2 = stripZone z1
   let z3 = flattenZone z2
   initPath x (y+1) 3 21 z3 rands
+-----------------------------------------
 initPath x y 1   21 z (21:rands) = do
   let z0 = expandZone z
   let z1 = map (pathRow x y 21) z0
@@ -68,7 +88,69 @@ initPath x y 3   21 z (21:rands) = do
   let z2 = stripZone z1
   let z3 = flattenZone z2
   initPath x (y+1) 3 21 z3 rands
-----------------------------------------------------------------
+-----------------------------------------
+initPath x y 1   22 z (21:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 21) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y-1) 1 21 z3 rands
+initPath x y 3   22 z (21:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 21) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y+1) 3 21 z3 rands
+---------------------------------------------------------------
+-- paths23
+---------------------------------------------------------------
+initPath x y 0   0 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  let z4 = initPath x (y+1) 3 22 z3 rands
+  initPath x (y-1) 1 22 z4 rands
+-----------------------------------------
+initPath x y 1   2 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y-1) 1 22 z3 rands
+initPath x y 3   2 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y+1) 3 22 z3 rands
+-----------------------------------------
+initPath x y 1   21 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y-1) 1 21 z3 rands
+initPath x y 3   21 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y+1) 3 22 z3 rands
+-----------------------------------------
+initPath x y 1   22 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y-1) 1 21 z3 rands
+initPath x y 3   22 z (22:rands) = do
+  let z0 = expandZone z
+  let z1 = map (pathRow x y 22) z0
+  let z2 = stripZone z1
+  let z3 = flattenZone z2
+  initPath x (y+1) 3 22 z3 rands
+
 initPath x y dir t z (r:rands) = do
   initPath x y dir t z rands
 
