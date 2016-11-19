@@ -151,7 +151,7 @@ draw SLoad = do
   liftIO $ do
     beginDrawText
     drawText (envFontBig env) 1 95 24 72 "Loading..."
-    liftIO $ loadedCallback (envEventsChan env)
+    liftIO $ loadedCallback (envEventsChan env) SWorld
 draw SWorld = do
   env   <- ask
   state <- get
@@ -219,20 +219,41 @@ processEvent ev =
         when (k == GLFW.Key'Escape && (stateGame state) == SWorld) $ do
           liftIO $ GLFW.setWindowShouldClose window True
           liftIO $ saveMap (stateGrid state)
+          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (statePathRands state) (stateBushes state) (stateBRands state) (stateBSizes state)
         when (k == GLFW.Key'Escape) $ do
           liftIO $ GLFW.setWindowShouldClose window True
-        when (k == GLFW.Key'Space) $ do
-          modify $ \s -> s { stateGame = SMenu }
+        when ((k == GLFW.Key'Space)&&((stateGame state)==SZone)) $ do
+          modify $ \s -> s { stateGame = SLoad }
+          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (statePathRands state) (stateBushes state) (stateBRands state) (stateBSizes state)
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
-          let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
-          sg <- liftIO $ newStdGen
-          let rand = randomList (10, 15) (zonew*zoneh) sg
-          let newpaths = initPath 64 64 0 0 ((take (zonew*zoneh) (repeat 0))) (statePathRands state)
-          modify $ \s -> s { stateZone = newzones
-                           , stateCurrentZ = initZone state rand 0
-                           , stateGame = SZone
-                           , statePaths = newpaths
-                           }
+          x <- liftIO $ loadZone (fst (stateCursor state)) (snd (stateCursor state))
+          if (x==[]) then do
+            let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
+            sg <- liftIO $ newStdGen
+            nbush <- liftIO $ randomN minnbushes maxnbushes
+            let spr = randomList (0, npaths) pathlen sg
+            let bushes = buildList2 ((randomList (0, zonew) nbush sg), (randomList (0, zoneh) nbush sg))
+            let brands = buildList2 ((randomList (1, (zonew-1)) nbush sg), (randomList (1, (zoneh-1)) nbush sg))
+            let bsiz = randomList (minbushsize, maxbushsize) nbush sg
+            let rand = randomList (10, 15) (zonew*zoneh) sg
+            let newpaths = initPath 64 64 0 0 ((take (zonew*zoneh) (repeat 0))) (spr)
+            modify $ \s -> s { stateZone = newzones
+                             , stateCurrentZ = initZone state rand 0
+                             , stateGame = SZone
+                             , statePaths = newpaths
+                             , statePathRands = spr
+                             , stateBushes = bushes
+                             , stateBRands = brands
+                             , stateBSizes = bsiz
+                             }
+          else do
+            x2 <- liftIO $ loadPath (fst (stateCursor state)) (snd (stateCursor state))
+            modify $ \s -> s { stateCurrentZ = x
+                             , stateGame = SZone
+                             , statePaths = x2
+                             }
+        when ((k == GLFW.Key'Space)&&((stateGame state)==SWorld)) $ do
+          modify $ \s -> s { stateGame = SMenu }
         when (k == GLFW.Key'C && (stateGame state) == SMenu) $ do
           modify $ \s -> s { stateGame = SLoad }
           let newstate = initWorld state (length (stateConts state))
@@ -263,8 +284,8 @@ processEvent ev =
       adjustWindow
     (EventWindowResize win w h) -> do
       adjustWindow
-    (EventLoaded) -> do
-      modify $ \s -> s { stateGame = SWorld }
+    (EventLoaded state) -> do
+      modify $ \s -> s { stateGame = state }
 
 adjustWindow :: Game ()
 adjustWindow = do
@@ -316,7 +337,7 @@ keyCallback     :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeySta
 keyCallback tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
 reshapeCallback :: TQueue Event -> GLFW.Window -> Int -> Int -> IO ()
 reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h
-loadedCallback :: TQueue Event -> IO ()
-loadedCallback tc = atomically $ writeTQueue tc $ EventLoaded
+loadedCallback :: TQueue Event -> GameState -> IO ()
+loadedCallback tc state = atomically $ writeTQueue tc $ EventLoaded state
 
 
