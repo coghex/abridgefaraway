@@ -19,3 +19,9 @@ makeSeeds :: [(Int, Int)] -> Int -> StdGen -> StdGen -> [Int] -> [[(Int, Int)]]
 makeSeeds []         _ _  _  _               = []
 makeSeeds ((x,y):xs) r s1 s2 (nspot:nspots) = (buildList2 ((randomList ((x-fudge), (x+fudge)) (nspot) s1), (randomList ((y-fudge),(y+fudge)) (nspot) s2))):(makeSeeds xs (r+1) (mkStdGen (r+1)) (mkStdGen (r-1)) nspots)
 
+newRandomList :: [Int] -> IO ([[Int]])
+newRandomList []      = return []
+newRandomList (i:is)  = do
+  sg <- newStdGen
+  rl <- newRandomList is
+  return $ (randomList (0, npaths) pathlen sg) : (rl)

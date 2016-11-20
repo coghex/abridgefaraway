@@ -46,8 +46,8 @@ loadPath x y = do
       | isPermissionError   er = Just "readFile: permission denied"
       | otherwise              = Nothing
 
-saveZone :: Int -> Int -> [Int] -> [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> IO ()
-saveZone x y curz paths pathrands bushes brands bsizes = do
+saveZone :: Int -> Int -> [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> IO ()
+saveZone x y curz paths bushes brands bsizes = do
   let fileName1 = "data/zones/zone" ++ (show x) ++ "_" ++ (show y) ++ ".txt"
   let writeData1 = (foldl1 ((++)) (map addSpace curz))
   oldz <- loadZone x y

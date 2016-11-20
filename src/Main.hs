@@ -49,6 +49,7 @@ main = do
     inspots <- randomN mininspots maxinspots
     zspots <- randomN minzspots maxzspots
     nbush <- randomN minnbushes maxnbushes
+    nroads <- randomN minroads maxroads
     let nspots = randomList (minnspots, maxnspots) nconts s1
         conts = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
         seeds = buildList2 ((randomList ((fudge+1), (gridw-fudge-1)) nconts s3), (randomList ((fudge+1), (gridh-fudge-1)) nconts s4))
@@ -68,8 +69,8 @@ main = do
         bushes = buildList2 ((randomList (0, zonew) nbush s3), (randomList (0, zoneh) nbush s4))
         brands = buildList2 ((randomList (1, (zonew-1)) nbush s6), (randomList (1, (zoneh-1)) nbush s5))
         bsiz = randomList (minbushsize, maxbushsize) nbush s6
-        pathrands = randomList (0, npaths) pathlen s1
-
+        pathrands = take nroads (repeat (randomList (0, npaths) pathlen s1))
+        roads = buildList2 ((randomList (2, (zonew-2)) nroads s1), (randomList (2, (zoneh-2)) nroads s2))
         
         
     let env = Env
@@ -116,7 +117,7 @@ main = do
             , stateBSizes     = bsiz
             , statePaths      = (take (zonew*zoneh) (repeat 0))
             , statePathRands  = pathrands
-
+            , stateRoads      = roads
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -219,24 +220,24 @@ processEvent ev =
         when (k == GLFW.Key'Escape && (stateGame state) == SWorld) $ do
           liftIO $ GLFW.setWindowShouldClose window True
           liftIO $ saveMap (stateGrid state)
-          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (statePathRands state) (stateBushes state) (stateBRands state) (stateBSizes state)
+          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (stateBushes state) (stateBRands state) (stateBSizes state)
         when (k == GLFW.Key'Escape) $ do
           liftIO $ GLFW.setWindowShouldClose window True
         when ((k == GLFW.Key'Space)&&((stateGame state)==SZone)) $ do
           modify $ \s -> s { stateGame = SLoad }
-          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (statePathRands state) (stateBushes state) (stateBRands state) (stateBSizes state)
+          liftIO $ saveZone (fst (stateCursor state)) (snd (stateCursor state)) (stateCurrentZ state) (statePaths state) (stateBushes state) (stateBRands state) (stateBSizes state)
         when ((k == GLFW.Key'Enter) && ((stateGame state) == SWorld)) $ do
           x <- liftIO $ loadZone (fst (stateCursor state)) (snd (stateCursor state))
           if (x==[]) then do
             let newzones = setZone (stateZone state) (fst (stateCursor state)) (snd (stateCursor state))
             sg <- liftIO $ newStdGen
             nbush <- liftIO $ randomN minnbushes maxnbushes
-            let spr = randomList (0, npaths) pathlen sg
+            spr <- liftIO $ newRandomList ((take (zonew*zoneh) (repeat 0)))
             let bushes = buildList2 ((randomList (0, zonew) nbush sg), (randomList (0, zoneh) nbush sg))
             let brands = buildList2 ((randomList (1, (zonew-1)) nbush sg), (randomList (1, (zoneh-1)) nbush sg))
             let bsiz = randomList (minbushsize, maxbushsize) nbush sg
             let rand = randomList (10, 15) (zonew*zoneh) sg
-            let newpaths = initPath 64 64 0 0 ((take (zonew*zoneh) (repeat 0))) (spr)
+            let newpaths = roadMapper (stateRoads state) ((take (zonew*zoneh) (repeat 0))) (spr)--initPath 64 64 0 0 ((take (zonew*zoneh) (repeat 0))) (spr)
             modify $ \s -> s { stateZone = newzones
                              , stateCurrentZ = initZone state rand 0
                              , stateGame = SZone

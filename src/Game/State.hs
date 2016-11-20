@@ -52,7 +52,8 @@ data State = State
     , stateBRands     :: ![(Int, Int)]
     , stateBSizes     :: ![Int]
     , statePaths      :: ![Int]
-    , statePathRands  :: ![Int]
+    , statePathRands  :: ![[Int]]
+    , stateRoads      :: ![(Int, Int)]
     }
 
 data Event =
