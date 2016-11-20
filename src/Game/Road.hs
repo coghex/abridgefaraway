@@ -98,13 +98,13 @@ initPath x y 0 0 z (4:rands) = do
   let z1 = initPath (x-1) y west 4 z0 rands
   initPath x (y+1) north 4 z1 rands
 initPath x y 4 n z (4:rands) = if (n `elem` wfits4) then do
-    let z0 = setZ 4 x y z
-    initPath x (y+1) north 4 z0 rands
+    setZ 4 x y z
+    --initPath x (y+1) north 4 z0 rands
   else
     initPath x y east n z rands
 initPath x y 1 n z (4:rands) = if (n `elem` nfits4) then do
-    let z0 = setZ 4 x y z
-    initPath (x-1) y west 4 z0 rands
+    setZ 4 x y z
+    --initPath (x-1) y west 4 z0 rands
   else
     initPath x y south n z rands
 --------------------------------------------------------------
@@ -187,7 +187,20 @@ initPath x y 3 n z (9:rands) = if (n `elem` sfits9) then do
 --------------------------------------------------------------
 -- p10
 --------------------------------------------------------------
---
+initPath x y 0 0 z (10:rands) = do
+  let z0 = setZ 10 x y z
+  let z1 = initPath x (y-1) south 10 z0 rands
+  initPath (x-1) y west 10 z1 rands
+initPath x y 3 n z (10:rands) = if (n `elem` sfits10) then do
+    setZ 10 x y z
+--    initPath (x-1) y west 10 z0 rands
+  else
+    initPath x y north n z rands
+initPath x y 4 n z (10:rands) = if (n `elem` wfits10) then do
+    setZ 10 x y z
+--    initPath x (y-1) south 10 z0 rands
+  else
+    initPath x y east n z rands
 --------------------------------------------------------------
 -- p14 - dead end west
 --------------------------------------------------------------
