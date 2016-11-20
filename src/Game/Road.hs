@@ -26,6 +26,11 @@ efits9 = [10, 27]
 sfits10 = [4, 16]
 wfits10 = [9]
 efits14 = [7, 8, 18, 20, 23, 24, 25, 30, 31, 37, 38]
+nfits15 = [9, 23, 39]
+efits15 = [16]
+sfits16 = [1, 2, 6, 8, 9, 21, 22, 40]
+wfits16 = [15]
+nfits16 = [10, 40]
 sfits19 = [1, 2, 6, 8, 9, 21, 22, 40]
 wfits20 = [6, 7, 14, 18, 24, 27, 28, 30, 31, 35, 36, 37]
 sfits36 = [1, 2, 6, 8, 9, 21, 22, 40]
@@ -208,6 +213,43 @@ initPath x y 0 0 z (14:rands) = do
   let z0 = setZ 14 x y z
   initPath (x+1) y east 14 z0 rands
 initPath x y 2 n z (14:rands) = if (n `elem` efits14) then (setZ 14 x y z) else (initPath x y west n z rands)
+--------------------------------------------------------------
+-- p15
+--------------------------------------------------------------
+initPath x y 0 0 z (15:rands) = do
+  let z0 = setZ 15 x y z
+  let z1 = initPath x (y+1) north 15 z0 rands
+  initPath (x+1) y east 15 z1 rands
+initPath x y 1 n z (15:rands) = if (n `elem` nfits15) then do
+    let z0 = setZ 15 x y z
+    initPath (x+1) y east 15 z0 rands
+  else
+    initPath x y south n z rands
+initPath x y 2 n z (15:rands) = if (n `elem` efits15) then do
+    let z0 = setZ 15 x y z
+    initPath x (y+1) north 15 z0 rands
+  else
+    initPath x y west n z rands
+--------------------------------------------------------------
+-- p16
+--------------------------------------------------------------
+initPath x y 0 0 z (16:rands) = do
+  let z0 = setZ 16 x y z
+  let z1 = initPath x (y-1) south 16 z0 rands
+  let z2 = initPath (x-1) y west 16 z1 rands
+  initPath x (y+1) north 16 z2 rands
+initPath x y 3 n z (16:rands) = if (n `elem` sfits16) then do
+    let z0 = setZ 16 x y z
+    let z1 = initPath (x-1) y west 16 z0 rands
+    initPath x (y+1) north 16 z1 rands
+  else
+    initPath x y north n z rands
+initPath x y 4 n z (16:rands) = if (n `elem` wfits16) then do
+    let z0 = setZ 16 x y z
+    let z1 = initPath x (y-1) south 16 z0 rands
+    initPath x (y+1) north 16 z1 rands
+  else
+    initPath x y east n z rands
 --------------------------------------------------------------
 -- p19 - dead end north
 --------------------------------------------------------------
