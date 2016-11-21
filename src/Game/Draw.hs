@@ -53,10 +53,10 @@ drawSceneTile texs x y t = do
   glColor3f 1 1 1
   drawSquare
 
-drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
-drawZoneTile texs x y t = do
+drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> GL.GLfloat -> IO ()
+drawZoneTile texs x y t depth = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral zonew)/2))) (2*((fromIntegral y) - ((fromIntegral zoneh)/2))) (-50)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral zonew)/2))) (2*((fromIntegral y) - ((fromIntegral zoneh)/2))) (-depth)
   glScalef (1.0) (-1.0) 1.0
   --GL.textureBinding GL.Texture2D GL.$= Just (texs!!t)
   glColor3f 1 1 1

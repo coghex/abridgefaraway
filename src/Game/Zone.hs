@@ -88,12 +88,12 @@ drawPathRow texs camx camy (a, b) = resequence_ (map (drawPathSpot texs camx cam
 
 drawPathSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> (Int, Int) -> IO ()
 drawPathSpot _    _    _    _ (0, i) = return ()
-drawPathSpot texs camx camy j (t, i) = withTextures2D [((texs!!4)!!t)] $ drawZoneTile (texs!!4) (i+camx) (j+camy) 0
+drawPathSpot texs camx camy j (t, i) = withTextures2D [((texs!!4)!!t)] $ drawZoneTile (texs!!4) (i+camx) (j+camy) 0 50
 
 drawZoneSpot :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> Int -> (Int, Int) -> IO ()
 drawZoneSpot texs camx camy c y (t, x)
-  | (c==4)               = withTextures2D [((texs!!c)!!0)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t
-  | (c >= 0) && (c < 4)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t
+  | (c==4)               = withTextures2D [((texs!!c)!!0)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
+  | (c >= 0) && (c < 4)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
   | otherwise            = print "no tex"
 
 getZoneType :: State -> Int -> Int -> Int

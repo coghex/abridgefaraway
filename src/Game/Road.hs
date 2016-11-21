@@ -85,49 +85,6 @@ initPath x y 1 n z (2:rands) = if (n `elem` nfits2) then do
   else
     initPath x y south n z rands
 --------------------------------------------------------------
--- p3
---------------------------------------------------------------
-initPath x y 0 0 z (3:rands) = do
-  let z0 = setZ 3 x y z
-  let z1 = initPath x (y-1) south 3 z0 rands
-  let z2 = initPath x (y+1) north 3 z1 rands
-  initPath (x+1) y east 3 z2 rands
-initPath x y 3 n z (3:rands) = if (n `elem` sfits3) then do
-    let z0 = setZ 3 x y z
-    let z1 = initPath x (y+1) north 3 z0 rands
-    initPath (x+1) y east 3 z0 rands
-  else
-    initPath x y north n z rands
-initPath x y 1 n z (3:rands) = if (n `elem` nfits3) then do
-    let z0 = setZ 3 x y z
-    let z1 = initPath x (y-1) south 3 z0 rands
-    initPath (x+1) y east 3 z1 rands
-  else
-    initPath x y south n z rands
-initPath x y 2 n z (3:rands) = if (n `elem` efits3) then do
-    let z0 = setZ 3 x y z
-    let z1 = initPath x (y-1) south 3 z0 rands
-    initPath x (y+1) north 3 z1 rands
-  else
-    initPath x y west n z rands
---------------------------------------------------------------
--- p4
---------------------------------------------------------------
-initPath x y 0 0 z (4:rands) = do
-  let z0 = setZ 4 x y z
-  let z1 = initPath (x-1) y west 4 z0 rands
-  initPath x (y+1) north 4 z1 rands
-initPath x y 4 n z (4:rands) = if (n `elem` wfits4) then do
-    setZ 4 x y z
-    --initPath x (y+1) north 4 z0 rands
-  else
-    initPath x y east n z rands
-initPath x y 1 n z (4:rands) = if (n `elem` nfits4) then do
-    setZ 4 x y z
-    --initPath (x-1) y west 4 z0 rands
-  else
-    initPath x y south n z rands
---------------------------------------------------------------
 -- p6 - N->E
 --------------------------------------------------------------
 initPath x y 0 0 z (6:rands) = do
@@ -179,92 +136,12 @@ initPath x y 4 n z (8:rands) = if (n `elem` wfits8) then do
   else
     initPath x y east n z rands
 --------------------------------------------------------------
--- p9
---------------------------------------------------------------
-initPath x y 0 0 z (9:rands) = do
-  let z0 = setZ 9 x y z
-  let z1 = initPath x (y-1) south 9 z0 rands
-  let z2 = initPath x (y+1) north 9 z1 rands
-  initPath (x+1) y east 9 z2 rands
-initPath x y 1 n z (9:rands) = if (n `elem` nfits9) then do
-    let z0 = setZ 9 x y z
-    let z1 = initPath x (y-1) south 9 z0 rands
-    initPath (x+1) y east 9 z1 rands
-  else
-    initPath x y south n z rands
-initPath x y 2 n z (9:rands) = if (n `elem` efits9) then do
-    let z0 = setZ 9 x y z
-    let z1 = initPath x (y-1) south 9 z0 rands
-    initPath x (y+1) north 9 z1 rands
-  else
-    initPath x y west n z rands
-initPath x y 3 n z (9:rands) = if (n `elem` sfits9) then do
-    let z0 = setZ 9 x y z 
-    let z1 = initPath x (y+1) north 9 z0 rands
-    initPath (x+1) y east 9 z1 rands
-  else
-    initPath x y north n z rands
---------------------------------------------------------------
--- p10
---------------------------------------------------------------
-initPath x y 0 0 z (10:rands) = do
-  let z0 = setZ 10 x y z
-  let z1 = initPath x (y-1) south 10 z0 rands
-  initPath (x-1) y west 10 z1 rands
-initPath x y 3 n z (10:rands) = if (n `elem` sfits10) then do
-    setZ 10 x y z
---    initPath (x-1) y west 10 z0 rands
-  else
-    initPath x y north n z rands
-initPath x y 4 n z (10:rands) = if (n `elem` wfits10) then do
-    setZ 10 x y z
---    initPath x (y-1) south 10 z0 rands
-  else
-    initPath x y east n z rands
---------------------------------------------------------------
 -- p14 - dead end west
 --------------------------------------------------------------
 initPath x y 0 0 z (14:rands) = do
   let z0 = setZ 14 x y z
   initPath (x+1) y east 14 z0 rands
 initPath x y 2 n z (14:rands) = if (n `elem` efits14) then (setZ 14 x y z) else (initPath x y west n z rands)
---------------------------------------------------------------
--- p15
---------------------------------------------------------------
-initPath x y 0 0 z (15:rands) = do
-  let z0 = setZ 15 x y z
-  let z1 = initPath x (y+1) north 15 z0 rands
-  initPath (x+1) y east 15 z1 rands
-initPath x y 1 n z (15:rands) = if (n `elem` nfits15) then do
-    let z0 = setZ 15 x y z
-    initPath (x+1) y east 15 z0 rands
-  else
-    initPath x y south n z rands
-initPath x y 2 n z (15:rands) = if (n `elem` efits15) then do
-    let z0 = setZ 15 x y z
-    initPath x (y+1) north 15 z0 rands
-  else
-    initPath x y west n z rands
---------------------------------------------------------------
--- p16
---------------------------------------------------------------
-initPath x y 0 0 z (16:rands) = do
-  let z0 = setZ 16 x y z
-  let z1 = initPath x (y-1) south 16 z0 rands
-  let z2 = initPath (x-1) y west 16 z1 rands
-  initPath x (y+1) north 16 z2 rands
-initPath x y 3 n z (16:rands) = if (n `elem` sfits16) then do
-    let z0 = setZ 16 x y z
-    let z1 = initPath (x-1) y west 16 z0 rands
-    initPath x (y+1) north 16 z1 rands
-  else
-    initPath x y north n z rands
-initPath x y 4 n z (16:rands) = if (n `elem` wfits16) then do
-    let z0 = setZ 16 x y z
-    let z1 = initPath x (y-1) south 16 z0 rands
-    initPath x (y+1) north 16 z1 rands
-  else
-    initPath x y east n z rands
 --------------------------------------------------------------
 -- p18 - left/right
 --------------------------------------------------------------
@@ -398,39 +275,6 @@ initPath x y 4 n z (38:rands) = if (n `elem` wfits38) then do
     initPath x (y-1) south 38 z0 rands
   else
     initPath x y east n z rands
---------------------------------------------------------------
--- p39
---------------------------------------------------------------
-initPath x y 0 0 z (39:rands) = setZ 39 x y z
-initPath x y 2 n z (39:rands) = if (n `elem` efits39) then (setZ 39 x y z) else (initPath x y west n z rands)
-initPath x y 3 n z (39:rands) = if (n `elem` sfits39) then (setZ 39 x y z) else (initPath x y north n z rands)
---------------------------------------------------------------
--- p40
---------------------------------------------------------------
-initPath x y 0 0 z (40:rands) = do
-  let z0 = setZ 40 x y z
-  let z1 = initPath x (y-1) south 40 z0 rands
-  let z2 = initPath (x-1) y west 40 z1 rands
-  initPath x (y+1) north 40 z2 rands
-initPath x y 1 n z (40:rands) = if (n `elem` nfits40) then do
-    let z0 = setZ 40 x y z
-    let z1 = initPath x (y-1) south 40 z0 rands
-    initPath (x-1) y west 40 z1 rands
-  else
-    initPath x y south n z rands
-initPath x y 3 n z (40:rands) = if (n `elem` sfits40) then do
-    let z0 = setZ 40 x y z
-    let z1 = initPath x (y+1) north 40 z0 rands
-    initPath (x-1) y west 40 z1 rands
-  else
-    initPath x y north n z rands
-initPath x y 4 n z (40:rands) = if (n `elem` wfits40) then do
-    let z0 = setZ 40 x y z
-    let z1 = initPath x (y-1) south 40 z0 rands
-    initPath x (y+1) north 40 z1 rands
-  else
-    initPath x y east n z rands
---------------------------------------------------------------
 initPath x y dir t z (r:rands) = do
   initPath x y dir t z rands
 
@@ -439,6 +283,7 @@ pathRow x y t (a, b) = ((map (pathSpot x y t b) a), b)
 
 pathSpot :: Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 pathSpot x y t j (a, i)
+--  | (a>15)||(a<10) = (0, i)
   | (x==i)&&(y==j) = (t, i)
   | otherwise      = (a, i)
 
@@ -449,7 +294,13 @@ roadMapper ((r1x, r1y):r1s) z (r2:r2s) = do
   let z0 = initPath r1x r1y 0 0 z r2
   roadMapper r1s z0 r2s
 
+fixPath :: [Int] -> [Int] -> [Int]
+fixPath paths bushes = fst $ unzip $ map pathFixer $ zip paths bushes
 
+pathFixer :: (Int, Int) -> (Int, Int)
+pathFixer (p, b)
+  | (b >= 10) && (b <= 15) = (p, b)
+  | otherwise             = (0, b)
 
 
 

@@ -26,8 +26,8 @@ minnbushes = 10::Int
 maxnbushes = 100::Int
 minbushsize = 10::Int
 maxbushsize = 15::Int
-minroads = 10::Int
-maxroads = 25::Int
+minroads = 25::Int
+maxroads = 100::Int
 
-npaths = 40::Int
-pathlen = 500::Int
+npaths = 50::Int
+pathlen = 1000::Int
