@@ -35,8 +35,8 @@
   (major1) == 2 && (major2) <  7 || \
   (major1) == 2 && (major2) == 7 && (minor) <= 0)
 
-/* package GLUtil-0.9.1.0 */
-#define VERSION_GLUtil "0.9.1.0"
+/* package GLUtil-0.9.1.1 */
+#define VERSION_GLUtil "0.9.1.1"
 #define MIN_VERSION_GLUtil(major1,major2,minor) (\
   (major1) <  0 || \
   (major1) == 0 && (major2) <  9 || \

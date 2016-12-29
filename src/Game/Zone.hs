@@ -69,7 +69,7 @@ drawZone state camx camy texs = do
   let y = snd (stateCursor state)
   let znew = expandZone $ stateCurrentZ state
   resequence_ (map (drawZoneRow texs camx camy (getZoneType state x y)) znew)
-  drawPaths texs (round camx) (round camy) (statePaths state)
+  drawPaths texs (round camx) (round camy) (statePaths state) (getZoneType state x y)
   GL.flush
 --let x = fst (stateCursor state) 
   --let y = snd (stateCursor state)
@@ -78,8 +78,10 @@ drawZone state camx camy texs = do
   --drawZoneSpot texs 0 0 10 t
 
 
-drawPaths :: [[GL.TextureObject]] -> Int -> Int -> [Int] -> IO ()
-drawPaths texs camx camy z = do
+drawPaths :: [[GL.TextureObject]] -> Int -> Int -> [Int] -> Int -> IO ()
+drawPaths _    _    _    _ 4 = return ()
+drawPaths _    _    _    _ 5 = return ()
+drawPaths texs camx camy z t = do
   let z0 = expandZone z
   resequence_ (map (drawPathRow texs camx camy) z0)
 
@@ -92,8 +94,8 @@ drawPathSpot texs camx camy j (t, i) = withTextures2D [((texs!!4)!!t)] $ drawZon
 
 drawZoneSpot :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> Int -> (Int, Int) -> IO ()
 drawZoneSpot texs camx camy c y (t, x)
-  | (c==4)               = withTextures2D [((texs!!c)!!0)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
-  | (c >= 0) && (c < 4)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
+  | (c==4 || c==5)       = withTextures2D [((texs!!(c+1))!!0)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
+  | (c >= 0) && (c < 3)  = withTextures2D [((texs!!c)!!t)] $ drawZoneTile (texs!!c) (x+(round camx)) (y+(round camy)) t 50
   | otherwise            = print "no tex"
 
 getZoneType :: State -> Int -> Int -> Int
