@@ -31,17 +31,17 @@ makeZoneBush state r x y x2 y2 s (t, j) = ((map (makeZoneBushSpot state r j x y 
 
 bushQuadrant :: Int -> Int -> Int -> Int -> Int
 bushQuadrant x1 y1 x2 y2 
-  | ((x1-x2)>=0) && ((y1-y2)>=0) = if ((x1-x2) - (y1-y2))>2 then 6 else if ((x1-x2) - (y1-y2))<(-2) then 2 else 3
-  | ((x1-x2)>=0) && ((y1-y2)<0)  = if ((x1-x2) + (y1-y2))>2 then 8 else if ((x1-x2) + (y1-y2))<(-2) then 6 else 9
-  | ((x1-x2)<0) && ((y1-y2)>=0)  = if ((y1-y2) + (x1-x2))>2 then 2 else if ((y1-y2) + (x1-x2))<(-2) then 4 else 1
-  | ((x1-x2)<0) && ((y1-y2)<0)   = if ((-(x1-x2)) - (y1-y2))>2 then 4 else if ((-(x1-x2)) - (y1-y2))<(-2) then 8 else 7
+  | ((x1-x2)>=0) && ((y1-y2)>=0) = if ((x1-x2) - (y1-y2))>1 then 6 else if ((x1-x2) - (y1-y2))<(-1) then 2 else 3
+  | ((x1-x2)>=0) && ((y1-y2)<0)  = if ((x1-x2) + (y1-y2))>1 then 8 else if ((x1-x2) + (y1-y2))<(-1) then 6 else 9
+  | ((x1-x2)<0) && ((y1-y2)>=0)  = if ((y1-y2) + (x1-x2))>1 then 2 else if ((y1-y2) + (x1-x2))<(-1) then 4 else 1
+  | ((x1-x2)<0) && ((y1-y2)<0)   = if (((x1-x2)) + (y1-y2))>1 then 4 else if (((x1-x2)) + (y1-y2))<(-1) then 8 else 4
   | otherwise                    = 5
 
 makeZoneBushSpot :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 makeZoneBushSpot state r j x y x2 y2 s (t, i)
   | (i>=zonew)||(j>=zoneh)                              = (t,i)
   | (distance (i) (j) (x) (y) x2 y2 1) < 1000*s = (5, i)
-  | ((distance (i) (j) (x) (y) x2 y2 1) < 1500*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 1000*s) = ((bushQuadrant i j x y), i)
+  | ((distance (i) (j) (x) (y) x2 y2 1) < 1400*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 1000*s) = ((bushQuadrant i j x y), i)
   | otherwise                                           = (t, i)
 
 initZone :: State -> [Int] -> Int -> [Int]
