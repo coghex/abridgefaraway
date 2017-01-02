@@ -40,6 +40,7 @@ bushQuadrant x1 y1 x2 y2
 makeZoneBushSpot :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 makeZoneBushSpot state r j x y x2 y2 s (t, i)
   | (i>=zonew)||(j>=zoneh)                              = (t,i)
+  | ((i-x)==0)&&(j<y)&&(distance i j x y x2 y2 1 < 1400*s)&&(distance (i) (j) (x) (y) x2 y2 1 > 1200*s) = (25,i)
   | (distance (i) (j) (x) (y) x2 y2 1) < 1000*s = (5, i)
   | ((distance (i) (j) (x) (y) x2 y2 1) < 1400*s) && ((distance (i) (j) (x) (y) x2 y2 1) >= 1000*s) = ((bushQuadrant i j x y), i)
   | otherwise                                           = (t, i)
