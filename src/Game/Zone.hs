@@ -122,3 +122,4 @@ flattenZone xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 
 drawZoneRow :: [[GL.TextureObject]] -> GL.GLfloat -> GL.GLfloat -> Int -> ([(Int, Int)], Int) -> IO ()
 drawZoneRow texs camx camy c (a,b) = resequence_ (map (drawZoneSpot texs camx camy c b) a)
+

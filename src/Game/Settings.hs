@@ -8,6 +8,9 @@ fudge = 10::Int
 zonew = 128::Int
 zoneh = 128::Int
 
+zonewover2 = 64::Int
+zonehover2 = 64::Int
+
 minnspots = 5::Int
 maxnspots = 20::Int
 minnconts = 15::Int
