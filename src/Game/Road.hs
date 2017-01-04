@@ -306,16 +306,16 @@ initDoorPaths :: [Int] -> [[Int]] -> [Int]
 initDoorPaths m rands = do
   let x = take (128*128) (repeat 0)
   let zold = expandZone m
-  let znew = map pathDoorRows zold
+  let znew = zipWith pathDoorRows zold [0..]
   foldl (pathAllDoorRows (rands)) x znew
   --initPath 64 64 0 0 (take (128*128) (repeat 0)) (rands!!1)
 
-pathDoorRows :: ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-pathDoorRows (l, j) = ((map (pathDoorSpots j) l), j)
+pathDoorRows :: ([(Int, Int)], Int) -> Int -> ([(Int, Int)], Int)
+pathDoorRows (l, j) n = ((map (pathDoorSpots j n) l), j)
 
-pathDoorSpots :: Int -> (Int, Int) -> (Int, Int)
-pathDoorSpots j (x, i)
-  | (x==25)   = (1, i)
+pathDoorSpots :: Int -> Int -> (Int, Int) -> (Int, Int)
+pathDoorSpots j n (x, i)
+  | (x==25)   = (n, i)
   | otherwise = (0, i)
 
 pathAllDoorRows :: [[Int]] -> [Int] -> ([(Int, Int)], Int) -> [Int]
@@ -323,7 +323,7 @@ pathAllDoorRows rands a (b, j) = foldl (pathAllDoorSpots rands j) a b
 
 pathAllDoorSpots :: [[Int]] -> Int -> [Int] -> (Int, Int) -> [Int]
 pathAllDoorSpots rands j a (b, i)
-  | (b>0) = initPath i j 0 0 a (rands!!b)
+  | (b>0) = initPath i j 1 19 a (rands!!b)
   | otherwise = a
 
 
