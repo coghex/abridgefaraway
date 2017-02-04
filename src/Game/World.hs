@@ -47,10 +47,13 @@ initWorld state c = do
       sps  = statePaths     state
       spr  = statePathRands state
       rds  = stateRoads     state
+      stree= stateTrees     state
+      streerands = stateTreeRands state
       g1   = seedConts state g0 sc ss srs c
       g2   = addZazz state g1 szc szs szr szt
       g3   = iceGrid state ssis ssic ssir g2
       g4   = iceGrid state snis snic snir g3
+      
 
   State
     { stateGame      = sg
@@ -88,6 +91,8 @@ initWorld state c = do
     , statePaths     = sps
     , statePathRands = spr
     , stateRoads     = rds
+    , stateTrees     = stree
+    , stateTreeRands = streerands
     }
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]

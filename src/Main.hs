@@ -23,6 +23,7 @@ import Game.Draw
 import Game.Save
 import Game.Zone
 import Game.Road
+import Game.Trees
 
 type Game = RWST Env () State IO
 
@@ -71,6 +72,7 @@ main = do
         bsiz = randomList (minbushsize, maxbushsize) nbush s6
         pathrands = take nroads (repeat (randomList (0, npaths) pathlen s1))
         roads = buildList2 ((randomList (2, (zonew-2)) nroads s1), (randomList (2, (zoneh-2)) nroads s2))
+        trees = (take (zonew*zoneh) (repeat 0))
         
         
     let env = Env
@@ -118,6 +120,8 @@ main = do
             , statePaths      = (take (zonew*zoneh) (repeat 0))
             , statePathRands  = pathrands
             , stateRoads      = roads
+            , stateTrees      = trees
+            , stateTreeRands  = []
             }
     --let newstate = initWorld state (nconts-2)
     void $ evalRWST run env state
@@ -242,6 +246,9 @@ processEvent ev =
             let newcurrentzone = initZone state rand 0
             let newpaths = initDoorPaths newcurrentzone spr
             let p0 = fixPath newpaths (initZone state rand 0)
+            let strs = buildList2 ((randomList (0, zonew) ntree sg), (randomList (1, zoneh) ntree sg))
+            let trees = initTrees strs newcurrentzone
+            liftIO $ print newcurrentzone
             modify $ \s -> s { stateZone = newzones
                              , stateCurrentZ = newcurrentzone
                              , stateGame = SZone
@@ -250,6 +257,8 @@ processEvent ev =
                              , stateBushes = bushes
                              , stateBRands = brands
                              , stateBSizes = bsiz
+                             , stateTrees  = trees
+                             , stateTreeRands = strs
                              }
           else do
             x2 <- liftIO $ loadPath (fst (stateCursor state)) (snd (stateCursor state))

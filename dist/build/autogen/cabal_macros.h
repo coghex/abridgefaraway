@@ -35,8 +35,8 @@
   (major1) == 2 && (major2) <  7 || \
   (major1) == 2 && (major2) == 7 && (minor) <= 0)
 
-/* package GLUtil-0.9.1.1 */
-#define VERSION_GLUtil "0.9.1.1"
+/* package GLUtil-0.9.1.0 */
+#define VERSION_GLUtil "0.9.1.0"
 #define MIN_VERSION_GLUtil(major1,major2,minor) (\
   (major1) <  0 || \
   (major1) == 0 && (major2) <  9 || \
@@ -168,12 +168,12 @@
   (major1) == 3 && (major2) <  2 || \
   (major1) == 3 && (major2) == 2 && (minor) <= 1)
 
-/* tool gcc-6.2.1 */
-#define TOOL_VERSION_gcc "6.2.1"
+/* tool gcc-6.3.1 */
+#define TOOL_VERSION_gcc "6.3.1"
 #define MIN_TOOL_VERSION_gcc(major1,major2,minor) (\
   (major1) <  6 || \
-  (major1) == 6 && (major2) <  2 || \
-  (major1) == 6 && (major2) == 2 && (minor) <= 1)
+  (major1) == 6 && (major2) <  3 || \
+  (major1) == 6 && (major2) == 3 && (minor) <= 1)
 
 /* tool ghc-8.0.1 */
 #define TOOL_VERSION_ghc "8.0.1"

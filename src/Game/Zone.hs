@@ -71,6 +71,7 @@ drawZone state camx camy texs = do
   let znew = expandZone $ stateCurrentZ state
   resequence_ (map (drawZoneRow texs camx camy (getZoneType state x y)) znew)
   drawPaths texs (round camx) (round camy) (statePaths state) (getZoneType state x y)
+  drawTrees texs (round camx) (round camy) (stateTrees state) (getZoneType state x y)
   GL.flush
 --let x = fst (stateCursor state) 
   --let y = snd (stateCursor state)
@@ -78,6 +79,18 @@ drawZone state camx camy texs = do
   --withTextures2D [((texs!!1)!!10)] $ drawZoneTile (texs!!1) 120 90 10
   --drawZoneSpot texs 0 0 10 t
 
+
+drawTrees :: [[GL.TextureObject]] -> Int -> Int -> [Int] -> Int -> IO ()
+drawTrees texs camx camy z t = do
+  let z0 = expandZone z
+  resequence_ (map (drawTreeRow texs camx camy) z0)
+
+drawTreeRow :: [[GL.TextureObject]] -> Int -> Int -> ([(Int, Int)], Int) -> IO ()
+drawTreeRow texs camx camy (a, b) = resequence_ (map (drawTreeSpot texs camx camy b) a)
+
+drawTreeSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> (Int, Int) -> IO ()
+drawTreeSpot _    _    _    _ (0, i) = return ()
+drawTreeSpot texs camx camy j (t, i) = withTextures2D [((texs!!7)!!t)] $ drawZoneTile (texs!!7) (i+camx) (j+camy) 0 50
 
 drawPaths :: [[GL.TextureObject]] -> Int -> Int -> [Int] -> Int -> IO ()
 drawPaths _    _    _    _ 4 = return ()

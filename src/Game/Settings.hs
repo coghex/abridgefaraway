@@ -34,3 +34,5 @@ maxroads = 100::Int
 
 npaths = 50::Int
 pathlen = 1000::Int
+
+ntree = 500::Int
