@@ -15,12 +15,22 @@ data Env = Env
   , envFontSmall    :: !FTGL.Font
   , envWTex         :: ![GL.TextureObject]
   , envZTex         :: ![[GL.TextureObject]]
+  , envSeeds        :: ![StdGen]
   }
 
 data State = State
   { stateGame       :: !GameState
   , stateScreenW    :: !Int
   , stateScreenH    :: !Int
+  , stateGrid       :: ![Int]
+  , stateCursor     :: !(Int, Int)
+  , stateNConts     :: !Int
+  , stateCurrMap    :: !Int
+  , stateConts      :: ![(Int, Int)]
+  , stateSeeds      :: ![[(Int, Int)]]
+  , stateRands      :: ![[(Int, Int)]]
+  , stateSizes      :: ![Int]
+  , stateTypes      :: ![Int]
   }
 
 data Event =

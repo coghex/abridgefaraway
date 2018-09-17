@@ -198,6 +198,17 @@
   (major1) == 0 && (major2) == 5 && (minor) <= 5)
 #endif /* MIN_VERSION_transformers */
 
+/* package split-0.2.3.3 */
+#ifndef VERSION_split
+#define VERSION_split "0.2.3.3"
+#endif /* VERSION_split */
+#ifndef MIN_VERSION_split
+#define MIN_VERSION_split(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  2 || \
+  (major1) == 0 && (major2) == 2 && (minor) <= 3)
+#endif /* MIN_VERSION_split */
+
 /* tool alex-3.2.4 */
 #ifndef TOOL_VERSION_alex
 #define TOOL_VERSION_alex "3.2.4"

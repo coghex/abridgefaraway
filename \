@@ -6,7 +6,7 @@ import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify,
 import Control.Concurrent (setNumCapabilities, threadDelay)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
-import System.Random (newStdGen, mkStdGen, randomRs)
+import System.Random (newStdGen)
 
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
@@ -22,7 +22,6 @@ import Game.Settings
 import Game.Util
 import Game.Draw
 import Game.World
-import Game.Rand
 
 type Game = RWST Env () State IO
 
@@ -45,45 +44,21 @@ main = do
     f2 <- loadFont "data/fonts/amatic/AmaticSC-Regular.ttf"
     (wtex, ztex) <- liftIO $ initTexs window
 
-    s1 <- newStdGen
-    s2 <- newStdGen
-    s3 <- newStdGen
-    s4 <- newStdGen
-    s5 <- newStdGen
-    s6 <- newStdGen
-    
-    let nconts = (randomRs (minnconts, maxnconts) (mkStdGen 42)) !! 1
-
-    --let nspots = randomList (minnspots, maxnspots) nconts s1
-
-    --let conts  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
-    --    seeds  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s3), (randomList ((fudge), (gridh-fudge)) nconts s4))
-    --    rands  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s5), (randomList ((fudge), (gridh-fudge)) nconts s6))
-    --    sizes  = randomList (minsize, maxsize) nconts s1
-    --    types  = randomList (0, 6::Int) nconts s2
-
-    let env    = Env
+    let env = Env
             { envEventsChan = eventsChan
             , envWindow     = window
             , envFontBig    = f1
             , envFontSmall  = f2
             , envWTex       = wtex
             , envZTex       = ztex
-            , envSeeds      = [s1, s2, s3, s4, s5, s6]
             }
-        state  = genParams 1 nconts s1 s2 s3 s4 s5 s6
-        --state  = State
-        --    { stateGame     = SMenu
-        --    , stateScreenW  = screenw
-        --    , stateScreenH  = screenh
-        --    , stateGrid     = (take (gridw*gridh) (repeat 1))
-        --    , stateCursor   = (5, 5)
-        --    , stateConts    = tail conts
-        --    , stateSeeds    = tail $ makeSeeds seeds 0 s1 s2 nspots
-        --    , stateRands    = tail $ makeSeeds rands (2*nconts) s3 s4 nspots
-        --    , stateSizes    = sizes
-        --    , stateTypes    = types
-        --    }
+        state = State
+            { stateGame     = SMenu
+            , stateScreenW  = screenw
+            , stateScreenH  = screenh
+            , stateGrid     = (take (gridw*gridh) (repeat 1))
+            , stateCursor   = (5, 5)
+            }
     void $ evalRWST run env state
 
 run :: Game ()
@@ -180,18 +155,6 @@ processEvent ev =
             modify $ \s -> s { stateGame = SLoad }
             let newstate = initWorld state
             modify $ \s -> s { stateGrid = (stateGrid newstate) }
-        when (((stateGame state) == SWorld) && (k == GLFW.Key'R)) $ do
-            modify $ \s -> s { stateGame = SLoad }
-            let newstate = regenWorld state env
-            modify $ \s -> s { stateGrid    = (stateGrid newstate)
-                             , stateNConts  = (stateNConts newstate)
-                             , stateCurrMap = (stateCurrMap newstate)
-                             , stateConts   = (stateConts newstate)
-                             , stateSeeds   = (stateSeeds newstate)
-                             , stateRands   = (stateRands newstate)
-                             , stateSizes   = (stateSizes newstate)
-                             , stateTypes   = (stateTypes newstate)
-                             }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
     (EventFramebufferSize _ width height) -> do
