@@ -1,7 +1,7 @@
 module Game.Settings where
 
-gridw = 240::Int
-gridh = 180::Int
+gridw = 120::Int
+gridh = 90::Int
 screenw = 2560::Int
 screenh = 1440::Int
 fudge = 10::Int
