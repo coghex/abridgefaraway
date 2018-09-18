@@ -5,6 +5,8 @@ import System.Random
 import Game.State
 import Game.Settings
 import Game.Rand
+import Game.Map
+import Game.Elev
 
 genParams :: Int -> Int -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams currmap nconts s1 s2 s3 s4 s5 s6 = do
@@ -20,6 +22,7 @@ genParams currmap nconts s1 s2 s3 s4 s5 s6 = do
     , stateScreenW  = screenw
     , stateScreenH  = screenh
     , stateGrid     = (take (gridw*gridh) (repeat 1))
+    , stateElev     = (take (gridw*gridh) (repeat 1))
     , stateCursor   = (5,5)
     , stateNConts   = nconts
     , stateCurrMap  = currmap
@@ -37,6 +40,7 @@ initWorld state = do
       w       = stateScreenW  state
       h       = stateScreenH  state
       g0      = stateGrid     state
+      e0      = stateElev     state
       curs    = stateCursor   state
       nconts  = stateNConts   state
       currmap = stateCurrMap  state
@@ -49,12 +53,14 @@ initWorld state = do
   let nconts  = length (stateConts state)
   
   let g1      = seedConts state g0 conts seeds rands nconts
+  let e1      = elevMap state g1 e0 conts seeds rands nconts
 
   State
     { stateGame     = sg
     , stateScreenW  = w 
     , stateScreenH  = h
     , stateGrid     = g1
+    , stateElev     = e1
     , stateCursor   = curs
     , stateNConts   = nconts
     , stateCurrMap  = currmap
@@ -108,26 +114,3 @@ seedTile state c j w x y z (t, i)
     randstate = (stateTypes state) !! c
     maxdist = 1000 * ((stateSizes state) !! c)
 
-distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
-distance x1 y1 x2 y2 x3 y3 t = do
-  let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
-      p2 = (((x1 -x3)*(x1-x3))+((y1-y3)*(y1-y3)))
-  p1*p2
-
-expandGrid :: [Int] -> [([(Int, Int)], Int)]
-expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]
-
-workRows :: [Int] -> [(Int, Int)]
-workRows l = do
-  zip l [0..gridw]
-
-flattenGrid :: [[Int]] -> [Int]
-flattenGrid xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
-
-stripGrid :: [([(Int, Int)], Int)] -> [[Int]]
-stripGrid ((a, b):ys) = (stripRow a) : stripGrid ys
-stripGrid _           = [[]]
-
-stripRow :: [(Int, Int)] -> [Int]
-stripRow ((a, b):ys) = a : stripRow ys
-stripRow _           = []

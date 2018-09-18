@@ -23,6 +23,7 @@ data State = State
   , stateScreenW    :: !Int
   , stateScreenH    :: !Int
   , stateGrid       :: ![Int]
+  , stateElev       :: ![Int]
   , stateCursor     :: !(Int, Int)
   , stateNConts     :: !Int
   , stateCurrMap    :: !Int

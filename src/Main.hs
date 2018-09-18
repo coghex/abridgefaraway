@@ -179,11 +179,14 @@ processEvent ev =
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
             modify $ \s -> s { stateGame = SLoad }
             let newstate = initWorld state
-            modify $ \s -> s { stateGrid = (stateGrid newstate) }
+            modify $ \s -> s { stateGrid = (stateGrid newstate)
+                             , stateElev = (stateElev newstate)
+                             }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'R)) $ do
             modify $ \s -> s { stateGame = SLoad }
             let newstate = regenWorld state env
             modify $ \s -> s { stateGrid    = (stateGrid newstate)
+                             , stateElev    = (stateElev newstate)
                              , stateNConts  = (stateNConts newstate)
                              , stateCurrMap = (stateCurrMap newstate)
                              , stateConts   = (stateConts newstate)
@@ -193,6 +196,7 @@ processEvent ev =
                              , stateTypes   = (stateTypes newstate)
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
+            liftIO $ print $ stateElev state
             liftIO $ GLFW.setWindowShouldClose window True
     (EventFramebufferSize _ width height) -> do
       adjustWindow

@@ -30,7 +30,7 @@ drawSquare = do
 
 drawCursor :: State -> [GL.TextureObject] -> IO ()
 drawCursor state texs = do
-  withTextures2D [(last texs)] $ drawSceneTile [(last texs)] (fst (stateCursor state)) (snd (stateCursor state)) 0
+  withTextures2D [(head texs)] $ drawSceneTile [(head texs)] (fst (stateCursor state)) (snd (stateCursor state)) 0
 
 drawScene :: State -> [GL.TextureObject] -> IO ()
 drawScene state texs = do
