@@ -22,6 +22,7 @@ import Game.Settings
 import Game.Util
 import Game.Draw
 import Game.World
+import Game.Elev
 import Game.Rand
 
 type Game = RWST Env () State IO
@@ -126,6 +127,15 @@ draw SWorld = do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
+draw SElev = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    GL.preservingMatrix $ do
+      drawElev state
+    GL.preservingMatrix $ do
+      drawCursor state (envWTex env)
 draw _ = do
   state <- get
   liftIO $ do
@@ -195,6 +205,10 @@ processEvent ev =
                              , stateSizes   = (stateSizes newstate)
                              , stateTypes   = (stateTypes newstate)
                              }
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
+            modify $ \s -> s { stateGame = SElev }
+        when (((stateGame state) == SElev) && (k == GLFW.Key'E)) $ do
+            modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ print $ stateElev state
             liftIO $ GLFW.setWindowShouldClose window True

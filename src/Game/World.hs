@@ -107,7 +107,7 @@ seedRow state c w x y z (t1, t2) = (map (seedTile state c t2 w x y z) t1, t2)
 seedTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedTile state c j w x y z (t, i)
   | (randstate == 1) && (distance i j w x y z t <= maxdist) = (randstate, i)
-  | (randstate > 6) || (randstate <3)                       = (t, i)
+  | (randstate > 6) || (randstate < 3)                      = (t, i)
   | distance i j w x y z t <= maxdist                       = (randstate, i)
   | otherwise                                               = (t, i)
   where
