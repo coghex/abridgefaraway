@@ -118,6 +118,13 @@ draw SLoad = do
     beginDrawText
     drawText (envFontBig env) 1 95 24 72 "Loading..."
     liftIO $ loadedCallback (envEventsChan env) SWorld
+draw SLoadElev = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText (envFontBig env) 1 95 24 72 "Loading Elevation..."
+    liftIO $ loadedCallback (envEventsChan env) SElev
 draw SWorld = do
   env   <- ask
   state <- get
@@ -206,8 +213,9 @@ processEvent ev =
                              , stateTypes   = (stateTypes newstate)
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
-            modify $ \s -> s { stateGame = SElev }
-        when (((stateGame state) == SElev) && (k == GLFW.Key'E)) $ do
+            modify $ \s -> s { stateGame = SLoadElev }
+            modify $ \s -> s { stateElev = elevMap state (stateGrid state) (stateElev state) (stateConts state) (stateSeeds state) (stateRands state) (stateNConts state) }
+        when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ print $ stateElev state

@@ -26,12 +26,9 @@ drawElevSpot :: Int -> (Int, Int) -> IO ()
 drawElevSpot y (t, x) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-500)
-  if (t>1000000) then do
-    glColor3f 1 1 1
-    drawElevSquare
-  else do
-    glColor3f 0 0 0
-    drawElevSquare
+  glColor3f elev elev elev
+  drawElevSquare
+  where elev = 1/(fromIntegral t)
 
 drawElevSquare :: IO ()
 drawElevSquare = do
@@ -53,20 +50,33 @@ findElev :: State -> Int -> Int -> Int -> [Int] -> [Int] -> [(Int, Int)] -> [(In
 findElev _     _ _ _ _ e []     []     = e
 findElev state c x y g e (k:ks) (j:js) = do
   let newelev = expandGrid e
-      elev0   = map (elevRow state c (fst k) (snd k) (fst j) (snd j)) newelev
+      newgrid = expandGrid g
+      elev0   = map (elevRow state newgrid c (fst k) (snd k) (fst j) (snd j)) newelev
       elev1   = stripGrid elev0
       elev2   = flattenGrid elev1
   findElev state c x y g elev2 ks js
 
-elevRow :: State -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-elevRow state c w x y z (t1, t2) = (map (elevTile state c t2 w x y z) t1, t2)
+elevRow :: State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+elevRow state g c w x y z (t1, t2) = (map (elevTile state g c t2 w x y z) t1, t2)
 
-elevTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-elevTile state c j w x y z (t, i)
-  | dist <= maxdist    = (maxdist, i)
-  | otherwise          = (dist, i)
+elevTile :: State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+elevTile state g c j w x y z (t, i) = ((elevOf t i j g), i)
   where
     maxdist = 1000 * ((stateSizes state) !! c)
     dist = distance i j w x y z t
 
+elevOf :: Int -> Int -> Int -> [([(Int, Int)], Int)] -> Int
+elevOf t x y g = elevOfSpot t typ
+  where
+    typ = (fst $ (fst (g !! y)) !! x)
+
+elevOfSpot :: Int -> Int -> Int
+elevOfSpot t 0 = 1
+elevOfSpot t 1 = 2
+elevOfSpot t 2 = 3
+elevOfSpot t 3 = 4
+elevOfSpot t 4 = 5
+elevOfSpot t 5 = 6
+elevOfSpot t 6 = 7
+elevOfSpot t typ = round $ (fromIntegral (t + typ)) / 2
 

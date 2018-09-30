@@ -6,7 +6,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL
 import System.Random
 
-data GameState = SWorld | SElev | SZone | SMenu | SLoad | SFucked | SPause deriving (Eq, Show)
+data GameState = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
 
 data Env = Env
   { envEventsChan   :: TQueue Event
