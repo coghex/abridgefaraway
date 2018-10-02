@@ -30,11 +30,11 @@ drawElevSpot y (t, x) = do
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
-  where elev = ((log (fromIntegral t))/(log(sugar)))/(fromIntegral(salt)*10)
+  where elev = ((log (fromIntegral t))/(log(sugar)))/(fromIntegral(salt)*5)
 
 elevOcean :: Float -> Float
 elevOcean x
-  | x <= sealevel = 1.0
+  | x <= sealevel = 0.8
   | otherwise = x
 
 drawElevSquare :: IO ()
@@ -126,10 +126,10 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = 1
-elevOfSpot dist t 3 = avgElev t $ normElev dist 1 30
-elevOfSpot dist t 4 = avgElev t $ normElev dist 1 100
-elevOfSpot dist t 5 = avgElev t $ normElev dist 500 800
-elevOfSpot dist t 6 = avgElev t $ normElev dist 100 200
+elevOfSpot dist t 3 = avgElev t $ normElev dist 1 10
+elevOfSpot dist t 4 = avgElev t $ normElev dist 4 20
+elevOfSpot dist t 5 = avgElev t $ normElev dist 200 600
+elevOfSpot dist t 6 = avgElev t $ normElev dist 10 90
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int
@@ -137,6 +137,6 @@ normElev 0 min max = quot (min+max) 2
 normElev x min max = quot (1000000*(max - min)) x + min
 
 avgElev :: Int -> Int -> Int
-avgElev x y = quot ((9*x)+y) 10
+avgElev x y = quot ((vigor*x)+y) (vigor + 1)
 
 

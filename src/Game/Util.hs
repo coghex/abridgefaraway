@@ -184,8 +184,9 @@ loadWTextures fn = do
   t6 <- loadTex (fn ++ "waste/wwaste.png")
   t7 <- loadTex (fn ++ "shallows/wshallows.png")
   t8 <- loadTex (fn ++ "steeps/wsteeps.png")
+  t9 <- loadTex (fn ++ "peaks/wpeaks.png")
 
-  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8])
+  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do
