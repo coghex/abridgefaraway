@@ -27,9 +27,14 @@ drawElevSpot :: Int -> (Int, Int) -> IO ()
 drawElevSpot y (t, x) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-500)
-  glColor3f elev elev elev
+  glColor3f elev elev $ elevOcean elev
   drawElevSquare
-  where elev = (fromIntegral t)/1000
+  where elev = (log (fromIntegral t))/20
+
+elevOcean :: Float -> Float
+elevOcean x
+  | x <= 0.2 = 1.0
+  | otherwise = x
 
 drawElevSquare :: IO ()
 drawElevSquare = do
@@ -44,12 +49,17 @@ dropEvery :: Int -> [Int] -> [Int]
 dropEvery _ [] = []
 dropEvery n xs = take (n-1) xs ++ [1] ++ dropEvery n (drop n xs)
 
+blurAdd :: Int -> Int -> Int
+bluradd 1 y = 1
+bluradd x 1 = 1
+blurAdd x y = x+y
+
 blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
 blurSpots elev es en ew ee = do
-  let e0 = zipWith (+) elev es
-      e1 = zipWith (+) e0   en
-      e2 = zipWith (+) e1   ew
-      e3 = zipWith (+) e2   ee
+  let e0 = zipWith (blurAdd) elev es
+      e1 = zipWith (blurAdd) e0   en
+      e2 = zipWith (blurAdd) e1   ew
+      e3 = zipWith (blurAdd) e2   ee
   zipWith quot e3 $ repeat 5
 
 blurMap :: Env -> [Int] -> Int -> [Int]
@@ -70,7 +80,7 @@ blurMap env elev n = do
 elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevBlurMap state env grid elev l k j i = do
   let e1 = elevMap state grid elev l k j i
-  blurMap env e1 2
+  blurMap env e1 erosion
 
 elevMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevMap state grid elev []     []     []     _ = elev
@@ -107,7 +117,7 @@ elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = 1
 elevOfSpot dist t 3 = avgElev t $ normElev dist 90 110
 elevOfSpot dist t 4 = avgElev t $ normElev dist 170 230
-elevOfSpot dist t 5 = avgElev t $ normElev dist 400 700
+elevOfSpot dist t 5 = avgElev t $ normElev dist 400 600
 elevOfSpot dist t 6 = avgElev t $ normElev dist 250 350
 elevOfSpot dist t typ = 0
 

@@ -6,6 +6,7 @@ screenw = 2560::Int
 screenh = 1440::Int
 fudge = 10::Int
 
+erosion = 5::Int
 minsize = 10::Int
 maxsize = 50::Int
 minnconts = 15::Int
