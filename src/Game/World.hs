@@ -34,8 +34,8 @@ genParams currmap nconts s1 s2 s3 s4 s5 s6 = do
     }
   
 
-initWorld :: State -> State
-initWorld state = do
+initWorld :: State -> Env -> State
+initWorld state env = do
   let sg      = stateGame     state
       w       = stateScreenW  state
       h       = stateScreenH  state
@@ -53,14 +53,14 @@ initWorld state = do
   let nconts  = length (stateConts state)
   
   let g1      = seedConts state g0 conts seeds rands nconts
-  let e1      = elevMap state g1 e0 conts seeds rands nconts
+  let e1      = elevBlurMap state env g1 e0 conts seeds rands nconts
 
   State
     { stateGame     = sg
     , stateScreenW  = w 
     , stateScreenH  = h
     , stateGrid     = g1
-    , stateElev     = e0
+    , stateElev     = e1
     , stateCursor   = curs
     , stateNConts   = nconts
     , stateCurrMap  = currmap
@@ -82,7 +82,7 @@ regenWorld state env = do
       currmap = (stateCurrMap state) + 1
       nconts = (randomRs (minnconts, maxnconts) (mkStdGen 42)) !! currmap
   let newstate = genParams currmap nconts s1 s2 s3 s4 s5 s6
-  initWorld newstate
+  initWorld newstate env
   
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]

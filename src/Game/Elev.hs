@@ -6,6 +6,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import qualified Graphics.UI.GLFW as GLFW
 
+import Game.Rand
 import Game.State
 import Game.Settings
 import Game.Map
@@ -28,7 +29,7 @@ drawElevSpot y (t, x) = do
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-500)
   glColor3f elev elev elev
   drawElevSquare
-  where elev = 1/(fromIntegral t)
+  where elev = (fromIntegral t)/1000
 
 drawElevSquare :: IO ()
 drawElevSquare = do
@@ -38,6 +39,16 @@ drawElevSquare = do
   glVertex3f      1    1   1
   glVertex3f    (-1)   1   1
   glEnd
+
+blurMap :: Env -> [Int] -> [Int]
+blurMap env elev = do
+  let r1 = randomList (-fudge,fudge)
+  elev
+
+elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
+elevBlurMap state env grid elev l k j i = do
+  let e1 = blurMap env elev
+  elevMap state grid e1 l k j i
 
 elevMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevMap state grid elev []     []     []     _ = elev
@@ -71,12 +82,10 @@ elevOf t x y g = elevOfSpot t typ
     typ = (fst $ (fst (g !! y)) !! x)
 
 elevOfSpot :: Int -> Int -> Int
-elevOfSpot t 0 = 1
-elevOfSpot t 1 = 2
-elevOfSpot t 2 = 3
-elevOfSpot t 3 = 4
-elevOfSpot t 4 = 5
-elevOfSpot t 5 = 6
-elevOfSpot t 6 = 7
+elevOfSpot t 1 = 1
+elevOfSpot t 3 = 100
+elevOfSpot t 4 = 200
+elevOfSpot t 5 = 500
+elevOfSpot t 6 = 300
 elevOfSpot t typ = round $ (fromIntegral (t + typ)) / 2
 

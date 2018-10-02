@@ -195,7 +195,7 @@ processEvent ev =
             liftIO $ GLFW.setWindowShouldClose window True
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
             modify $ \s -> s { stateGame = SLoad }
-            let newstate = initWorld state
+            let newstate = initWorld state env
             modify $ \s -> s { stateGrid = (stateGrid newstate)
                              , stateElev = (stateElev newstate)
                              }
@@ -214,11 +214,9 @@ processEvent ev =
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
-            modify $ \s -> s { stateElev = elevMap state (stateGrid state) (stateElev state) (stateConts state) (stateSeeds state) (stateRands state) (stateNConts state) }
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
-            liftIO $ print $ stateElev state
             liftIO $ GLFW.setWindowShouldClose window True
     (EventFramebufferSize _ width height) -> do
       adjustWindow
