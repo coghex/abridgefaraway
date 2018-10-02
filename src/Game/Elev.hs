@@ -5,6 +5,7 @@ import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import qualified Graphics.UI.GLFW as GLFW
+import System.Random (next)
 
 import Game.Rand
 import Game.State
@@ -29,7 +30,7 @@ drawElevSpot y (t, x) = do
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-250)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
-  where elev = (log (fromIntegral t))/20
+  where elev = (log (fromIntegral t))/(fromIntegral(salt)*10)
 
 elevOcean :: Float -> Float
 elevOcean x
@@ -52,7 +53,7 @@ dropEvery n xs = take (n-1) xs ++ [1] ++ dropEvery n (drop n xs)
 blurAdd :: Int -> Int -> Int -> Int
 bluradd 1 y r = 1
 bluradd x 1 r = 1
-blurAdd x y r = (x)+(y)
+blurAdd x y r = (salt*x)+((r-1)*y)
 
 blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
 blurSpots elev es en ew ee rs rn rw re = do
@@ -60,15 +61,22 @@ blurSpots elev es en ew ee rs rn rw re = do
       e1 = zipWith3 (blurAdd) e0   en rn
       e2 = zipWith3 (blurAdd) e1   ew rw
       e3 = zipWith3 (blurAdd) e2   ee re
-  zipWith quot e3 $ repeat (5)
+      dv0 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rs)
+      dv1 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rn)
+      dv2 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rw)
+      dv3 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (re)
+      dv4 = zipWith (+) dv0 dv1
+      dv5 = zipWith (+) dv2 dv3
+      dv6 = zipWith (+) dv4 dv5
+  zipWith quot e3 $ dv6
 
 blurMap :: Env -> [Int] -> Int -> [Int]
 blurMap env elev 0 = elev
 blurMap env elev n = do
-  let rs  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 1)
-      rn  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 2)
-      rw  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 3)
-      re  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 4)
+  let rs  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 1)))
+      rn  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 2)))
+      rw  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 3)))
+      re  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 4)))
       es0 = drop gridw elev
       es1 = es0 ++ (take gridw (repeat 1))
       en0 = take (gridh*gridw - gridw) elev
@@ -118,9 +126,9 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = 1
-elevOfSpot dist t 3 = avgElev t $ normElev dist 9 40
-elevOfSpot dist t 4 = avgElev t $ normElev dist 40 80
-elevOfSpot dist t 5 = avgElev t $ normElev dist 200 600
+elevOfSpot dist t 3 = avgElev t $ normElev dist 1 30
+elevOfSpot dist t 4 = avgElev t $ normElev dist 1 100
+elevOfSpot dist t 5 = avgElev t $ normElev dist 500 1000
 elevOfSpot dist t 6 = avgElev t $ normElev dist 100 200
 elevOfSpot dist t typ = 0
 
