@@ -52,8 +52,9 @@ blurSpots elev es en ew ee = do
       e3 = zipWith (+) e2   ee
   zipWith quot e3 $ repeat 5
 
-blurMap :: Env -> [Int] -> [Int]
-blurMap env elev = do
+blurMap :: Env -> [Int] -> Int -> [Int]
+blurMap env elev 0 = elev
+blurMap env elev n = do
   let r1 = randomList (-fudge,fudge)
       es0 = drop gridw elev
       es1 = es0 ++ (take gridw (repeat 1))
@@ -63,12 +64,13 @@ blurMap env elev = do
       ew1 = dropEvery gridw ew0
       ee0 = tail $ elev ++ [1]
       ee1 = dropEvery gridw ee0
-  blurSpots elev es1 en1 ew1 ee1
+      out = blurSpots elev es1 en1 ew1 ee1
+  blurMap env out (n-1)
 
 elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevBlurMap state env grid elev l k j i = do
   let e1 = elevMap state grid elev l k j i
-  blurMap env e1
+  blurMap env e1 2
 
 elevMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevMap state grid elev []     []     []     _ = elev
@@ -91,21 +93,29 @@ elevRow :: State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> 
 elevRow state g c w x y z (t1, t2) = (map (elevTile state g c t2 w x y z) t1, t2)
 
 elevTile :: State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-elevTile state g c j w x y z (t, i) = ((elevOf t i j g), i)
+elevTile state g c j w x y z (t, i) = ((elevOf dist t i j g), i)
   where
     maxdist = 1000 * ((stateSizes state) !! c)
     dist = distance i j w x y z t
 
-elevOf :: Int -> Int -> Int -> [([(Int, Int)], Int)] -> Int
-elevOf t x y g = elevOfSpot t typ
+elevOf :: Int -> Int -> Int -> Int -> [([(Int, Int)], Int)] -> Int
+elevOf dist t x y g = elevOfSpot dist t typ
   where
     typ = (fst $ (fst (g !! y)) !! x)
 
-elevOfSpot :: Int -> Int -> Int
-elevOfSpot t 1 = 1
-elevOfSpot t 3 = 100
-elevOfSpot t 4 = 200
-elevOfSpot t 5 = 500
-elevOfSpot t 6 = 300
-elevOfSpot t typ = round $ (fromIntegral (t + typ)) / 2
+elevOfSpot :: Int -> Int -> Int -> Int
+elevOfSpot dist t 1 = 1
+elevOfSpot dist t 3 = avgElev t $ normElev dist 90 110
+elevOfSpot dist t 4 = avgElev t $ normElev dist 170 230
+elevOfSpot dist t 5 = avgElev t $ normElev dist 400 700
+elevOfSpot dist t 6 = avgElev t $ normElev dist 250 350
+elevOfSpot dist t typ = 0
+
+normElev :: Int -> Int -> Int -> Int
+normElev 0 min max = quot (min+max) 2
+normElev x min max = quot (1000000*(max - min)) x + min
+
+avgElev :: Int -> Int -> Int
+avgElev x y = quot ((9*x)+y) 10
+
 
