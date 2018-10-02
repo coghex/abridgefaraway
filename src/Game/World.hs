@@ -77,9 +77,9 @@ fixConts state env g e = zipWith fixContSpots g e
 
 fixContSpots :: Int -> Int -> Int
 fixContSpots gx ex
-  | (((log (fromIntegral ex))/(fromIntegral(salt)*10.0)) > sealevel) && (gx == 1)  = 8
-  | (((log (fromIntegral ex))/(fromIntegral(salt)*10.0)) <= sealevel) && (gx /= 1) = 7
-  | otherwise                                                                      = gx
+  | ((((log (fromIntegral ex))/(log(sugar)))/(fromIntegral(salt)*10.0)) > sealevel) && (gx == 1)  = 8
+  | ((((log (fromIntegral ex))/(log(sugar)))/(fromIntegral(salt)*10.0)) <= sealevel) && (gx /= 1) = 7
+  | otherwise                                                                                 = gx
 
 regenWorld :: State -> Env -> State
 regenWorld state env = do

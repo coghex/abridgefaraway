@@ -27,10 +27,10 @@ drawElevRow (a, b) = resequence_ (map (drawElevSpot b) a)
 drawElevSpot :: Int -> (Int, Int) -> IO ()
 drawElevSpot y (t, x) = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-250)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
-  where elev = (log (fromIntegral t))/(fromIntegral(salt)*10)
+  where elev = ((log (fromIntegral t))/(log(sugar)))/(fromIntegral(salt)*10)
 
 elevOcean :: Float -> Float
 elevOcean x
@@ -128,7 +128,7 @@ elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = 1
 elevOfSpot dist t 3 = avgElev t $ normElev dist 1 30
 elevOfSpot dist t 4 = avgElev t $ normElev dist 1 100
-elevOfSpot dist t 5 = avgElev t $ normElev dist 500 1000
+elevOfSpot dist t 5 = avgElev t $ normElev dist 500 800
 elevOfSpot dist t 6 = avgElev t $ normElev dist 100 200
 elevOfSpot dist t typ = 0
 

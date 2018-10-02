@@ -47,7 +47,7 @@ drawSceneSpot texs y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTile texs x 
 drawSceneTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
 drawSceneTile texs x y t = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-250)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glColor3f 1 1 1
   drawSquare
 
