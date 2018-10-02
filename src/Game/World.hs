@@ -54,12 +54,13 @@ initWorld state env = do
   
   let g1      = seedConts state g0 conts seeds rands nconts
   let e1      = elevBlurMap state env g1 e0 conts seeds rands nconts
+  let g2      = fixConts state env g1 e1
 
   State
     { stateGame     = sg
     , stateScreenW  = w 
     , stateScreenH  = h
-    , stateGrid     = g1
+    , stateGrid     = g2
     , stateElev     = e1
     , stateCursor   = curs
     , stateNConts   = nconts
@@ -70,6 +71,15 @@ initWorld state env = do
     , stateSizes    = sizes
     , stateTypes    = types
     }
+
+fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
+fixConts state env g e = zipWith fixContSpots g e
+
+fixContSpots :: Int -> Int -> Int
+fixContSpots gx ex
+  | (((log (fromIntegral ex))/20.0) > sealevel) && (gx == 1)  = 8
+  | (((log (fromIntegral ex))/20.0) <= sealevel) && (gx /= 1) = 7
+  | otherwise                                            = gx
 
 regenWorld :: State -> Env -> State
 regenWorld state env = do

@@ -47,6 +47,7 @@ cabal-version:       >=1.10
 
 
 executable abfa
+  ghc-options:         -threaded
   -- .hs or .lhs file containing the Main module.
   main-is:             Main.hs
 

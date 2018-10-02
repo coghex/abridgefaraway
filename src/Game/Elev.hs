@@ -26,14 +26,14 @@ drawElevRow (a, b) = resequence_ (map (drawElevSpot b) a)
 drawElevSpot :: Int -> (Int, Int) -> IO ()
 drawElevSpot y (t, x) = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-500)
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-250)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
   where elev = (log (fromIntegral t))/20
 
 elevOcean :: Float -> Float
 elevOcean x
-  | x <= 0.2 = 1.0
+  | x <= sealevel = 1.0
   | otherwise = x
 
 drawElevSquare :: IO ()
@@ -49,23 +49,26 @@ dropEvery :: Int -> [Int] -> [Int]
 dropEvery _ [] = []
 dropEvery n xs = take (n-1) xs ++ [1] ++ dropEvery n (drop n xs)
 
-blurAdd :: Int -> Int -> Int
-bluradd 1 y = 1
-bluradd x 1 = 1
-blurAdd x y = x+y
+blurAdd :: Int -> Int -> Int -> Int
+bluradd 1 y r = 1
+bluradd x 1 r = 1
+blurAdd x y r = (x)+(y)
 
-blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
-blurSpots elev es en ew ee = do
-  let e0 = zipWith (blurAdd) elev es
-      e1 = zipWith (blurAdd) e0   en
-      e2 = zipWith (blurAdd) e1   ew
-      e3 = zipWith (blurAdd) e2   ee
-  zipWith quot e3 $ repeat 5
+blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+blurSpots elev es en ew ee rs rn rw re = do
+  let e0 = zipWith3 (blurAdd) elev es rs
+      e1 = zipWith3 (blurAdd) e0   en rn
+      e2 = zipWith3 (blurAdd) e1   ew rw
+      e3 = zipWith3 (blurAdd) e2   ee re
+  zipWith quot e3 $ repeat (5)
 
 blurMap :: Env -> [Int] -> Int -> [Int]
 blurMap env elev 0 = elev
 blurMap env elev n = do
-  let r1 = randomList (-fudge,fudge)
+  let rs  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 1)
+      rn  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 2)
+      rw  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 3)
+      re  = randomList (-fudge,fudge) (gridw*gridh) ((envSeeds env) !! 4)
       es0 = drop gridw elev
       es1 = es0 ++ (take gridw (repeat 1))
       en0 = take (gridh*gridw - gridw) elev
@@ -74,7 +77,7 @@ blurMap env elev n = do
       ew1 = dropEvery gridw ew0
       ee0 = tail $ elev ++ [1]
       ee1 = dropEvery gridw ee0
-      out = blurSpots elev es1 en1 ew1 ee1
+      out = blurSpots elev es1 en1 ew1 ee1 rs rn rw re
   blurMap env out (n-1)
 
 elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
@@ -115,10 +118,10 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = 1
-elevOfSpot dist t 3 = avgElev t $ normElev dist 90 110
-elevOfSpot dist t 4 = avgElev t $ normElev dist 170 230
-elevOfSpot dist t 5 = avgElev t $ normElev dist 400 600
-elevOfSpot dist t 6 = avgElev t $ normElev dist 250 350
+elevOfSpot dist t 3 = avgElev t $ normElev dist 9 40
+elevOfSpot dist t 4 = avgElev t $ normElev dist 40 80
+elevOfSpot dist t 5 = avgElev t $ normElev dist 200 600
+elevOfSpot dist t 6 = avgElev t $ normElev dist 100 200
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int

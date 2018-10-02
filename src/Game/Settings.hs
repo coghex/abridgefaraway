@@ -6,6 +6,7 @@ screenw = 2560::Int
 screenh = 1440::Int
 fudge = 10::Int
 
+sealevel = 0.2::Float
 erosion = 5::Int
 minsize = 10::Int
 maxsize = 50::Int
