@@ -40,15 +40,35 @@ drawElevSquare = do
   glVertex3f    (-1)   1   1
   glEnd
 
+dropEvery :: Int -> [Int] -> [Int]
+dropEvery _ [] = []
+dropEvery n xs = take (n-1) xs ++ [1] ++ dropEvery n (drop n xs)
+
+blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+blurSpots elev es en ew ee = do
+  let e0 = zipWith (+) elev es
+      e1 = zipWith (+) e0   en
+      e2 = zipWith (+) e1   ew
+      e3 = zipWith (+) e2   ee
+  zipWith quot e3 $ repeat 5
+
 blurMap :: Env -> [Int] -> [Int]
 blurMap env elev = do
   let r1 = randomList (-fudge,fudge)
-  elev
+      es0 = drop gridw elev
+      es1 = es0 ++ (take gridw (repeat 1))
+      en0 = take (gridh*gridw - gridw) elev
+      en1 = (take gridw (repeat 1)) ++ en0
+      ew0 = init (1 : elev)
+      ew1 = dropEvery gridw ew0
+      ee0 = tail $ elev ++ [1]
+      ee1 = dropEvery gridw ee0
+  blurSpots elev es1 en1 ew1 ee1
 
 elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevBlurMap state env grid elev l k j i = do
-  let e1 = blurMap env elev
-  elevMap state grid e1 l k j i
+  let e1 = elevMap state grid elev l k j i
+  blurMap env e1
 
 elevMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevMap state grid elev []     []     []     _ = elev
