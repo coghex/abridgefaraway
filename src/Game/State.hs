@@ -35,6 +35,8 @@ data State = State
   , stateRands      :: ![[(Int, Int)]]
   , stateSizes      :: ![Int]
   , stateTypes      :: ![Int]
+  , stateRandI      :: !Int
+  , stateRangeRands :: ![Int]
   }
 
 data Event =

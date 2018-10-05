@@ -66,8 +66,8 @@ blurSpots elev es en ew ee rs rn rw re = do
       dv4 = zipWith (+) dv0 dv1
       dv5 = zipWith (+) dv2 dv3
       dv6 = zipWith (+) dv4 dv5
-      dv7 = zipWith (+) dv6 (repeat (erosion))
-  zipWith quot e3 $ dv6
+      dv7 = zipWith (*) dv6 (repeat (erosion))
+  zipWith quot e3 $ dv7
 
 blurMap :: State -> [Int] -> Int -> [Int]
 blurMap state elev 0 = elev
@@ -125,15 +125,19 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = avgElev t $ normElev dist 1 2
-elevOfSpot dist t 3 = avgElev t $ normElev dist 3 7
-elevOfSpot dist t 4 = avgElev t $ normElev dist 6 9
-elevOfSpot dist t 5 = avgElev t $ normElev dist 20 80
-elevOfSpot dist t 6 = avgElev t $ normElev dist 8 30
+elevOfSpot dist t 3 = avgElev t $ normElev dist 1 12
+elevOfSpot dist t 4 = avgElev t $ normElev dist 8 24
+elevOfSpot dist t 5 = avgElev t $ normElevCrags dist 20 800
+elevOfSpot dist t 6 = avgElev t $ normElev dist 8 60
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int
 normElev 0 min max = quot (min+max) 2
 normElev x min max = quot (10000*(max - min)) x + min
+
+normElevCrags :: Int -> Int -> Int -> Int
+normElevCrags 0 min max = quot (min+max) 2
+normElevCrags x min max = round $ (fromIntegral(max - min))/(625000.0/fromIntegral(x)) + (fromIntegral(min))
 
 avgElev :: Int -> Int -> Int
 avgElev x y = x + (vigor*y)
@@ -142,7 +146,7 @@ avgElev x y = x + (vigor*y)
 getElev :: Int -> [Int] -> Int -> Int -> Int
 getElev sl e0 x y = do
   let elev = e0 !! (x+(gridw*y))
-  round $ 10000 * (((log (fromIntegral(elev))) / log(sugar) / ((5.0*(fromIntegral(salt))))) - sealevel)
+  round $ 25000 * (((log (fromIntegral(elev))) / log(sugar) / ((5.0*(fromIntegral(salt))))) - sealevel)
 
 formatElev :: [Int] -> (Int, Int) -> String
 formatElev e (x, y) = do

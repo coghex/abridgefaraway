@@ -56,14 +56,8 @@ main = do
     s6 <- newStdGen
     
     let nconts = (randomRs (minnconts, maxnconts) (mkStdGen 42)) !! 1
+    let rangers = (randomRs (minnconts, maxnconts) (mkStdGen 43))
 
-    --let nspots = randomList (minnspots, maxnspots) nconts s1
-
-    --let conts  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
-    --    seeds  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s3), (randomList ((fudge), (gridh-fudge)) nconts s4))
-    --    rands  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s5), (randomList ((fudge), (gridh-fudge)) nconts s6))
-    --    sizes  = randomList (minsize, maxsize) nconts s1
-    --    types  = randomList (0, 6::Int) nconts s2
     timeChan <- newChan
     forkIO $ gameTime timeChan 0 100
     let env    = Env
@@ -73,22 +67,10 @@ main = do
             , envFontSmall  = f2
             , envWTex       = wtex
             , envZTex       = ztex
-            , envSeeds      = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            , envSeeds      = randomRs (1,100) (mkStdGen 43)
             , envTimeChan   = timeChan
             }
-        state  = genParams 1 nconts s1 s2 s3 s4 s5 s6
-        --state  = State
-        --    { stateGame     = SMenu
-        --    , stateScreenW  = screenw
-        --    , stateScreenH  = screenh
-        --    , stateGrid     = (take (gridw*gridh) (repeat 1))
-        --    , stateCursor   = (5, 5)
-        --    , stateConts    = tail conts
-        --    , stateSeeds    = tail $ makeSeeds seeds 0 s1 s2 nspots
-        --    , stateRands    = tail $ makeSeeds rands (2*nconts) s3 s4 nspots
-        --    , stateSizes    = sizes
-        --    , stateTypes    = types
-        --    }
+        state  = genParams 1 nconts 0 rangers s1 s2 s3 s4 s5 s6
 
     void $ evalRWST run env state
 
@@ -221,6 +203,7 @@ processEvent ev =
                              , stateRands   = (stateRands newstate)
                              , stateSizes   = (stateSizes newstate)
                              , stateTypes   = (stateTypes newstate)
+                             , stateRandI   = (stateRandI newstate)
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
