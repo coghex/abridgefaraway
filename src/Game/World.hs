@@ -19,6 +19,7 @@ genParams currmap nconts s1 s2 s3 s4 s5 s6 = do
 
   State
     { stateGame     = SMenu
+    , stateStdGens  = [s1, s2, s3, s4, s5, s6]
     , stateScreenW  = screenw
     , stateScreenH  = screenh
     , stateGrid     = (take (gridw*gridh) (repeat 1))
@@ -37,6 +38,7 @@ genParams currmap nconts s1 s2 s3 s4 s5 s6 = do
 initWorld :: State -> Env -> State
 initWorld state env = do
   let sg      = stateGame     state
+      stdgens = stateStdGens  state
       w       = stateScreenW  state
       h       = stateScreenH  state
       g0      = stateGrid     state
@@ -53,11 +55,12 @@ initWorld state env = do
   let nconts  = length (stateConts state)
   
   let g1      = seedConts state g0 conts seeds rands nconts
-  let e1      = elevBlurMap state env g1 e0 conts seeds rands nconts
+  let e1      = elevBlurMap state g1 e0 conts seeds rands nconts
   let g2      = fixConts state env g1 e1
 
   State
     { stateGame     = sg
+    , stateStdGens  = stdgens
     , stateScreenW  = w 
     , stateScreenH  = h
     , stateGrid     = g2
@@ -84,17 +87,19 @@ fixContSpots gx ex
 
 regenWorld :: State -> Env -> State
 regenWorld state env = do
-  let s1 = envSeeds env !! 0
-      s2 = envSeeds env !! 1
-      s3 = envSeeds env !! 2
-      s4 = envSeeds env !! 3
-      s5 = envSeeds env !! 4
-      s6 = envSeeds env !! 5
+  let s1 = mkStdGen $ envSeeds env !! 1
+      s2 = mkStdGen $ envSeeds env !! 1
+      s3 = mkStdGen $ envSeeds env !! 2
+      s4 = mkStdGen $ envSeeds env !! 3
+      s5 = mkStdGen $ envSeeds env !! 4
+      s6 = mkStdGen $ envSeeds env !! 5
       currmap = (stateCurrMap state) + 1
       nconts = (randomRs (minnconts, maxnconts) (mkStdGen 42)) !! currmap
   let newstate = genParams currmap nconts s1 s2 s3 s4 s5 s6
   initWorld newstate env
-  
+
+genStep :: StdGen -> StdGen
+genStep g = snd $ next g
 
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 seedConts state g []    []    []    _ = g

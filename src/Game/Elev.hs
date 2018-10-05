@@ -48,12 +48,10 @@ drawElevSquare = do
 
 dropEvery :: Int -> [Int] -> [Int]
 dropEvery _ [] = []
-dropEvery n xs = take (n-1) xs ++ [1] ++ dropEvery n (drop n xs)
+dropEvery n xs = [1] ++ tail (take (n-1) xs) ++ [1] ++ dropEvery n (drop n xs)
 
 blurAdd :: Int -> Int -> Int -> Int
-bluradd 1 y r = 1
-bluradd x 1 r = 1
-blurAdd x y r = (salt*x)+((r-1)*y)
+blurAdd x y r     = (salt*x)+((r-1)*y)
 
 blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
 blurSpots elev es en ew ee rs rn rw re = do
@@ -68,15 +66,16 @@ blurSpots elev es en ew ee rs rn rw re = do
       dv4 = zipWith (+) dv0 dv1
       dv5 = zipWith (+) dv2 dv3
       dv6 = zipWith (+) dv4 dv5
+      dv7 = zipWith (+) dv6 (repeat (erosion))
   zipWith quot e3 $ dv6
 
-blurMap :: Env -> [Int] -> Int -> [Int]
-blurMap env elev 0 = elev
-blurMap env elev n = do
-  let rs  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 1)))
-      rn  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 2)))
-      rw  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 3)))
-      re  = randomList (1,salt) (gridw*gridh) (snd (next ((envSeeds env) !! 4)))
+blurMap :: State -> [Int] -> Int -> [Int]
+blurMap state elev 0 = elev
+blurMap state elev n = do
+  let rs  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 1)))
+      rn  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 2)))
+      rw  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 3)))
+      re  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 4)))
       es0 = drop gridw elev
       es1 = es0 ++ (take gridw (repeat 1))
       en0 = take (gridh*gridw - gridw) elev
@@ -86,12 +85,12 @@ blurMap env elev n = do
       ee0 = tail $ elev ++ [1]
       ee1 = dropEvery gridw ee0
       out = blurSpots elev es1 en1 ew1 ee1 rs rn rw re
-  blurMap env out (n-1)
+  blurMap state out (n-1)
 
-elevBlurMap :: State -> Env -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
-elevBlurMap state env grid elev l k j i = do
+elevBlurMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
+elevBlurMap state grid elev l k j i = do
   let e1 = elevMap state grid elev l k j i
-  blurMap env e1 erosion
+  blurMap state e1 erosion
 
 elevMap :: State -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 elevMap state grid elev []     []     []     _ = elev
@@ -125,18 +124,31 @@ elevOf dist t x y g = elevOfSpot dist t typ
     typ = (fst $ (fst (g !! y)) !! x)
 
 elevOfSpot :: Int -> Int -> Int -> Int
-elevOfSpot dist t 1 = 1
-elevOfSpot dist t 3 = avgElev t $ normElev dist 1 10
-elevOfSpot dist t 4 = avgElev t $ normElev dist 4 20
-elevOfSpot dist t 5 = avgElev t $ normElev dist 200 600
-elevOfSpot dist t 6 = avgElev t $ normElev dist 10 90
+elevOfSpot dist t 1 = avgElev t $ normElev dist 1 2
+elevOfSpot dist t 3 = avgElev t $ normElev dist 3 7
+elevOfSpot dist t 4 = avgElev t $ normElev dist 6 9
+elevOfSpot dist t 5 = avgElev t $ normElev dist 20 80
+elevOfSpot dist t 6 = avgElev t $ normElev dist 8 30
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int
 normElev 0 min max = quot (min+max) 2
-normElev x min max = quot (1000000*(max - min)) x + min
+normElev x min max = quot (10000*(max - min)) x + min
 
 avgElev :: Int -> Int -> Int
-avgElev x y = quot ((vigor*x)+y) (vigor + 1)
+avgElev x y = x + (vigor*y)
+--avgElev x y = quot ((vigor*x)+y) (vigor + 1)
+
+getElev :: Int -> [Int] -> Int -> Int -> Int
+getElev sl e0 x y = do
+  let elev = e0 !! (x+(gridw*y))
+  round $ 10000 * (((log (fromIntegral(elev))) / log(sugar) / ((5.0*(fromIntegral(salt))))) - sealevel)
+
+formatElev :: [Int] -> (Int, Int) -> String
+formatElev e (x, y) = do
+  let sl = round $ sugar**(5.0*(fromIntegral salt)*sealevel)
+  "Elev:" ++ (show (getElev sl e x y))
+
+
 
 

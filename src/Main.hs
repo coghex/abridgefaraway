@@ -3,8 +3,9 @@ module Main where
 import Control.Monad (unless, when, void)
 import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify, local)
-import Control.Concurrent (setNumCapabilities, threadDelay)
+import Control.Concurrent (setNumCapabilities, threadDelay, forkIO)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
+import Control.Concurrent.Chan (newChan, readChan)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen, randomRs)
 
@@ -24,6 +25,7 @@ import Game.Draw
 import Game.World
 import Game.Elev
 import Game.Rand
+import Game.Time
 
 type Game = RWST Env () State IO
 
@@ -62,7 +64,8 @@ main = do
     --    rands  = buildList2 ((randomList ((fudge), (gridw-fudge)) nconts s5), (randomList ((fudge), (gridh-fudge)) nconts s6))
     --    sizes  = randomList (minsize, maxsize) nconts s1
     --    types  = randomList (0, 6::Int) nconts s2
-
+    timeChan <- newChan
+    forkIO $ gameTime timeChan 0 100
     let env    = Env
             { envEventsChan = eventsChan
             , envWindow     = window
@@ -70,7 +73,8 @@ main = do
             , envFontSmall  = f2
             , envWTex       = wtex
             , envZTex       = ztex
-            , envSeeds      = [s1, s2, s3, s4, s5, s6]
+            , envSeeds      = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            , envTimeChan   = timeChan
             }
         state  = genParams 1 nconts s1 s2 s3 s4 s5 s6
         --state  = State
@@ -85,6 +89,7 @@ main = do
         --    , stateSizes    = sizes
         --    , stateTypes    = types
         --    }
+
     void $ evalRWST run env state
 
 run :: Game ()
@@ -107,29 +112,34 @@ draw SMenu = do
   state <- get
   liftIO $ do
     beginDrawText
-    drawText (envFontBig env) 1 95 24 72 "A Bridge Far Away..."
-    drawText (envFontSmall env) 1 75 12 36 "press c to create a world"
-    drawText (envFontSmall env) 1 65 12 36 "press l to load a world"
-    drawText (envFontSmall env) 1 55 12 36 "press esc to quit"
+    drawText (envFontBig env) 1 95 72 72 "A Bridge Far Away..."
+    drawText (envFontSmall env) 1 75 36 36 "press c to create a world"
+    drawText (envFontSmall env) 1 60 36 36 "press l to load a world"
+    drawText (envFontSmall env) 1 45 36 36 "press esc to quit"
 draw SLoad = do
   env   <- ask
   state <- get
   liftIO $ do
     beginDrawText
-    drawText (envFontBig env) 1 95 24 72 "Loading..."
+    drawText (envFontBig env) 1 95 72 72 "Loading..."
     liftIO $ loadedCallback (envEventsChan env) SWorld
 draw SLoadElev = do
   env   <- ask
   state <- get
   liftIO $ do
     beginDrawText
-    drawText (envFontBig env) 1 95 24 72 "Loading Elevation..."
+    drawText (envFontBig env) 1 95 72 72 "Loading Elevation..."
     liftIO $ loadedCallback (envEventsChan env) SElev
 draw SWorld = do
   env   <- ask
   state <- get
   liftIO $ do
     GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    unftime <- readChan (envTimeChan env)
+    beginDrawText
+    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev state) (stateCursor state)
     GL.preservingMatrix $ do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
@@ -214,6 +224,14 @@ processEvent ev =
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Left)) $ do
+            modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Right)) $ do
+            modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Up)) $ do
+            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Down)) $ do
+            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do

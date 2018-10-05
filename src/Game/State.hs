@@ -1,6 +1,7 @@
 module Game.State where
 
 import Control.Concurrent.STM (TQueue)
+import Control.Concurrent.Chan
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL
@@ -15,11 +16,13 @@ data Env = Env
   , envFontSmall    :: !FTGL.Font
   , envWTex         :: ![GL.TextureObject]
   , envZTex         :: ![[GL.TextureObject]]
-  , envSeeds        :: ![StdGen]
+  , envSeeds        :: ![Int]
+  , envTimeChan     :: Chan Int
   }
 
 data State = State
   { stateGame       :: !GameState
+  , stateStdGens    :: ![StdGen]
   , stateScreenW    :: !Int
   , stateScreenH    :: !Int
   , stateGrid       :: ![Int]
