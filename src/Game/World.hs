@@ -3,6 +3,7 @@ module Game.World where
 import Data.List.Split ( chunksOf )
 import Game.State
 import Game.Settings
+import Game.Map
 
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do
@@ -159,22 +160,4 @@ zazzSpot state _ _ _ _ _ _ _ 5  (t, i) = (t, i)
 zazzSpot state j a b c d e f nt (t, i)
   | ((distance i j a b e f t) <= (c*d)) = (nt, i)
   | otherwise                           = (t, i)
-
-expandGrid :: [Int] -> [([(Int, Int)], Int)]
-expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]
-
-workRows :: [Int] -> [(Int, Int)]
-workRows l = do
-  zip l [0..gridw]
-
-flattenGrid :: [[Int]] -> [Int]
-flattenGrid xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
-
-stripGrid :: [([(Int, Int)], Int)] -> [[Int]]
-stripGrid ((a, b):ys) = (stripRow a) : stripGrid ys
-stripGrid _           = [[]]
-
-stripRow :: [(Int, Int)] -> [Int]
-stripRow ((a, b):ys) = a : stripRow ys
-stripRow _           = []
 
