@@ -7,7 +7,7 @@ distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
-  p1*p2
+  100*p1*p2
 
 expandGrid :: [Int] -> [([(Int, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]

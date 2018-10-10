@@ -86,10 +86,11 @@ fixConts state env g e = zipWith fixContSpots g e
 
 fixContSpots :: Int -> Int -> Int
 fixContSpots gx ex
-  | ((((log (fromIntegral ex))/(log(sugar)))/(fromIntegral(salt)*5.0)) > sealevel) && (gx == 1)  = 8
-  | ((((log (fromIntegral ex))/(log(sugar)))/(fromIntegral(salt)*5.0)) <= sealevel) && (gx /= 1) = 7
-  | ((((log (fromIntegral ex))/(log(sugar)))/(fromIntegral(salt)*5.0)) >= peaklevel)             = 9
-  | otherwise                                                                                     = gx
+  | (((fromIntegral ex)/(fromIntegral(salt))) > sealevel) && (gx == 1)       = 8
+  | (((fromIntegral ex)/(fromIntegral(salt))) <= sealevel) && (gx /= 1)      = 7
+  | (((fromIntegral ex)/(fromIntegral(salt))) >= peaklevel)                  = 9
+  | (((fromIntegral ex)/(fromIntegral(salt))) > (sealevel*0.9)) && (gx == 1) = 7
+  | otherwise                                                                                         = gx
 
 regenWorld :: State -> Env -> State
 regenWorld state env = do
@@ -102,7 +103,7 @@ regenWorld state env = do
       s6 = mkStdGen $ envSeeds env !! i+6
       currmap = (stateCurrMap state) + 1
       nconts = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
-      rangers = (randomRs (1000, 4000) (mkStdGen (42+i)))
+      rangers = (randomRs (10000, 100000) (mkStdGen (42+i)))
   let newstate = genParams currmap nconts (i+1) rangers s1 s2 s3 s4 s5 s6
   initWorld newstate env
 
