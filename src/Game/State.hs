@@ -5,7 +5,9 @@ import Control.Concurrent.Chan
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL
+
 import System.Random
+import Game.Sun
 
 data GameState = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
 
@@ -17,7 +19,7 @@ data Env = Env
   , envWTex         :: ![GL.TextureObject]
   , envZTex         :: ![[GL.TextureObject]]
   , envSeeds        :: ![Int]
-  , envTimeChan     :: Chan Int
+  , envTimeChan     :: Chan Integer
   }
 
 data State = State
@@ -37,6 +39,8 @@ data State = State
   , stateTypes      :: ![Int]
   , stateRandI      :: !Int
   , stateRangeRands :: ![Int]
+  , stateSun        :: !Sun
+  , stateTime       :: !Integer
   }
 
 data Event =
@@ -54,5 +58,6 @@ data Event =
   | EventChar            !GLFW.Window !Char
   | EventWindowResize    !GLFW.Window !Int !Int
   | EventLoaded          !GameState
+  | EventUpdateTime      !Integer
   deriving Show
 

@@ -4,7 +4,7 @@ import Data.Time.Clock
 import Control.Concurrent
 import Control.Concurrent.Chan
 
-gameTime :: Chan Int -> Int -> Int -> IO ()
+gameTime :: Chan Integer -> Integer -> Int -> IO ()
 gameTime chan time n = do
   start <- getCurrentTime
   writeChan chan time
@@ -17,7 +17,7 @@ gameTime chan time n = do
     else return ()
   gameTime chan (time+1) n
 
-formatTime :: Int -> String
+formatTime :: Integer -> String
 formatTime time = do
   let dq = quot time 3600
       dr = mod time 3600

@@ -29,12 +29,12 @@ version :: Version
 version = Version [2,0,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/home/hoest/.cabal/bin"
-libdir     = "/home/hoest/.cabal/lib/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0-Kts12Tu2HS5CW5KV2xY6UJ-abfa"
-dynlibdir  = "/home/hoest/.cabal/lib/x86_64-linux-ghc-8.4.3"
-datadir    = "/home/hoest/.cabal/share/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0"
-libexecdir = "/home/hoest/.cabal/libexec/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0"
-sysconfdir = "/home/hoest/.cabal/etc"
+bindir     = "/home/hoest/work/abfa/.cabal-sandbox/bin"
+libdir     = "/home/hoest/work/abfa/.cabal-sandbox/lib/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0-Kts12Tu2HS5CW5KV2xY6UJ-abfa"
+dynlibdir  = "/home/hoest/work/abfa/.cabal-sandbox/lib/x86_64-linux-ghc-8.4.3"
+datadir    = "/home/hoest/work/abfa/.cabal-sandbox/share/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0"
+libexecdir = "/home/hoest/work/abfa/.cabal-sandbox/libexec/x86_64-linux-ghc-8.4.3/abfa-2.0.0.0"
+sysconfdir = "/home/hoest/work/abfa/.cabal-sandbox/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "abfa_bindir") (\_ -> return bindir)

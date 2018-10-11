@@ -11,6 +11,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import Game.State
 import Game.Rand
 import Game.Settings
+import Game.Sun
 
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
@@ -30,26 +31,35 @@ drawSquare = do
 
 drawCursor :: State -> [GL.TextureObject] -> IO ()
 drawCursor state texs = do
-  withTextures2D [(head texs)] $ drawSceneTile [(head texs)] (fst (stateCursor state)) (snd (stateCursor state)) 0
+  let sun = stateSun state
+  withTextures2D [(head texs)] $ drawSceneTile [(head texs)] sun (fst (stateCursor state)) (snd (stateCursor state)) 0
 
 drawScene :: State -> [GL.TextureObject] -> IO ()
 drawScene state texs = do
-  let gnew = expandGrid $ stateGrid state
-  resequence_ (map (drawSceneRow texs) gnew)
+  let gnew   = expandGrid $ stateGrid state
+      sun    = Sun { x = (x oldsun) + fromInteger((quot time (quot 3600 (toInteger(gridw)))))
+                   , y = (y oldsun) + (sunSeason time)
+                   , z = (z oldsun)
+                   , l = (l oldsun) }
+      oldsun = stateSun state
+      time   = stateTime state 
+  resequence_ (map (drawSceneRow texs sun) gnew)
   glFlush
 
-drawSceneRow :: [GL.TextureObject] -> ([(Int, Int)], Int) -> IO ()
-drawSceneRow texs (a, b) = resequence_ (map (drawSceneSpot texs b) a)
+drawSceneRow :: [GL.TextureObject] -> Sun -> ([(Int, Int)], Int) -> IO ()
+drawSceneRow texs sun (a, b) = resequence_ (map (drawSceneSpot texs sun b) a)
 
-drawSceneSpot :: [GL.TextureObject] -> Int -> (Int, Int) -> IO ()
-drawSceneSpot texs y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTile texs x y t
+drawSceneSpot :: [GL.TextureObject] -> Sun -> Int -> (Int, Int) -> IO ()
+drawSceneSpot texs sun y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTile texs sun x y t
 
-drawSceneTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
-drawSceneTile texs x y t = do
+drawSceneTile :: [GL.TextureObject] -> Sun -> Int -> Int -> Int -> IO ()
+drawSceneTile texs sun x y t = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
-  glColor3f 1 1 1
+  glColor3f b b b
   drawSquare
+  where 
+    b = sunSpots sun x y
 
 expandGrid :: [Int] -> [([(Int, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m )) [0..gridh]

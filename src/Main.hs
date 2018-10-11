@@ -59,7 +59,7 @@ main = do
     let rangers = (randomRs (minnconts, maxnconts) (mkStdGen 43))
 
     timeChan <- newChan
-    forkIO $ gameTime timeChan 0 100
+    forkIO $ gameTime timeChan 0 10
     let env    = Env
             { envEventsChan = eventsChan
             , envWindow     = window
@@ -126,6 +126,7 @@ draw SWorld = do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
+    liftIO $ timerCallback (envEventsChan env) unftime
 draw SElev = do
   env   <- ask
   state <- get
@@ -225,6 +226,8 @@ processEvent ev =
       adjustWindow
     (EventLoaded state) -> do
       modify $ \s -> s { stateGame = state }
+    (EventUpdateTime time) -> do
+      modify $ \s -> s { stateTime = time }
 
 adjustWindow :: Game ()
 adjustWindow = do
@@ -278,3 +281,5 @@ reshapeCallback :: TQueue Event -> GLFW.Window -> Int -> Int -> IO ()
 reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h
 loadedCallback :: TQueue Event -> GameState -> IO ()
 loadedCallback tc state = atomically $ writeTQueue tc $ EventLoaded state
+timerCallback :: TQueue Event -> Integer -> IO ()
+timerCallback tc time = atomically $ writeTQueue tc $ EventUpdateTime time

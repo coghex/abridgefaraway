@@ -19,3 +19,5 @@ minnconts = 10::Int
 maxnconts = 20::Int
 minnspots = 3::Int
 maxnspots = 15::Int
+
+radius = 20::Int

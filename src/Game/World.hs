@@ -7,6 +7,7 @@ import Game.Settings
 import Game.Rand
 import Game.Map
 import Game.Elev
+import Game.Sun
 
 genParams :: Int -> Int -> Int -> [Int] -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
@@ -34,6 +35,8 @@ genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
     , stateTypes      = types
     , stateRandI      = i
     , stateRangeRands = rangers
+    , stateSun        = makeSun 0 (gridh) 800 60
+    , stateTime       = 0
     }
   
 
@@ -55,6 +58,8 @@ initWorld state env = do
       types   = stateTypes      state
       randi   = stateRandI      state
       rangers = stateRangeRands state
+      sun     = stateSun        state
+      time    = stateTime       state
 
   let nconts  = length (stateConts state)
   
@@ -79,6 +84,8 @@ initWorld state env = do
     , stateTypes      = types
     , stateRandI      = randi
     , stateRangeRands = rangers
+    , stateSun        = sun
+    , stateTime       = time
     }
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]

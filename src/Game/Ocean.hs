@@ -8,4 +8,8 @@ data Ocean = Ocean { epipelagic    :: OceanZone
                    } deriving (Show, Eq)
 
 data OceanZone = OceanZone { temp :: Int
+                           , pres :: Int
+                           , vx   :: Int
+                           , vy   :: Int
+                           , vz   :: Int
                            } deriving (Show, Eq)

@@ -131,10 +131,10 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = avgElev t $ normElev dist 1 10
-elevOfSpot dist t 3 = avgElev t $ normElev dist 10 20
-elevOfSpot dist t 4 = avgElev t $ normElev dist 10 50
+elevOfSpot dist t 3 = avgElev t $ normElev dist 10 12
+elevOfSpot dist t 4 = avgElev t $ normElev dist 10 30
 elevOfSpot dist t 5 = avgElev t $ normElev dist 30 200
-elevOfSpot dist t 6 = avgElev t $ normElev dist 30 90
+elevOfSpot dist t 6 = avgElev t $ normElev dist 20 90
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int
