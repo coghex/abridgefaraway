@@ -31,14 +31,15 @@ sunSpot :: Sun -> Int -> Int -> Float
 sunSpot sun x1 y1
   | dist < fromIntegral(radius)  = dist + ml
   | otherwise                    = dist + ml
-  where dist = max 0 $ (1.0/(fromIntegral(gridh))) - soid
-        soid = (cos (s2*t1) + sin (s2*t2)) / 2
+  where dist = max 0 $ 2.0 - soid
+        soid = ((sin (s1*t1)) + (s2*t2))
         sx   = x sun - x1
         sy   = y sun - y1
-        t1   = fromIntegral (sx - sy)
-        t2   = fromIntegral (sx + sy)
-        ml   = 0.0
-        s2   = pi / (2*fromIntegral gridh)
+        t1   = fromIntegral (sx)
+        t2   = fromIntegral (sy)
+        ml   = 0.2
+        s1   = (2*pi) / ((fromIntegral gridw))
+        s2   = 2 / ((fromIntegral gridh))
 
 sunSeason :: Integer -> Int
-sunSeason t = round $ 10*cos((2*pi)/(3600*(fromInteger(t))))
+sunSeason t = round $ 5*cos((2*pi)/(3600*(fromInteger(t))))

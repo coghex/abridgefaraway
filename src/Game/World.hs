@@ -35,7 +35,7 @@ genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
     , stateTypes      = types
     , stateRandI      = i
     , stateRangeRands = rangers
-    , stateSun        = makeSun 0 (gridh) 800 60
+    , stateSun        = makeSun 0 (gridh+(quot gridh 3)) 800 60
     , stateTime       = 0
     }
   
