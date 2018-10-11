@@ -40,6 +40,7 @@ data State = State
   , stateRandI      :: !Int
   , stateRangeRands :: ![Int]
   , stateSun        :: !Sun
+  , stateSunSpots   :: ![Float]
   , stateTime       :: !Integer
   }
 

@@ -9,20 +9,20 @@ distance x1 y1 x2 y2 x3 y3 t = do
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
   100*p1*p2
 
-expandGrid :: [Int] -> [([(Int, Int)], Int)]
+expandGrid :: [a] -> [([(a, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]
 
-workRows :: [Int] -> [(Int, Int)]
+workRows :: [a] -> [(a, Int)]
 workRows l = do
   zip l [0..gridw]
 
-flattenGrid :: [[Int]] -> [Int]
+flattenGrid :: [[a]] -> [a]
 flattenGrid xs = (\z n -> foldr (\x y -> foldr z y x) n xs) (:) []
 
-stripGrid :: [([(Int, Int)], Int)] -> [[Int]]
+stripGrid :: [([(a, Int)], Int)] -> [[a]]
 stripGrid ((a, b):ys) = (stripRow a) : stripGrid ys
 stripGrid _           = [[]]
 
-stripRow :: [(Int, Int)] -> [Int]
+stripRow :: [(a, Int)] -> [a]
 stripRow ((a, b):ys) = a : stripRow ys
 stripRow _           = []

@@ -36,6 +36,7 @@ genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
     , stateRandI      = i
     , stateRangeRands = rangers
     , stateSun        = makeSun 0 (gridh+(quot gridh 3)) 800 60
+    , stateSunSpots   = theBigSpotter (makeSun 0 (gridh+(quot gridh 3)) 800 60)
     , stateTime       = 0
     }
   
@@ -59,6 +60,7 @@ initWorld state env = do
       randi   = stateRandI      state
       rangers = stateRangeRands state
       sun     = stateSun        state
+      sunspot = stateSunSpots   state
       time    = stateTime       state
 
   let nconts  = length (stateConts state)
@@ -85,6 +87,7 @@ initWorld state env = do
     , stateRandI      = randi
     , stateRangeRands = rangers
     , stateSun        = sun
+    , stateSunSpots   = sunspot
     , stateTime       = time
     }
 
