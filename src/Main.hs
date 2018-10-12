@@ -5,7 +5,7 @@ import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify, local)
 import Control.Concurrent (setNumCapabilities, threadDelay, forkIO)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
-import Control.Concurrent.Chan (newChan, readChan)
+import Control.Concurrent.Chan (newChan, readChan, writeChan)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen, randomRs)
 
@@ -26,6 +26,7 @@ import Game.World
 import Game.Elev
 import Game.Rand
 import Game.Time
+import Game.Sun
 
 type Game = RWST Env () State IO
 
@@ -59,7 +60,9 @@ main = do
     let rangers = (randomRs (minnconts, maxnconts) (mkStdGen 43))
 
     timeChan <- newChan
-    forkIO $ gameTime timeChan 0 10
+    sunChan  <- newChan
+    let sol = (makeSun 0.0 (fromIntegral(gridh)+((fromIntegral(gridh))/3)) 800 60)
+    forkIO $ gameTime timeChan sunChan sol 0 10
     let env    = Env
             { envEventsChan = eventsChan
             , envWindow     = window
@@ -69,8 +72,9 @@ main = do
             , envZTex       = ztex
             , envSeeds      = randomRs (1,100) (mkStdGen 43)
             , envTimeChan   = timeChan
+            , envSunChan    = sunChan
             }
-        state  = genParams 1 nconts 0 rangers s1 s2 s3 s4 s5 s6
+        state  = genParams 1 nconts 0 rangers sol s1 s2 s3 s4 s5 s6
 
     void $ evalRWST run env state
 
@@ -118,6 +122,7 @@ draw SWorld = do
   liftIO $ do
     GL.clear[GL.ColorBuffer, GL.DepthBuffer]
     unftime <- readChan (envTimeChan env)
+    sun <- readChan (envSunChan env)
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
     drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
@@ -126,7 +131,7 @@ draw SWorld = do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
-    liftIO $ timerCallback (envEventsChan env) unftime
+    liftIO $ timerCallback (envEventsChan env) unftime sun
 draw SElev = do
   env   <- ask
   state <- get
@@ -226,8 +231,10 @@ processEvent ev =
       adjustWindow
     (EventLoaded state) -> do
       modify $ \s -> s { stateGame = state }
-    (EventUpdateTime time) -> do
-      modify $ \s -> s { stateTime = time }
+    (EventUpdateTime time sun) -> do
+      modify $ \s -> s { stateTime = time
+                       , stateSun = sun
+                       , stateSunSpots = theBigSpotter sun }
 
 adjustWindow :: Game ()
 adjustWindow = do
@@ -281,5 +288,5 @@ reshapeCallback :: TQueue Event -> GLFW.Window -> Int -> Int -> IO ()
 reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h
 loadedCallback :: TQueue Event -> GameState -> IO ()
 loadedCallback tc state = atomically $ writeTQueue tc $ EventLoaded state
-timerCallback :: TQueue Event -> Integer -> IO ()
-timerCallback tc time = atomically $ writeTQueue tc $ EventUpdateTime time
+timerCallback :: TQueue Event -> Integer -> Sun -> IO ()
+timerCallback tc time sun = atomically $ writeTQueue tc $ EventUpdateTime time sun

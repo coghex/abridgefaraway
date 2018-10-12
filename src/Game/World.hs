@@ -9,8 +9,8 @@ import Game.Map
 import Game.Elev
 import Game.Sun
 
-genParams :: Int -> Int -> Int -> [Int] -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
-genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
+genParams :: Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
+genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
   let nspots = randomList (minnspots, maxnspots) nconts s1
       conts = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
       seeds = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s3), (randomList (fudge, (gridh-fudge)) nconts s4))
@@ -35,8 +35,8 @@ genParams currmap nconts i rangers s1 s2 s3 s4 s5 s6 = do
     , stateTypes      = types
     , stateRandI      = i
     , stateRangeRands = rangers
-    , stateSun        = makeSun 0 (gridh+(quot gridh 3)) 800 60
-    , stateSunSpots   = theBigSpotter (makeSun 0 (gridh+(quot gridh 3)) 800 60)
+    , stateSun        = sol
+    , stateSunSpots   = theBigSpotter sol
     , stateTime       = 0
     }
   
@@ -111,10 +111,11 @@ regenWorld state env = do
       s4 = mkStdGen $ envSeeds env !! i+4
       s5 = mkStdGen $ envSeeds env !! i+5
       s6 = mkStdGen $ envSeeds env !! i+6
-      currmap = (stateCurrMap state) + 1
-      nconts = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
-      rangers = (randomRs (10000, 100000) (mkStdGen (42+i)))
-  let newstate = genParams currmap nconts (i+1) rangers s1 s2 s3 s4 s5 s6
+      currmap  = (stateCurrMap state) + 1
+      nconts   = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
+      rangers  = (randomRs (10000, 100000) (mkStdGen (42+i)))
+      sol      = (makeSun 0.0 (fromIntegral(gridh)+((fromIntegral(gridh)/3))) 800 600)
+  let newstate = genParams currmap nconts (i+1) rangers sol s1 s2 s3 s4 s5 s6
   initWorld newstate env
 
 genStep :: StdGen -> StdGen

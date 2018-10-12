@@ -37,12 +37,6 @@ drawCursor state texs = do
 drawScene :: State -> [GL.TextureObject] -> IO ()
 drawScene state texs = do
   let gnew   = expandGrid $ stateGrid state
-      sun    = Sun { x = (x oldsun) + fromInteger((quot time (quot 36000 (toInteger(gridw)))))
-                   , y = (y oldsun) + (sunSeason time)
-                   , z = (z oldsun)
-                   , l = (l oldsun) }
-      oldsun = stateSun state
-      time   = stateTime state 
       sunspots = stateSunSpots state
   resequence_ (map (drawSceneRow texs sunspots) gnew)
   glFlush

@@ -20,6 +20,7 @@ data Env = Env
   , envZTex         :: ![[GL.TextureObject]]
   , envSeeds        :: ![Int]
   , envTimeChan     :: Chan Integer
+  , envSunChan      :: Chan Sun
   }
 
 data State = State
@@ -59,6 +60,6 @@ data Event =
   | EventChar            !GLFW.Window !Char
   | EventWindowResize    !GLFW.Window !Int !Int
   | EventLoaded          !GameState
-  | EventUpdateTime      !Integer
+  | EventUpdateTime      !Integer !Sun
   deriving Show
 
