@@ -51,10 +51,13 @@ drawSceneTile :: [GL.TextureObject] -> [Float] -> Int -> Int -> Int -> IO ()
 drawSceneTile texs sunspots x y t = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
-  glColor3f b b b
+  glColor3f t1 t2 t3
   drawSquare
   where 
-    b = sunSpots sunspots x y
+    t1 = 0.8*b*b + 0.2*b
+    t2 = 0.9*b
+    t3 = (log (b+1))
+    b  = sunSpots sunspots x y
 
 expandGrid :: [Int] -> [([(Int, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m )) [0..gridh]

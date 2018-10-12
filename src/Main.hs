@@ -62,7 +62,7 @@ main = do
     timeChan <- newChan
     sunChan  <- newChan
     let sol = (makeSun 0.0 (fromIntegral(gridh)+((fromIntegral(gridh))/3)) 800 60)
-    forkIO $ gameTime timeChan sunChan sol 0 10
+    forkIO $ gameTime timeChan sunChan sol 0 36
     let env    = Env
             { envEventsChan = eventsChan
             , envWindow     = window
@@ -125,8 +125,8 @@ draw SWorld = do
     sun <- readChan (envSunChan env)
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev state) (stateCursor state)
+    --drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    --drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev state) (stateCursor state)
     GL.preservingMatrix $ do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
