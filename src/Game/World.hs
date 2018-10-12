@@ -114,7 +114,7 @@ regenWorld state env = do
       currmap  = (stateCurrMap state) + 1
       nconts   = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
       rangers  = (randomRs (10000, 100000) (mkStdGen (42+i)))
-      sol      = (makeSun 0.0 (fromIntegral(gridh)+((fromIntegral(gridh)/3))) 800 600)
+      sol      = (makeSun 0.0 (3*fromIntegral(gridh)/4) 800 600)
   let newstate = genParams currmap nconts (i+1) rangers sol s1 s2 s3 s4 s5 s6
   initWorld newstate env
 

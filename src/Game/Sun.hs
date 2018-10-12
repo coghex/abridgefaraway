@@ -21,7 +21,7 @@ makeSun x1 y1 z1 l1 = Sun { x = x1
 
 moveSun :: Sun -> Integer -> Sun
 moveSun s0 time = Sun { x = (((fromInteger(time))/(36000.0/(fromIntegral(gridw)))))
-                      , y = (y s0)-- + fromIntegral(sunSeason time)
+                      , y = (y s0)--sunSeason time
                       , z = (z s0)
                       , l = (l s0)
                       }
@@ -55,18 +55,21 @@ spotSun sun x1 y1 = max r0 rb
         rw = sunSpot sun (x1 - gridw) y1
 
 sunSpot :: Sun -> Int -> Int -> Float
-sunSpot sun x1 y1
-  | dist < fromIntegral(radius)  = dist + ml
-  | otherwise                    = dist + ml
-  where dist = max 0 $ 2.0 - soid
-        soid = ((sin (s1*t1)) + ((0.1)*(sin(3.0*s1*t1))) + (s2*t2))
-        sx   = x sun - (fromIntegral x1)
-        sy   = y sun - (fromIntegral y1)
-        t1   = sx
-        t2   = sy
-        ml   = 0.5
-        s1   = (2*pi) / ((fromIntegral gridw))
-        s2   = 2 / ((fromIntegral gridh))
+sunSpot sun x1 y1 = dist + ml
+  where dist  = max 0 $ (soid2)
+        soid1 = (td)*(((r1)*(sin (s1*t1)))+((r2)*(sin (s2*t2))))
+        soid2 = (1-td)*(((2)*(sin (s1*sx))+(s2*sy)))
+        sx    = x sun - ((fromIntegral ((x1))))
+        sy    = y sun - ((fromIntegral ((y1))))
+        t1    = sx+sy 
+        t2    = sx-sy
+        td    = ((sin((t1)*((fromIntegral(gridw))/36000.0)))+1)/2
+        ml    = 0.5
+        s1    = (pi) / ((fromIntegral gridw))
+        s2    = (pi) / ((fromIntegral gridw))
+        r1    = 1
+        r2    = 1
 
-sunSeason :: Integer -> Int
-sunSeason t = 1--round $ 5*(sin((2*pi)/(36000*(fromInteger(t)))))
+sunSeason :: Integer -> Float
+sunSeason 0 = ((fromIntegral(gridh))+((fromIntegral(gridh))/3.0))
+sunSeason t = ((fromIntegral(gridh))+((fromIntegral(gridh))/3.0)) + (((fromIntegral(gridh))/(8))*(sin ((2.0*pi*fromInteger(t))/(36.0))))

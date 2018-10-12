@@ -61,8 +61,8 @@ main = do
 
     timeChan <- newChan
     sunChan  <- newChan
-    let sol = (makeSun 0.0 (fromIntegral(gridh)+((fromIntegral(gridh))/3)) 800 60)
-    forkIO $ gameTime timeChan sunChan sol 0 36
+    let sol = (makeSun 0.0 ((fromIntegral(gridh))/2) 800 60)
+    forkIO $ gameTime timeChan sunChan sol 0 360
     let env    = Env
             { envEventsChan = eventsChan
             , envWindow     = window
