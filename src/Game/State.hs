@@ -8,6 +8,7 @@ import qualified Graphics.Rendering.FTGL as FTGL
 
 import System.Random
 import Game.Sun
+import Game.Ocean
 
 data GameState = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
 
@@ -43,6 +44,7 @@ data State = State
   , stateSun        :: !Sun
   , stateSunSpots   :: ![Float]
   , stateTime       :: !Integer
+  , stateOceans     :: ![Ocean]
   }
 
 data Event =

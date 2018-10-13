@@ -175,18 +175,19 @@ loadZTextures fn = do
 
 loadWTextures :: String -> IO ([TextureObject])
 loadWTextures fn = do
-  t0 <- loadTex (fn ++ "util/wcursor.png")
-  t1 <- loadTex (fn ++ "sea/wsea.png")
-  t2 <- loadTex (fn ++ "ice/wice.png")
-  t3 <- loadTex (fn ++ "plains/wplains.png")
-  t4 <- loadTex (fn ++ "fields/wfields.png")
-  t5 <- loadTex (fn ++ "crags/wcrags.png")
-  t6 <- loadTex (fn ++ "waste/wwaste.png")
-  t7 <- loadTex (fn ++ "shallows/wshallows.png")
-  t8 <- loadTex (fn ++ "steeps/wsteeps.png")
-  t9 <- loadTex (fn ++ "peaks/wpeaks.png")
+  t0  <- loadTex (fn ++ "util/wcursor.png")
+  t1  <- loadTex (fn ++ "sea/wsea.png")
+  t2  <- loadTex (fn ++ "ice/wice.png")
+  t3  <- loadTex (fn ++ "plains/wplains.png")
+  t4  <- loadTex (fn ++ "fields/wfields.png")
+  t5  <- loadTex (fn ++ "crags/wcrags.png")
+  t6  <- loadTex (fn ++ "waste/wwaste.png")
+  t7  <- loadTex (fn ++ "shallows/wshallows.png")
+  t8  <- loadTex (fn ++ "steeps/wsteeps.png")
+  t9  <- loadTex (fn ++ "peaks/wpeaks.png")
+  t10 <- loadTex (fn ++ "null/null.png")
 
-  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9])
+  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do

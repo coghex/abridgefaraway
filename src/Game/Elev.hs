@@ -15,17 +15,20 @@ import Game.Map
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
 
-drawElev :: State -> IO ()
-drawElev state = do
+drawElev :: State -> [GL.TextureObject] -> IO ()
+drawElev state texs = do
   let gnew = expandGrid $ stateElev state
-  resequence_ (map (drawElevRow) gnew)
+  resequence_ (map (drawElevRow texs) gnew)
   glFlush
 
-drawElevRow :: ([(Int, Int)], Int) -> IO ()
-drawElevRow (a, b) = resequence_ (map (drawElevSpot b) a)
+drawElevRow :: [GL.TextureObject] -> ([(Int, Int)], Int) -> IO ()
+drawElevRow texs (a, b) = resequence_ (map (drawElevSpot texs b) a)
 
-drawElevSpot :: Int -> (Int, Int) -> IO ()
-drawElevSpot y (t, x) = do
+drawElevSpot :: [GL.TextureObject] -> Int -> (Int, Int) -> IO ()
+drawElevSpot texs y (t, x) = withTextures2D [(texs!!10)] $ drawElevTile texs x y t
+
+drawElevTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
+drawElevTile texs x y t = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glColor3f elev elev $ elevOcean elev
@@ -40,9 +43,13 @@ elevOcean x
 drawElevSquare :: IO ()
 drawElevSquare = do
   glBegin GL_QUADS
+  glTexCoord2f    0    0
   glVertex3f    (-1) (-1)  1
+  glTexCoord2f    1    0
   glVertex3f      1  (-1)  1
+  glTexCoord2f    1    1
   glVertex3f      1    1   1
+  glTexCoord2f    0    1
   glVertex3f    (-1)   1   1
   glEnd
 

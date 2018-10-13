@@ -21,7 +21,7 @@ makeSun x1 y1 z1 l1 = Sun { x = x1
 
 moveSun :: Sun -> Integer -> Sun
 moveSun s0 time = Sun { x = (((fromInteger(time))/(36000.0/(fromIntegral(gridw)))))
-                      , y = (y s0)--sunSeason time
+                      , y = (y s0)
                       , z = (z s0)
                       , l = (l s0)
                       }
@@ -70,7 +70,3 @@ sunSpot sun x1 y1 = dist + ml
         s2    = (pi) / ((fromIntegral gridw))
         r1    = 1
         r2    = 1
-
-sunSeason :: Integer -> Float
-sunSeason 0 = ((fromIntegral(gridh))+((fromIntegral(gridh))/3.0))
-sunSeason t = ((fromIntegral(gridh))+((fromIntegral(gridh))/3.0)) + (((fromIntegral(gridh))/(8))*(sin ((2.0*pi*fromInteger(t))/(36.0))))

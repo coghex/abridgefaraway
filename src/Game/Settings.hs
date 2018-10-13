@@ -1,7 +1,7 @@
 module Game.Settings where
 
-gridw = 60::Int
-gridh = 45::Int
+gridw = 70::Int
+gridh = 50::Int
 screenw = 2560::Int
 screenh = 1440::Int
 zoom = 150::Float

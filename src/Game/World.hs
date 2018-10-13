@@ -38,6 +38,7 @@ genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
     , stateSun        = sol
     , stateSunSpots   = theBigSpotter sol
     , stateTime       = 0
+    , stateOceans     = []
     }
   
 
@@ -62,6 +63,7 @@ initWorld state env = do
       sun     = stateSun        state
       sunspot = stateSunSpots   state
       time    = stateTime       state
+      ocean   = stateOceans     state
 
   let nconts  = length (stateConts state)
   
@@ -89,6 +91,7 @@ initWorld state env = do
     , stateSun        = sun
     , stateSunSpots   = sunspot
     , stateTime       = time
+    , stateOceans     = ocean
     }
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
@@ -96,10 +99,10 @@ fixConts state env g e = zipWith fixContSpots g e
 
 fixContSpots :: Int -> Int -> Int
 fixContSpots gx ex
-  | (((fromIntegral ex)/(fromIntegral(salt))) > sealevel) && (gx == 1)       = 8
-  | (((fromIntegral ex)/(fromIntegral(salt))) <= sealevel) && (gx /= 1)      = 7
-  | (((fromIntegral ex)/(fromIntegral(salt))) >= peaklevel)                  = 9
-  | (((fromIntegral ex)/(fromIntegral(salt))) > (sealevel*0.9)) && (gx == 1) = 7
+  | (((fromIntegral ex)) > sealevel) && (gx == 1)       = 8
+  | (((fromIntegral ex)) <= sealevel) && (gx /= 1)      = 7
+  | (((fromIntegral ex)) >= peaklevel)                  = 9
+  | (((fromIntegral ex)) > (sealevel*0.9)) && (gx == 1) = 7
   | otherwise                                                                                         = gx
 
 regenWorld :: State -> Env -> State

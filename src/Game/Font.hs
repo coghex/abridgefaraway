@@ -30,8 +30,6 @@ drawText font x y sx sy str = do
   loadIdentity
   translate $ Vector3 (2*((fromIntegral x) - (fromIntegral 60))) (2*((fromIntegral y) - (fromIntegral 45))) (-500::GLfloat)
   color (Color3 1 1 1 :: Color3 GLfloat)
-  -- you need to draw a square here
-  --font <- FTGL.createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
   FTGL.setFontFaceSize font sx sy
   FTGL.renderFont font str FTGL.Front
   

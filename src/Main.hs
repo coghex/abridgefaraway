@@ -125,8 +125,6 @@ draw SWorld = do
     sun <- readChan (envSunChan env)
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    --drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    --drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev state) (stateCursor state)
     GL.preservingMatrix $ do
       drawScene state (envWTex env)
     GL.preservingMatrix $ do
@@ -137,10 +135,18 @@ draw SElev = do
   state <- get
   liftIO $ do
     GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    unftime <- readChan (envTimeChan env)
+    sun <- readChan (envSunChan env)
+    beginDrawText
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev state) (stateCursor state)
     GL.preservingMatrix $ do
-      drawElev state
+      drawElev state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
+    liftIO $ timerCallback (envEventsChan env) unftime sun
+    
+
 draw _ = do
   state <- get
   liftIO $ do
