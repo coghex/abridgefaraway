@@ -56,15 +56,15 @@ spotSun sun x1 y1 = max r0 rb
 
 sunSpot :: Sun -> Int -> Int -> Float
 sunSpot sun x1 y1 = dist + ml
-  where dist  = max 0 $ (0.5-((td1*soid1)+(td2*soid2)))
+  where dist  = max 0 $ (0.25-((td1*soid1)+(td2*soid2)))
         soid1 = (((r1)*(sin (s1*t1)))+((r2)*(sin (s2*t2))))
-        soid2 = ((sin (s1*sx))+((1.2)*(s2*sy+0.25)))
+        soid2 = ((0.8)*(sin (2*s1*sx))+((s2*sy)))
         sx    = x sun - ((fromIntegral ((x1))))
         sy    = y sun - ((fromIntegral ((y1))))
-        t1    = sx+sy 
-        t2    = sx-sy
-        td1   = abs $ sin ((pi/8)+(s1*(x sun)/(360)))
-        td2   = cos ((pi/8)+(s1*(x sun)/(360)))
+        t1    = 2*sx+sy 
+        t2    = 2*sx-sy
+        td1   = abs $ sin ((pi/4)+(s1*(x sun)/(360)))
+        td2   = cos ((pi/4)+(s1*(x sun)/(360)))
         ml    = 0.5
         s1    = (pi) / ((fromIntegral gridw))
         s2    = (pi) / ((fromIntegral gridw))
