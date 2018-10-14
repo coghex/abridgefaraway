@@ -22,7 +22,7 @@ gameTime env state n TStart = do
   timerstate <- (atomically (tryReadTChan timerchan))
   tsnew <- case (timerstate) of
     Nothing  -> return TStart
-    Just n   -> return n
+    Just x   -> return x
 
   end <- getCurrentTime
   let diff = diffUTCTime end start

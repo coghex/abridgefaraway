@@ -5,7 +5,7 @@ import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify, local)
 import Control.Concurrent (setNumCapabilities, threadDelay, forkIO)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
-import Control.Concurrent.STM.TChan (newTChan, readTChan, tryReadTChan, writeTChan, dupTChan)
+import Control.Concurrent.STM.TChan (TChan, newTChan, readTChan, tryReadTChan, writeTChan, dupTChan, isEmptyTChan)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen, randomRs)
 
@@ -111,9 +111,15 @@ draw SLoad = do
   env   <- ask
   state <- get
   liftIO $ do
+    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+    newstate <- case (statebuff) of
+      Nothing -> return state
+      Just n  -> do
+        liftIO $ loadedCallback (envEventsChan env) SWorld
+        return n
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading..."
-    liftIO $ loadedCallback (envEventsChan env) SWorld
+    liftIO $ timerCallback (envEventsChan env) newstate
 draw SLoadElev = do
   env   <- ask
   state <- get
@@ -214,22 +220,25 @@ processEvent ev =
         when (((stateGame state) == SMenu) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
-            modify $ \s -> s { stateGame = SLoad }
+            --modify $ \s -> s { stateGame = SLoad }
+            liftIO $ loadedCallback (envEventsChan env) SLoad
             let newstate = initWorld state env
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
             liftIO $ atomically $ writeTChan (envTimerChan env) TStart
             modify $ \s -> s { stateGrid = (stateGrid newstate)
                              , stateElev = (stateElev newstate)
                              }
-            --liftIO $ loadedCallback (envEventsChan env) SWorld
         when (((stateGame state) == SWorld) && (k == GLFW.Key'R)) $ do
-            modify $ \s -> s { stateGame = SLoad }
+            modify $ \s -> s { stateTime = 0 }
+            --modify $ \s -> s { stateGame = SLoad }
+            liftIO $ loadedCallback (envEventsChan env) SLoad
             liftIO $ atomically $ writeTChan (envTimerChan env) TStop
             let newstate = regenWorld state env
+            liftIO $ emptyChan (envStateChan1 env)
+            liftIO $ emptyChan (envStateChan2 env)
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
             liftIO $ atomically $ writeTChan (envTimerChan env) TStart
             modify $ \s -> newstate
-            --liftIO $ loadedCallback (envEventsChan env) SWorld
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Left)) $ do
@@ -259,9 +268,22 @@ processEvent ev =
     (EventLoaded state) -> do
       modify $ \s -> s { stateGame = state }
     (EventUpdateState state) -> do
-      modify $ \s -> state -- { stateSun      = (stateSun state)
-                       --, stateTime     = (stateTime state)
-                       --, stateSunSpots = (stateSunSpots state) }
+      modify $ \s -> s { stateGrid     = (stateGrid state)
+                       , stateElev     = (stateElev state)
+                       , stateSun      = (stateSun state)
+                       , stateSunSpots = (stateSunSpots state)
+                       , stateTime     = (stateTime state)
+                       , stateOceans   = (stateOceans state)
+                       , stateSkies    = (stateSkies state)
+                       }
+
+emptyChan :: TChan a -> IO ()
+emptyChan chan = do
+  test <- (atomically (isEmptyTChan chan))
+  if test then return ()
+  else do
+    s <- atomically $ readTChan chan
+    emptyChan chan
 
 adjustWindow :: Game ()
 adjustWindow = do

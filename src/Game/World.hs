@@ -74,7 +74,7 @@ initWorld state env = do
   let g2      = fixConts state env g1 e1
 
   State
-    { stateGame       = SWorld
+    { stateGame       = sg
     , stateStdGens    = stdgens
     , stateScreenW    = w 
     , stateScreenH    = h
