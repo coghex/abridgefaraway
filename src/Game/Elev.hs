@@ -33,11 +33,11 @@ drawElevTile texs x y t = do
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
-  where elev = ((((fromIntegral t))/(fromIntegral(salt)))/peaklevel)
+  where elev = ((fromIntegral t)/peaklevel)
 
 elevOcean :: Float -> Float
 elevOcean x
-  | x <= (sealevel/((peaklevel)*(fromIntegral(salt)))) = 8
+  | x <= (sealevel/(peaklevel)) = 8
   | otherwise = x
 
 drawElevSquare :: IO ()
@@ -58,29 +58,29 @@ dropEvery _ [] = []
 dropEvery n xs = [1] ++ tail (take (n-1) xs) ++ [1] ++ dropEvery n (drop n xs)
 
 blurAdd :: Int -> Int -> Int -> Int
-blurAdd x y r     = (salt*x)+((r-1)*y)
+blurAdd x y r     = (4*x)+((r-1)*y)
 
 blurSpots :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
 blurSpots elev es en ew ee rs rn rw re = do
---  let e0 = zipWith3 (blurAdd) elev es rs
---      e1 = zipWith3 (blurAdd) e0   en rn
---      e2 = zipWith3 (blurAdd) e1   ew rw
---      e3 = zipWith3 (blurAdd) e2   ee re
---      dv0 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rs)
---      dv1 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rn)
---      dv2 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (rw)
---      dv3 = zipWith (*) (take (gridw*gridh) (repeat (salt))) (re)
---      dv4 = zipWith (+) dv0 dv1
---      dv5 = zipWith (+) dv2 dv3
---      dv6 = zipWith (+) dv4 dv5
---      dv7 = zipWith (*) dv6 (repeat (erosion))
---  zipWith quot e3 $ dv7
-  let e0 = zipWith (+) elev es
-      e1 = zipWith (+) e0 en
-      e2 = zipWith (+) e1 ew
-      e3 = zipWith (+) e2 ee
-      dv = take (gridw*gridh) (repeat (5))
-  zipWith quot e3 dv
+  let e0 = zipWith3 (blurAdd) elev es rs
+      e1 = zipWith3 (blurAdd) e0   en rn
+      e2 = zipWith3 (blurAdd) e1   ew rw
+      e3 = zipWith3 (blurAdd) e2   ee re
+      dv0 = zipWith (*) (take (gridw*gridh) (repeat (5+(quot salt 2)))) (rs)
+      dv1 = zipWith (*) (take (gridw*gridh) (repeat (5+(quot salt 2)))) (rn)
+      dv2 = zipWith (*) (take (gridw*gridh) (repeat (5+(quot salt 2)))) (rw)
+      dv3 = zipWith (*) (take (gridw*gridh) (repeat (5+(quot salt 2)))) (re)
+      dv4 = zipWith (+) dv0 dv1
+      dv5 = zipWith (+) dv2 dv3
+      dv6 = zipWith (+) dv4 dv5
+      dv7 = zipWith (*) dv6 (repeat (erosion))
+      r1  = zipWith quot e3 $ dv7
+      e0b = zipWith (+) r1 es
+      e1b = zipWith (+) e0b en
+      e2b = zipWith (+) e1b ew
+      e3b = zipWith (+) e2b ee
+      dvb = take (gridw*gridh) (repeat (5))
+  zipWith quot e3b dvb
 
 blurMap :: State -> [Int] -> Int -> [Int]
 blurMap state elev 0 = elev
@@ -137,11 +137,11 @@ elevOf dist t x y g = elevOfSpot dist t typ
     typ = (fst $ (fst (g !! y)) !! x)
 
 elevOfSpot :: Int -> Int -> Int -> Int
-elevOfSpot dist t 1 = avgElev t $ normElev dist 1 10
-elevOfSpot dist t 3 = avgElev t $ normElev dist 10 12
-elevOfSpot dist t 4 = avgElev t $ normElev dist 10 30
-elevOfSpot dist t 5 = avgElev t $ normElev dist 30 200
-elevOfSpot dist t 6 = avgElev t $ normElev dist 20 90
+elevOfSpot dist t 1 = avgElev t $ normElev dist 1 4
+elevOfSpot dist t 3 = avgElev t $ normElev dist 4 5
+elevOfSpot dist t 4 = avgElev t $ normElev dist 4 9
+elevOfSpot dist t 5 = avgElev t $ normElev dist 10 20
+elevOfSpot dist t 6 = avgElev t $ normElev dist 6 12
 elevOfSpot dist t typ = 0
 
 normElev :: Int -> Int -> Int -> Int
@@ -159,7 +159,7 @@ avgElev x y = x + (vigor*y)
 getElev :: [Int] -> Int -> Int -> Int
 getElev e0 x y = do
   let elev = e0 !! (x+(gridw*y))
-  round $ (((fromIntegral(elev)) / (fromIntegral(salt))) - sealevel)
+  round $ ((fromIntegral(elev)) - sealevel)
 
 formatElev :: [Int] -> (Int, Int) -> String
 formatElev e (x, y) = "Elev:" ++ (show (getElev e x y))

@@ -227,6 +227,14 @@ processEvent ev =
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Down)) $ do
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
+        when (((stateGame state) == SElev) && (k == GLFW.Key'Left)) $ do
+            modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
+        when (((stateGame state) == SElev) && (k == GLFW.Key'Right)) $ do
+            modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
+        when (((stateGame state) == SElev) && (k == GLFW.Key'Up)) $ do
+            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
+        when (((stateGame state) == SElev) && (k == GLFW.Key'Down)) $ do
+            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
