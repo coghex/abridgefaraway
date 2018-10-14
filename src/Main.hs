@@ -111,15 +111,11 @@ draw SLoad = do
   env   <- ask
   state <- get
   liftIO $ do
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> do
-        liftIO $ loadedCallback (envEventsChan env) SWorld
-        return n
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading..."
-    liftIO $ timerCallback (envEventsChan env) newstate
+    atomically $ writeTChan (envTimerChan env) TStart
+    atomically $ readTChan (envStateChan1 env)
+    liftIO $ loadedCallback (envEventsChan env) SWorld
 draw SLoadElev = do
   env   <- ask
   state <- get
@@ -224,20 +220,21 @@ processEvent ev =
             liftIO $ loadedCallback (envEventsChan env) SLoad
             let newstate = initWorld state env
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
-            liftIO $ atomically $ writeTChan (envTimerChan env) TStart
             modify $ \s -> s { stateGrid = (stateGrid newstate)
                              , stateElev = (stateElev newstate)
                              }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'R)) $ do
-            modify $ \s -> s { stateTime = 0 }
+            liftIO $ atomically $ writeTChan (envTimerChan env) TStop
+            liftIO $ emptyChan (envStateChan1 env)
+            liftIO $ emptyChan (envStateChan2 env)
+
             --modify $ \s -> s { stateGame = SLoad }
             liftIO $ loadedCallback (envEventsChan env) SLoad
-            liftIO $ atomically $ writeTChan (envTimerChan env) TStop
+            
             let newstate = regenWorld state env
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
-            liftIO $ atomically $ writeTChan (envTimerChan env) TStart
             modify $ \s -> newstate
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
