@@ -24,6 +24,7 @@ executable abfa
         Game.Map
         Game.Elev
         Game.Ocean
+        Game.Sky
         Game.Time
         Game.Sun
     default-language: Haskell2010

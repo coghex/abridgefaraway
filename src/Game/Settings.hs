@@ -13,10 +13,10 @@ vigor = 3::Int
 sealevel = 2000::Float
 peaklevel = 10000::Float
 erosion = 3::Int
-minsize = 20::Int
-maxsize = 100::Int
+minsize = 10::Int
+maxsize = 800::Int
 minnconts = 10::Int
-maxnconts = 20::Int
+maxnconts = 30::Int
 minnspots = 3::Int
 maxnspots = 15::Int
 

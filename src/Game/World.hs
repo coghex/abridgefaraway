@@ -12,9 +12,9 @@ import Game.Sun
 genParams :: Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
   let nspots = randomList (minnspots, maxnspots) nconts s1
-      conts = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s1), (randomList (fudge, (gridh-fudge)) nconts s2))
-      seeds = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s3), (randomList (fudge, (gridh-fudge)) nconts s4))
-      rands = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s5), (randomList (fudge, (gridh-fudge)) nconts s6))
+      conts = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s1), (randomList (1, (gridh-1)) nconts s2))
+      seeds = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s3), (randomList (1, (gridh-1)) nconts s4))
+      rands = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s5), (randomList (1, (gridh-1)) nconts s6))
       sizes = randomList (minsize, maxsize) nconts s1
       types = randomList (0, 6::Int) nconts s2
 
@@ -39,6 +39,7 @@ genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
     , stateSunSpots   = theBigSpotter sol
     , stateTime       = 0
     , stateOceans     = []
+    , stateSkies      = []
     }
   
 
@@ -63,7 +64,8 @@ initWorld state env = do
       sun     = stateSun        state
       sunspot = stateSunSpots   state
       time    = stateTime       state
-      ocean   = stateOceans     state
+      oceans  = stateOceans     state
+      skies   = stateSkies      state
 
   let nconts  = length (stateConts state)
   
@@ -91,7 +93,8 @@ initWorld state env = do
     , stateSun        = sun
     , stateSunSpots   = sunspot
     , stateTime       = time
-    , stateOceans     = ocean
+    , stateOceans     = oceans
+    , stateSkies      = skies
     }
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
@@ -99,6 +102,7 @@ fixConts state env g e = zipWith fixContSpots g e
 
 fixContSpots :: Int -> Int -> Int
 fixContSpots gx ex
+  | (((fromIntegral ex)) < 0)                           = 12
   | (((fromIntegral ex)) > sealevel) && (gx == 1)       = 8
   | (((fromIntegral ex)) <= sealevel) && (gx /= 1)      = 7
   | (((fromIntegral ex)) >= peaklevel)                  = 9
@@ -145,13 +149,15 @@ seedRow state c i w x y z (t1, t2) = (map (seedTile state c i t2 w x y z) t1, t2
 
 seedTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedTile state c it j w x y z (t, i)
-  | (randstate == 1) && (distance i j w x y z t <= maxdist)       = (randstate, i)
-  | (randstate > 6) || (randstate < 3)                            = (t, i)
-  | (randstate == 5) && (distance i j w x y z t < maxdist-cfudge) = (t, i)
-  | distance i j w x y z t <= maxdist                             = (randstate, i)
-  | otherwise                                                     = (t, i)
+  | (randstate == 1) && (distance i j w x y z t <= maxdist)           = (randstate, i)
+  | (randstate > 6) || (randstate < 2)                                = (t, i)
+  | (randstate == 2) && (distance i j w x y z t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (distance i j w x y z t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 5) && (distance i j w x y z t < maxdist-cfudge)     = (t, i)
+  | distance i j w x y z t <= maxdist                                 = (randstate, i)
+  | otherwise                                                         = (t, i)
   where
     randstate = (stateTypes state) !! c
     maxdist = 1000 * ((stateSizes state) !! c)
-    cfudge = (stateRangeRands state) !! (c)
+    cfudge = 2 * (((stateRangeRands state) !! (c)) - minnconts)
 

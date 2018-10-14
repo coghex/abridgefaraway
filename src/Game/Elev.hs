@@ -138,6 +138,7 @@ elevOf dist t x y g = elevOfSpot dist t typ
 
 elevOfSpot :: Int -> Int -> Int -> Int
 elevOfSpot dist t 1 = avgElev t $ normElev dist 1 4
+elevOfSpot dist t 2 = avgElev t $ -(normElev dist 4 80)
 elevOfSpot dist t 3 = avgElev t $ normElev dist 4 5
 elevOfSpot dist t 4 = avgElev t $ normElev dist 4 9
 elevOfSpot dist t 5 = avgElev t $ normElev dist 10 20
