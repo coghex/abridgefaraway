@@ -1,7 +1,7 @@
 module Game.State where
 
 import Control.Concurrent.STM (TQueue)
-import Control.Concurrent.Chan
+import Control.Concurrent.STM.TChan
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL
@@ -11,7 +11,8 @@ import Game.Sun
 import Game.Ocean
 import Game.Sky
 
-data GameState = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
+data GameState  = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
+data TimerState = TStart | TStop | TPause
 
 data Env = Env
   { envEventsChan   :: TQueue Event
@@ -21,8 +22,9 @@ data Env = Env
   , envWTex         :: ![GL.TextureObject]
   , envZTex         :: ![[GL.TextureObject]]
   , envSeeds        :: ![Int]
-  , envTimeChan     :: Chan Integer
-  , envSunChan      :: Chan Sun
+  , envStateChan1   :: TChan State
+  , envStateChan2   :: TChan State
+  , envTimerChan    :: TChan TimerState
   }
 
 data State = State
@@ -47,7 +49,7 @@ data State = State
   , stateTime       :: !Integer
   , stateOceans     :: ![Ocean]
   , stateSkies      :: ![Sky]
-  }
+  } deriving (Show)
 
 data Event =
     EventError           !GLFW.Error  !String
@@ -64,6 +66,6 @@ data Event =
   | EventChar            !GLFW.Window !Char
   | EventWindowResize    !GLFW.Window !Int !Int
   | EventLoaded          !GameState
-  | EventUpdateTime      !Integer !Sun
+  | EventUpdateState     !State
   deriving Show
 

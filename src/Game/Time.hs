@@ -2,17 +2,28 @@ module Game.Time where
 
 import Data.Time.Clock
 import Control.Concurrent
-import Control.Concurrent.Chan
+import Control.Concurrent.STM (atomically)
+import Control.Concurrent.STM.TChan
 
+import Game.World
 import Game.State
 import Game.Sun
 
-gameTime :: Chan Integer -> Chan Sun -> Sun -> Integer -> Int -> IO ()
-gameTime chan sunchan sun time n = do
+gameTime :: Env -> State -> Int -> TimerState -> IO ()
+gameTime env state n TStart = do
+  let statechan = envStateChan1 env
+      timerchan = envTimerChan env
   start <- getCurrentTime
-  writeChan chan time
-  let newsun = moveSun sun time
-  writeChan sunchan newsun
+  atomically $ writeTChan statechan state
+  --let newsun = moveSun sun time
+  --writeChan sunchan newsun
+  let newstate = nextState state env
+
+  timerstate <- (atomically (tryReadTChan timerchan))
+  tsnew <- case (timerstate) of
+    Nothing  -> return TStart
+    Just n   -> return n
+
   end <- getCurrentTime
   let diff = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int
@@ -20,7 +31,13 @@ gameTime chan sunchan sun time n = do
   if delay > 0
     then threadDelay delay
     else return ()
-  gameTime chan sunchan newsun (time+1) n
+  gameTime env newstate n tsnew
+gameTime env state n TStop = do
+  let statechan = envStateChan2 env
+      timerchan = envTimerChan env
+  tsnew      <- atomically $ readTChan timerchan
+  firststate <- atomically $ readTChan statechan
+  gameTime env firststate n tsnew
 
 formatTime :: Integer -> String
 formatTime time = do
@@ -31,3 +48,4 @@ formatTime time = do
       m  = quot hr 60
       s  = mod hr 60
   "day " ++ (show dq) ++ ": " ++ (show hq) ++ ":" ++ (show m) ++ ":" ++ (show s)
+

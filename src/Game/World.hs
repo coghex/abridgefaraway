@@ -9,8 +9,8 @@ import Game.Map
 import Game.Elev
 import Game.Sun
 
-genParams :: Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
-genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
+genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
+genParams gs currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
   let nspots = randomList (minnspots, maxnspots) nconts s1
       conts = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s1), (randomList (1, (gridh-1)) nconts s2))
       seeds = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s3), (randomList (1, (gridh-1)) nconts s4))
@@ -19,7 +19,7 @@ genParams currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
       types = randomList (0, 6::Int) nconts s2
 
   State
-    { stateGame       = SMenu
+    { stateGame       = gs
     , stateStdGens    = [s1, s2, s3, s4, s5, s6]
     , stateScreenW    = screenw
     , stateScreenH    = screenh
@@ -74,7 +74,7 @@ initWorld state env = do
   let g2      = fixConts state env g1 e1
 
   State
-    { stateGame       = sg
+    { stateGame       = SWorld
     , stateStdGens    = stdgens
     , stateScreenW    = w 
     , stateScreenH    = h
@@ -96,6 +96,34 @@ initWorld state env = do
     , stateOceans     = oceans
     , stateSkies      = skies
     }
+
+nextState :: State -> Env -> State
+nextState state env = State
+    { stateGame       = stateGame state
+    , stateStdGens    = stateStdGens state
+    , stateScreenW    = stateScreenW state
+    , stateScreenH    = stateScreenH state
+    , stateGrid       = stateGrid state
+    , stateElev       = stateElev state
+    , stateCursor     = stateCursor state
+    , stateNConts     = stateNConts state
+    , stateCurrMap    = stateCurrMap state
+    , stateConts      = stateConts state
+    , stateSeeds      = stateSeeds state
+    , stateRands      = stateRands state
+    , stateSizes      = stateSizes state
+    , stateTypes      = stateTypes state
+    , stateRandI      = stateRandI state
+    , stateRangeRands = stateRangeRands state
+    , stateSun        = sun
+    , stateSunSpots   = theBigSpotter sun
+    , stateTime       = time
+    , stateOceans     = stateOceans state
+    , stateSkies      = stateSkies state }
+  where
+    time   = (stateTime state)+1
+    sun    = moveSun oldsun time
+    oldsun = stateSun state
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = zipWith fixContSpots g e
@@ -122,7 +150,7 @@ regenWorld state env = do
       nconts   = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
       rangers  = (randomRs (10000, 100000) (mkStdGen (42+i)))
       sol      = (makeSun 0.0 (fromIntegral(gridh)/2) 800 600)
-  let newstate = genParams currmap nconts (i+1) rangers sol s1 s2 s3 s4 s5 s6
+  let newstate = genParams SLoad currmap nconts (i+1) rangers sol s1 s2 s3 s4 s5 s6
   initWorld newstate env
 
 genStep :: StdGen -> StdGen
