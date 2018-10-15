@@ -113,6 +113,7 @@ draw SLoad = do
   liftIO $ do
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading..."
+    drawText (envFontSmall env) 1 75 36 36 "Creating World..."
     atomically $ writeTChan (envTimerChan env) TStart
     atomically $ readTChan (envStateChan1 env)
     liftIO $ loadedCallback (envEventsChan env) SWorld
@@ -132,9 +133,7 @@ draw SWorld = do
     newstate <- case (statebuff) of
       Nothing -> return state
       Just n  -> return n
-
     let unftime = stateTime newstate
-    --sun <- readChan (envStateChan env)
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
     GL.preservingMatrix $ do
@@ -151,7 +150,6 @@ draw SElev = do
     newstate <- case (statebuff) of
       Nothing -> return state
       Just n  -> return n
-    --newstate <- atomically $ readTChan (envStateChan env)
     let unftime = stateTime newstate
         sun     = stateSun newstate
     beginDrawText
@@ -163,8 +161,6 @@ draw SElev = do
     GL.preservingMatrix $ do
       drawCursor newstate (envWTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
-    
-
 draw _ = do
   state <- get
   liftIO $ do
@@ -216,7 +212,6 @@ processEvent ev =
         when (((stateGame state) == SMenu) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
-            --modify $ \s -> s { stateGame = SLoad }
             liftIO $ loadedCallback (envEventsChan env) SLoad
             let newstate = initWorld state env
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
@@ -227,10 +222,7 @@ processEvent ev =
             liftIO $ atomically $ writeTChan (envTimerChan env) TStop
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)
-
-            --modify $ \s -> s { stateGame = SLoad }
             liftIO $ loadedCallback (envEventsChan env) SLoad
-            
             let newstate = regenWorld state env
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)

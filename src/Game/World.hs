@@ -8,6 +8,8 @@ import Game.Rand
 import Game.Map
 import Game.Elev
 import Game.Sun
+import Game.Ocean
+import Game.Sky
 
 genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams gs currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
@@ -72,6 +74,8 @@ initWorld state env = do
   let g1      = seedConts state g0 conts seeds rands nconts
   let e1      = elevBlurMap state g1 e0 conts seeds rands nconts
   let g2      = fixConts state env g1 e1
+  let o1      = theGreatSeas g2 e1
+  let s1      = theExpanseAbove g2 e1
 
   State
     { stateGame       = sg
@@ -93,8 +97,8 @@ initWorld state env = do
     , stateSun        = sun
     , stateSunSpots   = sunspot
     , stateTime       = time
-    , stateOceans     = oceans
-    , stateSkies      = skies
+    , stateOceans     = o1
+    , stateSkies      = s1
     }
 
 nextState :: State -> Env -> State
