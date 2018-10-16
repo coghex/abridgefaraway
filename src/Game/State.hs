@@ -47,6 +47,7 @@ data State = State
   , stateSunSpots   :: ![Float]
   , stateTime       :: !Integer
   , stateOceans     :: ![Ocean]
+  , stateOceanTempZ :: !Int
   , stateSkies      :: ![Sky]
   } deriving (Show)
 

@@ -41,6 +41,7 @@ genParams gs currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
     , stateSunSpots   = theBigSpotter sol
     , stateTime       = 0
     , stateOceans     = []
+    , stateOceanTempZ = 1
     , stateSkies      = []
     }
   
@@ -67,6 +68,7 @@ initWorld state env = do
       sunspot = stateSunSpots   state
       time    = stateTime       state
       oceans  = stateOceans     state
+      seaz    = stateOceanTempZ state
       skies   = stateSkies      state
 
   let nconts  = length (stateConts state)
@@ -98,6 +100,7 @@ initWorld state env = do
     , stateSunSpots   = sunspot
     , stateTime       = time
     , stateOceans     = o1
+    , stateOceanTempZ = seaz
     , stateSkies      = s1
     }
 
@@ -123,6 +126,7 @@ nextState state env = State
     , stateSunSpots   = theBigSpotter sun
     , stateTime       = time
     , stateOceans     = stateOceans state
+    , stateOceanTempZ = stateOceanTempZ state
     , stateSkies      = stateSkies state }
   where
     time   = (stateTime state)+1

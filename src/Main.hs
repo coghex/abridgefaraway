@@ -184,9 +184,9 @@ draw SSeaTemp = do
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
     drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceans newstate) (stateCursor state)
+    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceanTempZ state) (stateOceans state) (stateCursor state)
     GL.preservingMatrix $ do
-      drawOcean newstate (envWTex env)
+      drawOcean state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
@@ -261,18 +261,22 @@ processEvent ev =
             modify $ \s -> s { stateGame = SLoadElev }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'O)) $ do
             modify $ \s -> s { stateGame = SLoadSeaTemp }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Left)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Right)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Up)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Down)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'O) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
+        when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'U))) $ do
+            modify $ \s -> s { stateOceanTempZ = (decreaseOceanZ (stateOceanTempZ state)) }
+        when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'M))) $ do
+            modify $ \s -> s { stateOceanTempZ = (increaseOceanZ (stateOceanTempZ state)) }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
     (EventFramebufferSize _ width height) -> do
