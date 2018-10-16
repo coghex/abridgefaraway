@@ -74,8 +74,8 @@ initWorld state env = do
   let g1      = seedConts state g0 conts seeds rands nconts
   let e1      = elevBlurMap state g1 e0 conts seeds rands nconts
   let g2      = fixConts state env g1 e1
-  let o1      = theGreatSeas g2 e1
-  let s1      = theExpanseAbove g2 e1
+  let o1      = theGreatSeas g2 e1 sunspot
+  let s1      = theExpanseAbove o1 g2 e1 sunspot
 
   State
     { stateGame       = sg

@@ -27,6 +27,7 @@ executable abfa
         Game.Sky
         Game.Time
         Game.Sun
+        Game.Data
     default-language: Haskell2010
     ghc-options: -threaded
     build-depends:

@@ -8,10 +8,9 @@ import qualified Graphics.Rendering.FTGL as FTGL
 
 import System.Random
 import Game.Sun
-import Game.Ocean
-import Game.Sky
+import Game.Data
 
-data GameState  = SWorld | SElev | SZone | SMenu | SLoad | SLoadElev | SFucked | SPause deriving (Eq, Show)
+data GameState  = SWorld | SElev | SSeaTemp | SZone | SMenu | SLoad | SLoadElev | SLoadSeaTemp | SFucked | SPause deriving (Eq, Show)
 data TimerState = TStart | TStop | TPause
 
 data Env = Env

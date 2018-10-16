@@ -23,14 +23,14 @@ beginDrawText = do
   blendFunc                  $= (SrcAlpha, OneMinusSrcAlpha)
 
 loadFont :: String -> IO (FTGL.Font)
-loadFont fn = FTGL.createTextureFont "data/fonts/amatic/AmaticSC-Regular.ttf"
+loadFont fn = FTGL.createTextureFont fn
 
 drawText :: FTGL.Font -> Int -> Int -> Int -> Int -> String -> IO ()
 drawText font x y sx sy str = do
   loadIdentity
   translate $ Vector3 (2*((fromIntegral x) - (fromIntegral 60))) (2*((fromIntegral y) - (fromIntegral 45))) (-500::GLfloat)
   color (Color3 1 1 1 :: Color3 GLfloat)
-  FTGL.setFontFaceSize font sx sy
+  FTGL.setFontFaceSize font (quot sx 2) (quot sy 2)
   FTGL.renderFont font str FTGL.Front
   
 

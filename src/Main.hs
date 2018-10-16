@@ -27,6 +27,7 @@ import Game.Elev
 import Game.Rand
 import Game.Time
 import Game.Sun
+import Game.Ocean
 
 type Game = RWST Env () State IO
 
@@ -45,8 +46,9 @@ main = do
     GLFW.setWindowSizeCallback window $ Just $ reshapeCallback eventsChan
     GLFW.swapInterval 0
 
-    f1 <- loadFont "data/fonts/amatic/AmaticSC-Regular.ttf"
-    f2 <- loadFont "data/fonts/amatic/AmaticSC-Regular.ttf"
+    f1 <- loadFont "data/fonts/cheque/Cheque-Regular.ttf"
+    f2 <- loadFont "data/fonts/smone/SupermercadoOne-Regular.ttf"
+
     (wtex, ztex) <- liftIO $ initTexs window
 
     s1 <- newStdGen
@@ -124,6 +126,13 @@ draw SLoadElev = do
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading Elevation..."
     liftIO $ loadedCallback (envEventsChan env) SElev
+draw SLoadSeaTemp = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText (envFontBig env) 1 95 72 72 "Loading Ocean Temperatures..."
+    liftIO $ loadedCallback (envEventsChan env) SSeaTemp
 draw SWorld = do
   env   <- ask
   state <- get
@@ -139,7 +148,7 @@ draw SWorld = do
     GL.preservingMatrix $ do
       drawScene newstate (envWTex env)
     GL.preservingMatrix $ do
-      drawCursor newstate (envWTex env)
+      drawCursor state (envWTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
 draw SElev = do
   env   <- ask
@@ -154,12 +163,32 @@ draw SElev = do
         sun     = stateSun newstate
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor newstate))) ++ " y:" ++ (show (snd (stateCursor newstate)))
-    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev newstate) (stateCursor newstate)
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev newstate) (stateCursor state)
     GL.preservingMatrix $ do
       drawElev newstate (envWTex env)
     GL.preservingMatrix $ do
-      drawCursor newstate (envWTex env)
+      drawCursor state (envWTex env)
+    liftIO $ timerCallback (envEventsChan env) newstate
+draw SSeaTemp = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+    newstate <- case (statebuff) of
+      Nothing -> return state
+      Just n  -> return n
+    let unftime = stateTime newstate
+        sun     = stateSun newstate
+    beginDrawText
+    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceans newstate) (stateCursor state)
+    GL.preservingMatrix $ do
+      drawOcean newstate (envWTex env)
+    GL.preservingMatrix $ do
+      drawCursor state (envWTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
 draw _ = do
   state <- get
@@ -230,23 +259,19 @@ processEvent ev =
             modify $ \s -> newstate
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
-        when (((stateGame state) == SWorld) && (k == GLFW.Key'Left)) $ do
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'O)) $ do
+            modify $ \s -> s { stateGame = SLoadSeaTemp }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Left)) $ do
             modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
-        when (((stateGame state) == SWorld) && (k == GLFW.Key'Right)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Right)) $ do
             modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
-        when (((stateGame state) == SWorld) && (k == GLFW.Key'Up)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Up)) $ do
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
-        when (((stateGame state) == SWorld) && (k == GLFW.Key'Down)) $ do
-            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
-        when (((stateGame state) == SElev) && (k == GLFW.Key'Left)) $ do
-            modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
-        when (((stateGame state) == SElev) && (k == GLFW.Key'Right)) $ do
-            modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
-        when (((stateGame state) == SElev) && (k == GLFW.Key'Up)) $ do
-            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
-        when (((stateGame state) == SElev) && (k == GLFW.Key'Down)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && (k == GLFW.Key'Down)) $ do
             modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SWorld }
+        when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'O) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
