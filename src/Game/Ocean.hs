@@ -41,15 +41,15 @@ drawOceanTile n texs x y (Sea e m b a h) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   case n of 1    -> case (getZoneTemp e) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (4.0*t/36.0) 0.0 (1.0-(4.0*t/36.0))
+                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
             200  -> case (getZoneTemp m) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (4.0*t/36.0) 0.0 (1.0-(4.0*t/36.0))
+                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
             1000 -> case (getZoneTemp b) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (4.0*t/36.0) 0.0 (1.0-(4.0*t/36.0))
+                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
             4000 -> case (getZoneTemp a) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (4.0*t/36.0) 0.0 (1.0-(4.0*t/36.0))
+                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
             6000 -> case (getZoneTemp h) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (4.0*t/36.0) 0.0 (1.0-(4.0*t/36.0))
+                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
   drawOceanSquare
   
 drawOceanTile n texs x y (Dry _) = do
