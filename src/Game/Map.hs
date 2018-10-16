@@ -4,6 +4,9 @@ import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Game.Settings
 
+tapGrid :: [a] -> Int -> Int -> a
+tapGrid g x y = g !! (x + (y*gridw))
+
 parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)
 

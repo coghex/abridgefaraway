@@ -38,7 +38,7 @@ bool b falseRes trueRes = if b then trueRes else falseRes
     
 main :: IO ()
 main = do
-  runOnAllCores
+  --runOnAllCores
   eventsChan <- newTQueueIO :: IO (TQueue Event)
 
   withWindow screenw screenh "A Bridge Far Away..." $ \window -> do

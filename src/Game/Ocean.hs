@@ -1,5 +1,7 @@
 module Game.Ocean where
 
+import Control.Parallel (par, pseq)
+import Control.Parallel.Strategies (parMap, rpar)
 import Game.Map
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
@@ -14,9 +16,7 @@ import Game.Map
 theGreatSeas :: [Int] -> [Int] -> [Float] -> [Ocean]
 theGreatSeas grid elev light = do
   let g0 = expandGrid grid
-      e0 = expandGrid elev
-      l0 = expandGrid light
-      o1 = zipWith3 newOceanRow e0 l0 g0
+      o1 = parMap rpar (newOceanRow elev light) g0
       o2 = stripGrid o1
   flattenGrid o2
 
@@ -71,11 +71,11 @@ drawOceanSquare = do
   glVertex3f   (-1)   1   1
   glEnd
 
-newOceanRow :: ([(Int, Int)], Int) -> ([(Float, Int)], Int) -> ([(Int, Int)], Int) -> ([(Ocean, Int)], Int)
-newOceanRow (e, _) (l, _) (g, y) = ((zipWith3 (newOceanSpot y) e l g), y)
+newOceanRow :: [Int] -> [Float] -> ([(Int, Int)], Int) -> ([(Ocean, Int)], Int)
+newOceanRow e l (g, y) = ((map (newOceanSpot y e l) g), y)
 
-newOceanSpot :: Int -> (Int, Int) -> (Float, Int) -> (Int, Int) -> (Ocean, Int)
-newOceanSpot y (e, _) (l, _) (g, x) = ((newOcean g e l y), x)
+newOceanSpot :: Int -> [Int] -> [Float] -> (Int, Int) -> (Ocean, Int)
+newOceanSpot y e l (g, x) = ((newOcean g (tapGrid e x y) (tapGrid l x y) y), x)
 
 newOcean :: Int -> Int -> Float -> Int -> Ocean
 newOcean 1  e l y = Sea { epipelagic    = newZone e l y 1    0 0 0 0
