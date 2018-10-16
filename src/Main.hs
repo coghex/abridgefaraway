@@ -3,6 +3,8 @@ module Main where
 import Control.Monad (unless, when, void)
 import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify, local)
+import Control.Parallel (par, pseq)
+import Control.Parallel.Strategies (rpar, parMap)
 import Control.Concurrent (setNumCapabilities, threadDelay, forkIO)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Control.Concurrent.STM.TChan (TChan, newTChan, readTChan, tryReadTChan, writeTChan, dupTChan, isEmptyTChan)

@@ -1,7 +1,11 @@
 module Game.Map where
 
+import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Game.Settings
+
+parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)
 
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do

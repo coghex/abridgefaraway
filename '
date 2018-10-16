@@ -136,7 +136,7 @@ nextState state env = State
     oldsun = stateSun state
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
-fixConts state env g e = parZipWith fixContSpots g e
+fixConts state env g e = zipWith fixContSpots g e
 
 fixContSpots :: Int -> Int -> Int
 fixContSpots gx ex

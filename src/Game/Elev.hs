@@ -1,5 +1,7 @@
 module Game.Elev where
 
+import Control.Parallel (par, pseq)
+import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
@@ -117,7 +119,7 @@ findElev _     _ _ _ _ e []     []     = e
 findElev state c x y g e (k:ks) (j:js) = do
   let newelev = expandGrid e
       newgrid = expandGrid g
-      elev0   = map (elevRow state newgrid c (fst k) (snd k) (fst j) (snd j)) newelev
+      elev0   = parMap rpar (elevRow state newgrid c (fst k) (snd k) (fst j) (snd j)) newelev
       elev1   = stripGrid elev0
       elev2   = flattenGrid elev1
   findElev state c x y g elev2 ks js
