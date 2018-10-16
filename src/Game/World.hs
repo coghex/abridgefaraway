@@ -79,14 +79,15 @@ initWorld state env = do
   let e1      = elevBlurMap state g1 e0 conts seeds rands nconts
   let g2      = fixConts state env g1 e1
   let o1      = theGreatSeas g2 e1 sunspot
-  let s1      = theExpanseAbove o1 g2 e1 sunspot
+  let g3      = iceMap state env g2 o1
+  let s1      = theExpanseAbove o1 g3 e1 sunspot
 
   State
     { stateGame       = sg
     , stateStdGens    = stdgens
     , stateScreenW    = w 
     , stateScreenH    = h
-    , stateGrid       = g2
+    , stateGrid       = g3
     , stateElev       = e1
     , stateCursor     = curs
     , stateNConts     = nconts

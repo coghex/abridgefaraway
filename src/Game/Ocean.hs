@@ -41,15 +41,15 @@ drawOceanTile n texs x y (Sea e m b a h) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   case n of 1    -> case (getZoneTemp e) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
+                                            Just t  -> glColor3f ((t/16.0)-1) (1.0 - (abs ((t-16.0)/16.0))) (1.0-(t/16.0))
             200  -> case (getZoneTemp m) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
+                                            Just t  -> glColor3f ((t/10.0)-1) (1.0 - (abs ((t-10.0)/12.0))) (1.0-(t/10.0))
             1000 -> case (getZoneTemp b) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
+                                            Just t  -> glColor3f ((t/4.0)-1) (1.0 - (abs ((t-4.0)/4.0))) (1.0-(t/4.0))
             4000 -> case (getZoneTemp a) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
+                                            Just t  -> glColor3f ((t/3.0)-1) (1.0 - (abs ((t-3.0)/3.0))) (1.0-(t/3.0))
             6000 -> case (getZoneTemp h) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/18.0)-1) (1.0 - (abs ((t-18.0)/18.0))) (1.0-(t/18.0))
+                                            Just t  -> glColor3f ((t/2.0)-1) (1.0 - (abs ((t-2.0)/2.0))) (1.0-(t/2.0))
   drawOceanSquare
   
 drawOceanTile n texs x y (Dry _) = do
@@ -117,8 +117,9 @@ newOceanZone n e l y vx vy vz = OceanZone { temp = initSeaTemp l n y newpres
         newsal  = initSeaSal
 
 initSeaTemp :: Float -> Int -> Int -> Float -> Float
-initSeaTemp l n y p = (18.0/(p+1.0)) + (20.0*(cos (2.0*pi*(lat)/(fromIntegral(gridh))))) + 2.0
-  where lat = abs ((fromIntegral(y)) - ((fromIntegral(gridh))/2.0))
+initSeaTemp l n y p = (18.0/(perml+1.0)) + (20.0/(perml+1.0)*(cos (2.0*pi*(lat)/(fromIntegral(gridh))))) - 2.0
+  where lat   = abs ((fromIntegral(y)) - ((fromIntegral(gridh))/2.0))
+        perml = fromIntegral(n)/100
 
 initSeaPres :: Float -> Int -> Float
 initSeaPres sal depth = sal*fromIntegral(depth)/360.0
@@ -129,6 +130,10 @@ initSeaSal = 35.0
 getZoneTemp :: OceanZone -> Maybe Float
 getZoneTemp (Solid _)               = Nothing
 getZoneTemp (OceanZone t p s x y z) = Just t
+
+getZoneTempForSure :: OceanZone -> Float
+getZoneTempForSure (Solid _)               = 0
+getZoneTempForSure (OceanZone t p s x y z) = t
 
 getZoneTempMaybe :: OceanZone -> String
 getZoneTempMaybe o = case (getZoneTemp o) of Nothing -> "Below Seafloor..."
@@ -162,4 +167,13 @@ increaseOceanZ 4000 = 6000
 increaseOceanZ 6000 = 6000
 increaseOceanZ x    = x
 
+iceMap :: State -> Env -> [Int] -> [Ocean] -> [Int]
+iceMap state env []     o      = []
+iceMap state env (g:gs) (o:os) = (iceSpot g o) : (iceMap state env gs os)
 
+iceSpot :: Int -> Ocean -> Int
+iceSpot g (Dry _)                 = g
+iceSpot g (Sea (Solid _) _ _ _ _) = g
+iceSpot g (Sea e _ _ _ _)
+  | ((getZoneTempForSure e) < -2.0) = 11
+  | otherwise                       = g
