@@ -41,4 +41,8 @@ radius = 20::Int
 
 -- seconds of history that pass before the world is presented
 -- there are 36000 seconds in a day, 360 days in a year
-history = 360000::Int
+history = 36::Int
+
+
+-- pretty self explanitory
+specificheatofwater = 10000::Float

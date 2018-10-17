@@ -128,7 +128,7 @@ nextState state env = State
     , stateSun        = sun
     , stateSunSpots   = sspots
     , stateTime       = time
-    , stateOceans     = stateOceans state
+    , stateOceans     = newos
     , stateOceanTempZ = stateOceanTempZ state
     , stateSkies      = stateSkies state }
   where

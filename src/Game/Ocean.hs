@@ -1,5 +1,6 @@
 module Game.Ocean where
 
+import Data.List
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies (parMap, rpar)
 import Game.Map
@@ -131,25 +132,71 @@ getZoneTemp :: OceanZone -> Maybe Float
 getZoneTemp (Solid _)               = Nothing
 getZoneTemp (OceanZone t p s x y z) = Just t
 
-getZoneTempForSure :: OceanZone -> Float
-getZoneTempForSure (Solid _)               = 0
-getZoneTempForSure (OceanZone t p s x y z) = t
+getZoneTempForSure :: OceanZone -> Float -> Float
+getZoneTempForSure (Solid _)               ot = ot
+getZoneTempForSure (OceanZone t p s x y z) ot = t
 
 getZoneTempMaybe :: OceanZone -> String
 getZoneTempMaybe o = case (getZoneTemp o) of Nothing -> "Below Seafloor..."
                                              Just t  -> show t
+getZone :: Int -> Ocean -> OceanZone
+getZone 1 (Dry _)         = Solid 1
+getZone 1 (Sea e m b a h) = e
+
+tempEZone :: Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Float
+tempEZone t z za zb on os oe ow = ((specificheatofwater*t) + tn + ts + te + tw + tb)/(specificheatofwater+5.0)
+  where tn = getZoneTempForSure (getZone 1 on) t
+        ts = getZoneTempForSure (getZone 1 os) t
+        te = getZoneTempForSure (getZone 1 oe) t
+        tw = getZoneTempForSure (getZone 1 ow) t
+        tb = getZoneTempForSure (zb)           t
+  
+
+eqSeaMaybe :: Int -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
+eqSeaMaybe 1 z za zb on os oe ow    = case (z) of
+                                        Solid _                     -> Nothing
+                                        OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempEZone t z za zb on os oe ow
+                                                                                        , pres = p
+                                                                                        , sal  = s
+                                                                                        , vx   = tvx
+                                                                                        , vy   = tvy
+                                                                                        , vz   = tvz
+                                                                                        })
+eqSeaMaybe n z za zb on os oe ow    = case (z) of
+                                        Solid _                     -> Nothing
+                                        OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = t
+                                                                                        , pres = p
+                                                                                        , sal  = s
+                                                                                        , vx   = tvx
+                                                                                        , vy   = tvy
+                                                                                        , vz   = tvz
+                                                                                        })
 
 tempOcean :: [Ocean] -> [Float] -> [Ocean]
 tempOcean o l = do
   let (on, os, oe, ow) = cardinals o
-  o
+  map eqOceanTemp (zip6 o on os oe ow l)
+
+eqOceanTemp :: (Ocean, Ocean, Ocean, Ocean, Ocean, Float) -> Ocean
+eqOceanTemp ((Dry _), on, os, oe, ow, l)         = Dry 1
+eqOceanTemp ((Sea e m b a h), on, os ,oe, ow, l) = Sea { epipelagic    = eqSeaTemp 1    e e m on os oe ow
+                                                       , mesopelagic   = eqSeaTemp 200  m e b on os oe ow
+                                                       , bathypelagic  = eqSeaTemp 1000 b m a on os oe ow
+                                                       , abyssopelagic = eqSeaTemp 4000 a b h on os oe ow
+                                                       , hadopelagic   = eqSeaTemp 6000 h a h on os oe ow
+                                                       }
+
+eqSeaTemp :: Int -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> OceanZone
+eqSeaTemp n z za zb on os oe ow = case (eqSeaMaybe 1 z za zb on os oe ow) of
+                                    Nothing          -> Solid n
+                                    Just z           -> z
 
 getSeaTemp :: Int -> Ocean -> Int -> Int -> String
-getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: " ++ (show (getZoneTempMaybe e))
-getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: " ++ (show (getZoneTempMaybe m))
-getSeaTemp 1000 (Sea e m b a h) x y = "Bathypelagic Temp: " ++ (show (getZoneTempMaybe b))
+getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (show (getZoneTempMaybe e))
+getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (show (getZoneTempMaybe m))
+getSeaTemp 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (show (getZoneTempMaybe b))
 getSeaTemp 4000 (Sea e m b a h) x y = "Abyssopelagic Temp: " ++ (show (getZoneTempMaybe a))
-getSeaTemp 6000 (Sea e m b a h) x y = "Hadopelagic Temp: " ++ (show (getZoneTempMaybe h))
+getSeaTemp 6000 (Sea e m b a h) x y = "Hadopelagic Temp: "   ++ (show (getZoneTempMaybe h))
 getSeaTemp n (Dry _) x y            = "Dry..."
 
 formatOceanTemp :: Int -> [Ocean] -> (Int, Int) -> String
@@ -180,5 +227,5 @@ iceSpot :: Int -> Ocean -> Int
 iceSpot g (Dry _)                 = g
 iceSpot g (Sea (Solid _) _ _ _ _) = g
 iceSpot g (Sea e _ _ _ _)
-  | ((getZoneTempForSure e) < -2.1) = 11
-  | otherwise                       = g
+  | ((getZoneTempForSure e 0) < -2.1) = 11
+  | otherwise                         = g
