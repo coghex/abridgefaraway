@@ -6,6 +6,24 @@ import Game.Settings
 
 data Card = North | South | West | East
 
+-- returns a cardinal list of elements surrounding each element
+cardinals :: [a] -> ([a], [a], [a], [a])
+cardinals x = do
+  let nx  = (drop gridw x) ++ (take gridw x)
+      sx  = (drop ((gridh-1)*gridw) x) ++ (take ((gridh-1)*gridw) x)
+      ext = (tail x)
+      ex  = replaceEveryE gridw ext x
+      wx  = replaceEveryW gridw x
+  (nx, sx, ex, wx)
+
+replaceEveryW :: Int -> [a] -> [a]
+replaceEveryW n [] = []
+replaceEveryW n s  = (s !! (n-1)) : (take (n-1) s) ++ (replaceEveryW (n) (drop n s))
+
+replaceEveryE :: Int -> [a] -> [a] -> [a]
+replaceEveryE n [] b = []
+replaceEveryE n s  b = (take (n-1) s) ++ [(head b)] ++ (replaceEveryE (n) (drop n s) (drop n b))
+
 -- checks the bounds of the cursor, doesnt move the cursor if at the edge
 moveCursor :: Int -> (Int, Int) -> Card -> (Int, Int)
 moveCursor n (x, y) North

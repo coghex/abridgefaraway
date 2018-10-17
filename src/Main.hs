@@ -366,8 +366,6 @@ processEvent ev =
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
-
-       
     -- these should reorganize the screen when you resize the window
     (EventFramebufferSize _ width height) -> do
       adjustWindow

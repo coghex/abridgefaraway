@@ -139,6 +139,11 @@ getZoneTempMaybe :: OceanZone -> String
 getZoneTempMaybe o = case (getZoneTemp o) of Nothing -> "Below Seafloor..."
                                              Just t  -> show t
 
+tempOcean :: [Ocean] -> [Float] -> [Ocean]
+tempOcean o l = do
+  let (on, os, oe, ow) = cardinals o
+  o
+
 getSeaTemp :: Int -> Ocean -> Int -> Int -> String
 getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: " ++ (show (getZoneTempMaybe e))
 getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: " ++ (show (getZoneTempMaybe m))

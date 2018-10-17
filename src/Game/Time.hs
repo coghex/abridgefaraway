@@ -1,6 +1,7 @@
 module Game.Time where
 
 import Data.Time.Clock
+import Control.Parallel (par, pseq)
 import Control.Concurrent
 import Control.Concurrent.STM (atomically)
 import Control.Concurrent.STM.TChan
@@ -8,6 +9,7 @@ import Control.Concurrent.STM.TChan
 import Game.World
 import Game.State
 import Game.Sun
+import Game.Settings
 
 gameTime :: Env -> State -> Int -> TimerState -> IO ()
 gameTime env state n TStart = do
@@ -37,7 +39,8 @@ gameTime env state n TStop = do
       timerchan = envTimerChan env
   tsnew      <- atomically $ readTChan timerchan
   firststate <- atomically $ readTChan statechan
-  gameTime env firststate n tsnew
+  let newstate  = simTime history firststate env
+  gameTime env newstate n tsnew
 
 formatTime :: Integer -> String
 formatTime time = do
@@ -49,3 +52,14 @@ formatTime time = do
       s  = mod hr 60
   "day " ++ (show dq) ++ ": " ++ (show hq) ++ ":" ++ (show m) ++ ":" ++ (show s)
 
+simTime :: Int -> State -> Env -> State
+simTime 0 state env = nextState state env
+simTime n state env = simTime (n-1) newstate env
+  where newstate = nextState state env
+
+-- a parallel version that creates a bunch of overflow sparks
+--simTime :: Int -> State -> Env -> State
+--simTime 0 state env = nextState state env
+--simTime n state env = par newstate (seq nmin1 (simTime nmin1 newstate env))
+--  where newstate = nextState state env
+--        nmin1    = (n-1)

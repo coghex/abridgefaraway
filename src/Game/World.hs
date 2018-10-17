@@ -126,7 +126,7 @@ nextState state env = State
     , stateRandI      = stateRandI state
     , stateRangeRands = stateRangeRands state
     , stateSun        = sun
-    , stateSunSpots   = theBigSpotter sun
+    , stateSunSpots   = sspots
     , stateTime       = time
     , stateOceans     = stateOceans state
     , stateOceanTempZ = stateOceanTempZ state
@@ -135,6 +135,8 @@ nextState state env = State
     time   = (stateTime state)+1
     sun    = moveSun oldsun time
     oldsun = stateSun state
+    newos  = tempOcean (stateOceans state) sspots
+    sspots = theBigSpotter sun
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = parZipWith fixContSpots g e

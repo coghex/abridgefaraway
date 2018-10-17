@@ -91,14 +91,15 @@ blurMap state elev n = do
       rn  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 2)))
       rw  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 3)))
       re  = randomList (1,salt) (gridw*gridh) (snd (next ((stateStdGens state) !! 4)))
-      es0 = drop gridw elev
-      es1 = es0 ++ (take gridw (repeat 1))
-      en0 = take (gridh*gridw - gridw) elev
-      en1 = (take gridw (repeat 1)) ++ en0
-      ew0 = init (1 : elev)
-      ew1 = dropEvery gridw ew0
-      ee0 = tail $ elev ++ [1]
-      ee1 = dropEvery gridw ee0
+      --es0 = drop gridw elev
+      --es1 = es0 ++ (take gridw (repeat 1))
+      --en0 = take (gridh*gridw - gridw) elev
+      --en1 = (take gridw (repeat 1)) ++ en0
+      --ew0 = init (1 : elev)
+      --ew1 = dropEvery gridw ew0
+      --ee0 = tail $ elev ++ [1]
+      --ee1 = dropEvery gridw ee0
+      (en1, es1, ee1, ew1) = cardinals elev
       out = blurSpots elev es1 en1 ew1 ee1 rs rn rw re
   blurMap state out (n-1)
 

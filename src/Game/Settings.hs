@@ -38,3 +38,7 @@ maxnspots = 10::Int
 
 -- radius of the light from the sun
 radius = 20::Int
+
+-- seconds of history that pass before the world is presented
+-- there are 36000 seconds in a day, 360 days in a year
+history = 360000::Int
