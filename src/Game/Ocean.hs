@@ -175,5 +175,5 @@ iceSpot :: Int -> Ocean -> Int
 iceSpot g (Dry _)                 = g
 iceSpot g (Sea (Solid _) _ _ _ _) = g
 iceSpot g (Sea e _ _ _ _)
-  | ((getZoneTempForSure e) < -2.0) = 11
+  | ((getZoneTempForSure e) < -2.1) = 11
   | otherwise                       = g

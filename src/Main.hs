@@ -30,6 +30,7 @@ import Game.Rand
 import Game.Time
 import Game.Sun
 import Game.Ocean
+import Game.Map
 
 -- the game monad wrapper, gives us a threadsafe state and env
 type Game = RWST Env () State IO
@@ -276,7 +277,7 @@ processEvent ev =
       liftIO $ do
         putStrLn $ "error " ++ show e ++ " " ++ show s
         GLFW.setWindowShouldClose window True
-    (EventKey window k _ ks _) ->
+    (EventKey window k _ ks mk) -> do
       when (ks == GLFW.KeyState'Pressed) $ do
         state <- get
         env   <- ask
@@ -315,13 +316,22 @@ processEvent ev =
             modify $ \s -> s { stateGame = SLoadSeaTemp }
         -- moves the cursor with left, right, up, down, or h,l,k,j
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
-            modify $ \s -> s { stateCursor = (((fst (stateCursor state))-1), (snd (stateCursor state))) }
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
-            modify $ \s -> s { stateCursor = (((fst (stateCursor state))+1), (snd (stateCursor state))) }
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) East) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
-            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))+1)) }
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) North) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
-            modify $ \s -> s { stateCursor = ((fst (stateCursor state)), ((snd (stateCursor state))-1)) }
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) South) }
+        -- moves the cursor 10 with the shift key
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) West) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) East) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
@@ -337,6 +347,27 @@ processEvent ev =
         -- exits the game, in future, this should save
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
+      when (ks == GLFW.KeyState'Repeating) $ do
+        state <- get
+        env   <- ask
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) East) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) North) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) South) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) West) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) East) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
+            modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
+
+       
     -- these should reorganize the screen when you resize the window
     (EventFramebufferSize _ width height) -> do
       adjustWindow

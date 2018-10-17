@@ -4,6 +4,23 @@ import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Game.Settings
 
+data Card = North | South | West | East
+
+-- checks the bounds of the cursor, doesnt move the cursor if at the edge
+moveCursor :: Int -> (Int, Int) -> Card -> (Int, Int)
+moveCursor n (x, y) North
+  | (y < gridh-n) = (x, y+n)
+  | otherwise     = (x, y)
+moveCursor n (x, y) South
+  | (y > n-1)       = (x, y-n)
+  | otherwise     = (x, y)
+moveCursor n (x, y) West
+  | (x > n-1)       = (x-n, y)
+  | otherwise     = (x, y)
+moveCursor n (x, y) East
+  | (x < gridw-n) = (x+n, y)
+  | otherwise     = (x, y)
+
 tapGrid :: [a] -> Int -> Int -> a
 tapGrid g x y = g !! (x + (y*gridw))
 
