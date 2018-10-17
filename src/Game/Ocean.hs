@@ -144,12 +144,12 @@ getZone 1 (Dry _)         = Solid 1
 getZone 1 (Sea e m b a h) = e
 
 tempEZone :: Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Float
-tempEZone l t p z za zb on os oe ow = ((p*specificheatofwater*t) + tn + ts + te + tw + tb)/(p*specificheatofwater+5.0) + (36.0*l/(specificheatofwater))
-  where tn = getZoneTempForSure (getZone 1 on) t
-        ts = getZoneTempForSure (getZone 1 os) t
-        te = getZoneTempForSure (getZone 1 oe) t
-        tw = getZoneTempForSure (getZone 1 ow) t
-        tb = getZoneTempForSure (zb)           t
+tempEZone l t p z za zb on os oe ow = ((p*specificheatofwater*t) + tn + ts + te + tw + tb)/(p*specificheatofwater+5.0) + (50.0*l/(specificheatofwater))
+  where tn = getZoneTempForSure (getZone 1 on) terratemp
+        ts = getZoneTempForSure (getZone 1 os) terratemp
+        te = getZoneTempForSure (getZone 1 oe) terratemp
+        tw = getZoneTempForSure (getZone 1 ow) terratemp
+        tb = getZoneTempForSure (zb)           terratemp
   
 
 eqSeaMaybe :: Int -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
@@ -175,7 +175,8 @@ eqSeaMaybe n l z za zb on os oe ow    = case (z) of
 tempOcean :: [Ocean] -> [Float] -> [Ocean]
 tempOcean o l = do
   let (on, os, oe, ow) = cardinals o
-  parMap rpar eqOceanTemp (zip6 o on os oe ow l)
+  map eqOceanTemp (zip6 o on os oe ow l)
+  --parMap rpar eqOceanTemp (zip6 o on os oe ow l)
 
 eqOceanTemp :: (Ocean, Ocean, Ocean, Ocean, Ocean, Float) -> Ocean
 eqOceanTemp ((Dry _), on, os, oe, ow, l)         = Dry 1

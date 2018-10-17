@@ -5,15 +5,15 @@ module Game.Settings where
 
 -- grid sizes should work for maps larger that the fudge factor
 -- grids larger than 120x120 will begin to make worldgen slow
-gridw = 60::Int
-gridh = 40::Int
+gridw = 30::Int
+gridh = 20::Int
 -- should work for most standard screen sizes 720 or greater
 screenw = 2560::Int
 screenh = 1440::Int
 -- the bigger the map the more zoom you need, soon to be controlled by keys
 zoom = 150::Float
 -- fudges the world to keep the edges together
-fudge = 20::Int
+fudge = 10::Int
 -- all arcane ingredients in the worldgen pie
 salt = 4::Int
 sugar = 4::Float
@@ -41,8 +41,9 @@ radius = 20::Int
 
 -- seconds of history that pass before the world is presented
 -- there are 36000 seconds in a day, 360 days in a year
-history = 36::Int
+history = 2000::Int
 
 
 -- pretty self explanitory
-specificheatofwater = 10000::Float
+specificheatofwater = 100000::Float
+terratemp = 14.6::Float

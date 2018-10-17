@@ -1,0 +1,6 @@
+# A Bridge Far Away...
+
+use `cabal sandbox init` and `cabal install --only-dependencies` to get all the libraries you need
+use `cabal configure; cabal build` to compile
+use `./dist/build/abfa/abfa +RTS -s -M[x]m -N[n]` to run with x megabytes and n cores
+src/Game/Settings.hs has some variables that you can mess around with...
