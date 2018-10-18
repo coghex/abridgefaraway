@@ -10,7 +10,7 @@ import System.Random
 import Game.Sun
 import Game.Data
 
-data GameState  = SWorld | SElev | SSeaTemp | SZone | SMenu | SLoad | SLoadElev | SLoadSeaTemp | SFucked | SPause deriving (Eq, Show)
+data GameState  = SWorld | SElev | SSeaTemp | SZone | SMenu | SLoad | SLoadTime | SLoadElev | SLoadSeaTemp | SFucked | SPause deriving (Eq, Show)
 data TimerState = TStart | TStop | TPause
 
 data Env = Env

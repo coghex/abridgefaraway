@@ -44,13 +44,11 @@ gameTime env state n TStop = do
 
 formatTime :: Integer -> String
 formatTime time = do
-  let dq = quot time 36000
-      dr = mod time 36000
-      hq = quot dr 3600
-      hr = mod dr 3600
-      m  = quot hr 60
-      s  = mod hr 60
-  "day " ++ (show dq) ++ ": " ++ (show hq) ++ ":" ++ (show m) ++ ":" ++ (show s)
+  let dq = quot time 1440
+      dr = mod time 1440
+      h  = quot dr 60
+      m  = mod dr 60
+  "day " ++ (show dq) ++ ": " ++ (show h) ++ ":" ++ (show m)
 
 simTime :: Int -> State -> Env -> State
 simTime 0 state env = nextState state env

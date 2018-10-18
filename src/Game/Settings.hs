@@ -39,11 +39,13 @@ maxnspots = 10::Int
 -- radius of the light from the sun
 radius = 20::Int
 
--- seconds of history that pass before the world is presented
--- there are 36000 seconds in a day, 360 days in a year
-history = 2000::Int
+-- minutes of history that pass before the world is presented
+-- there are 1440 minutes in a day, 360 days in a year
+history = 1440::Int
 
-
--- pretty self explanitory
-specificheatofwater = 100000::Float
-terratemp = 14.6::Float
+-- how hard it is to heat the oceans
+specificheatofwater = 10000::Float
+-- the amount of light that goes throught the water
+clarityofwater      = 0.5::Float
+-- temperature of the landmass
+terratemp           = 14.6::Float

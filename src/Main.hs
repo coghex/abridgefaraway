@@ -145,10 +145,20 @@ draw SLoad = do
     drawText (envFontSmall env) 1 75 36 36 "Creating World..."
     -- start the timer once the chan has emptied (since its fifo)
     atomically $ writeTChan (envTimerChan env) TStart
-    -- wait for the timer to start, signaling an end to any loading
-    atomically $ readTChan (envStateChan1 env)
     -- change modes to the world mode, again in the fifo
-    liftIO $ loadedCallback (envEventsChan env) SWorld
+    liftIO $ loadedCallback (envEventsChan env) SLoadTime
+-- this doesnt quite work right yet, this screen is only shown for an instance
+draw SLoadTime = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText (envFontBig env) 1 95 72 72 "Loading..."
+    drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
+    newstate <- atomically $ readTChan (envStateChan1 env)
+    let unftime = stateTime newstate
+    if unftime > 0 then liftIO $ loadedCallback (envEventsChan env) SWorld
+    else liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SLoadElev = do
   env   <- ask
   state <- get
