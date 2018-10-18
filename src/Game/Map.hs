@@ -24,6 +24,14 @@ replaceEveryE :: Int -> [a] -> [a] -> [a]
 replaceEveryE n [] b = []
 replaceEveryE n s  b = (take (n-1) s) ++ [(head b)] ++ (replaceEveryE (n) (drop n s) (drop n b))
 
+yList :: [Int]
+yList = makeYList gridw [1..gridh]
+
+makeYList :: Int -> [Int] -> [Int]
+makeYList _ []      = []
+makeYList 0 _       = []
+makeYList n (x:xs) = (take gridw (repeat x)) ++ (makeYList (n-1) xs)
+
 -- checks the bounds of the cursor, doesnt move the cursor if at the edge
 moveCursor :: Int -> (Int, Int) -> Card -> (Int, Int)
 moveCursor n (x, y) North

@@ -174,7 +174,8 @@ draw SLoadSeaTemp = do
   state <- get
   liftIO $ do
     beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading Ocean Temperatures..."
+    drawText (envFontBig env) 1 95 72 72 "Loading..."
+    drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Temperatures..."
     liftIO $ loadedCallback (envEventsChan env) SSeaTemp
 draw SWorld = do
   env   <- ask

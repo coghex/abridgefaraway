@@ -49,3 +49,6 @@ specificheatofwater = 10000::Float
 clarityofwater      = 0.5::Float
 -- temperature of the landmass
 terratemp           = 14.6::Float
+-- temperature at which average salinity water will be at
+-- its maximum density
+maxdensitytemp      = -1.9::Float
