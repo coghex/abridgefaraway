@@ -5,8 +5,8 @@ module Game.Settings where
 
 -- grid sizes should work for maps larger that the fudge factor
 -- grids larger than 120x120 will begin to make worldgen slow
-gridw = 30::Int
-gridh = 20::Int
+gridw = 60::Int
+gridh = 40::Int
 -- should work for most standard screen sizes 720 or greater
 screenw = 2560::Int
 screenh = 1440::Int
