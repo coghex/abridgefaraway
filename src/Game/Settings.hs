@@ -52,3 +52,5 @@ terratemp           = 14.6::Float
 -- temperature at which average salinity water will be at
 -- its maximum density
 maxdensitytemp      = -1.9::Float
+-- the velocity at which currents will display
+currentslevel       = 20.0::Float

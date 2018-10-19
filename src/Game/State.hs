@@ -10,45 +10,46 @@ import System.Random
 import Game.Sun
 import Game.Data
 
-data GameState  = SWorld | SElev | SSeaTemp | SZone | SMenu | SLoad | SLoadTime | SLoadElev | SLoadSeaTemp | SFucked | SPause deriving (Eq, Show)
+data GameState  = SWorld | SElev | SSeaTemp | SSeaCurrents | SZone | SMenu | SLoad | SLoadTime | SLoadElev | SLoadSeaTemp | SLoadSeaCurrents | SFucked | SPause deriving (Eq, Show)
 data TimerState = TStart | TStop | TPause
 
 data Env = Env
-  { envEventsChan   :: TQueue Event
-  , envWindow       :: !GLFW.Window
-  , envFontBig      :: !FTGL.Font
-  , envFontSmall    :: !FTGL.Font
-  , envWTex         :: ![GL.TextureObject]
-  , envZTex         :: ![[GL.TextureObject]]
-  , envSeeds        :: ![Int]
-  , envStateChan1   :: TChan State
-  , envStateChan2   :: TChan State
-  , envTimerChan    :: TChan TimerState
+  { envEventsChan       :: TQueue Event
+  , envWindow           :: !GLFW.Window
+  , envFontBig          :: !FTGL.Font
+  , envFontSmall        :: !FTGL.Font
+  , envWTex             :: ![GL.TextureObject]
+  , envZTex             :: ![[GL.TextureObject]]
+  , envSeeds            :: ![Int]
+  , envStateChan1       :: TChan State
+  , envStateChan2       :: TChan State
+  , envTimerChan        :: TChan TimerState
   }
 
 data State = State
-  { stateGame       :: !GameState
-  , stateStdGens    :: ![StdGen]
-  , stateScreenW    :: !Int
-  , stateScreenH    :: !Int
-  , stateGrid       :: ![Int]
-  , stateElev       :: ![Int]
-  , stateCursor     :: !(Int, Int)
-  , stateNConts     :: !Int
-  , stateCurrMap    :: !Int
-  , stateConts      :: ![(Int, Int)]
-  , stateSeeds      :: ![[(Int, Int)]]
-  , stateRands      :: ![[(Int, Int)]]
-  , stateSizes      :: ![Int]
-  , stateTypes      :: ![Int]
-  , stateRandI      :: !Int
-  , stateRangeRands :: ![Int]
-  , stateSun        :: !Sun
-  , stateSunSpots   :: ![Float]
-  , stateTime       :: !Integer
-  , stateOceans     :: ![Ocean]
-  , stateOceanTempZ :: !Int
-  , stateSkies      :: ![Sky]
+  { stateGame           :: !GameState
+  , stateStdGens        :: ![StdGen]
+  , stateScreenW        :: !Int
+  , stateScreenH        :: !Int
+  , stateGrid           :: ![Int]
+  , stateElev           :: ![Int]
+  , stateCursor         :: !(Int, Int)
+  , stateNConts         :: !Int
+  , stateCurrMap        :: !Int
+  , stateConts          :: ![(Int, Int)]
+  , stateSeeds          :: ![[(Int, Int)]]
+  , stateRands          :: ![[(Int, Int)]]
+  , stateSizes          :: ![Int]
+  , stateTypes          :: ![Int]
+  , stateRandI          :: !Int
+  , stateRangeRands     :: ![Int]
+  , stateSun            :: !Sun
+  , stateSunSpots       :: ![Float]
+  , stateTime           :: !Integer
+  , stateOceans         :: ![Ocean]
+  , stateOceanTempZ     :: !Int
+  , stateOceanCurrentsZ :: !Int
+  , stateSkies          :: ![Sky]
   } deriving (Show)
 
 data Event =

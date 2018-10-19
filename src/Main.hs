@@ -177,6 +177,14 @@ draw SLoadSeaTemp = do
     drawText (envFontBig env) 1 95 72 72 "Loading..."
     drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Temperatures..."
     liftIO $ loadedCallback (envEventsChan env) SSeaTemp
+draw SLoadSeaCurrents = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText (envFontBig env) 1 95 72 72 "Loading..."
+    drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Currents..."
+    liftIO $ loadedCallback (envEventsChan env) SSeaCurrents
 draw SWorld = do
   env   <- ask
   state <- get
@@ -236,6 +244,27 @@ draw SSeaTemp = do
     drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceanTempZ state) (stateOceans state) (stateCursor state)
     GL.preservingMatrix $ do
       drawOcean state (envWTex env)
+    GL.preservingMatrix $ do
+      drawCursor state (envWTex env)
+    liftIO $ timerCallback (envEventsChan env) newstate
+draw SSeaCurrents = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+    newstate <- case (statebuff) of
+      Nothing -> return state
+      Just n  -> return n
+    let unftime = stateTime newstate
+        sun     = stateSun newstate
+    beginDrawText
+    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+    -- the ocean temp z will give the temperature of the 5 different zones of the sea
+    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanCurrents (stateOceanCurrentsZ state) (stateOceans state) (stateCursor state)
+    GL.preservingMatrix $ do
+      drawOceanCurrents state (envWTex env)
     GL.preservingMatrix $ do
       drawCursor state (envWTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
@@ -325,6 +354,9 @@ processEvent ev =
         -- displays the ocean temp in C at 5 different depths
         when (((stateGame state) == SWorld) && (k == GLFW.Key'O)) $ do
             modify $ \s -> s { stateGame = SLoadSeaTemp }
+        -- displays the ocean currents with arrows
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'I)) $ do
+            modify $ \s -> s { stateGame = SLoadSeaCurrents }
         -- moves the cursor with left, right, up, down, or h,l,k,j
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
@@ -346,9 +378,18 @@ processEvent ev =
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
-        -- exuts the sea temperature screen
+        -- exits the sea temperature screen
         when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'O) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
+        -- exits the sea currents screen
+        when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'I) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SWorld }
+        -- moves the Z level of the Sea currents viewer up
+        when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'U))) $ do
+            modify $ \s -> s { stateOceanCurrentsZ = (decreaseOceanZ (stateOceanCurrentsZ state)) }
+        -- moves the Z level of the Sea currents viewer down
+        when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'M))) $ do
+            modify $ \s -> s { stateOceanCurrentsZ = (increaseOceanZ (stateOceanCurrentsZ state)) }
         -- moves the Z level of the Sea temp viewer up
         when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'U))) $ do
             modify $ \s -> s { stateOceanTempZ = (decreaseOceanZ (stateOceanTempZ state)) }

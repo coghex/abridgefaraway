@@ -188,8 +188,16 @@ loadWTextures fn = do
   t10 <- loadTex (fn ++ "null/null.png")
   t11 <- loadTex (fn ++ "ice/wice.png")
   t12 <- loadTex (fn ++ "deeps/wdeeps.png")
+  t13 <- loadTex (fn ++ "sea/sean.png")
+  t14 <- loadTex (fn ++ "sea/seanw.png")
+  t15 <- loadTex (fn ++ "sea/seaw.png")
+  t16 <- loadTex (fn ++ "sea/seasw.png")
+  t17 <- loadTex (fn ++ "sea/seas.png")
+  t18 <- loadTex (fn ++ "sea/sease.png")
+  t19 <- loadTex (fn ++ "sea/seae.png")
+  t20 <- loadTex (fn ++ "sea/seane.png")
 
-  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12])
+  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do

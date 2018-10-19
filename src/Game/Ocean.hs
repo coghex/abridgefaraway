@@ -21,9 +21,11 @@ theGreatSeas grid elev light = do
       o2 = stripGrid o1
   flattenGrid o2
 
+-- turns a sequence of IO actions into a single IO action by monad magic
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
 
+-- draws the ocean temperatures
 drawOcean :: State -> [GL.TextureObject] -> IO ()
 drawOcean state texs = do
   let onew = expandGrid $ stateOceans state
@@ -31,11 +33,56 @@ drawOcean state texs = do
   resequence_ (map (drawOceanRow n texs) onew)
   glFlush
 
+-- draws the ocean currents
+drawOceanCurrents :: State -> [GL.TextureObject] -> IO ()
+drawOceanCurrents state texs = do
+  let onew = expandGrid $ stateOceans state
+      n    = stateOceanCurrentsZ state
+  resequence_ (map (drawOceanCurrentsRow n texs) onew)
+  glFlush
+
 drawOceanRow :: Int -> [GL.TextureObject] -> ([(Ocean, Int)], Int) -> IO ()
 drawOceanRow n texs (a, b) = resequence_ (map (drawOceanSpot n texs b) a)
 
+drawOceanCurrentsRow :: Int -> [GL.TextureObject] -> ([(Ocean, Int)], Int) -> IO ()
+drawOceanCurrentsRow n texs (a, b) = resequence_ (map (drawOceanCurrentsSpot n texs b) a)
+
 drawOceanSpot :: Int -> [GL.TextureObject] -> Int -> (Ocean, Int) -> IO ()
 drawOceanSpot n texs y (o, x) = withTextures2D [(texs!!10)] $ drawOceanTile n texs x y o
+
+drawOceanCurrentsSpot :: Int -> [GL.TextureObject] -> Int -> (Ocean, Int) -> IO ()
+drawOceanCurrentsSpot n    texs y ((Dry _),         x) = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawOceanCurrentsSpot 1    texs y ((Sea e _ _ _ _), x) = drawOceanCurrentsTile 1    texs x y e
+drawOceanCurrentsSpot 200  texs y ((Sea _ m _ _ _), x) = drawOceanCurrentsTile 200  texs x y m
+drawOceanCurrentsSpot 1000 texs y ((Sea _ _ b _ _), x) = drawOceanCurrentsTile 1000 texs x y b
+drawOceanCurrentsSpot 4000 texs y ((Sea _ _ _ a _), x) = drawOceanCurrentsTile 4000 texs x y a
+drawOceanCurrentsSpot 6000 texs y ((Sea _ _ _ _ h), x) = drawOceanCurrentsTile 6000 texs x y h
+
+drawOceanCurrentsTile :: Int -> [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
+drawOceanCurrentsTile n texs x y (Solid _ )                  = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
+  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawNullTile texs x y
+  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawNullTile texs x y
+  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawNullTile texs x y
+  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawNullTile texs x y
+  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawNullTile texs x y
+  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawNullTile texs x y
+  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawNullTile texs x y
+  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawNullTile texs x y
+  | otherwise                                                = withTextures2D [(texs!!1)]  $ drawNullTile texs x y
+
+drawOceanCurrentsTileTex :: Int -> [GL.TextureObject] -> Int -> Int -> IO ()
+drawOceanCurrentsTileTex 1 texs x y = do
+  glLoadIdentity
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
+  glColor3f 1.0 1.0 1.0
+
+drawNullTile :: [GL.TextureObject] -> Int -> Int -> IO ()
+drawNullTile texs x y = do
+  glLoadIdentity
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
+  glColor3f 1.0 1.0 1.0
+  drawOceanSquare
 
 drawOceanTile :: Int -> [GL.TextureObject] -> Int -> Int -> Ocean -> IO ()
 drawOceanTile n texs x y (Sea e m b a h) = do
@@ -52,7 +99,6 @@ drawOceanTile n texs x y (Sea e m b a h) = do
             6000 -> case (getZoneTemp h) of Nothing -> glColor3f 1.0 1.0 1.0
                                             Just t  -> glColor3f ((t/2.0)-1) (1.0 - (abs ((t-2.0)/2.0))) (1.0-(t/2.0))
   drawOceanSquare
-  
 drawOceanTile n texs x y (Dry _) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
@@ -128,13 +174,21 @@ initSeaPres sal depth = sal*fromIntegral(depth)/360.0
 initSeaSal :: Float
 initSeaSal = 35.0
 
+getZoneCurrents :: OceanZone -> Maybe (Float, Float, Float)
+getZoneCurrents (Solid _)               = Nothing
+getZoneCurrents (OceanZone _ _ _ x y z) = Just (x, y, z)
+
+getZoneCurrentsMaybe :: OceanZone -> String
+getZoneCurrentsMaybe o = case (getZoneCurrents o) of Nothing -> "Below Seafloor..."
+                                                     Just t  -> show t
+
 getZoneTemp :: OceanZone -> Maybe Float
 getZoneTemp (Solid _)               = Nothing
-getZoneTemp (OceanZone t p s x y z) = Just t
+getZoneTemp (OceanZone t _ _ _ _ _) = Just t
 
 getZoneTempForSure :: OceanZone -> Float -> Float
 getZoneTempForSure (Solid _)               ot = ot
-getZoneTempForSure (OceanZone t p s x y z) ot = t
+getZoneTempForSure (OceanZone t _ _ _ _ _) ot = t
 
 getZoneTempMaybe :: OceanZone -> String
 getZoneTempMaybe o = case (getZoneTemp o) of Nothing -> "Below Seafloor..."
@@ -205,7 +259,7 @@ waterV t p z1        z2        tv = ((4.0*tv)+((p1-p)-(p2-p)))/5.0
         p2 = pres z2
 
 pvnrt :: Float -> Float -> Int -> Float
-pvnrt p t n = ((4.0*p)+(np))/5.0
+pvnrt p t n = 1 + ((4.0*p)+(np))/5.0
   where np = ((maxdensitytemp+6+t)*(fromIntegral(n))/6.0)
 
 eqSeaMaybe :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
@@ -287,15 +341,27 @@ eqSeaTemp n l lat z za zb on os oe ow = case (eqSeaMaybe n l lat z za zb on os o
                                           Just z           -> z
 
 getSeaTemp :: Int -> Ocean -> Int -> Int -> String
-getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (show (getZoneTempMaybe e))
-getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (show (getZoneTempMaybe m))
-getSeaTemp 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (show (getZoneTempMaybe b))
-getSeaTemp 4000 (Sea e m b a h) x y = "Abyssopelagic Temp: " ++ (show (getZoneTempMaybe a))
-getSeaTemp 6000 (Sea e m b a h) x y = "Hadopelagic Temp: "   ++ (show (getZoneTempMaybe h))
-getSeaTemp n (Dry _) x y            = "Dry..."
+getSeaTemp n    (Dry _)         x y = "Dry Land..."
+getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (getZoneTempMaybe e)
+getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (getZoneTempMaybe m)
+getSeaTemp 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (getZoneTempMaybe b)
+getSeaTemp 4000 (Sea e m b a h) x y = "Abyssopelagic Temp: " ++ (getZoneTempMaybe a)
+getSeaTemp 6000 (Sea e m b a h) x y = "Hadopelagic Temp: "   ++ (getZoneTempMaybe h)
 
 formatOceanTemp :: Int -> [Ocean] -> (Int, Int) -> String
-formatOceanTemp n os (x, y) = (getSeaTemp n o x y)
+formatOceanTemp n os (x, y) = getSeaTemp n o x y
+  where o = (os !! (x+gridw*y))
+
+getSeaCurrents :: Int -> Ocean -> Int -> Int -> String
+getSeaCurrents n    (Dry _)         x y = "Dry Land..."
+getSeaCurrents 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (getZoneCurrentsMaybe e)
+getSeaCurrents 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (getZoneCurrentsMaybe m)
+getSeaCurrents 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (getZoneCurrentsMaybe b)
+getSeaCurrents 4000 (Sea e m b a h) x y = "Abyssopelagic Temp: " ++ (getZoneCurrentsMaybe a)
+getSeaCurrents 6000 (Sea e m b a h) x y = "Hadopelagic Temp: "   ++ (getZoneCurrentsMaybe h)
+
+formatOceanCurrents :: Int -> [Ocean] -> (Int, Int) -> String
+formatOceanCurrents n os (x, y) = getSeaCurrents n o x y
   where o = (os !! (x+gridw*y))
 
 decreaseOceanZ :: Int -> Int
