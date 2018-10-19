@@ -41,7 +41,7 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 1440::Int
+history = 800::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 10000::Float
@@ -53,4 +53,4 @@ terratemp           = 14.6::Float
 -- its maximum density
 maxdensitytemp      = -1.9::Float
 -- the velocity at which currents will display
-currentslevel       = 20.0::Float
+currentslevel       = 1.0::Float
