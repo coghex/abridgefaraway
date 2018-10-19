@@ -72,14 +72,14 @@ drawOceanCurrentsBackgroundSpot 6000 texs y ((Sea _ _ _ _ h), x) = drawOceanCurr
 drawOceanCurrentsTile :: Int -> [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
 drawOceanCurrentsTile n texs x y (Solid _ )                  = withTextures2D [(texs!!10)] $ drawNullTile texs x y
 drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
-  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex 1 vy                texs x y
-  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex 1 ((vx*vy)/2)       texs x y
-  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex 1 (((-vx)*vy)/2)    texs x y
-  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawOceanCurrentsTileTex 1 (-vy)             texs x y
-  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex 1 ((vx*(-vy))/2)    texs x y
-  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex 1 (((-vx)*(-vy))/2) texs x y
-  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex 1 vx                texs x y
-  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex 1 (-vy)             texs x y
+  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex n vy                texs x y
+  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx*vy)/2)       texs x y
+  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex n (((-vx)*vy)/2)    texs x y
+  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
+  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex n ((vx*(-vy))/2)    texs x y
+  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)*(-vy))/2) texs x y
+  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex n vx                texs x y
+  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
   | otherwise                                                = withTextures2D [(texs!!1)]  $ drawNullTile texs x y
 
 drawOceanCurrentsBackgroundTile :: [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
@@ -88,6 +88,15 @@ drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ _) = withTextures2
 
 drawOceanCurrentsTileTex :: Int -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawOceanCurrentsTileTex 1 size texs x y = do
+  glLoadIdentity
+  GL.depthFunc GL.$= Nothing
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
+  glScalef (currentszoom) (currentszoom) (currentszoom)
+  glColor3f 1.0 1.0 1.0
+  drawOceanSquare
+  GL.depthFunc GL.$= Just GL.Lequal
+  where currentszoom = min 1 (max size 0)
+drawOceanCurrentsTileTex n size texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
@@ -200,7 +209,7 @@ getZoneCurrents (OceanZone _ _ _ x y z) = Just (x, y, z)
 
 getZoneCurrentsMaybe :: OceanZone -> String
 getZoneCurrentsMaybe o = case (getZoneCurrents o) of Nothing -> "Below Seafloor..."
-                                                     Just t  -> show t
+                                                     Just t  -> ((show t) ++ " Pressure:" ++ (show (pres o)))
 
 getZoneTemp :: OceanZone -> Maybe Float
 getZoneTemp (Solid _)               = Nothing
@@ -260,27 +269,27 @@ tempHZone l lat t p z za zb on os oe ow tvx tvy tvz = ((p*specificheatofwater*(t
         tw = getZoneTempForSure (getZone 6000 ow) terratemp
         ta = getZoneTempForSure (za)              terratemp
  
-waterVMaybe :: Int -> Float -> Float -> Ocean -> Ocean -> Float -> Float
-waterVMaybe n    t p (Dry _) (Dry _) tv = p
-waterVMaybe n    t p (Dry _) o2      tv = p
-waterVMaybe n    t p o1      (Dry _) tv = p
-waterVMaybe 1    t p o1      o2      tv = waterV 1    False t p (epipelagic o1)    (epipelagic o2)    tv
-waterVMaybe 200  t p o1      o2      tv = waterV 200  False t p (mesopelagic o1)   (mesopelagic o2)   tv
-waterVMaybe 1000 t p o1      o2      tv = waterV 1000 False t p (bathypelagic o1)  (bathypelagic o2)  tv
-waterVMaybe 4000 t p o1      o2      tv = waterV 4000 False t p (abyssopelagic o1) (abyssopelagic o2) tv
-waterVMaybe 6000 t p o1      o2      tv = waterV 6000 False t p (hadopelagic o1)   (hadopelagic o2)   tv
+waterVMaybe :: Int -> Float -> Float -> Ocean -> Ocean -> Float -> Float -> Float
+waterVMaybe n    t p (Dry _) (Dry _) tv tv2 = tv
+waterVMaybe n    t p (Dry _) o2      tv tv2 = tv
+waterVMaybe n    t p o1      (Dry _) tv tv2 = tv
+waterVMaybe 1    t p o1      o2      tv tv2 = waterV 1    False t p (epipelagic o1)    (epipelagic o2)    tv tv2
+waterVMaybe 200  t p o1      o2      tv tv2 = waterV 200  False t p (mesopelagic o1)   (mesopelagic o2)   tv tv2
+waterVMaybe 1000 t p o1      o2      tv tv2 = waterV 1000 False t p (bathypelagic o1)  (bathypelagic o2)  tv tv2
+waterVMaybe 4000 t p o1      o2      tv tv2 = waterV 4000 False t p (abyssopelagic o1) (abyssopelagic o2) tv tv2
+waterVMaybe 6000 t p o1      o2      tv tv2 = waterV 6000 False t p (hadopelagic o1)   (hadopelagic o2)   tv tv2
 
-waterV :: Int -> Bool -> Float -> Float -> OceanZone -> OceanZone -> Float -> Float
-waterV n    z    t p (Solid _) (Solid _) tv = p
-waterV n    z    t p (Solid _) z2        tv = p
-waterV n    z    t p z1        (Solid _) tv = p
-waterV 1    True t p z1        z2        tv = ((4.0*tv)+(p1-p))/5.0
-  where p1 = (pres z1)+100
-waterV 6000 True t p z1        z2        tv = ((4.0*tv)+(p2-p))/5.0
-  where p2 = pres z2
-waterV n    z    t p z1        z2        tv = ((4.0*tv)+((p1-p)-(p2-p)))/5.0
-  where p1 = pres z1
-        p2 = pres z2
+waterV :: Int -> Bool -> Float -> Float -> OceanZone -> OceanZone -> Float -> Float -> Float
+waterV n    z     t p (Solid _) (Solid _) tv tv2 = tv
+waterV n    z     t p (Solid _) z2        tv tv2 = tv
+waterV n    z     t p z1        (Solid _) tv tv2 = tv
+waterV 1    True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p1-p)))/5.0
+  where p1 = (pres z1)/10.0
+waterV 6000 True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p2-p)))/5.0
+  where p2 = (pres z2)
+waterV n    z     t p z1        z2        tv tv2 = ((4.0*tv)+((p1-p)-(p2-p)))/5.0
+  where p1 = (1/(1+(abs tv2)))*(pres z1)
+        p2 = (1/(1+(abs tv2)))*(pres z2)
 
 pvnrt :: Float -> Float -> Int -> Float
 pvnrt p t n = 10.0 + ((4.0*p)+(np))/5.0
@@ -292,45 +301,45 @@ eqSeaMaybe 1    l lat z za zb on os oe ow    = case (z) of
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempEZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 1
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 1 t p ow oe tvx
-                                                                                                 , vy   = waterVMaybe 1 t p on os tvy
-                                                                                                 , vz   = waterV 1 True t p zb za tvz
+                                                                                                 , vx   = waterVMaybe 1 t p ow oe tvx tvy
+                                                                                                 , vy   = waterVMaybe 1 t p on os tvy tvx
+                                                                                                 , vz   = waterV 1 True t p zb za tvz (-(max (abs tvx) (abs tvy)))
                                                                                                  })
 eqSeaMaybe 200  l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempMZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 200
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 200 t p ow oe tvx
-                                                                                                 , vy   = waterVMaybe 200 t p on os tvy
-                                                                                                 , vz   = waterV 200 True t p zb za tvz
+                                                                                                 , vx   = waterVMaybe 200 t p ow oe tvx tvy
+                                                                                                 , vy   = waterVMaybe 200 t p on os tvy tvx
+                                                                                                 , vz   = waterV 200 True t p zb za tvz (0.1)
                                                                                                  })
 eqSeaMaybe 1000  l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempBZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 1000
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 1000 t p ow oe tvx
-                                                                                                 , vy   = waterVMaybe 1000 t p on os tvy
-                                                                                                 , vz   = waterV 1000 True t p zb za tvz
+                                                                                                 , vx   = waterVMaybe 1000 t p ow oe tvx tvy
+                                                                                                 , vy   = waterVMaybe 1000 t p on os tvy tvx
+                                                                                                 , vz   = waterV 1000 True t p zb za tvz (0.01)
                                                                                                  })
 eqSeaMaybe 4000  l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempAZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 4000
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 4000 t p ow oe tvx
-                                                                                                 , vy   = waterVMaybe 4000 t p on os tvy
-                                                                                                 , vz   = waterV 4000 True t p zb za tvz
+                                                                                                 , vx   = waterVMaybe 4000 t p ow oe tvx tvy
+                                                                                                 , vy   = waterVMaybe 4000 t p on os tvy tvx
+                                                                                                 , vz   = waterV 4000 True t p zb za tvz (0.01)
                                                                                                  })
 eqSeaMaybe 6000  l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempHZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 6000
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 6000 t p ow ow tvx
-                                                                                                 , vy   = waterVMaybe 6000 t p on on tvy
-                                                                                                 , vz   = waterV 6000 True t p zb za tvz
+                                                                                                 , vx   = waterVMaybe 6000 t p ow ow tvx tvy
+                                                                                                 , vy   = waterVMaybe 6000 t p on on tvy tvx
+                                                                                                 , vz   = waterV 6000 True t p zb za tvz (max (abs tvx) (abs tvy))
                                                                                                  })
 eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
@@ -378,11 +387,11 @@ formatOceanTemp n os (x, y) = getSeaTemp n o x y
 
 getSeaCurrents :: Int -> Ocean -> Int -> Int -> String
 getSeaCurrents n    (Dry _)         x y = "Dry Land..."
-getSeaCurrents 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (getZoneCurrentsMaybe e)
-getSeaCurrents 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (getZoneCurrentsMaybe m)
-getSeaCurrents 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (getZoneCurrentsMaybe b)
-getSeaCurrents 4000 (Sea e m b a h) x y = "Abyssopelagic Temp: " ++ (getZoneCurrentsMaybe a)
-getSeaCurrents 6000 (Sea e m b a h) x y = "Hadopelagic Temp: "   ++ (getZoneCurrentsMaybe h)
+getSeaCurrents 1    (Sea e m b a h) x y = "Epipelagic Currents: "    ++ (getZoneCurrentsMaybe e)
+getSeaCurrents 200  (Sea e m b a h) x y = "Mesopelagic Currents: "   ++ (getZoneCurrentsMaybe m)
+getSeaCurrents 1000 (Sea e m b a h) x y = "Bathypelagic Currents: "  ++ (getZoneCurrentsMaybe b)
+getSeaCurrents 4000 (Sea e m b a h) x y = "Abyssopelagic Currents: " ++ (getZoneCurrentsMaybe a)
+getSeaCurrents 6000 (Sea e m b a h) x y = "Hadopelagic Currents: "   ++ (getZoneCurrentsMaybe h)
 
 formatOceanCurrents :: Int -> [Ocean] -> (Int, Int) -> String
 formatOceanCurrents n os (x, y) = getSeaCurrents n o x y
