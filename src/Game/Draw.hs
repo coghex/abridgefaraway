@@ -4,9 +4,9 @@ import Data.Bits ((.|.))
 import Data.List.Split (chunksOf)
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.GLUtil
 import System.Random (StdGen, mkStdGen)
 import qualified Graphics.UI.GLFW as GLFW
+import GLUtil.Textures
 
 import Game.State
 import Game.Rand

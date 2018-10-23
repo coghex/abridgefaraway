@@ -14,7 +14,8 @@ import Control.Monad.IO.Class
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLU
-import Graphics.GLUtil
+import GLUtil.Textures
+import GLUtil.JuicyTextures
 import qualified Codec.Picture as JT
 import Graphics.UI.GLUT
 import Graphics.Rendering.OpenGL.GL.Texturing

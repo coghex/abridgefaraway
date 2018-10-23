@@ -5,7 +5,7 @@ import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.GLUtil
+import GLUtil.Textures
 import qualified Graphics.UI.GLFW as GLFW
 import System.Random (next)
 

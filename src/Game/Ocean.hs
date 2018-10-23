@@ -6,7 +6,7 @@ import Control.Parallel.Strategies (parMap, rpar)
 import Game.Map
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.GLUtil
+import GLUtil.Textures
 import qualified Graphics.UI.GLFW as GLFW
 
 import Game.Settings
