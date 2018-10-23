@@ -288,8 +288,8 @@ waterV 1    True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p1-p)))/5.0
 waterV 6000 True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p2-p)))/5.0
   where p2 = (pres z2)
 waterV n    z     t p z1        z2        tv tv2 = ((4.0*tv)+((p2-p)-(p1-p)))/5.0
-  where p1 = (1/(1+(abs tv2)))*(pres z1)
-        p2 = (1/(1+(abs tv2)))*(pres z2)
+  where p1 = (pres z1)
+        p2 = (pres z2)
 
 pvnrt :: Float -> Float -> Int -> Float
 pvnrt p t n = 10.0 + ((4.0*p)+(np))/5.0
@@ -337,8 +337,8 @@ eqSeaMaybe 6000  l lat z za zb on os oe ow    = case (z) of
                                                  OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = tempHZone l lat t p z za zb on os oe ow tvx tvy tvz
                                                                                                  , pres = pvnrt p t 6000
                                                                                                  , sal  = s
-                                                                                                 , vx   = waterVMaybe 6000 t p ow ow tvx tvy
-                                                                                                 , vy   = waterVMaybe 6000 t p on on tvy tvx
+                                                                                                 , vx   = waterVMaybe 6000 t p ow oe tvx tvy
+                                                                                                 , vy   = waterVMaybe 6000 t p on os tvy tvx
                                                                                                  , vz   = waterV 6000 True t p zb za tvz (max (abs tvx) (abs tvy))
                                                                                                  })
 eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of
