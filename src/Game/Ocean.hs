@@ -287,7 +287,7 @@ waterV 1    True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p1-p)))/5.0
   where p1 = (pres z1)/10.0
 waterV 6000 True  t p z1        z2        tv tv2 = ((4.0*tv)+(tv2*(p2-p)))/5.0
   where p2 = (pres z2)
-waterV n    z     t p z1        z2        tv tv2 = ((4.0*tv)+((p1-p)-(p2-p)))/5.0
+waterV n    z     t p z1        z2        tv tv2 = ((4.0*tv)+((p2-p)-(p1-p)))/5.0
   where p1 = (1/(1+(abs tv2)))*(pres z1)
         p2 = (1/(1+(abs tv2)))*(pres z2)
 

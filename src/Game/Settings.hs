@@ -11,7 +11,7 @@ gridh = 40::Int
 screenw = 2560::Int
 screenh = 1440::Int
 -- the bigger the map the more zoom you need, soon to be controlled by keys
-zoom = 150::Float
+zoom = 180::Float
 -- fudges the world to keep the edges together
 fudge = 10::Int
 -- all arcane ingredients in the worldgen pie
