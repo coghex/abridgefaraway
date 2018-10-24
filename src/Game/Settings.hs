@@ -11,7 +11,7 @@ gridh = 40::Int
 screenw = 2560::Int
 screenh = 1440::Int
 -- the bigger the map the more zoom you need, soon to be controlled by keys
-zoom = 180::Float
+zoom = 120::Float
 -- fudges the world to keep the edges together
 fudge = 10::Int
 -- all arcane ingredients in the worldgen pie
@@ -45,6 +45,8 @@ history = 800::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 10000::Float
+-- how hard it is to move the oceans
+momentumofwater     = 1000::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- temperature of the landmass
@@ -53,4 +55,4 @@ terratemp           = 14.6::Float
 -- its maximum density
 maxdensitytemp      = -1.9::Float
 -- the velocity at which currents will display
-currentslevel       = 1.0::Float
+currentslevel       = 0.2::Float
