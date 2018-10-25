@@ -12,6 +12,8 @@ screenw = 2560::Int
 screenh = 1440::Int
 -- the bigger the map the more zoom you need, soon to be controlled by keys
 zoom = 120::Float
+-- the precision of floating point numbers
+precision = 2::Int
 -- fudges the world to keep the edges together
 fudge = 10::Int
 -- all arcane ingredients in the worldgen pie
@@ -41,12 +43,12 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 800::Int
+history = 400::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 10000::Float
 -- how hard it is to move the oceans
-momentumofwater     = 1000::Float
+momentumofwater     = 10::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- temperature of the landmass

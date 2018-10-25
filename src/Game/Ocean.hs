@@ -73,11 +73,11 @@ drawOceanCurrentsTile :: Int -> [GL.TextureObject] -> Int -> Int -> OceanZone ->
 drawOceanCurrentsTile n texs x y (Solid _ )                  = withTextures2D [(texs!!10)] $ drawNullTile texs x y
 drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
   | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex n vy                texs x y
-  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx+vy)/2)       texs x y
-  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex n (((-vx)+vy)/2)    texs x y
+  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx+vy)/(sqrt 2))       texs x y
+  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex n (((-vx)+vy)/(sqrt 2))    texs x y
   | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
-  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex n ((vx+(-vy))/2)    texs x y
-  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)+(-vy))/2) texs x y
+  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex n ((vx+(-vy))/(sqrt 2))    texs x y
+  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)+(-vy))/(sqrt 2)) texs x y
   | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex n vx                texs x y
   | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
   | otherwise                                                = withTextures2D [(texs!!1)]  $ drawNullTile texs x y
@@ -95,7 +95,7 @@ drawOceanCurrentsTileTex 1    size texs x y = do
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (2*size) 0)
+  where currentszoom = min 1 (max (size/10) 0)
 drawOceanCurrentsTileTex 200  size texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -104,7 +104,7 @@ drawOceanCurrentsTileTex 200  size texs x y = do
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/100) 0)
+  where currentszoom = min 1 (max (size/10) 0)
 drawOceanCurrentsTileTex 1000 size texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -113,7 +113,7 @@ drawOceanCurrentsTileTex 1000 size texs x y = do
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/60) 0)
+  where currentszoom = min 1 (max (size/10) 0)
 drawOceanCurrentsTileTex n size texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -122,7 +122,7 @@ drawOceanCurrentsTileTex n size texs x y = do
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/10) 0)
+  where currentszoom = min 1 (max (size) 0)
 
 drawNullTile :: [GL.TextureObject] -> Int -> Int -> IO ()
 drawNullTile texs x y = do
@@ -216,22 +216,34 @@ initSeaTemp l n y p = (18.0/(perml+1.0)) + (20.0/(perml+1.0)*(cos (2.0*pi*(lat)/
         perml = fromIntegral(n)/100
 
 initSeaPres :: Float -> Int -> Float
-initSeaPres sal depth = fromIntegral(depth)/360.0
+initSeaPres sal depth = 1.0+fromIntegral(depth)/360.0
 
 initSeaSal :: Float
 initSeaSal = 35.0
 
 getZoneCurrents :: OceanZone -> Maybe (Float, Float, Float)
 getZoneCurrents (Solid _)               = Nothing
-getZoneCurrents (OceanZone _ _ _ x y z) = Just (x, y, z)
+getZoneCurrents (OceanZone _ _ _ x y z) = Just (nx, ny, nz)
+  where nx = (fromInteger $ round $ x * (10^precision)) / (10.0^^precision)
+        ny = (fromInteger $ round $ y * (10^precision)) / (10.0^^precision)
+        nz = (fromInteger $ round $ z * (10^precision)) / (10.0^^precision)
 
 getZoneCurrentsMaybe :: OceanZone -> String
 getZoneCurrentsMaybe o = case (getZoneCurrents o) of Nothing -> "Below Seafloor..."
-                                                     Just t  -> ((show t) ++ " Pressure:" ++ (show (pres o)))
+                                                     Just t  -> ((show t) ++ " Pressure:" ++ (show np))
+  where np = (fromInteger $ round $ (pres o) * (10^precision)) / (10^^precision)
+
+getV :: (Float, Float, Float) -> OceanZone -> (Float, Float, Float)
+getV (vx0, vy0, vz0) (Solid _)                  = (0.0, 0.0, 0.0)
+getV (_,   _,   _)   (OceanZone _ _ _ vx vy vz) = (vx,  vy,  vz)
 
 getP :: Float -> OceanZone -> Float
-getP p0 (Solid _)               = p0+0.01
+getP p0 (Solid _)               = p0+0.001
 getP _  (OceanZone _ p _ _ _ _) = p
+
+getT :: Float -> OceanZone -> Float
+getT t0 (Solid _)               = t0
+getT _  (OceanZone t _ _ _ _ _) = t
 
 getZoneTemp :: OceanZone -> Maybe Float
 getZoneTemp (Solid _)               = Nothing
@@ -253,30 +265,46 @@ getZone 4000 (Sea _ _ _ a _) = a
 getZone 6000 (Sea _ _ _ _ h) = h
 
 calcLight :: Float -> Float -> Float
-calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)/2.0))))
+calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)))))
 
 pvnrt :: Int -> Float -> Float -> Float -> Float
 pvnrt n p t l = ((4.0*t)+(nt))/5.0
-  where nt = 2.0 + (p+((8.0*l)/(fromIntegral(n))))
+  where nt = -2.0 + (p+((10.0*l)/(fromIntegral(n))))
 
 pZone :: Int -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pZone n z za zb zn zs ze zw = ((momentumofwater*p0) + pa + pb + pn + ps + pe + pw)/(momentumofwater+6.0)
-  where p0 = getP 0.0 z
-        pa = getP p0  za
-        pb = getP p0  zb
-        pn = getP p0  zn
-        ps = getP p0  zs
-        pe = getP p0  ze
-        pw = getP p0  zw
+pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+6.0)
+  where p0 = (getP 0.0 z)
+        pa = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
+        pb = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
+        pn = (getP p0  zn)
+        ps = (getP p0  zs)
+        pe = (getP p0  ze)
+        pw = (getP p0  zw)
+        t0 = (getT 0.0 z)
+        ta = (getT t0  za)
+        tb = (getT t0  zb)
+        tn = (getT t0  zn)
+        ts = (getT t0  zs)
+        te = (getT t0  ze)
+        tw = (getT t0  zw)
+        (vx,  vy,  vz)  = getV (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getV (vx, vy, vz)    za
+        (vxb, vyb, vzb) = getV (vx, vy, vz)    zb
+        (vxn, vyn, vzn) = getV (vx, vy, vz)    zn
+        (vxs, vys, vzs) = getV (vx, vy, vz)    zs
+        (vxe, vye, vze) = getV (vx, vy, vz)    ze
+        (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
+        nb = fromIntegral(increaseOceanZ n)
+     
 
 calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> (Float, Float, Float)
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = (pw - p0) - (pe - p0)
-        nvy = (ps - p0) - (pn - p0)
-        nvz = (0.1*(pa - p0)) - (0.1*(pb - p0))
+  where nvx = 100*((pw - p0) - (pe - p0))
+        nvy = 100*((ps - p0) - (pn - p0))
+        nvz = 100*((pa - p0) - (pb - p0))
         p0  = getP 0.0 z
-        pa  = getP p0  za
-        pb  = getP p0  zb
+        pa  = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
+        pb  = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
         pn  = getP p0  zn
         ps  = getP p0  zs
         pe  = getP p0  ze

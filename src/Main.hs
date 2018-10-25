@@ -102,7 +102,7 @@ main = do
     -- the timer is forked initially stopped.  100 is pretty fast, 1000 is pretty slow
     -- the timer state is not guaranteed to be correct, some things dont make sense
     -- for it to deal with and so it doesnt.
-    forkIO $ (gameTime env state 100 TStop)
+    forkIO $ (gameTime env state 800 TStop)
     -- runs the whole monad
     void $ evalRWST run env state
 
