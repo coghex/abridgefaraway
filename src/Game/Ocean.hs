@@ -1,5 +1,6 @@
 module Game.Ocean where
 
+import Numeric (showFFloat)
 import Data.List
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies (parMap, rpar)
@@ -231,14 +232,14 @@ initSeaSal = 35.0
 getZoneCurrents :: OceanZone -> Maybe (Float, Float, Float)
 getZoneCurrents (Solid _)               = Nothing
 getZoneCurrents (OceanZone _ _ _ x y z) = Just (nx, ny, nz)
-  where nx = (fromInteger $ round $ x * (10^precision)) / (10.0^^precision)
-        ny = (fromInteger $ round $ y * (10^precision)) / (10.0^^precision)
-        nz = (fromInteger $ round $ z * (10^precision)) / (10.0^^precision)
+  where nx = roundTo precision x
+        ny = roundTo precision y
+        nz = roundTo precision z
 
 getZoneCurrentsMaybe :: OceanZone -> String
 getZoneCurrentsMaybe o = case (getZoneCurrents o) of Nothing -> "Below Seafloor..."
-                                                     Just t  -> ((show t) ++ " Pressure:" ++ (show np))
-  where np = (fromInteger $ round $ (pres o) * (10^precision)) / (10^^precision)
+                                                     Just t  -> ((showXYZ(mapXYZ showFloatFoReal t)) ++ " Pressure:" ++ (showFloatFoReal np))
+  where np = roundTo precision (pres o)
 
 getV :: (Float, Float, Float) -> OceanZone -> (Float, Float, Float)
 getV (vx0, vy0, vz0) (Solid _)                  = (0.0, 0.0, 0.0)
@@ -274,12 +275,30 @@ getZone 6000 (Sea _ _ _ _ h) = h
 calcLight :: Float -> Float -> Float
 calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)))))
 
-pvnrt :: Int -> Float -> Float -> Float -> Float
-pvnrt n p t l = ((4.0*t)+(nt))/5.0
+pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
+pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
+  where nt = (((-2.0 + ((p)+((10.0*l))))*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+4.2)
+        t0 = (getT 0.0 z)
+        ta = (0.1)*(getT t0  za)
+        tb = (0.1)*(getT t0  zb)
+        tn = (getT t0  zn)
+        ts = (getT t0  zs)
+        te = (getT t0  ze)
+        tw = (getT t0  zw)
+        (vx,  vy,  vz)  = getV (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getV (vx, vy, vz)    za
+        (vxb, vyb, vzb) = getV (vx, vy, vz)    zb
+        (vxn, vyn, vzn) = getV (vx, vy, vz)    zn
+        (vxs, vys, vzs) = getV (vx, vy, vz)    zs
+        (vxe, vye, vze) = getV (vx, vy, vz)    ze
+        (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
+pvnrt 200 p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
+  where nt = -2.0 + ((p)+((10.0*l)/(100.0)))
+pvnrt n   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
   where nt = -2.0 + ((p/fromIntegral(n))+((10.0*l)/(fromIntegral(n))))
 
 pZone :: Int -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*specificheatofwater)+pn+ps+pw+pe+pa+pb)/(specificheatofwater+6.0)
+pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+6.0)
   where p0 = (getP 0.0 z)
         pa = (1+((-vza)/momentumofwater))*((getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
         pb = (1+(vzb/momentumofwater))*((getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
@@ -320,7 +339,7 @@ calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
 eqSeaMaybe :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
 eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of
                                                  Solid _                     -> Nothing
-                                                 OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = pvnrt n p t norml
+                                                 OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = pvnrt n p t norml z za zb zn zs ze zw
                                                                                                  , pres = pZone n z za zb zn zs ze zw
                                                                                                  , sal  = s
                                                                                                  , vx   = nvx

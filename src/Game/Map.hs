@@ -1,5 +1,6 @@
 module Game.Map where
 
+import Numeric (showFFloat)
 import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
 import Game.Settings
@@ -58,6 +59,20 @@ distance x1 y1 x2 y2 x3 y3 t = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
   100*p1*p2
+
+showXYZ :: (String, String, String) -> String
+showXYZ (a, b, c) = "X:" ++ a ++ "Y:" ++ b ++ "Z:" ++ c
+
+showFloatFoReal :: Float -> String
+showFloatFoReal x = showFFloat (Just precision) x " "
+
+mapXYZ :: (a->b) -> (a, a, a) -> (b, b, b)
+mapXYZ f (a1, a2, a3) = (f a1, f a2, f a3)
+
+roundTo :: Int -> Float -> Float
+roundTo n x
+  | abs(x) < (10^^(-n)) = 0.0
+  | otherwise           = (fromInteger $ round $ x * (10^n)) / (10^^n)
 
 expandGrid :: [a] -> [([(a, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]
