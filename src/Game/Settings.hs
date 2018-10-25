@@ -43,12 +43,12 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 400::Int
+history = 1440::Int
 
 -- how hard it is to heat the oceans
-specificheatofwater = 1000::Float
+specificheatofwater = 100::Float
 -- how hard it is to move the oceans
-momentumofwater     = 1000::Float
+momentumofwater     = 100::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- temperature of the landmass
@@ -57,4 +57,4 @@ terratemp           = 14.6::Float
 -- its maximum density
 maxdensitytemp      = -1.9::Float
 -- the velocity at which currents will display
-currentslevel       = 0.2::Float
+currentslevel       = 0.02::Float

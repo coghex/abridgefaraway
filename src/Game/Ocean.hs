@@ -96,7 +96,7 @@ drawOceanCurrentsTileTex 1    size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/10) 0)
+  where currentszoom = min 1 (max (size*100) 0)
 drawOceanCurrentsTileTex 200  size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -105,7 +105,7 @@ drawOceanCurrentsTileTex 200  size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/2) 0)
+  where currentszoom = min 1 (max (size*100) 0)
 drawOceanCurrentsTileTex 1000 size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -114,7 +114,7 @@ drawOceanCurrentsTileTex 1000 size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/10) 0)
+  where currentszoom = min 1 (max (size*100) 0)
 drawOceanCurrentsTileTex n size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -123,7 +123,7 @@ drawOceanCurrentsTileTex n size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size) 0)
+  where currentszoom = min 1 (max (size*100) 0)
 
 drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawVZTile vz texs x y = do
@@ -144,15 +144,15 @@ drawOceanTile n texs x y (Sea e m b a h) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   case n of 1    -> case (getZoneTemp e) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/16.0)-1) (1.0 - (abs ((t-16.0)/16.0))) (1.0-(t/16.0))
+                                            Just t  -> glColor3f (((t+2)/18.0)-1) (1.0 - (abs (((t+2)-18.0)/18.0))) (1.0-((t+2)/18.0))
             200  -> case (getZoneTemp m) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/10.0)-1) (1.0 - (abs ((t-10.0)/12.0))) (1.0-(t/10.0))
+                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
             1000 -> case (getZoneTemp b) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/4.0)-1) (1.0 - (abs ((t-4.0)/4.0))) (1.0-(t/4.0))
+                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-4.0)/8.0))) (1.0-((t+2)/8.0))
             4000 -> case (getZoneTemp a) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/3.0)-1) (1.0 - (abs ((t-3.0)/3.0))) (1.0-(t/3.0))
+                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-3.0)/8.0))) (1.0-((t+2)/8.0))
             6000 -> case (getZoneTemp h) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f ((t/2.0)-1) (1.0 - (abs ((t-2.0)/2.0))) (1.0-(t/2.0))
+                                            Just t  -> glColor3f (((t*2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
   drawOceanSquare
 drawOceanTile n texs x y (Dry _) = do
   glLoadIdentity
@@ -219,7 +219,8 @@ newOceanZone n e l y vx vy vz = OceanZone { temp = initSeaTemp l n y newpres
         newsal  = initSeaSal
 
 initSeaTemp :: Float -> Int -> Int -> Float -> Float
-initSeaTemp l n y p = (18.0/(perml+1.0)) + (20.0/(perml+1.0)*(cos (2.0*pi*(lat)/(fromIntegral(gridh))))) - 2.0
+initSeaTemp l 6000 y p = 4.0
+initSeaTemp l n    y p = (18.0/(perml+1.0)) + (20.0/(perml+1.0)*(cos (2.0*pi*(lat)/(fromIntegral(gridh))))) - 2.0
   where lat   = abs ((fromIntegral(y)) - ((fromIntegral(gridh))/2.0))
         perml = fromIntegral(n)/100
 
@@ -276,15 +277,36 @@ calcLight :: Float -> Float -> Float
 calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)))))
 
 pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
-  where nt = (((-2.0 + ((p)+((10.0*l))))*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+4.2)
+--pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
+--  where nt = (((-2.0 + ((p)+((10.0*l))))*specificheatofwater)+tn+ts+tw+te+tb)/(specificheatofwater+5.0)
+--        t0 = (getT 0.0 z)
+--        tb = case ((getT t0 zb)>t0) of
+--               True  -> (getT t0 zb)
+--               False -> t0
+--        tn = (getT t0  zn)
+--        ts = (getT t0  zs)
+--        te = (getT t0  ze)
+--        tw = (getT t0  zw)
+--        (vx,  vy,  vz)  = getV (0.0, 0.0, 0.0) z
+--        (vxa, vya, vza) = getV (vx, vy, vz)    za
+--        (vxb, vyb, vzb) = getV (vx, vy, vz)    zb
+--        (vxn, vyn, vzn) = getV (vx, vy, vz)    zn
+--        (vxs, vys, vzs) = getV (vx, vy, vz)    zs
+--        (vxe, vye, vze) = getV (vx, vy, vz)    ze
+--        (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
+pvnrt n   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
+  where nt = (((-2.0 + (((fromIntegral(n)/1000.0))+(p/fromIntegral(n))+((20.0*l)/(fromIntegral(n))))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
         t0 = (getT 0.0 z)
-        ta = (0.1)*(getT t0  za)
-        tb = (0.1)*(getT t0  zb)
-        tn = (getT t0  zn)
-        ts = (getT t0  zs)
-        te = (getT t0  ze)
-        tw = (getT t0  zw)
+        ta = case ((getT t0 za)<t0) of
+               True  -> (1+((vza)/specificheatofwater))*(getT t0 za)
+               False -> t0
+        tb = case ((getT t0 zb)>t0) of
+               True  -> (1+((-vzb)/specificheatofwater))*(getT t0 zb)
+               False -> t0
+        tn = (1+((-vyn)/specificheatofwater))*(getT t0  zn)
+        ts = (1+((vys)/specificheatofwater))*(getT t0  zs)
+        te = (1+((-vxe)/specificheatofwater))*(getT t0  ze)
+        tw = (1+((vxw)/specificheatofwater))*(getT t0  zw)
         (vx,  vy,  vz)  = getV (0.0, 0.0, 0.0) z
         (vxa, vya, vza) = getV (vx, vy, vz)    za
         (vxb, vyb, vzb) = getV (vx, vy, vz)    zb
@@ -292,16 +314,16 @@ pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
         (vxs, vys, vzs) = getV (vx, vy, vz)    zs
         (vxe, vye, vze) = getV (vx, vy, vz)    ze
         (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
-pvnrt 200 p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
-  where nt = -2.0 + ((p)+((10.0*l)/(100.0)))
-pvnrt n   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
-  where nt = -2.0 + ((p/fromIntegral(n))+((10.0*l)/(fromIntegral(n))))
 
 pZone :: Int -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+6.0)
+pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0)))+(p0*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+7.0)
   where p0 = (getP 0.0 z)
-        pa = (1+((-vza)/momentumofwater))*((getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
-        pb = (1+(vzb/momentumofwater))*((getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
+        pa = case (ta<t0) of
+               True  -> (1+((vza)/momentumofwater))*((getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
+               False -> p0
+        pb = case (tb>t0) of
+               True  -> (1+((-vzb)/momentumofwater))*((getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
+               False -> p0
         pn = (1+((-vyn)/momentumofwater))*(getP p0  zn)
         ps = (1+(vys/momentumofwater))*(getP p0  zs)
         pe = (1+((-vxe)/momentumofwater))*(getP p0  ze)
@@ -325,9 +347,9 @@ pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*mome
 
 calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> (Float, Float, Float)
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = 100*((pw - p0) - (pe - p0))
-        nvy = 100*((ps - p0) - (pn - p0))
-        nvz = ((pa - p0) - (pb - p0))
+  where nvx = ((pw - p0) - (pe - p0))
+        nvy = ((ps - p0) - (pn - p0))
+        nvz = ((pb - p0) - (pa - p0))
         p0  = getP 0.0 z
         pa  = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
         pb  = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
