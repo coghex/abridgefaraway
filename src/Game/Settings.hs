@@ -46,9 +46,9 @@ radius = 20::Int
 history = 400::Int
 
 -- how hard it is to heat the oceans
-specificheatofwater = 10000::Float
+specificheatofwater = 100::Float
 -- how hard it is to move the oceans
-momentumofwater     = 10::Float
+momentumofwater     = 1000::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- temperature of the landmass

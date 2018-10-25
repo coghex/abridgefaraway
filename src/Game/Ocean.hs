@@ -72,57 +72,64 @@ drawOceanCurrentsBackgroundSpot 6000 texs y ((Sea _ _ _ _ h), x) = drawOceanCurr
 drawOceanCurrentsTile :: Int -> [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
 drawOceanCurrentsTile n texs x y (Solid _ )                  = withTextures2D [(texs!!10)] $ drawNullTile texs x y
 drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
-  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex n vy                texs x y
-  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx+vy)/(sqrt 2))       texs x y
-  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex n (((-vx)+vy)/(sqrt 2))    texs x y
-  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
-  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex n ((vx+(-vy))/(sqrt 2))    texs x y
-  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)+(-vy))/(sqrt 2)) texs x y
-  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex n vx                texs x y
-  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex n (-vy)             texs x y
-  | otherwise                                                = withTextures2D [(texs!!1)]  $ drawNullTile texs x y
+  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex n vy                       vz texs x y
+  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx+vy)/(sqrt 2))       vz texs x y
+  | (vx < (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!16)] $ drawOceanCurrentsTileTex n (((-vx)+vy)/(sqrt 2))    vz texs x y
+  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!13)] $ drawOceanCurrentsTileTex n (-vy)                    vz texs x y
+  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!20)] $ drawOceanCurrentsTileTex n ((vx+(-vy))/(sqrt 2))    vz texs x y
+  | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)+(-vy))/(sqrt 2)) vz texs x y
+  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex n vx                       vz texs x y
+  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex n (-vy)                    vz texs x y
+  | otherwise                                                = withTextures2D [(texs!!1)]  $ drawVZTile vz texs x y
 
 drawOceanCurrentsBackgroundTile :: [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
-drawOceanCurrentsBackgroundTile texs x y (Solid _)               = withTextures2D [(texs!!10)] $ drawNullTile texs x y
-drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ _) = withTextures2D [(texs!!1)] $ drawNullTile texs x y
+drawOceanCurrentsBackgroundTile texs x y (Solid _)                = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ vz) = withTextures2D [(texs!!1)] $ drawVZTile vz texs x y
 
-drawOceanCurrentsTileTex :: Int -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
-drawOceanCurrentsTileTex 1    size texs x y = do
+drawOceanCurrentsTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
+drawOceanCurrentsTileTex 1    size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f 1.0 1.0 1.0
+  glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
   where currentszoom = min 1 (max (size/10) 0)
-drawOceanCurrentsTileTex 200  size texs x y = do
+drawOceanCurrentsTileTex 200  size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f 1.0 1.0 1.0
+  glColor3f vz 1.0 1.0
+  drawOceanSquare
+  GL.depthFunc GL.$= Just GL.Lequal
+  where currentszoom = min 1 (max (size/2) 0)
+drawOceanCurrentsTileTex 1000 size vz texs x y = do
+  glLoadIdentity
+  GL.depthFunc GL.$= Nothing
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
+  glScalef (currentszoom) (currentszoom) (currentszoom)
+  glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
   where currentszoom = min 1 (max (size/10) 0)
-drawOceanCurrentsTileTex 1000 size texs x y = do
+drawOceanCurrentsTileTex n size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f 1.0 1.0 1.0
-  drawOceanSquare
-  GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size/10) 0)
-drawOceanCurrentsTileTex n size texs x y = do
-  glLoadIdentity
-  GL.depthFunc GL.$= Nothing
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
-  glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f 1.0 1.0 1.0
+  glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
   where currentszoom = min 1 (max (size) 0)
+
+drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
+drawVZTile vz texs x y = do
+  glLoadIdentity
+  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
+  glColor3f vz 1.0 1.0
+  drawOceanSquare
 
 drawNullTile :: [GL.TextureObject] -> Int -> Int -> IO ()
 drawNullTile texs x y = do
@@ -269,17 +276,17 @@ calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)))))
 
 pvnrt :: Int -> Float -> Float -> Float -> Float
 pvnrt n p t l = ((4.0*t)+(nt))/5.0
-  where nt = -2.0 + (p+((10.0*l)/(fromIntegral(n))))
+  where nt = -2.0 + ((p/fromIntegral(n))+((10.0*l)/(fromIntegral(n))))
 
 pZone :: Int -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+6.0)
+pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0))*specificheatofwater)+pn+ps+pw+pe+pa+pb)/(specificheatofwater+6.0)
   where p0 = (getP 0.0 z)
-        pa = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
-        pb = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
-        pn = (getP p0  zn)
-        ps = (getP p0  zs)
-        pe = (getP p0  ze)
-        pw = (getP p0  zw)
+        pa = (1+((-vza)/momentumofwater))*((getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
+        pb = (1+(vzb/momentumofwater))*((getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
+        pn = (1+((-vyn)/momentumofwater))*(getP p0  zn)
+        ps = (1+(vys/momentumofwater))*(getP p0  zs)
+        pe = (1+((-vxe)/momentumofwater))*(getP p0  ze)
+        pw = (1+(vxw/momentumofwater))*(getP p0  zw)
         t0 = (getT 0.0 z)
         ta = (getT t0  za)
         tb = (getT t0  zb)
@@ -301,7 +308,7 @@ calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone ->
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
   where nvx = 100*((pw - p0) - (pe - p0))
         nvy = 100*((ps - p0) - (pn - p0))
-        nvz = 100*((pa - p0) - (pb - p0))
+        nvz = ((pa - p0) - (pb - p0))
         p0  = getP 0.0 z
         pa  = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
         pb  = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
