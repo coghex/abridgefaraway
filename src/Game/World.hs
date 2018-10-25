@@ -42,7 +42,7 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateRangeRands     = rangers
     , stateSun            = sol
     , stateMoon           = luna
-    , stateSunSpots       = theBigSpotter sol
+    , stateSunSpots       = theBigSpotter sol (moonSpotter luna)
     , stateTime           = 0
     , stateOceans         = []
     , stateOceanTempZ     = 1
@@ -147,7 +147,8 @@ nextState state env = State
     oldsun  = stateSun state
     oldmoon = stateMoon state
     newos   = tempOcean (stateOceans state) sspots
-    sspots  = theBigSpotter sun
+    sspots  = theBigSpotter sun mspots
+    mspots  = moonSpotter moon
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = parZipWith fixContSpots g e

@@ -29,33 +29,34 @@ moveSun s0 time = Sun { x = (((fromInteger(time))/(1440.0/(fromIntegral(gridw)))
 sunSpots :: [Float] -> Int -> Int -> Float
 sunSpots sun x y = sun !! (x+(y*gridw))
 
-theBigSpotter :: Sun -> [Float]
-theBigSpotter sun = do
+theBigSpotter :: Sun -> [Float] -> [Float]
+theBigSpotter sun moonspots = do
   let r0 = expandGrid (take (gridh*gridw) (repeat (double2Float 0.0)))
-      r1 = map (sunRow sun) r0
+      r1 = map (sunRow sun moonspots) r0
       r2 = stripGrid r1
       r3 = flattenGrid r2
   r3
 
-sunRow :: Sun -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
-sunRow sun (s, y) = (map (sunAllSpots sun y) s, y)
+sunRow :: Sun -> [Float] -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
+sunRow sun ms (s, y) = (map (sunAllSpots sun ms y) s, y)
 
-sunAllSpots :: Sun -> Int -> (Float, Int) -> (Float, Int)
-sunAllSpots sun y (s, x) = (spotSun sun x y, x)
+sunAllSpots :: Sun -> [Float] -> Int -> (Float, Int) -> (Float, Int)
+sunAllSpots sun ms y (s, x) = (spotSun sun ms x y, x)
 
-spotSun :: Sun -> Int -> Int -> Float
-spotSun sun x1 y1 = max r0 rb
-  where r0 = sunSpot sun x1 y1
+spotSun :: Sun -> [Float] -> Int -> Int -> Float
+spotSun sun ms x1 y1 = max r0 rb
+  where r0 = sunSpot sun x1 y1 ml
         r  = max ra rb
         ra = max rn rs
         rb = max re rw
-        rn = sunSpot sun x1 (y1 + 2*gridw)
-        rs = sunSpot sun x1 (y1 - 2*gridw)
-        re = sunSpot sun (x1 + 2*gridw) y1
-        rw = sunSpot sun (x1 - 2*gridw) y1
+        rn = sunSpot sun x1 (y1 + 2*gridh) ml
+        rs = sunSpot sun x1 (y1 - 2*gridh) ml
+        re = sunSpot sun (x1 + 2*gridw) y1 ml
+        rw = sunSpot sun (x1 - 2*gridw) y1 ml
+        ml = sunSpots ms x1 y1
 
-sunSpot :: Sun -> Int -> Int -> Float
-sunSpot sun x1 y1 = dist + ml
+sunSpot :: Sun -> Int -> Int -> Float -> Float
+sunSpot sun x1 y1 ml = dist + ml
   where dist  = max 0 $ (0.25-((td1*soid1)+(td2*soid2)))
         soid1 = (((r1)*(sin (s1*t1)))+((r2)*(sin (s2*t2))))
         soid2 = ((0.8)*(sin (2*s1*sx))+((s2*sy)))
@@ -65,7 +66,6 @@ sunSpot sun x1 y1 = dist + ml
         t2    = 2*sx-sy
         td1   = abs $ sin ((pi/4)+(s1*(x sun)/(360)))
         td2   = cos ((pi/4)+(s1*(x sun)/(360)))
-        ml    = 0.5
         s1    = (pi) / ((fromIntegral gridw))
         s2    = (pi) / ((fromIntegral gridw))
         r1    = 1
