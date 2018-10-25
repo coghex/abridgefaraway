@@ -27,6 +27,7 @@ executable abfa
         Game.Sky
         Game.Time
         Game.Sun
+        Game.Moon
         Game.Data
         GLUtil.Textures
         GLUtil.TypeMapping

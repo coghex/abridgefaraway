@@ -8,6 +8,7 @@ import qualified Graphics.Rendering.FTGL as FTGL
 
 import System.Random
 import Game.Sun
+import Game.Moon
 import Game.Data
 
 data GameState  = SWorld | SElev | SSeaTemp | SSeaCurrents | SZone | SMenu | SLoad | SLoadTime | SLoadElev | SLoadSeaTemp | SLoadSeaCurrents | SFucked | SPause deriving (Eq, Show)
@@ -44,6 +45,7 @@ data State = State
   , stateRandI          :: !Int
   , stateRangeRands     :: ![Int]
   , stateSun            :: !Sun
+  , stateMoon           :: !Moon
   , stateSunSpots       :: ![Float]
   , stateTime           :: !Integer
   , stateOceans         :: ![Ocean]

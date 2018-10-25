@@ -10,11 +10,12 @@ import Game.Rand
 import Game.Map
 import Game.Elev
 import Game.Sun
+import Game.Moon
 import Game.Ocean
 import Game.Sky
 
-genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
-genParams gs currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
+genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> Moon -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
+genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
   let nspots = randomList (minnspots, maxnspots) nconts s1
       conts = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s1), (randomList (1, (gridh-1)) nconts s2))
       seeds = buildList2 ((randomList (fudge, (gridw-fudge)) nconts s3), (randomList (1, (gridh-1)) nconts s4))
@@ -40,6 +41,7 @@ genParams gs currmap nconts i rangers sol s1 s2 s3 s4 s5 s6 = do
     , stateRandI          = i
     , stateRangeRands     = rangers
     , stateSun            = sol
+    , stateMoon           = luna
     , stateSunSpots       = theBigSpotter sol
     , stateTime           = 0
     , stateOceans         = []
@@ -68,6 +70,7 @@ initWorld state env = do
       randi   = stateRandI          state
       rangers = stateRangeRands     state
       sun     = stateSun            state
+      moon    = stateMoon           state
       sunspot = stateSunSpots       state
       time    = stateTime           state
       oceans  = stateOceans         state
@@ -102,6 +105,7 @@ initWorld state env = do
     , stateRandI          = randi
     , stateRangeRands     = rangers
     , stateSun            = sun
+    , stateMoon           = moon
     , stateSunSpots       = sunspot
     , stateTime           = time
     , stateOceans         = o1
@@ -129,6 +133,7 @@ nextState state env = State
     , stateRandI          = stateRandI state
     , stateRangeRands     = stateRangeRands state
     , stateSun            = sun
+    , stateMoon           = moon
     , stateSunSpots       = sspots
     , stateTime           = time
     , stateOceans         = newos
@@ -136,11 +141,13 @@ nextState state env = State
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = stateSkies state }
   where
-    time   = (stateTime state)+1
-    sun    = moveSun oldsun time
-    oldsun = stateSun state
-    newos  = tempOcean (stateOceans state) sspots
-    sspots = theBigSpotter sun
+    time    = (stateTime state)+1
+    sun     = moveSun oldsun time
+    moon    = moveMoon oldmoon time
+    oldsun  = stateSun state
+    oldmoon = stateMoon state
+    newos   = tempOcean (stateOceans state) sspots
+    sspots  = theBigSpotter sun
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = parZipWith fixContSpots g e
@@ -167,7 +174,8 @@ regenWorld state env = do
       nconts   = (randomRs (minnconts, maxnconts) (mkStdGen (42+i))) !! currmap
       rangers  = (randomRs (10000, 100000) (mkStdGen (42+i)))
       sol      = (makeSun 0.0 (fromIntegral(gridh)/2) 800 600)
-  let newstate = genParams SLoad currmap nconts (i+1) rangers sol s1 s2 s3 s4 s5 s6
+      luna     = (makeMoon 0.0 (fromIntegral(gridh)/2) 20 10)
+  let newstate = genParams SLoad currmap nconts (i+1) rangers sol luna s1 s2 s3 s4 s5 s6
   initWorld newstate env
 
 genStep :: StdGen -> StdGen

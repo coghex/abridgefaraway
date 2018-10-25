@@ -347,9 +347,9 @@ pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0)))+(p0
 
 calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> (Float, Float, Float)
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = ((pw - p0) - (pe - p0))
-        nvy = ((ps - p0) - (pn - p0))
-        nvz = ((pb - p0) - (pa - p0))
+  where nvx = min nn (max (((pw - p0) - (pe - p0))-(0.01*(cos (pi*(lat/((fromIntegral gridh))))))) (-nn))
+        nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
+        nvz = min nn (max ((pb - p0) - (pa - p0)) (-nn))
         p0  = getP 0.0 z
         pa  = (getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
         pb  = (getP p0  zb)-(fromIntegral(increaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0)
@@ -357,6 +357,7 @@ calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
         ps  = getP p0  zs
         pe  = getP p0  ze
         pw  = getP p0  zw
+        nn  = fromIntegral(n)
 
 eqSeaMaybe :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
 eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of

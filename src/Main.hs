@@ -28,6 +28,7 @@ import Game.World
 import Game.Elev
 import Game.Rand
 import Game.Time
+import Game.Moon
 import Game.Sun
 import Game.Ocean
 import Game.Map
@@ -72,9 +73,10 @@ main = do
     -- these are some of the parameters that are regenerated with new maps
     let nconts = (randomRs (minnconts, maxnconts) (mkStdGen 42)) !! 1
     let rangers = (randomRs (minnconts, maxnconts) (mkStdGen 43))
-    let sol = (makeSun 0.0 ((fromIntegral(gridh))/2) 800 60)
+    let sol = (makeSun 0.0 ((fromIntegral(gridh))/2) 800 600)
+        luna = (makeMoon 0.0 ((fromIntegral(gridh)/30)+(fromIntegral(gridh))/2) 20 10)
     -- this generates most of the parameters, the above 
-        state = genParams SMenu 1 nconts 0 rangers sol s1 s2 s3 s4 s5 s6
+        state = genParams SMenu 1 nconts 0 rangers sol luna s1 s2 s3 s4 s5 s6
 
     -- these channels pass data between the main thread and the timer thread
     -- this channel is for updating the main game state when changes occur
