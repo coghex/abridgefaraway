@@ -46,13 +46,15 @@ radius = 20::Int
 history = 1000::Int
 
 -- how hard it is to heat the oceans
-specificheatofwater = 600::Float
+specificheatofwater = 1000::Float
+-- how hard it is to heat the earth
+specificheatofterra = 600::Float
 -- how hard it is to move the oceans
 momentumofwater     = 10::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- the strength of the tides
-tidalstrength       = 0.1::Float
+tidalstrength       = 0.01::Float
 -- freezing point of water
 freezingpoint       = -1.1::Float
 -- temperature of the landmass

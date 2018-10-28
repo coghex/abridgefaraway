@@ -293,7 +293,7 @@ getZone 4000 (Sea _ _ _ a _) = a
 getZone 6000 (Sea _ _ _ _ h) = h
 
 calcLight :: Float -> Float -> Float
-calcLight l lat = l*(0.5+(cos (1.75*pi*(lat/((fromIntegral gridh))))))
+calcLight l lat = l*(0.2+(cos (1.75*pi*(lat/((fromIntegral gridh))))))
 
 pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
 --pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
@@ -313,7 +313,7 @@ pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -
 --        (vxs, vys, vzs) = getV (vx, vy, vz)    zs
 --        (vxe, vye, vze) = getV (vx, vy, vz)    ze
 --        (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
-pvnrt n   p t l z za zb zn zs ze zw = (((-2.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((16.0*l)/(((fromIntegral(n))/360.0)+1.0)))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
+pvnrt n   p t l z za zb zn zs ze zw = (((0.2*(-2.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((12.0*l)/(((fromIntegral(n))/180.0)+1.0)))))+t)*(specificheatofwater)+tn+ts+tw+te+ta+tb)/(1.2*specificheatofwater+6.0)
   where t0 = (getT 0.0 z)
         ta = case ((getT t0 za)<t0) of
                True  -> (1+((vza)/specificheatofwater))*(getT t0 za)
@@ -363,7 +363,7 @@ pZone n ml z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0) - 
         nb = fromIntegral(increaseOceanZ n)
 
 iceT :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-iceT n   p t l z za zb zn zs ze zw = (((-3.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((8.0*l)/(((fromIntegral(n))/360.0)+1.0)))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
+iceT n   p t l z za zb zn zs ze zw = (((((-3.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((12.0*l)/(((fromIntegral(n))/360.0)+1.0)))))+t)*specificheatofwater)+tn+ts+tw+te+ta+tb)/(2*specificheatofwater+6.0)
   where t0 = t
         ta = case ((getT t0 za)<t0) of
                True  -> (1+((vza)/specificheatofwater))*(getT t0 za)
@@ -400,7 +400,7 @@ calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
 
 eqSeaMaybe :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
 eqSeaMaybe n    l ml lat z za zb on os oe ow    = case (z) of
-                                                    Solid t                     -> Just ( Solid t )
+                                                    Solid t                     -> Just ( tempEarth n t lat z za zb zn zs ze zw)
                                                     Ice t                       -> Just ( meltIce t (iceT n 1.0 t norml z za zb zn zs ze zw))
                                                     OceanZone t p s tvx tvy tvz -> Just ( freezeIce n (pvnrt n p t norml z za zb zn zs ze zw) (pZone n ml z za zb zn zs ze zw) s nvx nvy nvz)
   where  (nvx, nvy, nvz) = calcCurrentsV n l lat z za zb zn zs ze zw
@@ -409,6 +409,20 @@ eqSeaMaybe n    l ml lat z za zb on os oe ow    = case (z) of
          ze              = getZone n oe
          zw              = getZone n ow
          norml           = calcLight l lat
+
+tempEarth :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone
+tempEarth n t0 lat z za zb zn zs ze zw = Solid ((specificheatofterra*(t0 + tterra) + tn + ts + te + tw)/(2*specificheatofterra+4.0))
+  where tterra = terratemp / (1.0+(lat/((fromIntegral((n*gridh)))/180)))
+        ta = case ((getT t0 za)<t0) of
+               True  -> (getT t0 za)
+               False -> t0
+        tb = case ((getT t0 zb)>t0) of
+               True  -> (getT t0 zb)
+               False -> t0
+        tn = (getT t0  zn)
+        ts = (getT t0  zs)
+        te = (getT t0  ze)
+        tw = (getT t0  zw)
 
 tempOcean :: [Ocean] -> [Float] -> [Float] -> [Ocean]
 tempOcean o l ml = do
