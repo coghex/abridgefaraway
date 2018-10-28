@@ -14,6 +14,7 @@ import Game.Settings
 import Game.Data
 import Game.State
 import Game.Map
+import Game.Moon
 
 theGreatSeas :: [Int] -> [Int] -> [Float] -> [Ocean]
 theGreatSeas grid elev light = do
@@ -438,13 +439,13 @@ increaseOceanZ 4000 = 6000
 increaseOceanZ 6000 = 6000
 increaseOceanZ x    = x
 
-iceMap :: State -> Env -> [Int] -> [Ocean] -> [Int]
-iceMap state env []     o      = []
-iceMap state env (g:gs) (o:os) = (iceSpot g o) : (iceMap state env gs os)
+iceMap :: State -> Env -> [Int] -> [Ocean] -> [Int] -> [Int]
+iceMap state env []     o      og       = []
+iceMap state env (g:gs) (o:os) (og:ogs) = (iceSpot g o og) : (iceMap state env gs os ogs)
 
-iceSpot :: Int -> Ocean -> Int
-iceSpot g (Dry _)                 = g
-iceSpot g (Sea (Solid _) _ _ _ _) = g
-iceSpot g (Sea e _ _ _ _)
+iceSpot :: Int -> Ocean -> Int -> Int
+iceSpot g (Dry _)                 og = g
+iceSpot g (Sea (Solid _) _ _ _ _) og = g
+iceSpot g (Sea e _ _ _ _)         og
   | ((getZoneTempForSure e 0) < -2.1) = 11
-  | otherwise                         = g
+  | otherwise                         = og

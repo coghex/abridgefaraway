@@ -200,6 +200,7 @@ draw SWorld = do
     let unftime = stateTime newstate
     beginDrawText
     drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
     GL.preservingMatrix $ do
       drawScene newstate (envWTex env)
     GL.preservingMatrix $ do

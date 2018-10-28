@@ -56,8 +56,8 @@ spotMoon moon x1 y1 = max r0 rb
         rw = moonSpot moon (x1 - 2*gridw) y1
 
 moonSpot :: Moon -> Int -> Int -> Float
-moonSpot moon x1 y1 = min (dist + 0.4) 0.7
-  where dist  = max 0 $ (0.25-((td1*soid1)+(td2*soid2)))
+moonSpot moon x1 y1 = min (dist + 0.4) 0.6
+  where dist  = max 0 $ (0.5-((td1*soid1)+(td2*soid2)))
         soid1 = (((r1)*(sin (s1*t1)))+((r2)*(sin (s2*t2))))
         soid2 = ((0.8)*(cos (2*s1*sx))+((s2*sy)))
         sx    = x moon - ((fromIntegral ((x1))))
@@ -68,8 +68,8 @@ moonSpot moon x1 y1 = min (dist + 0.4) 0.7
         td2   = sin ((pi/4)+(s1*(x moon)/(354.4)))
         s1    = (pi) / (fromIntegral gridw)
         s2    = (pi) / (fromIntegral gridw)
-        r1    = 0.1
-        r2    = 0.1
+        r1    = 0.01
+        r2    = 0.01
 
 
 

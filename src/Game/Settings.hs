@@ -43,7 +43,7 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 1440::Int
+history = 200::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 100::Float

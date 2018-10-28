@@ -33,6 +33,7 @@ data State = State
   , stateScreenW        :: !Int
   , stateScreenH        :: !Int
   , stateGrid           :: ![Int]
+  , stateOG             :: ![Int]
   , stateElev           :: ![Int]
   , stateCursor         :: !(Int, Int)
   , stateNConts         :: !Int
