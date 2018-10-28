@@ -73,6 +73,7 @@ drawOceanCurrentsBackgroundSpot 6000 texs y ((Sea _ _ _ _ h), x) = drawOceanCurr
 
 drawOceanCurrentsTile :: Int -> [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
 drawOceanCurrentsTile n texs x y (Solid _ )                  = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawOceanCurrentsTile n texs x y (Ice _ )                    = withTextures2D [(texs!!11)] $ drawNullTile texs x y
 drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
   | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!17)] $ drawOceanCurrentsTileTex n vy                       vz texs x y
   | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!18)] $ drawOceanCurrentsTileTex n ((vx+vy)/(sqrt 2))       vz texs x y
@@ -86,6 +87,7 @@ drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
 
 drawOceanCurrentsBackgroundTile :: [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
 drawOceanCurrentsBackgroundTile texs x y (Solid _)                = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawOceanCurrentsBackgroundTile texs x y (Ice _)                  = withTextures2D [(texs!!11)] $ drawNullTile texs x y
 drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ vz) = withTextures2D [(texs!!1)] $ drawVZTile vz texs x y
 
 drawOceanCurrentsTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
@@ -97,7 +99,7 @@ drawOceanCurrentsTileTex 1    size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size*100) 0)
+  where currentszoom = min 1 (max (size*10) 0)
 drawOceanCurrentsTileTex 200  size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -106,7 +108,7 @@ drawOceanCurrentsTileTex 200  size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size*100) 0)
+  where currentszoom = min 1 (max (size*10) 0)
 drawOceanCurrentsTileTex 1000 size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -115,7 +117,7 @@ drawOceanCurrentsTileTex 1000 size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size*100) 0)
+  where currentszoom = min 1 (max (size*10) 0)
 drawOceanCurrentsTileTex n size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
@@ -124,7 +126,7 @@ drawOceanCurrentsTileTex n size vz texs x y = do
   glColor3f vz 1.0 1.0
   drawOceanSquare
   GL.depthFunc GL.$= Just GL.Lequal
-  where currentszoom = min 1 (max (size*100) 0)
+  where currentszoom = min 1 (max (size*10) 0)
 
 drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawVZTile vz texs x y = do
@@ -144,16 +146,21 @@ drawOceanTile :: Int -> [GL.TextureObject] -> Int -> Int -> Ocean -> IO ()
 drawOceanTile n texs x y (Sea e m b a h) = do
   glLoadIdentity
   glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-zoom)
-  case n of 1    -> case (getZoneTemp e) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (((t+2)/18.0)-1) (1.0 - (abs (((t+2)-18.0)/18.0))) (1.0-((t+2)/18.0))
-            200  -> case (getZoneTemp m) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
-            1000 -> case (getZoneTemp b) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-4.0)/8.0))) (1.0-((t+2)/8.0))
-            4000 -> case (getZoneTemp a) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-3.0)/8.0))) (1.0-((t+2)/8.0))
-            6000 -> case (getZoneTemp h) of Nothing -> glColor3f 1.0 1.0 1.0
-                                            Just t  -> glColor3f (((t*2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
+  case n of 1    -> case (e) of Solid t               -> glColor3f 1.0 1.0 1.0
+                                Ice   t               -> glColor3f 1.0 1.0 1.0
+                                OceanZone t _ _ _ _ _ -> glColor3f (((t+2)/18.0)-1) (1.0 - (abs (((t+2)-18.0)/18.0))) (1.0-((t+2)/18.0))
+            200  -> case (m) of Solid t               -> glColor3f 1.0 1.0 1.0
+                                Ice   t               -> glColor3f 1.0 1.0 1.0
+                                OceanZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
+            1000 -> case (b) of Solid t               -> glColor3f 1.0 1.0 1.0
+                                Ice   t               -> glColor3f 1.0 1.0 1.0
+                                OceanZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
+            4000 -> case (a) of Solid t               -> glColor3f 1.0 1.0 1.0
+                                Ice   t               -> glColor3f 1.0 1.0 1.0
+                                OceanZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
+            6000 -> case (h) of Solid t               -> glColor3f 1.0 1.0 1.0
+                                Ice   t               -> glColor3f 1.0 1.0 1.0
+                                OceanZone t _ _ _ _ _ -> glColor3f (((t*2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
   drawOceanSquare
 drawOceanTile n texs x y (Dry _) = do
   glLoadIdentity
@@ -199,24 +206,27 @@ newOcean 7  e l y = Sea { epipelagic    = newZone e l y 1    0 0 0 0
                         , abyssopelagic = newZone e l y 4000 0 0 0 0
                         , hadopelagic   = newZone e l y 6000 0 0 0 0
                         }
-newOcean g e l y = Dry g
+newOcean g e l y = Dry terratemp
 
 newZone :: Int -> Float -> Int -> Int -> Float -> Float -> Float -> Float -> OceanZone
 newZone e l y 1 sal vx vy vz                        = newOceanZone 1 e l y vx vy vz
 newZone e l y n sal vx vy vz
-  | ((round ((fromIntegral(e))-(sealevel))) > (-n)) = Solid 0
+  | ((round ((fromIntegral(e))-(sealevel))) > (-n)) = Solid terratemp
   | otherwise                                       = newOceanZone n e l y vx vy vz
 
 
 newOceanZone :: Int -> Int -> Float -> Int -> Float -> Float -> Float -> OceanZone
-newOceanZone n e l y vx vy vz = OceanZone { temp = initSeaTemp l n y newpres
+newOceanZone n e l y vx vy vz
+  | (z > (((fromIntegral(n))/20)*freezingpoint)) = OceanZone { temp = initSeaTemp l n y newpres
                                           , pres = newpres
                                           , sal  = newsal
                                           , vx   = vx
                                           , vy   = vy
                                           , vz   = vz
                                           }
-  where newpres = initSeaPres newsal n
+  | otherwise         = Ice freezingpoint
+  where z       = initSeaTemp l n y newpres
+        newpres = initSeaPres newsal n
         newsal  = initSeaSal
 
 initSeaTemp :: Float -> Int -> Int -> Float -> Float
@@ -233,6 +243,7 @@ initSeaSal = 35.0
 
 getZoneCurrents :: OceanZone -> Maybe (Float, Float, Float)
 getZoneCurrents (Solid _)               = Nothing
+getZoneCurrents (Ice _)                 = Nothing
 getZoneCurrents (OceanZone _ _ _ x y z) = Just (nx, ny, nz)
   where nx = roundTo precision x
         ny = roundTo precision y
@@ -245,29 +256,36 @@ getZoneCurrentsMaybe o = case (getZoneCurrents o) of Nothing -> "Below Seafloor.
 
 getV :: (Float, Float, Float) -> OceanZone -> (Float, Float, Float)
 getV (vx0, vy0, vz0) (Solid _)                  = (0.0, 0.0, 0.0)
+getV (vx0, vy0, vz0) (Ice _)                    = (0.0, 0.0, 0.0)
 getV (_,   _,   _)   (OceanZone _ _ _ vx vy vz) = (vx,  vy,  vz)
 
 getP :: Float -> OceanZone -> Float
 getP p0 (Solid _)               = p0+0.001
+getP p0 (Ice _)                 = p0+0.001
 getP _  (OceanZone _ p _ _ _ _) = p
 
 getT :: Float -> OceanZone -> Float
-getT t0 (Solid _)               = t0
+getT t0 (Solid t)               = terratemp
+getT t0 (Ice t)                 = t
 getT _  (OceanZone t _ _ _ _ _) = t
 
 getZoneTemp :: OceanZone -> Maybe Float
-getZoneTemp (Solid _)               = Nothing
+getZoneTemp (Solid t)               = Just t
+getZoneTemp (Ice t)                 = Just t
 getZoneTemp (OceanZone t _ _ _ _ _) = Just t
 
 getZoneTempForSure :: OceanZone -> Float -> Float
-getZoneTempForSure (Solid _)               ot = ot
+getZoneTempForSure (Solid t)               ot = t
+getZoneTempForSure (Ice t)                 ot = t
 getZoneTempForSure (OceanZone t _ _ _ _ _) ot = t
 
 getZoneTempMaybe :: OceanZone -> String
-getZoneTempMaybe o = case (getZoneTemp o) of Nothing -> "Below Seafloor..."
-                                             Just t  -> show t
+getZoneTempMaybe o = case (o) of OceanZone t _ _ _ _ _ -> show t
+                                 Solid     t           -> "Solid Rock Temp:" ++ show t
+                                 Ice       t           -> "Solid Ice Temp" ++ show t
+
 getZone :: Int -> Ocean -> OceanZone
-getZone n    (Dry _)         = Solid n
+getZone n    (Dry t)         = Solid t
 getZone 1    (Sea e _ _ _ _) = e
 getZone 200  (Sea _ m _ _ _) = m
 getZone 1000 (Sea _ _ b _ _) = b
@@ -275,7 +293,7 @@ getZone 4000 (Sea _ _ _ a _) = a
 getZone 6000 (Sea _ _ _ _ h) = h
 
 calcLight :: Float -> Float -> Float
-calcLight l lat = l*(cos (pi*(lat/((fromIntegral gridh)))))
+calcLight l lat = l*(0.5+(cos (1.75*pi*(lat/((fromIntegral gridh))))))
 
 pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
 --pvnrt 1   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
@@ -295,9 +313,8 @@ pvnrt :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -
 --        (vxs, vys, vzs) = getV (vx, vy, vz)    zs
 --        (vxe, vye, vze) = getV (vx, vy, vz)    ze
 --        (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
-pvnrt n   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
-  where nt = (((-2.0 + (((fromIntegral(n)/1000.0))+(p/fromIntegral(n))+((20.0*l)/(fromIntegral(n))))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
-        t0 = (getT 0.0 z)
+pvnrt n   p t l z za zb zn zs ze zw = (((-2.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((16.0*l)/(((fromIntegral(n))/360.0)+1.0)))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
+  where t0 = (getT 0.0 z)
         ta = case ((getT t0 za)<t0) of
                True  -> (1+((vza)/specificheatofwater))*(getT t0 za)
                False -> t0
@@ -316,8 +333,8 @@ pvnrt n   p t l z za zb zn zs ze zw = ((4.0*t)+(nt))/5.0
         (vxe, vye, vze) = getV (vx, vy, vz)    ze
         (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
 
-pZone :: Int -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
-pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0)))+(p0*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+7.0)
+pZone :: Int -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
+pZone n ml z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0) - (ml*tidalstrength)))+(p0*momentumofwater)+pn+ps+pw+pe+pa+pb)/(momentumofwater+7.0)
   where p0 = (getP 0.0 z)
         pa = case (ta<t0) of
                True  -> (1+((vza)/momentumofwater))*((getP p0  za)-(fromIntegral(decreaseOceanZ(n))/360.0)+(fromIntegral(n)/360.0))
@@ -344,7 +361,28 @@ pZone n z za zb zn zs ze zw = (((1 + ((fromIntegral(n))/360.0) + (t0/36.0)))+(p0
         (vxe, vye, vze) = getV (vx, vy, vz)    ze
         (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
         nb = fromIntegral(increaseOceanZ n)
-     
+
+iceT :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> Float
+iceT n   p t l z za zb zn zs ze zw = (((-3.0 + (((fromIntegral(n)/1000.0))+((p)/fromIntegral(n))+((8.0*l)/(((fromIntegral(n))/360.0)+1.0)))))+(t*specificheatofwater)+tn+ts+tw+te+ta+tb)/(specificheatofwater+7.0)
+  where t0 = t
+        ta = case ((getT t0 za)<t0) of
+               True  -> (1+((vza)/specificheatofwater))*(getT t0 za)
+               False -> t0
+        tb = case ((getT t0 zb)>t0) of
+               True  -> (1+((-vzb)/specificheatofwater))*(getT t0 zb)
+               False -> t0
+        tn = (1+((-vyn)/specificheatofwater))*(getT t0  zn)
+        ts = (1+((vys)/specificheatofwater))*(getT t0  zs)
+        te = (1+((-vxe)/specificheatofwater))*(getT t0  ze)
+        tw = (1+((vxw)/specificheatofwater))*(getT t0  zw)
+        (vxa, vya, vza) = getV (0.0, 0.0, 0.0) za
+        (vxb, vyb, vzb) = getV (0.0, 0.0, 0.0) zb
+        (vxn, vyn, vzn) = getV (0.0, 0.0, 0.0) zn
+        (vxs, vys, vzs) = getV (0.0, 0.0, 0.0) zs
+        (vxe, vye, vze) = getV (0.0, 0.0, 0.0) ze
+        (vxw, vyw, vzw) = getV (0.0, 0.0, 0.0) zw
+
+
 
 calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> (Float, Float, Float)
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
@@ -360,16 +398,11 @@ calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
         pw  = getP p0  zw
         nn  = fromIntegral(n)
 
-eqSeaMaybe :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
-eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of
-                                                 Solid _                     -> Nothing
-                                                 OceanZone t p s tvx tvy tvz -> Just ( OceanZone { temp = pvnrt n p t norml z za zb zn zs ze zw
-                                                                                                 , pres = pZone n z za zb zn zs ze zw
-                                                                                                 , sal  = s
-                                                                                                 , vx   = nvx
-                                                                                                 , vy   = nvy
-                                                                                                 , vz   = nvz
-                                                                                                 })
+eqSeaMaybe :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> Maybe OceanZone
+eqSeaMaybe n    l ml lat z za zb on os oe ow    = case (z) of
+                                                    Solid t                     -> Just ( Solid t )
+                                                    Ice t                       -> Just ( meltIce t (iceT n 1.0 t norml z za zb zn zs ze zw))
+                                                    OceanZone t p s tvx tvy tvz -> Just ( freezeIce n (pvnrt n p t norml z za zb zn zs ze zw) (pZone n ml z za zb zn zs ze zw) s nvx nvy nvz)
   where  (nvx, nvy, nvz) = calcCurrentsV n l lat z za zb zn zs ze zw
          zn              = getZone n on
          zs              = getZone n os
@@ -377,30 +410,30 @@ eqSeaMaybe n    l lat z za zb on os oe ow    = case (z) of
          zw              = getZone n ow
          norml           = calcLight l lat
 
-tempOcean :: [Ocean] -> [Float] -> [Ocean]
-tempOcean o l = do
+tempOcean :: [Ocean] -> [Float] -> [Float] -> [Ocean]
+tempOcean o l ml = do
   let (on, os, oe, ow) = cardinals o
   let xys              = yList
-  map eqOceanTemp (zip7 o on os oe ow l xys)
+  map eqOceanTemp (zip7 o on os oe ow (zip l ml) xys)
   --parMap rpar eqOceanTemp (zip7 o on os oe ow l xys)
 
-eqOceanTemp :: (Ocean, Ocean, Ocean, Ocean, Ocean, Float, Int) -> Ocean
-eqOceanTemp ((Dry _), on, os, oe, ow, l, y)         = Dry 1
-eqOceanTemp ((Sea e m b a h), on, os ,oe, ow, l, y) = Sea { epipelagic    = eqSeaTemp 1    l lat e (Solid 1) m            on os oe ow
-                                                          , mesopelagic   = eqSeaTemp 200  l lat m e         b            on os oe ow
-                                                          , bathypelagic  = eqSeaTemp 1000 l lat b m         a            on os oe ow
-                                                          , abyssopelagic = eqSeaTemp 4000 l lat a b         h            on os oe ow
-                                                          , hadopelagic   = eqSeaTemp 6000 l lat h a         (Solid 6000) on os oe ow
-                                                          }
+eqOceanTemp :: (Ocean, Ocean, Ocean, Ocean, Ocean, (Float, Float), Int) -> Ocean
+eqOceanTemp ((Dry t), on, os, oe, ow, (l, ml), y)         = Dry t
+eqOceanTemp ((Sea e m b a h), on, os ,oe, ow, (l, ml), y) = Sea { epipelagic    = eqSeaTemp 1    l ml lat e (Solid 1) m            on os oe ow
+                                                                , mesopelagic   = eqSeaTemp 200  l ml lat m e         b            on os oe ow
+                                                                , bathypelagic  = eqSeaTemp 1000 l ml lat b m         a            on os oe ow
+                                                                , abyssopelagic = eqSeaTemp 4000 l ml lat a b         h            on os oe ow
+                                                                , hadopelagic   = eqSeaTemp 6000 l ml lat h a         (Solid 6000) on os oe ow
+                                                                }
   where lat = abs (fromIntegral(y) - (fromIntegral(gridh)/2))
 
-eqSeaTemp :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> OceanZone
-eqSeaTemp n l lat z za zb on os oe ow = case (eqSeaMaybe n l lat z za zb on os oe ow) of
-                                          Nothing          -> Solid n
-                                          Just z           -> z
+eqSeaTemp :: Int -> Float -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> Ocean -> Ocean -> Ocean -> Ocean -> OceanZone
+eqSeaTemp n l ml lat z za zb on os oe ow = case (eqSeaMaybe n l ml lat z za zb on os oe ow) of
+                                             Nothing          -> Solid terratemp
+                                             Just z           -> z
 
 getSeaTemp :: Int -> Ocean -> Int -> Int -> String
-getSeaTemp n    (Dry _)         x y = "Dry Land..."
+getSeaTemp n    (Dry t)         x y = "Dry Land Temp: "      ++ (show t)
 getSeaTemp 1    (Sea e m b a h) x y = "Epipelagic Temp: "    ++ (getZoneTempMaybe e)
 getSeaTemp 200  (Sea e m b a h) x y = "Mesopelagic Temp: "   ++ (getZoneTempMaybe m)
 getSeaTemp 1000 (Sea e m b a h) x y = "Bathypelagic Temp: "  ++ (getZoneTempMaybe b)
@@ -444,8 +477,29 @@ iceMap state env []     o      og       = []
 iceMap state env (g:gs) (o:os) (og:ogs) = (iceSpot g o og) : (iceMap state env gs os ogs)
 
 iceSpot :: Int -> Ocean -> Int -> Int
-iceSpot g (Dry _)                 og = g
-iceSpot g (Sea (Solid _) _ _ _ _) og = g
-iceSpot g (Sea e _ _ _ _)         og
-  | ((getZoneTempForSure e 0) < -2.1) = 11
-  | otherwise                         = og
+iceSpot g (Dry t)                 og
+  | (t > 0.0) = og
+  | otherwise = 11
+iceSpot g (Sea (Solid t) _ _ _ _) og = og
+iceSpot g (Sea (Ice t)   _ _ _ _) og = 11
+iceSpot g (Sea _         _ _ _ _) og = og
+
+meltIce :: Float -> Float -> OceanZone
+meltIce t nt
+  | t < freezingpoint = Ice (nt)
+  | otherwise         = OceanZone { temp = t+4.0
+                                  , pres = 1.0
+                                  , sal  = 10.0
+                                  , vx   = 0.0
+                                  , vy   = 0.0
+                                  , vz   = 0.0 }
+
+freezeIce :: Int -> Float -> Float -> Float -> Float -> Float -> Float -> OceanZone
+freezeIce n t p s vx0 vy0 vz0
+  | (t > (((fromIntegral(n))/20)*freezingpoint)) = OceanZone { temp = t
+                                                             , pres = p
+                                                             , sal  = s
+                                                             , vx   = vx0
+                                                             , vy   = vy0
+                                                             , vz   = vz0 }
+  | otherwise                                    = Ice (t-2.0)

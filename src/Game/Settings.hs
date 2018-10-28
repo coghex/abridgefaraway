@@ -43,14 +43,18 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 200::Int
+history = 1000::Int
 
 -- how hard it is to heat the oceans
-specificheatofwater = 100::Float
+specificheatofwater = 600::Float
 -- how hard it is to move the oceans
-momentumofwater     = 100::Float
+momentumofwater     = 10::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
+-- the strength of the tides
+tidalstrength       = 0.1::Float
+-- freezing point of water
+freezingpoint       = -1.1::Float
 -- temperature of the landmass
 terratemp           = 14.6::Float
 -- temperature at which average salinity water will be at
