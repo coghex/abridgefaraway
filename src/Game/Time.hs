@@ -40,7 +40,7 @@ gameTime env state n TStop = do
   tsnew      <- atomically $ readTChan timerchan
   firststate <- atomically $ readTChan statechan
   let newstate  = simTime history firststate env
-  gameTime env newstate n tsnew
+  pseq newstate $ gameTime env newstate n tsnew
 
 formatTime :: Integer -> String
 formatTime time = do

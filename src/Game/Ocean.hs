@@ -315,7 +315,7 @@ pvnrt 1    p t l z za zb zn zs ze zw = ((0.001*((maxdensitytemp + ((p)+((20.0*l)
         (vxe, vye, vze) = getV (vx, vy, vz)    ze
         (vxw, vyw, vzw) = getV (vx, vy, vz)    zw
 
-pvnrt 6000 p t l z za zb zn zs ze zw = (((0.001*(maxdensitytemp + ((6.0)+((p)/6000)+((12.0*l)/((6000.0/180.0)+1.0)))))+t)*(specificheatofwater)+tn+ts+tw+te+ta)/(1.001*specificheatofwater+5.0)
+pvnrt 6000 p t l z za zb zn zs ze zw = ((((maxdensitytemp + ((6.0)+((p)/6000))))+t)*(specificheatofwater)+tn+ts+tw+te+ta)/(2*specificheatofwater+5.0)
   where t0 = (getT 0.0 z)
         ta = case ((getT t0 za)<t0) of
                True  -> (1+((vza)/6000.0))*(getT t0 za)
@@ -404,7 +404,7 @@ iceT n   p t l z za zb zn zs ze zw = (((((maxdensitytemp-0.1 + (((fromIntegral(n
 
 calcCurrentsV :: Int -> Float -> Float -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> OceanZone -> (Float, Float, Float)
 calcCurrentsV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = min nn (max (((pw - p0) - (pe - p0))-(coriolispower*(cos (pi*(lat/((fromIntegral gridh))))))) (-nn))
+  where nvx = min nn (max (((pw - p0) - (pe - p0))-(coriolispower*(cos (2*pi*(lat/((fromIntegral gridh))))))) (-nn))
         nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
         nvz = min nn (max ((pa - p0) - (pb - p0)) (-nn))
         p0  = getP 0.0 z
@@ -505,7 +505,7 @@ increaseOceanZ 6000 = 6000
 increaseOceanZ x    = x
 
 iceMap :: State -> Env -> [Int] -> [Ocean] -> [Int] -> [Int]
-iceMap state env []     o      og       = []
+iceMap state env []     []     []       = []
 iceMap state env (g:gs) (o:os) (og:ogs) = (iceSpot g o og) : (iceMap state env gs os ogs)
 
 iceSpot :: Int -> Ocean -> Int -> Int

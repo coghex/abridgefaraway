@@ -145,9 +145,9 @@ draw SLoad = do
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading..."
     drawText (envFontSmall env) 1 75 36 36 "Creating World..."
-    -- start the timer once the chan has emptied (since its fifo)
-    atomically $ writeTChan (envTimerChan env) TStart
     -- change modes to the world mode, again in the fifo
+    atomically $ writeTChan (envTimerChan env) TStart
+    newstate <- atomically $ readTChan (envStateChan1 env)
     liftIO $ loadedCallback (envEventsChan env) SLoadTime
 -- this doesnt quite work right yet, this screen is only shown for an instance
 draw SLoadTime = do
@@ -157,9 +157,11 @@ draw SLoadTime = do
     beginDrawText
     drawText (envFontBig env) 1 95 72 72 "Loading..."
     drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
+    -- start the timer once the chan has emptied (since its fifo)
     newstate <- atomically $ readTChan (envStateChan1 env)
-    let unftime = stateTime newstate
-    if unftime > 0 then liftIO $ loadedCallback (envEventsChan env) SWorld
+    let unftime = stateTime state
+    liftIO $ timerCallback (envEventsChan env) newstate
+    if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
     else liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SLoadElev = do
   env   <- ask
@@ -348,7 +350,6 @@ processEvent ev =
             -- just to be sure, we clear the channels again
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)
-            -- update the timer as to our new state
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
             modify $ \s -> newstate
         -- displays the elevation in meters
