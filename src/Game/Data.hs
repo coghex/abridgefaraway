@@ -27,3 +27,13 @@ data OceanZone = Solid Float | Ice Float | OceanZone { temp :: Float
                                                      , vz   :: Float
                                                      } deriving (Show, Eq)
 
+data Zone = Zone { grid :: [Int]
+                 , cont :: [Int]
+                 , mapx :: Int
+                 , mapy :: Int
+                 , camx :: Float
+                 , camy :: Float
+                 , camz :: Int
+                 , curx :: Int
+                 , cury :: Int
+                 } deriving (Show, Eq)

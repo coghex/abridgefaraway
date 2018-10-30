@@ -23,10 +23,6 @@ theGreatSeas grid elev light = do
       o2 = stripGrid o1
   flattenGrid o2
 
--- turns a sequence of IO actions into a single IO action by monad magic
-resequence_ :: [IO ()] -> IO ()
-resequence_ = foldr (>>) (return ())
-
 -- draws the ocean temperatures
 drawOcean :: State -> [GL.TextureObject] -> IO ()
 drawOcean state texs = do

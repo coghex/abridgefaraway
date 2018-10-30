@@ -60,6 +60,7 @@ initTexs win = do
 
 loadZTextures :: String -> IO ([[TextureObject]])
 loadZTextures fn = do
+  zc <- loadTex (fn ++ "util/zcursor.png")
   p0 <- loadTex (fn ++ "plains/plains0.png")
   p1 <- loadTex (fn ++ "plains/plains1.png")
   p2 <- loadTex (fn ++ "plains/plains2.png")
@@ -170,9 +171,15 @@ loadZTextures fn = do
   w26 <- loadTex (fn ++ "waste/waste26.png")
 
   s1 <- loadTex (fn ++ "sea/sea1.png")
+  v0 <- loadTex (fn ++ "valley/valley0.png")
   i1 <- loadTex (fn ++ "ice/ice1.png")
+  sh0 <- loadTex (fn ++ "shallows/shallow0.png")
+  st0 <- loadTex (fn ++ "steeps/steeps0.png")
+  pk0 <- loadTex (fn ++ "peaks/peaks0.png")
+  n0 <- loadTex (fn ++ "util/null0.png")
+  d0 <- loadTex (fn ++ "deeps/deeps0.png")
 
-  return ([[p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p18, p19, p20, p21, p22, p23, p24, p25, p26], [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f18, f19, f20, f21, f22, f23, f24, f25, f26], [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c18, c19, c20, c21, c22, c23, c24, c25, c26], [w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w18, w19, w20, w21, w22, w23, w24, w25, w26], [s1], [i1]])
+  return ([[zc], [s1], [v0], [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p18, p19, p20, p21, p22, p23, p24, p25, p26], [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f18, f19, f20, f21, f22, f23, f24, f25, f26], [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c18, c19, c20, c21, c22, c23, c24, c25, c26], [w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w18, w19, w20, w21, w22, w23, w24, w25, w26], [sh0], [st0], [pk0], [n0], [i1], [d0]])
 
 loadWTextures :: String -> IO ([TextureObject])
 loadWTextures fn = do

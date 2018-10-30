@@ -43,7 +43,7 @@ radius = 20::Int
 
 -- minutes of history that pass before the world is presented
 -- there are 1440 minutes in a day, 360 days in a year
-history = 1000::Int
+history = 100::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 1009::Float
@@ -54,7 +54,7 @@ momentumofwater     = 912::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- the strength of the tides
-tidalstrength       = 0.1::Float
+tidalstrength       = 0.2::Float
 -- the strength of the coriolis effect on water
 coriolispower       = 0.1::Float
 -- freezing point of water
@@ -66,3 +66,11 @@ terratemp           = 14.6::Float
 maxdensitytemp      = -1.9::Float
 -- the velocity at which currents will display
 currentslevel       = 0.02::Float
+
+
+-- these settings effect the zones:
+-- width and height
+zonew = 120::Int
+zoneh = 90::Int
+
+

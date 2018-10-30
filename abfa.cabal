@@ -29,6 +29,7 @@ executable abfa
         Game.Sun
         Game.Moon
         Game.Data
+        Game.Zone
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures

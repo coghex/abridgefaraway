@@ -12,9 +12,7 @@ import Game.State
 import Game.Rand
 import Game.Settings
 import Game.Sun
-
-resequence_ :: [IO ()] -> IO ()
-resequence_ = foldr (>>) (return ())
+import Game.Map
 
 drawSquare :: IO ()
 drawSquare = do
@@ -58,10 +56,3 @@ drawSceneTile texs sunspots x y t = do
     t2 = 0.9*b
     t3 = (log (b+1))
     b  = sunSpots sunspots x y
-
-expandGrid :: [Int] -> [([(Int, Int)], Int)]
-expandGrid m = zip (map workRows (chunksOf gridw m )) [0..gridh]
-
-workRows :: [Int] -> [(Int, Int)]
-workRows l = do
-  zip l [0..gridw]

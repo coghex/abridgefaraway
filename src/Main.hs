@@ -32,6 +32,7 @@ import Game.Moon
 import Game.Sun
 import Game.Ocean
 import Game.Map
+import Game.Zone
 
 -- the game monad wrapper, gives us a threadsafe state and env
 type Game = RWST Env () State IO
@@ -101,10 +102,10 @@ main = do
             , envTimerChan  = timerChan
             }
 
-    -- the timer is forked initially stopped.  100 is pretty fast, 1000 is pretty slow
+    -- the timer is forked initially stopped.  100 is pretty fast, 1000 is 1 game min = 1 real sec
     -- the timer state is not guaranteed to be correct, some things dont make sense
     -- for it to deal with and so it doesnt.
-    forkIO $ (gameTime env state 800 TStop)
+    forkIO $ (gameTime env state 1200 TStop)
     -- runs the whole monad
     void $ evalRWST run env state
 
@@ -159,10 +160,20 @@ draw SLoadTime = do
     drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
     -- start the timer once the chan has emptied (since its fifo)
     newstate <- atomically $ readTChan (envStateChan1 env)
+    -- set the monad state to the timer's state, (this fixes the notorious loading screen bug)
     let unftime = stateTime state
     liftIO $ timerCallback (envEventsChan env) newstate
+    -- wait until after the history has been running for a while
     if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
     else liftIO $ loadedCallback (envEventsChan env) SLoadTime
+draw SLoadZone = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    beginDrawText
+    drawText (envFontBig env) 1 95 72 72 "Loading..."
+    drawText (envFontSmall env) 1 75 36 36 "Generating Zone..."
+    liftIO $ loadedCallback (envEventsChan env) SZone
 draw SLoadElev = do
   env   <- ask
   state <- get
@@ -210,6 +221,24 @@ draw SWorld = do
     -- cursor is moving.  it could be updated, but as of now there is no need
       drawCursor state (envWTex env)
     -- this will change the state to either the new state from the timer, or the old state
+    liftIO $ timerCallback (envEventsChan env) newstate
+draw SZone = do
+  env   <- ask
+  state <- get
+  liftIO $ do
+    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+    newstate <- case (statebuff) of
+      Nothing -> return state
+      Just n  -> return n
+    let unftime = stateTime newstate
+        sun     = stateSun newstate
+    beginDrawText
+    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+    GL.preservingMatrix $ do
+      drawZone state (envZTex env)
+    GL.preservingMatrix $ do
+      drawZoneCursor state (envZTex env)
     liftIO $ timerCallback (envEventsChan env) newstate
 draw SElev = do
   env   <- ask
@@ -352,6 +381,12 @@ processEvent ev =
             liftIO $ emptyChan (envStateChan2 env)
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
             modify $ \s -> newstate
+        -- enter a zone
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Enter)) $ do
+            let z     = generateZone state
+                oldzs = stateZones state
+            liftIO $ loadedCallback (envEventsChan env) SLoadZone
+            modify $ \s -> s { stateZones = (z:oldzs) }
         -- displays the elevation in meters
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
@@ -379,6 +414,15 @@ processEvent ev =
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
+        -- moves the camera when in a zone
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) West):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) East):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) North):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) South):(tail (stateZones state))) }
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
@@ -403,6 +447,9 @@ processEvent ev =
         -- exits the game, in future, this should save
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True
+        -- exits zone view into world view
+        when (((stateGame state) == SZone) && (k == GLFW.Key'Escape)) $ do
+            modify $ \s -> s { stateGame = SWorld }
       when (ks == GLFW.KeyState'Repeating) $ do
         state <- get
         env   <- ask

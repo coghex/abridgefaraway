@@ -7,6 +7,10 @@ import Game.Settings
 
 data Card = North | South | West | East
 
+-- resequences IO events
+resequence_ :: [IO ()] -> IO ()
+resequence_ = foldr (>>) (return ())
+
 -- returns a cardinal list of elements surrounding each element
 cardinals :: [a] -> ([a], [a], [a], [a])
 cardinals x = do
@@ -39,10 +43,10 @@ moveCursor n (x, y) North
   | (y < gridh-n) = (x, y+n)
   | otherwise     = (x, y)
 moveCursor n (x, y) South
-  | (y > n-1)       = (x, y-n)
+  | (y > n-1)     = (x, y-n)
   | otherwise     = (x, y)
 moveCursor n (x, y) West
-  | (x > n-1)       = (x-n, y)
+  | (x > n-1)     = (x-n, y)
   | otherwise     = (x, y)
 moveCursor n (x, y) East
   | (x < gridw-n) = (x+n, y)
@@ -50,6 +54,9 @@ moveCursor n (x, y) East
 
 tapGrid :: [a] -> Int -> Int -> a
 tapGrid g x y = g !! (x + (y*gridw))
+
+tapZoneGrid :: [a] -> Int -> Int -> a
+tapZoneGrid zg x y = zg !! (x + (y*zonew))
 
 parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)
@@ -59,6 +66,19 @@ distance x1 y1 x2 y2 x3 y3 t = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
   100*p1*p2
+
+zoneDistance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
+zoneDistance x y x1 y1 x2 y2 x3 y3 t = do
+  let p1 = (((nx1-nx2)*(nx1-nx2))+((ny1-ny2)*(ny1-ny2)))
+      p2 = (((nx1-nx3)*(nx1-nx3))+((ny1-ny3)*(ny1-ny3)))
+  100*p1*p2
+  where nx1 = x1*zonew + x
+        ny1 = y1*zoneh + y
+        nx2 = x2*zonew
+        ny2 = y2*zoneh
+        nx3 = x3*zonew
+        ny3 = y3*zoneh
+        
 
 showXYZ :: (String, String, String) -> String
 showXYZ (a, b, c) = "X:" ++ a ++ "Y:" ++ b ++ "Z:" ++ c
@@ -73,6 +93,13 @@ roundTo :: Int -> Float -> Float
 roundTo n x
   | abs(x) < (10^^(-n)) = 0.0
   | otherwise           = (fromInteger $ round $ x * (10^n)) / (10^^n)
+
+expandZone :: [a] -> [([(a, Int)], Int)]
+expandZone m = zip (map workZoneRows (chunksOf zonew m)) [0..zoneh]
+
+workZoneRows :: [a] -> [(a, Int)]
+workZoneRows l = do
+  zip l [0..zonew]
 
 expandGrid :: [a] -> [([(a, Int)], Int)]
 expandGrid m = zip (map workRows (chunksOf gridw m)) [0..gridh]

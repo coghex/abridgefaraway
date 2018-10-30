@@ -14,9 +14,6 @@ import Game.State
 import Game.Settings
 import Game.Map
 
-resequence_ :: [IO ()] -> IO ()
-resequence_ = foldr (>>) (return ())
-
 drawElev :: State -> [GL.TextureObject] -> IO ()
 drawElev state texs = do
   let gnew = expandGrid $ stateElev state
