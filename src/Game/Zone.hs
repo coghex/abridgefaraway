@@ -12,6 +12,36 @@ import Game.Map
 import Game.Draw
 import Game.Sun
 
+
+drawZoneElev :: State -> [[GL.TextureObject]] -> IO ()
+drawZoneElev state texs = do
+  let gnew               = expandZone currentZone
+      currentZone        = elev (head (stateZones state))
+      (camx, camy, camz) = getZoneCam (head (stateZones state))
+      nulltex            = texs !! 10
+  resequence_ (map (drawZoneElevRow nulltex camx camy camz) gnew)
+  glFlush
+
+drawZoneElevRow :: [GL.TextureObject] -> Float -> Float -> Int -> ([(Float, Int)], Int) -> IO ()
+drawZoneElevRow texs camx camy camz (t1, t2) = resequence_ (map (drawZoneElevSpot texs camx camy camz t2) t1)
+
+drawZoneElevSpot :: [GL.TextureObject] -> Float -> Float -> Int -> Int -> (Float, Int) -> IO ()
+drawZoneElevSpot texs camx camy camz y (t, x) = withTextures2D texs $ drawZoneElevTile texs camx camy camz x y t
+
+drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Int -> Int -> Float -> IO ()
+drawZoneElevTile texs camx camy camz x y t = do
+  glLoadIdentity
+  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
+  glColor3f t t $ elevZoneOcean t
+  drawSquare
+  where nx = fromIntegral(x)+camx
+        ny = fromIntegral(y)+camy
+
+elevZoneOcean :: Float -> Float
+elevZoneOcean x
+  | x <= (sealevel/(peaklevel)) = 8
+  | otherwise = x
+
 drawZone :: State -> [[GL.TextureObject]] -> IO ()
 drawZone state texs = do
   let zgs                = stateZones state
@@ -72,22 +102,22 @@ getZoneCam zg = (camxr, camyr, camzr)
         camzr = camz zg
 
 moveZoneCam :: Float -> Zone -> Card -> Zone
-moveZoneCam n zone North
+moveZoneCam n zone South
   | (y < (fromIntegral zoneh))   = moveCamZone zone (x, y+n)
   | otherwise     = moveCamZone zone (x, y)
   where x = camx zone
         y = camy zone
-moveZoneCam n zone South
-  | (y > 0.0)       = moveCamZone zone (x, y-n)
-  | otherwise     = moveCamZone zone (x, y)
-  where x = camx zone
-        y = camy zone
-moveZoneCam n zone West
-  | (x > 0.0)       = moveCamZone zone (x-n, y)
+moveZoneCam n zone North
+  | (y > -(fromIntegral zoneh))       = moveCamZone zone (x, y-n)
   | otherwise     = moveCamZone zone (x, y)
   where x = camx zone
         y = camy zone
 moveZoneCam n zone East
+  | (x > -(fromIntegral zonew))       = moveCamZone zone (x-n, y)
+  | otherwise     = moveCamZone zone (x, y)
+  where x = camx zone
+        y = camy zone
+moveZoneCam n zone West
   | (x < (fromIntegral zonew))   = moveCamZone zone (x+n, y)
   | otherwise     = moveCamZone zone (x, y)
   where x = camx zone
@@ -96,6 +126,7 @@ moveZoneCam n zone East
 moveCamZone :: Zone -> (Float, Float) -> Zone
 moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , cont = (cont zone)
+                               , elev = (elev zone)
                                , mapx = (mapx zone)
                                , mapy = (mapy zone)
                                , camx = x
@@ -103,6 +134,9 @@ moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , camz = (camz zone)
                                , curx = (curx zone)
                                , cury = (cury zone) }
+
+elevBlurZone :: State -> Int -> Int -> [Int] -> [Int]
+elevBlurZone state x y zone = zone
 
 generateZone :: State -> Zone
 generateZone state = genZone state x y zc conts seeds rands nconts
@@ -115,7 +149,8 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = initZoneGrid state 0
-                                                     , cont = initZoneCont state x y zc conts seeds rands nconts
+                                                     , cont = zoneconts
+                                                     , elev = initZoneElev state zc e en es ee ew
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -124,6 +159,49 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = initZoneGrid state
                                                      , curx = round $ fromIntegral(zonew)/2.0
                                                      , cury = round $ fromIntegral(zoneh)/2.0
                                                      }
+  where zoneconts        = zc0
+        zc0              = elevBlurZone state x y zc1
+        zc1              = initZoneCont state x y zc conts seeds rands nconts
+        (en, es, ee, ew) = cardinalsXY x y (stateElev state)
+        e                = tapZoneGrid x y (stateElev state)
+
+initZoneElev :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> [Float]
+initZoneElev state zc e en es ee ew = zc2
+  where newz = expandZone zc
+        zc0  = parMap rpar (seedZoneElevRow state e en es ee ew) newz
+        zc1  = stripGrid zc0
+        zc2  = flattenGrid zc1
+
+seedZoneElevRow :: State -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Float, Int)], Int)
+seedZoneElevRow state e en es ee ew (t1, t2) = (map (seedZoneElevSpot state ef enf esf eef ewf t2) t1, t2)
+  where ef  = fromIntegral e
+        enf = fromIntegral en
+        esf = fromIntegral es
+        eef = fromIntegral ee
+        ewf = fromIntegral ew
+
+seedZoneElevSpot :: State -> Float -> Float -> Float -> Float -> Float -> Int -> (Int, Int) -> (Float, Int)
+seedZoneElevSpot state e en es ee ew j (t, i) = (zelev, i)
+  where zelev  = ((diste*e)+(disten*en)+(distes*es)+(distee*ee)+(distew*ew))
+        diste  = 1.0 - (sqrt((((x2 - x1)*(x2 - x1))/(zonewf)) + (((y2 - y1)*(y2 - y1))/(zonehf))))
+        x1     = zonewf/2.0
+        x2     = fromIntegral i
+        y1     = zonehf/2.0
+        y2     = fromIntegral j
+        disten = 1.0 - (sqrt((((x2 - nx1)*(x2 - nx1))/(zonewf*zonewf)) + (((y2 - ny1)*(y2 - ny1))/(zonehf*zonehf))))
+        nx1    = zonewf/2.0
+        ny1    = -(zonehf/2.0)
+        distes = 1.0 - (sqrt((((x2 - sx1)*(x2 - sx1))/(zonewf*zonewf)) + (((y2 - sy1)*(y2 - sy1))/(zonehf*zonehf))))
+        sx1    = zonewf/2.0
+        sy1    = (3.0*zonehf)/2.0
+        distee = 1.0 - (sqrt((((x2 - ex1)*(x2 - ex1))/(zonewf*zonewf)) + (((y2 - ey1)*(y2 - ey1))/(zonehf*zonehf))))
+        ex1    = (3.0*zonewf)/2.0
+        ey1    = zonehf/2.0
+        distew = 1.0 - (sqrt((((x2 - wx1)*(x2 - wx1))/(zonewf*zonewf)) + (((y2 - wy1)*(y2 - wy1))/(zonehf*zonehf))))
+        wx1    = -(zonewf/2.0)
+        wy1    = zonehf/2.0
+        zonewf = fromIntegral zonew
+        zonehf = fromIntegral zoneh
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)

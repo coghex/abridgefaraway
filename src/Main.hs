@@ -162,6 +162,11 @@ draw SLoadZone state env = do
   drawText (envFontBig env) 1 95 72 72 "Loading..."
   drawText (envFontSmall env) 1 75 36 36 "Generating Zone..."
   liftIO $ loadedCallback (envEventsChan env) SZone
+draw SLoadZoneElev state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Loading Zone Elevation..."
+  liftIO $ loadedCallback (envEventsChan env) SZoneElev
 draw SLoadElev state env = do
   beginDrawText
   drawText (envFontBig env) 1 95 72 72 "Loading Elevation..."
@@ -210,6 +215,21 @@ draw SZone state env = do
   drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
   GL.preservingMatrix $ do
     drawZone state (envZTex env)
+  GL.preservingMatrix $ do
+    drawZoneCursor state (envZTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw SZoneElev state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  GL.preservingMatrix $ do
+    drawZoneElev state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
   liftIO $ timerCallback (envEventsChan env) newstate
@@ -352,6 +372,9 @@ processEvent ev =
         -- displays the elevation in meters
         when (((stateGame state) == SWorld) && (k == GLFW.Key'E)) $ do
             modify $ \s -> s { stateGame = SLoadElev }
+        -- displays the elevation while in a zone
+        when (((stateGame state) == SZone) && (k == GLFW.Key'E)) $ do
+            modify $ \s -> s { stateGame = SLoadZoneElev }
         -- displays the ocean temp in C at 5 different depths
         when (((stateGame state) == SWorld) && (k == GLFW.Key'O)) $ do
             modify $ \s -> s { stateGame = SLoadSeaTemp }
@@ -378,17 +401,20 @@ processEvent ev =
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- moves the camera when in a zone
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) East):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) East):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) North):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) North):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) South):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) South):(tail (stateZones state))) }
 
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
+        -- exits the elevation screen when in a zone
+        when (((stateGame state) == SZoneElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SZone }
         -- exits the sea temperature screen
         when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'O) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
