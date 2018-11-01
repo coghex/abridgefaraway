@@ -50,7 +50,7 @@ drawZoneCursor state texs = do
 drawZoneTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Int -> Int -> IO ()
 drawZoneTile texs camx camy 0 sun x y = do
   glLoadIdentity
-  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom)
+  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
   glColor3f t1 t2 t3
   drawSquare
   where
@@ -115,7 +115,7 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = initZoneGrid state 0
-                                                     , cont = initZoneGrid state 1--initZoneCont state x y zc conts seeds rands nconts
+                                                     , cont = initZoneCont state x y zc conts seeds rands nconts
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -145,13 +145,38 @@ seedZoneCont state x y i c x0 y0 zg (k:ks) (j:js) = do
   seedZoneCont state x y (i+1) c x0 y0 zg2 ks js
 
 seedZoneContRow :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-seedZoneContRow state x y c i w x0 y0 z0 (t1, t2) = (map (seedZoneContTile state x y c i t2 w x0 y0 z0) t1, t2)
+seedZoneContRow state x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile state x y i c t2 w x0 y0 z0) t1, t2)
 
 seedZoneContTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-seedZoneContTile state x y c it j w x0 y0 z0 (t, i)
-  | (randstate==1) && (zoneDistance x y i j w x0 y0 z0 t <= maxdist)   = (randstate, i)
-  | otherwise                                                          = (t, i)
+seedZoneContTile state x y it c j w x0 y0 z0 (t, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         (y0+gridh) z0 t <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w (x0-gridw) y0         z0 t <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         (y0-gridh) z0 t <= maxdist)           = (randstate, i)
+  | (randstate > 6) || (randstate < 2)                                                           = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridw) z0 t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridw) z0 t < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridh) z0 t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridh) z0 t <= (4*maxdist))       = (randstate, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         y0         z0 t < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w (x0+gridw) y0         z0 t < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         (y0+gridh) z0 t < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w (x0-gridw) y0         z0 t < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         (y0-gridh) z0 t < maxdist-cfudge)     = (t, i)
+  | zoneDistance x y i j w x0         y0         z0 t <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w (x0+gridw) y0         z0 t <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w x0         (y0+gridh) z0 t <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w (x0-gridw) y0         z0 t <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w x0         (y0-gridh) z0 t <= maxdist                                 = (randstate, i)
+  | otherwise                                                                                    = (t, i)
   where
     randstate = (stateTypes state) !! c
-    maxdist   = 1000 * ((stateSizes state) !! c)
-    cfudge    = 2 * (((stateRangeRands state) !! c) - minnconts)
+    maxdist   = 1000.0 * fromIntegral(((stateSizes state) !! c))
+    cfudge    = 2.0 * fromIntegral(((stateRangeRands state) !! (c)) - minnconts)

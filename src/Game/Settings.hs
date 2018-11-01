@@ -70,7 +70,7 @@ currentslevel       = 0.02::Float
 
 -- these settings effect the zones:
 -- width and height
-zonew = 120::Int
-zoneh = 90::Int
+zonew = 60::Int
+zoneh = 45::Int
 
 

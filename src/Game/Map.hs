@@ -67,17 +67,17 @@ distance x1 y1 x2 y2 x3 y3 t = do
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
   100*p1*p2
 
-zoneDistance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
-zoneDistance x y x1 y1 x2 y2 x3 y3 t = do
-  let p1 = (((nx1-nx2)*(nx1-nx2))+((ny1-ny2)*(ny1-ny2)))
-      p2 = (((nx1-nx3)*(nx1-nx3))+((ny1-ny3)*(ny1-ny3)))
+zoneDistance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
+zoneDistance x1 y1 x y x2 y2 x3 y3 t = do
+  let p1 = (((nx1-nx2)*(nx1-nx2)))+((((ny1-ny2)*(ny1-ny2))))
+      p2 = (((nx1-nx3)*(nx1-nx3)))+((((ny1-ny3)*(ny1-ny3))))
   100*p1*p2
-  where nx1 = x1*zonew + x
-        ny1 = y1*zoneh + y
-        nx2 = x2*zonew
-        ny2 = y2*zoneh
-        nx3 = x3*zonew
-        ny3 = y3*zoneh
+  where nx1 = (fromIntegral(x1))+(fromIntegral(x)/fromIntegral(zonew))
+        ny1 = (fromIntegral(y1))+(fromIntegral(y)/fromIntegral(zoneh))
+        nx2 = (fromIntegral(x2))
+        ny2 = (fromIntegral(y2))
+        nx3 = (fromIntegral(x3))
+        ny3 = (fromIntegral(y3))
         
 
 showXYZ :: (String, String, String) -> String

@@ -208,10 +208,10 @@ seedGrid state i c x y g (k:ks) (j:js) = do
   seedGrid state (i+1) c x y grid2 ks js
 
 seedRow :: State -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-seedRow state c i w x y z (t1, t2) = (map (seedTile state c i t2 w x y z) t1, t2)
+seedRow state i c w x y z (t1, t2) = (map (seedTile state i c t2 w x y z) t1, t2)
 
 seedTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-seedTile state c it j w x y z (t, i)
+seedTile state it c j w x y z (t, i)
   | (randstate == 1) && (distance i j w x         y         z t <= maxdist)           = (randstate, i)
   | (randstate == 1) && (distance i j w (x+gridw) y         z t <= maxdist)           = (randstate, i)
   | (randstate == 1) && (distance i j w x         (y+gridh) z t <= maxdist)           = (randstate, i)

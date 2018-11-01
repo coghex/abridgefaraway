@@ -2,6 +2,7 @@ module Game.State where
 
 import Control.Concurrent.STM (TQueue)
 import Control.Concurrent.STM.TChan
+import Control.Concurrent.STM.TMVar
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.FTGL as FTGL

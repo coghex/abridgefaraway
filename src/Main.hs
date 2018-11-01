@@ -5,7 +5,7 @@ import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, evalRWST, modify, local)
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies (rpar, parMap)
-import Control.Concurrent (setNumCapabilities, threadDelay, forkIO)
+import Control.Concurrent (setNumCapabilities, threadDelay, forkIO, forkOS)
 import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, tryReadTQueue)
 import Control.Concurrent.STM.TChan (TChan, newTChan, readTChan, tryReadTChan, writeTChan, dupTChan, isEmptyTChan)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
@@ -116,197 +116,159 @@ run = do
   -- the timed loop will try and maintain 60fps
   timedLoop $ \lastTick tick -> do
     state <- get
-    draw (stateGame state)
     window <- asks envWindow
     liftIO $ do
       GLFW.swapBuffers window
       GLFW.pollEvents
       err <- GL.get GL.errors
       mapM_ print err
-      whileM_ ((\cur -> (cur - tick) < (1.0/60.0)) <$> getCurTick) (threadDelay 100)
+      whileM_ ((\cur -> (cur - tick) < (1.0/60.0)) <$> getCurTick) (return ())
     -- this is where we process user input and update the state
+      draw (stateGame state) state env
     processEvents
     liftIO $ not <$> GLFW.windowShouldClose window
 
 -- pattern match on the state of the game draws different screens for different modes
-draw :: GameState -> Game ()
-draw SMenu = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "A Bridge Far Away..."
-    drawText (envFontSmall env) 1 75 36 36 "press c to create a world"
-    drawText (envFontSmall env) 1 60 36 36 "press l to load a world"
-    drawText (envFontSmall env) 1 45 36 36 "press esc to quit"
-draw SLoad = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading..."
-    drawText (envFontSmall env) 1 75 36 36 "Creating World..."
-    -- change modes to the world mode, again in the fifo
-    atomically $ writeTChan (envTimerChan env) TStart
-    newstate <- atomically $ readTChan (envStateChan1 env)
-    liftIO $ loadedCallback (envEventsChan env) SLoadTime
+draw :: GameState -> State -> Env -> IO ()
+draw SMenu state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "A Bridge Far Away..."
+  drawText (envFontSmall env) 1 75 36 36 "press c to create a world"
+  drawText (envFontSmall env) 1 60 36 36 "press l to load a world"
+  drawText (envFontSmall env) 1 45 36 36 "press esc to quit"
+draw SLoad state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Creating World..."
+  -- change modes to the world mode, again in the fifo
+  atomically $ writeTChan (envTimerChan env) TStart
+  newstate <- atomically $ readTChan (envStateChan1 env)
+  liftIO $ loadedCallback (envEventsChan env) SLoadTime
 -- this doesnt quite work right yet, this screen is only shown for an instance
-draw SLoadTime = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading..."
-    drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
-    -- start the timer once the chan has emptied (since its fifo)
-    newstate <- atomically $ readTChan (envStateChan1 env)
-    -- set the monad state to the timer's state, (this fixes the notorious loading screen bug)
-    let unftime = stateTime state
-    liftIO $ timerCallback (envEventsChan env) newstate
-    -- wait until after the history has been running for a while
-    if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
-    else liftIO $ loadedCallback (envEventsChan env) SLoadTime
-draw SLoadZone = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading..."
-    drawText (envFontSmall env) 1 75 36 36 "Generating Zone..."
-    liftIO $ loadedCallback (envEventsChan env) SZone
-draw SLoadElev = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading Elevation..."
-    -- since the timer is running on its own, and updating the fifo queue,
-    -- we dont have to update the state here, it will update in 1/60 ticks
-    -- once we enter the SElev state
-    liftIO $ loadedCallback (envEventsChan env) SElev
-draw SLoadSeaTemp = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading..."
-    drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Temperatures..."
-    liftIO $ loadedCallback (envEventsChan env) SSeaTemp
-draw SLoadSeaCurrents = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    beginDrawText
-    drawText (envFontBig env) 1 95 72 72 "Loading..."
-    drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Currents..."
-    liftIO $ loadedCallback (envEventsChan env) SSeaCurrents
-draw SWorld = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
-    -- read in a non blocking way, maintaining the old state if the channel is empty
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> return n
-    let unftime = stateTime newstate
-    beginDrawText
-    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    GL.preservingMatrix $ do
-      drawScene newstate (envWTex env)
-    GL.preservingMatrix $ do
-    -- the cursor must use the old state, since the timer has no concept of where the
-    -- cursor is moving.  it could be updated, but as of now there is no need
-      drawCursor state (envWTex env)
-    -- this will change the state to either the new state from the timer, or the old state
-    liftIO $ timerCallback (envEventsChan env) newstate
-draw SZone = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> return n
-    let unftime = stateTime newstate
-        sun     = stateSun newstate
-    beginDrawText
-    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    GL.preservingMatrix $ do
-      drawZone state (envZTex env)
-    GL.preservingMatrix $ do
-      drawZoneCursor state (envZTex env)
-    liftIO $ timerCallback (envEventsChan env) newstate
-draw SElev = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> return n
-    let unftime = stateTime newstate
-        sun     = stateSun newstate
-    beginDrawText
-    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev newstate) (stateCursor state)
-    GL.preservingMatrix $ do
-      drawElev newstate (envWTex env)
-    GL.preservingMatrix $ do
-      drawCursor state (envWTex env)
-    liftIO $ timerCallback (envEventsChan env) newstate
-draw SSeaTemp = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> return n
-    let unftime = stateTime newstate
-        sun     = stateSun newstate
-    beginDrawText
-    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    -- the ocean temp z will give the temperature of the 5 different zones of the sea
-    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceanTempZ state) (stateOceans state) (stateCursor state)
-    GL.preservingMatrix $ do
-      drawOcean state (envWTex env)
-    GL.preservingMatrix $ do
-      drawCursor state (envWTex env)
-    liftIO $ timerCallback (envEventsChan env) newstate
-draw SSeaCurrents = do
-  env   <- ask
-  state <- get
-  liftIO $ do
-    GL.clear[GL.ColorBuffer, GL.DepthBuffer]
-    statebuff <- atomically $ tryReadTChan (envStateChan1 env)
-    newstate <- case (statebuff) of
-      Nothing -> return state
-      Just n  -> return n
-    let unftime = stateTime newstate
-        sun     = stateSun newstate
-    beginDrawText
-    drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
-    drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
-    -- the ocean temp z will give the temperature of the 5 different zones of the sea
-    drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanCurrents (stateOceanCurrentsZ state) (stateOceans state) (stateCursor state)
-    GL.preservingMatrix $ do
-      drawOceanCurrents state (envWTex env)
-    GL.preservingMatrix $ do
-      drawCursor state (envWTex env)
-    liftIO $ timerCallback (envEventsChan env) newstate
-draw _ = do
+draw SLoadTime state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
+  -- start the timer once the chan has emptied (since its fifo)
+  newstate <- atomically $ readTChan (envStateChan1 env)
+  -- set the monad state to the timer's state, (this fixes the notorious loading screen bug)
+  let unftime = stateTime state
+  liftIO $ timerCallback (envEventsChan env) newstate
+  -- wait until after the history has been running for a while
+  if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
+  else liftIO $ loadedCallback (envEventsChan env) SLoadTime
+draw SLoadZone state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Generating Zone..."
+  liftIO $ loadedCallback (envEventsChan env) SZone
+draw SLoadElev state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading Elevation..."
+  -- since the timer is running on its own, and updating the fifo queue,
+  -- we dont have to update the state here, it will update in 1/60 ticks
+  -- once we enter the SElev state
+  liftIO $ loadedCallback (envEventsChan env) SElev
+draw SLoadSeaTemp state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Temperatures..."
+  liftIO $ loadedCallback (envEventsChan env) SSeaTemp
+draw SLoadSeaCurrents state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Currents..."
+  liftIO $ loadedCallback (envEventsChan env) SSeaCurrents
+draw SWorld state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  -- read in a non blocking way, maintaining the old state if the channel is empty
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  GL.preservingMatrix $ do
+    drawScene newstate (envWTex env)
+  GL.preservingMatrix $ do
+  -- the cursor must use the old state, since the timer has no concept of where the
+  -- cursor is moving.  it could be updated, but as of now there is no need
+    drawCursor state (envWTex env)
+  -- this will change the state to either the new state from the timer, or the old state
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw SZone state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  GL.preservingMatrix $ do
+    drawZone state (envZTex env)
+  GL.preservingMatrix $ do
+    drawZoneCursor state (envZTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw SElev state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  drawText (envFontSmall env) (-120) (-10) 36 36 $ formatElev (stateElev newstate) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawElev newstate (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw SSeaTemp state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  -- the ocean temp z will give the temperature of the 5 different zones of the sea
+  drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanTemp (stateOceanTempZ state) (stateOceans state) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawOcean state (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw SSeaCurrents state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  -- the ocean temp z will give the temperature of the 5 different zones of the sea
+  drawText (envFontSmall env) (-120) (-55) 36 36 $ formatOceanCurrents (stateOceanCurrentsZ state) (stateOceans state) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawOceanCurrents state (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
+draw _ _ _ = do
   -- i have yet to see this called, that is good...
-  state <- get
-  liftIO $ do
-    print "fuck"
+  print "fuck"
 
 -- this will run on all cores, not recommended
 runOnAllCores :: IO ()
@@ -416,13 +378,14 @@ processEvent ev =
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- moves the camera when in a zone
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) West):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) East):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) East):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) North):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) North):(tail (stateZones state))) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) && (GLFW.modifierKeysControl mk)) $ do
-            modify $ \s -> s { stateZones = ((moveZoneCam 1.0 (head (stateZones state)) South):(tail (stateZones state))) }
+            modify $ \s -> s { stateZones = ((moveZoneCam (16.0/32.0) (head (stateZones state)) South):(tail (stateZones state))) }
+
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
@@ -469,6 +432,15 @@ processEvent ev =
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam (2.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam (2.0/32.0) (head (stateZones state)) East):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam (2.0/32.0) (head (stateZones state)) North):(tail (stateZones state))) }
+        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) && (GLFW.modifierKeysControl mk)) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCam (2.0/32.0) (head (stateZones state)) South):(tail (stateZones state))) }
+
     -- these should reorganize the screen when you resize the window
     (EventFramebufferSize _ width height) -> do
       adjustWindow
