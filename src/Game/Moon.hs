@@ -20,8 +20,8 @@ makeMoon x1 y1 z1 l1 = Moon { x = x1
                             , l = l1 }
 
 moveMoon :: Moon -> Integer -> Moon
-moveMoon m0 time = Moon { x = (((fromInteger(time))/(1387.3/(fromIntegral(gridw)))))+(sin(2.0*pi*(fromInteger time)/((360.0*1440.0)*(fromIntegral gridw))))
-                        , y = ((fromIntegral(gridh))/2)+(fromIntegral(gridh)/30.0)*(sin(2.0*pi*(fromInteger time)/((360.0*1440.0)*(fromIntegral gridw))))
+moveMoon m0 time = Moon { x = (((fromInteger(time))/(693.6/(fromIntegral(gridw)))))+(sin(2.0*pi*(fromInteger time)/((360.0*720.0)*(fromIntegral gridw))))
+                        , y = ((fromIntegral(gridh))/2)+(fromIntegral(gridh)/30.0)*(sin(2.0*pi*(fromInteger time)/((360.0*720.0)*(fromIntegral gridw))))
 
                         , z = (z m0)
                         , l = (l m0)

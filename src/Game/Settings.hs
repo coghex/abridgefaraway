@@ -41,9 +41,9 @@ maxnspots = 10::Int
 -- radius of the light from the sun
 radius = 20::Int
 
--- minutes of history that pass before the world is presented
--- there are 1440 minutes in a day, 360 days in a year
-history = 100::Int
+-- hours of history that pass before the world is presented
+-- there are 60 min in an hour, 24 hours in a day, 360 days in a year
+history = 1000::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 1009::Float

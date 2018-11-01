@@ -120,6 +120,46 @@ initWorld state env = do
     , stateZones          = zones
     }
 
+nextSimState :: State -> Env -> State
+nextSimState state env = State
+    { stateGame           = stateGame state
+    , stateStdGens        = stateStdGens state
+    , stateScreenW        = stateScreenW state
+    , stateScreenH        = stateScreenH state
+    , stateGrid           = grid
+    , stateOG             = stateOG state
+    , stateElev           = stateElev state
+    , stateCursor         = stateCursor state
+    , stateNConts         = stateNConts state
+    , stateCurrMap        = stateCurrMap state
+    , stateConts          = stateConts state
+    , stateSeeds          = stateSeeds state
+    , stateRands          = stateRands state
+    , stateSizes          = stateSizes state
+    , stateTypes          = stateTypes state
+    , stateRandI          = stateRandI state
+    , stateRangeRands     = stateRangeRands state
+    , stateSun            = sun
+    , stateMoon           = moon
+    , stateSunSpots       = sspots
+    , stateTime           = time
+    , stateOceans         = newos
+    , stateOceanTempZ     = stateOceanTempZ state
+    , stateOceanCurrentsZ = stateOceanCurrentsZ state
+    , stateSkies          = stateSkies state
+    , stateZones          = stateZones state }
+  where
+    time    = (stateTime state)+60
+    sun     = moveSun oldsun time
+    moon    = moveMoon oldmoon time
+    oldsun  = stateSun state
+    oldmoon = stateMoon state
+    newos   = tempOcean (stateOceans state) sspots mspots
+    sspots  = theBigSpotter sun mspots
+    mspots  = moonSpotter moon
+    grid    = iceMap state env (stateGrid state) (stateOceans state) (stateOG state)
+
+
 nextState :: State -> Env -> State
 nextState state env = State
     { stateGame           = stateGame state

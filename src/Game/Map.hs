@@ -67,6 +67,9 @@ tapZoneGrid x y zg = zg !! (x + (y*zonew))
 parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)
 
+fdiv :: Int -> Int -> Float
+fdiv x y = (fromIntegral x) / (fromIntegral y)
+
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))

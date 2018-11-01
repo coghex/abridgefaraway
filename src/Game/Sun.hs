@@ -20,7 +20,7 @@ makeSun x1 y1 z1 l1 = Sun { x = x1
                           , l = l1 }
 
 moveSun :: Sun -> Integer -> Sun
-moveSun s0 time = Sun { x = (((fromInteger(time))/(1440.0/(fromIntegral(gridw)))))
+moveSun s0 time = Sun { x = (((fromInteger(time))/(720.0/(fromIntegral(gridw)))))
                       , y = (y s0)
                       , z = (z s0)
                       , l = (l s0)

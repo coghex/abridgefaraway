@@ -44,8 +44,8 @@ gameTime env state n TStop = do
 
 formatTime :: Integer -> String
 formatTime time = do
-  let dq = quot time 1440
-      dr = mod time 1440
+  let dq = quot time 720
+      dr = mod time 720
       h  = quot dr 60
       m  = mod dr 60
   "day " ++ (show dq) ++ ": " ++ (show h) ++ ":" ++ (show m)
@@ -53,7 +53,7 @@ formatTime time = do
 simTime :: Int -> State -> Env -> State
 simTime 0 state env = nextState state env
 simTime n state env = simTime (n-1) newstate env
-  where newstate = nextState state env
+  where newstate = nextSimState state env
 
 -- a parallel version that creates a bunch of overflow sparks
 --simTime :: Int -> State -> Env -> State
