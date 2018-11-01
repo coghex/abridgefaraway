@@ -11,6 +11,10 @@ data Card = North | South | West | East
 resequence_ :: [IO ()] -> IO ()
 resequence_ = foldr (>>) (return ())
 
+-- calculates the required zoom at the world map
+theZoom :: Int
+theZoom = max (quot (4192*gridh) screenh) (quot (4192*gridw) screenw)
+
 -- returns a cardinal list of elements surrounding each element
 cardinals :: [a] -> ([a], [a], [a], [a])
 cardinals x = do

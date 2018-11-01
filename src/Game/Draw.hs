@@ -48,7 +48,7 @@ drawSceneSpot texs sunspots y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTil
 drawSceneTile :: [GL.TextureObject] -> [Float] -> Int -> Int -> Int -> IO ()
 drawSceneTile texs sunspots x y t = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f t1 t2 t3
   drawSquare
   where 
@@ -56,4 +56,4 @@ drawSceneTile texs sunspots x y t = do
     t2 = 0.9*b
     t3 = (log (b+1))
     b  = sunSpots sunspots x y
-    thiszoom = fromIntegral $ max (quot (4192*gridh) screenh) (quot (4192*gridw) screenw)
+    thiszoom = fromIntegral $ theZoom
