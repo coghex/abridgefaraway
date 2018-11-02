@@ -1,5 +1,9 @@
 module Game.Data where
 
+type Vector a = [a]
+
+type Matrix a = [Vector a]
+
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
                , hightroposphere  :: SkyZone

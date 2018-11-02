@@ -6,6 +6,8 @@ import Graphics.Rendering.OpenGL
 import Control.Lens
 
 -- these data types are for the font renderer
+
+
 type MatrixUpdate = [GLfloat] -> IO ()
 
 data RndrProgram3D = RndrProgram3D { _program       :: Program
@@ -17,6 +19,10 @@ makeLenses ''RndrProgram3D
 data TextRenderer = TextRenderer { _textProgram  :: RndrProgram3D
                                  , _setSampler   :: Index1 GLint   -> IO ()
                                  , _setTextColor :: Color4 GLfloat -> IO ()
-                                 , _drawText     :: String -> IO ()
+                                 , _newdrawText     :: String -> IO ()
                                  }
 makeLenses ''TextRenderer
+
+data TRend = TRend { _textRenderer :: TextRenderer
+                   , _cursorPos    :: (Double, Double)
+                   }

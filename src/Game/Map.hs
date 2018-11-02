@@ -3,7 +3,9 @@ module Game.Map where
 import Numeric (showFFloat)
 import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split ( chunksOf )
+import Data.Maybe ( fromMaybe )
 import Game.Settings
+import Game.Data
 
 data Card = North | South | West | East
 
@@ -131,3 +133,4 @@ stripGrid _           = [[]]
 stripRow :: [(a, Int)] -> [a]
 stripRow ((a, b):ys) = a : stripRow ys
 stripRow _           = []
+
