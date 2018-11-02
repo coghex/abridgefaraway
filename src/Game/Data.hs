@@ -1,8 +1,17 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Game.Data where
 
-type Vector a = [a]
+import Control.Lens
+import Font.Rendering.Text.Types
+import Font.Rendering.Shader.Shape.Types
+import Font.Cacheing.Types
 
-type Matrix a = [Vector a]
+data TRend = TRend { _textRenderer :: TextRenderer
+                   , _cursorPos    :: (Double, Double)
+                   , _shapeProgram :: ShapeShaderProgram
+                   , _cache        :: Maybe RenderCache
+                   }
+makeLenses ''TRend
 
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
