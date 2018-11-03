@@ -59,7 +59,6 @@ main = do
     -- only loads ttf fonts
     f1 <- loadFont "data/fonts/cheque/Cheque-Regular.ttf"
     f2 <- loadFont "data/fonts/smone/SupermercadoOne-Regular.ttf"
-
     -- load textures for the world and zones respectively
     (wtex, ztex) <- liftIO $ initTexs window
 
