@@ -287,9 +287,9 @@ getZoneTempForSure (Ice t)                 ot = t
 getZoneTempForSure (OceanZone t _ _ _ _ _) ot = t
 
 getZoneTempMaybe :: OceanZone -> String
-getZoneTempMaybe o = case (o) of OceanZone t _ _ _ _ _ -> show t
-                                 Solid     t           -> "Solid Rock Temp:" ++ show t
-                                 Ice       t           -> "Solid Ice Temp" ++ show t
+getZoneTempMaybe o = case (o) of OceanZone t _ _ _ _ _ -> showFloatFoReal $ roundTo precision t
+                                 Solid     t           -> "Solid Rock Temp:" ++ (showFloatFoReal $ roundTo precision t)
+                                 Ice       t           -> "Solid Ice Temp" ++ (showFloatFoReal $ roundTo precision t)
 
 getZone :: Int -> Ocean -> OceanZone
 getZone n    (Dry t)         = Solid t

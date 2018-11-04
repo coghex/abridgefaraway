@@ -138,7 +138,7 @@ elevOf dist t x y g = elevOfSpot dist t typ
     typ = (fst $ (fst (g !! y)) !! x)
 
 elevOfSpot :: Int -> Int -> Int -> Int
-elevOfSpot dist t 1 = avgElev t $ (normElev dist 1 4)
+elevOfSpot dist t 1 = avgElev t $ normElev dist 1 4
 elevOfSpot dist t 2 = avgElev t $ -(normElev dist 40 80)
 elevOfSpot dist t 3 = avgElev t $ normElev dist 5 6
 elevOfSpot dist t 4 = avgElev t $ normElev dist 5 40
@@ -164,7 +164,7 @@ getElev e0 x y = do
   round $ ((fromIntegral(elev)) - sealevel)
 
 formatElev :: [Int] -> (Int, Int) -> String
-formatElev e (x, y) = "Elev:" ++ (show (getElev e x y))
+formatElev e (x, y) = "Elev: " ++ (show (getElev e x y))
 
 
 

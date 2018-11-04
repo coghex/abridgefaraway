@@ -135,9 +135,6 @@ moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , curx = (curx zone)
                                , cury = (cury zone) }
 
-elevBlurZone :: State -> Int -> Int -> [Int] -> [Int]
-elevBlurZone state x y zone = zone
-
 generateZone :: State -> Zone
 generateZone state = genZone state x y zc conts seeds rands nconts
   where (x, y) = stateCursor state
@@ -148,9 +145,9 @@ generateZone state = genZone state x y zc conts seeds rands nconts
         nconts = stateNConts state
 
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
-genZone state x y zc conts seeds rands nconts = Zone { grid = initZoneGrid state 0
+genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
-                                                     , elev = initZoneElev state zc e en es ee ew
+                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -159,49 +156,72 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = initZoneGrid state
                                                      , curx = round $ fromIntegral(zonew)/2.0
                                                      , cury = round $ fromIntegral(zoneh)/2.0
                                                      }
-  where zoneconts        = zc0
-        zc0              = elevBlurZone state x y zc1
+  where zoneconts        = zc1
+        zoneelev         = take (zoneh*zonew) (repeat 0.0)
         zc1              = initZoneCont state x y zc conts seeds rands nconts
         (en, es, ee, ew) = cardinalsXY x y (stateElev state)
+        enn              = quot (en+e) 2
+        esn              = quot (es+e) 2
+        een              = quot (ee+e) 2
+        ewn              = quot (ew+e) 2
         e                = tapZoneGrid x y (stateElev state)
+        g0               = initZoneGrid state 0
 
-initZoneElev :: State -> [Int] -> Int -> Int -> Int -> Int -> Int -> [Float]
-initZoneElev state zc e en es ee ew = zc2
-  where newz = expandZone zc
-        zc0  = parMap rpar (seedZoneElevRow state e en es ee ew) newz
-        zc1  = stripGrid zc0
-        zc2  = flattenGrid zc1
+blurZone :: State -> [Float] -> Int -> [Float]
+blurZone state elev n = elev
 
-seedZoneElevRow :: State -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Float, Int)], Int)
-seedZoneElevRow state e en es ee ew (t1, t2) = (map (seedZoneElevSpot state ef enf esf eef ewf t2) t1, t2)
-  where ef  = fromIntegral e
-        enf = fromIntegral en
-        esf = fromIntegral es
-        eef = fromIntegral ee
-        ewf = fromIntegral ew
+initZoneBlurElev :: Int -> Int -> State -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Float]
+initZoneBlurElev x0 y0 state zc ze e l k j i = do
+  let e1 = elevZone x0 y0 state zc ze l k j i
+  blurZone state e1 erosion
 
-seedZoneElevSpot :: State -> Float -> Float -> Float -> Float -> Float -> Int -> (Int, Int) -> (Float, Int)
-seedZoneElevSpot state e en es ee ew j (t, i) = (zelev, i)
-  where zelev  = ((diste*e)+(disten*en)+(distes*es)+(distee*ee)+(distew*ew))
-        diste  = 1.0 - (sqrt((((x2 - x1)*(x2 - x1))/(zonewf)) + (((y2 - y1)*(y2 - y1))/(zonehf))))
-        x1     = zonewf/2.0
-        x2     = fromIntegral i
-        y1     = zonehf/2.0
-        y2     = fromIntegral j
-        disten = 1.0 - (sqrt((((x2 - nx1)*(x2 - nx1))/(zonewf*zonewf)) + (((y2 - ny1)*(y2 - ny1))/(zonehf*zonehf))))
-        nx1    = zonewf/2.0
-        ny1    = -(zonehf/2.0)
-        distes = 1.0 - (sqrt((((x2 - sx1)*(x2 - sx1))/(zonewf*zonewf)) + (((y2 - sy1)*(y2 - sy1))/(zonehf*zonehf))))
-        sx1    = zonewf/2.0
-        sy1    = (3.0*zonehf)/2.0
-        distee = 1.0 - (sqrt((((x2 - ex1)*(x2 - ex1))/(zonewf*zonewf)) + (((y2 - ey1)*(y2 - ey1))/(zonehf*zonehf))))
-        ex1    = (3.0*zonewf)/2.0
-        ey1    = zonehf/2.0
-        distew = 1.0 - (sqrt((((x2 - wx1)*(x2 - wx1))/(zonewf*zonewf)) + (((y2 - wy1)*(y2 - wy1))/(zonehf*zonehf))))
-        wx1    = -(zonewf/2.0)
-        wy1    = zonehf/2.0
-        zonewf = fromIntegral zonew
-        zonehf = fromIntegral zoneh
+elevZone :: Int -> Int -> State -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Float]
+elevZone x0 y0 state zc elev []     []     []     _ = elev
+elevZone x0 y0 state zc elev _      _      _      0 = elev
+elevZone x0 y0 state zc elev (l:ls) (k:ks) (j:js) i = do
+  let x = findZoneElev x0 y0 state i (fst l) (snd l) zc elev k j
+  elevZone x0 y0 state zc x ls ks js (i-1)
+
+findZoneElev :: Int -> Int -> State -> Int -> Int -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [(Int, Int)] -> [Float]
+findZoneElev _  _  _     _ _ _ _  e []     []     = e
+findZoneElev x0 y0 state c x y zc e (k:ks) (j:js) = do
+  let newzc = expandZone zc
+      newe  = expandZone e
+      e0    = parMap rpar (elevZoneRow x0 y0 state newzc c (fst k) (snd k) (fst j) (snd j)) newe
+      e1    = stripGrid e0
+      e2    = flattenGrid e1
+  findZoneElev x0 y0 state c x y zc e2 ks js
+
+elevZoneRow :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
+elevZoneRow x0 y0 state zc c w x y z (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 w x y z) t1, t2)
+
+elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Float, Int) -> (Float, Int)
+elevZoneTile x0 y0 state c e j w x y z (t, i) = ((elevOfZone dist t i j c), i)
+  where dist = zoneDistance x0 y0 i j w x y z t
+
+elevOfZone :: Float -> Float -> Int -> Int -> [([(Int, Int)], Int)] -> Float
+elevOfZone dist t x y c = elevOfZoneSpot dist t typ
+  where typ = (fst $ (fst (c !! y)) !! x)
+
+elevOfZoneSpot :: Float -> Float -> Int -> Float
+elevOfZoneSpot dist t 1 = avgZoneElev t $ normZoneElev dist 1 4
+elevOfZoneSpot dist t 2 = avgZoneElev t $ -(normZoneElev dist 40 80)
+elevOfZoneSpot dist t 3 = avgZoneElev t $ normZoneElev dist 5 6
+elevOfZoneSpot dist t 4 = avgZoneElev t $ normZoneElev dist 5 40
+elevOfZoneSpot dist t 5 = avgZoneElev t $ normZoneElev dist 20 100
+elevOfZoneSpot dist t 6 = avgZoneElev t $ normZoneElev dist 12 40
+elevOfZoneSpot dist t typ = 0
+
+normZoneElev :: Float -> Int -> Int -> Float
+normZoneElev x min max
+  | (x < 0.1) = (min'-max')/2.0
+  | otherwise = (((max' - min'))/(peaklevel))*x + min'
+  where min' = fromIntegral min
+        max' = fromIntegral max
+
+avgZoneElev :: Float -> Float -> Float
+avgZoneElev x y = x + (vigor'*y)
+  where vigor' = fromIntegral vigor
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)
@@ -227,34 +247,43 @@ seedZoneContRow state x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile state
 
 seedZoneContTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedZoneContTile state x y it c j w x0 y0 z0 (t, i)
-  | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t <= maxdist)           = (randstate, i)
-  | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t <= maxdist)           = (randstate, i)
-  | (randstate == 1) && (zoneDistance x y i j w x0         (y0+gridh) z0 t <= maxdist)           = (randstate, i)
-  | (randstate == 1) && (zoneDistance x y i j w (x0-gridw) y0         z0 t <= maxdist)           = (randstate, i)
-  | (randstate == 1) && (zoneDistance x y i j w x0         (y0-gridh) z0 t <= maxdist)           = (randstate, i)
-  | (randstate > 6) || (randstate < 2)                                                           = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridw) z0 t < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridw) z0 t < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t <= (4*maxdist))       = (randstate, i)
-  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t <= (4*maxdist))       = (randstate, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridh) z0 t <= (4*maxdist))       = (randstate, i)
-  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t <= (4*maxdist))       = (randstate, i)
-  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridh) z0 t <= (4*maxdist))       = (randstate, i)
-  | (randstate == 5) && (zoneDistance x y i j w x0         y0         z0 t < maxdist-cfudge)     = (t, i)
-  | (randstate == 5) && (zoneDistance x y i j w (x0+gridw) y0         z0 t < maxdist-cfudge)     = (t, i)
-  | (randstate == 5) && (zoneDistance x y i j w x0         (y0+gridh) z0 t < maxdist-cfudge)     = (t, i)
-  | (randstate == 5) && (zoneDistance x y i j w (x0-gridw) y0         z0 t < maxdist-cfudge)     = (t, i)
-  | (randstate == 5) && (zoneDistance x y i j w x0         (y0-gridh) z0 t < maxdist-cfudge)     = (t, i)
-  | zoneDistance x y i j w x0         y0         z0 t <= maxdist                                 = (randstate, i)
-  | zoneDistance x y i j w (x0+gridw) y0         z0 t <= maxdist                                 = (randstate, i)
-  | zoneDistance x y i j w x0         (y0+gridh) z0 t <= maxdist                                 = (randstate, i)
-  | zoneDistance x y i j w (x0-gridw) y0         z0 t <= maxdist                                 = (randstate, i)
-  | zoneDistance x y i j w x0         (y0-gridh) z0 t <= maxdist                                 = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t' <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         (y0+gridh) z0 t' <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w (x0-gridw) y0         z0 t' <= maxdist)           = (randstate, i)
+  | (randstate == 1) && (zoneDistance x y i j w x0         (y0-gridh) z0 t' <= maxdist)           = (randstate, i)
+  | (randstate > 6) || (randstate < 2)                                                            = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridw) z0 t' < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridw) z0 t' < 8*(maxdist-cfudge)) = (t, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         y0         z0 t' <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0+gridh) z0 t' <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w (x0-gridw) y0         z0 t' <= (4*maxdist))       = (randstate, i)
+  | (randstate == 2) && (zoneDistance x y i j w x0         (y0-gridh) z0 t' <= (4*maxdist))       = (randstate, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         y0         z0 t' < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         (y0+gridh) z0 t' < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w (x0-gridw) y0         z0 t' < maxdist-cfudge)     = (t, i)
+  | (randstate == 5) && (zoneDistance x y i j w x0         (y0-gridh) z0 t' < maxdist-cfudge)     = (t, i)
+  | zoneDistance x y i j w x0         y0         z0 t' <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w (x0+gridw) y0         z0 t' <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w x0         (y0+gridh) z0 t' <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w (x0-gridw) y0         z0 t' <= maxdist                                 = (randstate, i)
+  | zoneDistance x y i j w x0         (y0-gridh) z0 t' <= maxdist                                 = (randstate, i)
   | otherwise                                                                                    = (t, i)
   where
     randstate = (stateTypes state) !! c
     maxdist   = 1000.0 * fromIntegral(((stateSizes state) !! c))
     cfudge    = 2.0 * fromIntegral(((stateRangeRands state) !! (c)) - minnconts)
+    t'        = fromIntegral(t)
+
+formatZoneElev :: [Float] -> (Int, Int) -> String
+formatZoneElev e (x, y) = "Elev: " ++ (showFloatFoReal $ roundTo precision (getZoneElev e x y))
+
+getZoneElev :: [Float] -> Int -> Int -> Float
+getZoneElev e0 x y = do
+  let elev = e0 !! (x+(zonew*y))
+  elev - sealevel

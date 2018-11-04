@@ -43,7 +43,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]])
+initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]], [[TextureObject]])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -51,12 +51,15 @@ initTexs win = do
   glClearDepth 1
   glEnable GL_DEPTH_TEST
   glDepthFunc GL_LEQUAL
+  glEnable GL_BLEND
+  glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
   glHint GL_PERSPECTIVE_CORRECTION_HINT GL_NICEST
   (w, h) <- GLFW.getFramebufferSize win
   resizeScene win w h
   wtex <- loadWTextures "data/biome/"
   ztex <- loadZTextures "data/zone/"
-  return (wtex, ztex)
+  utex <- loadUTextures "data/util/"
+  return (wtex, ztex, utex)
 
 loadZTextures :: String -> IO ([[TextureObject]])
 loadZTextures fn = do
@@ -206,6 +209,21 @@ loadWTextures fn = do
   t20 <- loadTex (fn ++ "sea/seane.png")
 
   return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20])
+
+
+loadUTextures :: String -> IO ([[TextureObject]])
+loadUTextures fn = do
+  b0  <- loadTex (fn ++ "box/box.png")
+  b1  <- loadTex (fn ++ "box/boxnw.png")
+  b2  <- loadTex (fn ++ "box/boxn.png")
+  b3  <- loadTex (fn ++ "box/boxne.png")
+  b4  <- loadTex (fn ++ "box/boxe.png")
+  b5  <- loadTex (fn ++ "box/boxse.png")
+  b6  <- loadTex (fn ++ "box/boxs.png")
+  b7  <- loadTex (fn ++ "box/boxsw.png")
+  b8  <- loadTex (fn ++ "box/boxw.png")
+
+  return ([[], [b0, b1, b2, b3, b4, b5, b6, b7, b8]])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do

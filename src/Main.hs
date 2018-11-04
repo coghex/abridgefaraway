@@ -33,6 +33,7 @@ import Game.Sun
 import Game.Ocean
 import Game.Map
 import Game.Zone
+import Game.Data
 
 -- the game monad wrapper, gives us a threadsafe state and env
 type Game = RWST Env () State IO
@@ -60,7 +61,7 @@ main = do
     f1 <- loadFont "data/fonts/cheque/Cheque-Regular.ttf"
     f2 <- loadFont "data/fonts/smone/SupermercadoOne-Regular.ttf"
     -- load textures for the world and zones respectively
-    (wtex, ztex) <- liftIO $ initTexs window
+    (wtex, ztex, utex) <- liftIO $ initTexs window
 
     -- makes some std gens for most of the RNG
     s1 <- newStdGen
@@ -95,6 +96,7 @@ main = do
             , envFontSmall  = f2
             , envWTex       = wtex
             , envZTex       = ztex
+            , envUTex       = utex
             , envSeeds      = randomRs (1,100) (mkStdGen 43)
             , envStateChan1 = stateChan1
             , envStateChan2 = stateChan2
@@ -210,12 +212,12 @@ draw SZone state env = do
     Just n  -> return n
   let unftime = stateTime newstate
       sun     = stateSun newstate
-  beginDrawText
-  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
   GL.preservingMatrix $ do
     drawZone state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
+  GL.preservingMatrix $ do
+    drawZoneText ((envUTex env)!!1) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SZoneElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
@@ -223,14 +225,16 @@ draw SZoneElev state env = do
   newstate <- case (statebuff) of
     Nothing -> return state
     Just n  -> return n
-  let unftime = stateTime newstate
-      sun     = stateSun newstate
+  let unftime  = stateTime newstate
+      sun      = stateSun newstate
+      zoneelev = elev (head (stateZones state))
   beginDrawText
-  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
   GL.preservingMatrix $ do
     drawZoneElev state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
+    --drawZoneText (envFontSmall env) (-120) (-25) 36 36 $ ["x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))]
+  --drawZoneText (envFontSmall env) (-120) (-10) 36 36 $ [formatZoneElev zoneelev (stateCursor state)]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]

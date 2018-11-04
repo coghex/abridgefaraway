@@ -82,7 +82,7 @@ distance x1 y1 x2 y2 x3 y3 t = do
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
   100*p1*p2
 
-zoneDistance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
+zoneDistance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float -> Float
 zoneDistance x1 y1 x y x2 y2 x3 y3 t = do
   let p1 = (((nx1-nx2)*(nx1-nx2)))+((((ny1-ny2)*(ny1-ny2))))
       p2 = (((nx1-nx3)*(nx1-nx3)))+((((ny1-ny3)*(ny1-ny3))))
@@ -133,4 +133,20 @@ stripGrid _           = [[]]
 stripRow :: [(a, Int)] -> [a]
 stripRow ((a, b):ys) = a : stripRow ys
 stripRow _           = []
+
+tupMap :: (a -> b) -> [(a, a)] -> [(b, a)]
+tupMap f s = map (mapTup f) s
+
+mapTup :: (a -> b) -> (a, a) -> (b, a)
+mapTup f (r, s) = (f r, s)
+
+crossProduct :: (Int, Int, Int) -> (Int, Int, Int) -> (Int, Int, Int)
+crossProduct (a1, a2, a3) (b1, b2, b3) = ((a2*b3 - a3*b2), (a3*b1 - a1*b3), (a1*b2 - a2-b1))
+
+vmin :: (Int, Int, Int) -> (Int, Int, Int) -> (Int, Int, Int)
+vmin (a1, a2, a3) (b1, b2, b3) = ((a1-b1), (a2-b2), (a3-b3))
+
+
+
+
 

@@ -22,6 +22,7 @@ data Env = Env
   , envFontSmall        :: !FTGL.Font
   , envWTex             :: ![GL.TextureObject]
   , envZTex             :: ![[GL.TextureObject]]
+  , envUTex             :: ![[GL.TextureObject]]
   , envSeeds            :: ![Int]
   , envStateChan1       :: TChan State
   , envStateChan2       :: TChan State

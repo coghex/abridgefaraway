@@ -2,6 +2,7 @@ module Game.Font where
 
 import Control.Monad
 import Data.Maybe
+import qualified Graphics.GL as GLR
 import Graphics.Rendering.OpenGL hiding (bitmap,Matrix)
 import Graphics.Rendering.FreeType.Internal
 import qualified Graphics.Rendering.FreeType.Internal.BitmapSize as BS
@@ -17,6 +18,8 @@ import qualified Graphics.Rendering.FTGL as FTGL
 import Game.Settings
 import Game.Util
 import Game.Data
+import Game.Map
+import GLUtil.Textures
 
 
 beginDrawText :: IO ()
@@ -35,4 +38,45 @@ drawText font x y sx sy str = do
   color (Color3 1 1 1 :: Color3 GLfloat)
   FTGL.setFontFaceSize font (quot sx 2) (quot sy 2)
   FTGL.renderFont font str FTGL.Front
+
+drawZoneText :: [TextureObject] -> FTGL.Font -> Int -> Int -> Int -> Int -> [String] -> IO ()
+drawZoneText texs font x y sx sy str = do
+  drawTextBox texs x y sx sy (maximum (map length str)) (length str)
+  loadIdentity
+  translate $ Vector3 ((2*((fromIntegral x)-(fromIntegral 60)))/100) ((2*((fromIntegral y)-(fromIntegral 45)))/100) (-5::GLfloat)
+  GLR.glScalef 0.01 0.01 0.01
+  color (Color3 1 1 1 :: Color3 GLfloat)
+  FTGL.setFontFaceSize font (quot sx 2) (quot sy 2)
+  resequence_ $ map (renderFontMap font) str
+
+renderFontMap :: FTGL.Font -> String -> IO ()
+renderFontMap font str = FTGL.renderFont font str FTGL.Front
+
+drawTextBox :: [TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
+drawTextBox texs x y sx sy bx by = do
+  loadIdentity
+  translate $ Vector3 ((2*((fromIntegral x)-(fromIntegral 60)))/50) ((2*((fromIntegral y)-(fromIntegral 35)))/50) (-10::GLfloat)
+  GLR.glScalef 0.2 0.2 0.2
+  -- first render top left corner
+  withTextures2D [texs!!7] $ drawBoxTile texs
+
+drawBoxTile :: [TextureObject] -> IO ()
+drawBoxTile tex = do
+  GLR.glBegin GLR.GL_QUADS
+  GLR.glTexCoord2f   0    0
+  GLR.glVertex3f   (-1) (-1)  1
+  GLR.glTexCoord2f   1    0
+  GLR.glVertex3f     1  (-1)  1
+  GLR.glTexCoord2f   1    1
+  GLR.glVertex3f     1    1   1
+  GLR.glTexCoord2f   0    1
+  GLR.glVertex3f   (-1)   1   1
+  GLR.glEnd
+
+
+
+
+
+
+
 
