@@ -217,7 +217,7 @@ draw SZone state env = do
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
   GL.preservingMatrix $ do
-    drawZoneText ((envUTex env)!!1) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime]
+    drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SZoneElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
@@ -233,8 +233,7 @@ draw SZoneElev state env = do
     drawZoneElev state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
-    --drawZoneText (envFontSmall env) (-120) (-25) 36 36 $ ["x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))]
-  --drawZoneText (envFontSmall env) (-120) (-10) 36 36 $ [formatZoneElev zoneelev (stateCursor state)]
+  drawZoneText (envUTex env) (envFontSmall env) (-120) (-25) 36 36 $ [formatTime unftime, "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state))), formatZoneElev zoneelev (stateCursor state)]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
