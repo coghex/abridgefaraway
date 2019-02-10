@@ -228,12 +228,14 @@ draw SZoneElev state env = do
   let unftime  = stateTime newstate
       sun      = stateSun newstate
       zoneelev = elev (head (stateZones state))
+      zonecurx = curx (head (stateZones state))
+      zonecury = cury (head (stateZones state))
   beginDrawText
   GL.preservingMatrix $ do
     drawZoneElev state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
-  drawZoneText (envUTex env) (envFontSmall env) (-120) (-25) 36 36 $ [formatTime unftime, "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state))), formatZoneElev zoneelev (stateCursor state)]
+  drawZoneText (envUTex env) (envFontSmall env) (-120) (-25) 36 36 $ [formatTime unftime, "x:" ++ (show zonecurx) ++ " y:" ++ (show zonecury), formatZoneElev zoneelev (zonecurx, zonecury)]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]

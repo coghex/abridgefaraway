@@ -32,10 +32,11 @@ drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Int -> Int ->
 drawZoneElevTile texs camx camy camz x y t = do
   glLoadIdentity
   glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
-  glColor3f t t $ elevZoneOcean t
+  glColor3f elev elev $ elevZoneOcean elev
   drawSquare
   where nx = fromIntegral(x)+camx
         ny = fromIntegral(y)+camy
+        elev = t/peaklevel
 
 elevZoneOcean :: Float -> Float
 elevZoneOcean x
@@ -174,7 +175,7 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
-                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
+                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -197,36 +198,73 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
 blurZone :: State -> [Float] -> Int -> [Float]
 blurZone state elev n = elev
 
-initZoneBlurElev :: Int -> Int -> State -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Float]
-initZoneBlurElev x0 y0 state zc ze e l k j i = do
-  let e1 = elevZone x0 y0 state zc ze l k j i
+initZoneBlurElev :: Int -> Int -> State -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> (Int, Int, Int, Int) -> [Float]
+initZoneBlurElev x0 y0 state zc ze e l k j i cards = do
+  let e1 = elevZone x0 y0 state zc ze l k j i e cards
   blurZone state e1 erosion
 
-elevZone :: Int -> Int -> State -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Float]
-elevZone x0 y0 state zc elev []     []     []     _ = elev
-elevZone x0 y0 state zc elev _      _      _      0 = elev
-elevZone x0 y0 state zc elev (l:ls) (k:ks) (j:js) i = do
-  let x = findZoneElev x0 y0 state i (fst l) (snd l) zc elev k j
-  elevZone x0 y0 state zc x ls ks js (i-1)
+elevZone :: Int -> Int -> State -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Int -> (Int, Int, Int, Int) -> [Float]
+elevZone x0 y0 state zc elev []     []     []     _ e0 cards = elev
+elevZone x0 y0 state zc elev _      _      _      0 e0 cards = elev
+elevZone x0 y0 state zc elev (l:ls) (k:ks) (j:js) i e0 cards = do
+  let x = findZoneElev x0 y0 state i (fst l) (snd l) zc elev k j e0 cards
+  elevZone x0 y0 state zc x ls ks js (i-1) e0 cards
 
-findZoneElev :: Int -> Int -> State -> Int -> Int -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [(Int, Int)] -> [Float]
-findZoneElev _  _  _     _ _ _ _  e []     []     = e
-findZoneElev x0 y0 state c x y zc e (k:ks) (j:js) = do
+findZoneElev :: Int -> Int -> State -> Int -> Int -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [(Int, Int)] -> Int -> (Int, Int, Int, Int) -> [Float]
+findZoneElev _  _  _     _ _ _ _  e []     []     ei cards = e
+findZoneElev x0 y0 state c x y zc e (k:ks) (j:js) ei cards = do
   let newzc = expandZone zc
       newe  = expandZone e
-      e0    = parMap rpar (elevZoneRow x0 y0 state newzc c (fst k) (snd k) (fst j) (snd j)) newe
+      e0    = parMap rpar (elevZoneRow x0 y0 state newzc c (fst k) (snd k) (fst j) (snd j) ei cards) newe
       e1    = stripGrid e0
       e2    = flattenGrid e1
-  findZoneElev x0 y0 state c x y zc e2 ks js
+  findZoneElev x0 y0 state c x y zc e2 ks js ei cards
 
-elevZoneRow :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
-elevZoneRow x0 y0 state zc c w x y z (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 w x y z) t1, t2)
+elevZoneRow :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
+elevZoneRow x0 y0 state zc c w x y z e0 cards (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 w x y z e0 cards) t1, t2)
 
-elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Float, Int) -> (Float, Int)
-elevZoneTile x0 y0 state c e j w x y z (t, i) = ((elevOfZone state x0 y0), i)
+elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> (Float, Int) -> (Float, Int)
+elevZoneTile x0 y0 state c e j w x y z e0 cards (t, i) = ((elevOfZone state x0 y0 i j e0 cards), i)
 
-elevOfZone :: State -> Int -> Int -> Float
-elevOfZone state x0 y0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
+elevOfZone :: State -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> Float
+elevOfZone state x0 y0 i j e (en, es, ee, ew) = elevDist e en es ee ew i j
+  --where e0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
+
+elevDist :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
+elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4*jfloat2)
+  where enf = fromIntegral en
+        esf = fromIntegral es
+        eef = fromIntegral ee
+        ewf = fromIntegral ew
+        ef  = fromIntegral e
+        ifloat = fromIntegral i
+        jfloat = fromIntegral j
+        ifloat2 = ifloat*ifloat
+        jfloat2 = jfloat*jfloat
+        wfloat = fromIntegral zonew
+        hfloat = fromIntegral zoneh
+        wfloat2 = wfloat*wfloat
+        hfloat2 = hfloat*hfloat
+        b0 = eef + esf - ef
+        b1 = (4.0 * ef/wfloat) - (ewf/wfloat) - (3.0 * eef/wfloat)
+        b2 = (4.0 * ef/hfloat) - (enf/hfloat) - (3.0 * esf/hfloat)
+        b3 = (2.0 * eef/wfloat2) + (2.0 * ewf/wfloat2) - (4.0 * ef/wfloat2)
+        b4 = (2.0 * esf/hfloat2) + (2.0 * enf/hfloat2) - (4.0 * ef/hfloat2)
+
+elevDistNorth :: Float -> Float -> Float
+elevDistNorth i j = sqrt $ ((i-(gridwf/2.0))^2) + j^2
+  where gridwf = fromIntegral gridw
+elevDistSouth :: Float -> Float -> Float
+elevDistSouth i j = sqrt $ ((i-(gridwf/2.0))^2) + ((j-gridhf)^2)
+  where gridwf = fromIntegral gridw
+        gridhf = fromIntegral gridh
+elevDistEast :: Float -> Float -> Float
+elevDistEast i j = sqrt $ ((i-gridwf)^2) + ((j-(gridhf/2.0))^2)
+  where gridwf = fromIntegral gridw
+        gridhf = fromIntegral gridh
+elevDistWest :: Float -> Float -> Float
+elevDistWest i j = sqrt $ i^2 + ((j - (gridhf/2.0))^2)
+  where gridhf = fromIntegral gridh
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)
