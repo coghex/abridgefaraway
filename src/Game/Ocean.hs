@@ -91,7 +91,7 @@ drawOceanCurrentsTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -
 drawOceanCurrentsTileTex 1    size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
   glColor3f vz 1.0 1.0
   drawOceanSquare
@@ -101,7 +101,7 @@ drawOceanCurrentsTileTex 1    size vz texs x y = do
 drawOceanCurrentsTileTex 200  size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
   glColor3f vz 1.0 1.0
   drawOceanSquare
@@ -111,7 +111,7 @@ drawOceanCurrentsTileTex 200  size vz texs x y = do
 drawOceanCurrentsTileTex 1000 size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
   glColor3f vz 1.0 1.0
   drawOceanSquare
@@ -121,7 +121,7 @@ drawOceanCurrentsTileTex 1000 size vz texs x y = do
 drawOceanCurrentsTileTex n size vz texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
   glColor3f vz 1.0 1.0
   drawOceanSquare
@@ -132,7 +132,7 @@ drawOceanCurrentsTileTex n size vz texs x y = do
 drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawVZTile vz texs x y = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f vz 1.0 1.0
   drawOceanSquare
   where thiszoom     = fromIntegral theZoom
@@ -140,7 +140,7 @@ drawVZTile vz texs x y = do
 drawNullTile :: [GL.TextureObject] -> Int -> Int -> IO ()
 drawNullTile texs x y = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   where thiszoom     = fromIntegral theZoom
@@ -148,7 +148,7 @@ drawNullTile texs x y = do
 drawOceanTile :: Int -> [GL.TextureObject] -> Int -> Int -> Ocean -> IO ()
 drawOceanTile n texs x y (Sea e m b a h) = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   case n of 1    -> case (e) of Solid t               -> glColor3f 1.0 1.0 1.0
                                 Ice   t               -> glColor3f 1.0 1.0 1.0
                                 OceanZone t _ _ _ _ _ -> glColor3f (((t+2)/18.0)-1) (1.0 - (abs (((t+2)-18.0)/18.0))) (1.0-((t+2)/18.0))
@@ -168,7 +168,7 @@ drawOceanTile n texs x y (Sea e m b a h) = do
   where thiszoom     = fromIntegral theZoom
 drawOceanTile n texs x y (Dry _) = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f 1.0 1.0 1.0
   drawOceanSquare
   where thiszoom     = fromIntegral theZoom

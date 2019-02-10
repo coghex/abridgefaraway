@@ -135,6 +135,33 @@ moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , curx = (curx zone)
                                , cury = (cury zone) }
 
+moveZoneCursor :: Zone -> Card -> Zone
+moveZoneCursor zone South = moveCursorZone zone (x, y-1)
+  where x = curx zone
+        y = cury zone
+moveZoneCursor zone North = moveCursorZone zone (x, y+1)
+  where x = curx zone
+        y = cury zone
+moveZoneCursor zone East = moveCursorZone zone (x+1, y)
+  where x = curx zone
+        y = cury zone
+moveZoneCursor zone West = moveCursorZone zone (x-1, y)
+  where x = curx zone
+        y = cury zone
+
+moveCursorZone :: Zone -> (Int, Int) -> Zone
+moveCursorZone zone (x, y) = Zone { grid = (grid zone)
+                                  , cont = (cont zone)
+                                  , elev = (elev zone)
+                                  , mapx = (mapx zone)
+                                  , mapy = (mapy zone)
+                                  , camx = (camx zone)
+                                  , camy = (camy zone)
+                                  , camz = (camz zone)
+                                  , curx = x
+                                  , cury = y }
+
+
 generateZone :: State -> Zone
 generateZone state = genZone state x y zc conts seeds rands nconts
   where (x, y) = stateCursor state
@@ -147,7 +174,7 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
-                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
+                                                     , elev = zoneelev --initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -157,7 +184,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cury = round $ fromIntegral(zoneh)/2.0
                                                      }
   where zoneconts        = zc1
-        zoneelev         = take (zoneh*zonew) (repeat 0.0)
+        zoneelev         = take (zoneh*zonew) (repeat 1.0)
         zc1              = initZoneCont state x y zc conts seeds rands nconts
         (en, es, ee, ew) = cardinalsXY x y (stateElev state)
         enn              = quot (en+e) 2
@@ -197,19 +224,19 @@ elevZoneRow x0 y0 state zc c w x y z (t1, t2) = (map (elevZoneTile x0 y0 state z
 
 elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Float, Int) -> (Float, Int)
 elevZoneTile x0 y0 state c e j w x y z (t, i) = ((elevOfZone dist t i j c), i)
-  where dist = zoneDistance x0 y0 i j w x y z t
+  where dist = (zoneDistance x0 y0 i j w x y z t)
 
 elevOfZone :: Float -> Float -> Int -> Int -> [([(Int, Int)], Int)] -> Float
 elevOfZone dist t x y c = elevOfZoneSpot dist t typ
   where typ = (fst $ (fst (c !! y)) !! x)
 
 elevOfZoneSpot :: Float -> Float -> Int -> Float
-elevOfZoneSpot dist t 1 = avgZoneElev t $ normZoneElev dist 1 4
-elevOfZoneSpot dist t 2 = avgZoneElev t $ -(normZoneElev dist 40 80)
-elevOfZoneSpot dist t 3 = avgZoneElev t $ normZoneElev dist 5 6
-elevOfZoneSpot dist t 4 = avgZoneElev t $ normZoneElev dist 5 40
-elevOfZoneSpot dist t 5 = avgZoneElev t $ normZoneElev dist 20 100
-elevOfZoneSpot dist t 6 = avgZoneElev t $ normZoneElev dist 12 40
+elevOfZoneSpot dist t 1 = 1--avgZoneElev t $ normZoneElev dist 1 4
+elevOfZoneSpot dist t 2 = 2--avgZoneElev t $ -(normZoneElev dist 40 80)
+elevOfZoneSpot dist t 3 = 3--avgZoneElev t $ normZoneElev dist 5 6
+elevOfZoneSpot dist t 4 = 4--avgZoneElev t $ normZoneElev dist 5 40
+elevOfZoneSpot dist t 5 = 5--avgZoneElev t $ normZoneElev dist 20 100
+elevOfZoneSpot dist t 6 = 6--avgZoneElev t $ normZoneElev dist 12 40
 elevOfZoneSpot dist t typ = 0
 
 normZoneElev :: Float -> Int -> Int -> Float

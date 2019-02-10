@@ -29,7 +29,7 @@ drawElevSpot texs y (t, x) = withTextures2D [(texs!!10)] $ drawElevTile texs x y
 drawElevTile :: [GL.TextureObject] -> Int -> Int -> Int -> IO ()
 drawElevTile texs x y t = do
   glLoadIdentity
-  glTranslatef (2*((fromIntegral x) - ((fromIntegral gridw)/2))) (2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f elev elev $ elevOcean elev
   drawElevSquare
   where elev = ((fromIntegral t)/peaklevel)

@@ -402,15 +402,26 @@ processEvent ev =
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- moves the camera when in a zone
-        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
+        when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Left)))) $ do
             modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
-        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) && (GLFW.modifierKeysControl mk)) $ do
+        when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Right)))) $ do
             modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) East):(tail (stateZones state))) }
-        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) && (GLFW.modifierKeysControl mk)) $ do
+        when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Up)))) $ do
             modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) North):(tail (stateZones state))) }
-        when ((((stateGame state) == SZone) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) && (GLFW.modifierKeysControl mk)) $ do
+        when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Down)))) $ do
             modify $ \s -> s { stateZones = ((moveZoneCam (32.0/32.0) (head (stateZones state)) South):(tail (stateZones state))) }
+        -- moves cursor in zone
+        when ((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'H))) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCursor (head (stateZones state)) West):(tail (stateZones state))) }
 
+        when ((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'L))) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCursor (head (stateZones state)) East):(tail (stateZones state))) }
+
+        when ((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'K))) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCursor (head (stateZones state)) North):(tail (stateZones state))) }
+
+        when ((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'J))) $ do
+            modify $ \s -> s { stateZones = ((moveZoneCursor (head (stateZones state)) South):(tail (stateZones state))) }
         -- exits the elevation screen
         when (((stateGame state) == SElev) && ((k == GLFW.Key'E) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
