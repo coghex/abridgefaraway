@@ -174,7 +174,7 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
-                                                     , elev = zoneelev --initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
+                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -223,32 +223,10 @@ elevZoneRow :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int
 elevZoneRow x0 y0 state zc c w x y z (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 w x y z) t1, t2)
 
 elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Float, Int) -> (Float, Int)
-elevZoneTile x0 y0 state c e j w x y z (t, i) = ((elevOfZone dist t i j c), i)
-  where dist = (zoneDistance x0 y0 i j w x y z t)
+elevZoneTile x0 y0 state c e j w x y z (t, i) = ((elevOfZone state x0 y0), i)
 
-elevOfZone :: Float -> Float -> Int -> Int -> [([(Int, Int)], Int)] -> Float
-elevOfZone dist t x y c = elevOfZoneSpot dist t typ
-  where typ = (fst $ (fst (c !! y)) !! x)
-
-elevOfZoneSpot :: Float -> Float -> Int -> Float
-elevOfZoneSpot dist t 1 = 1--avgZoneElev t $ normZoneElev dist 1 4
-elevOfZoneSpot dist t 2 = 2--avgZoneElev t $ -(normZoneElev dist 40 80)
-elevOfZoneSpot dist t 3 = 3--avgZoneElev t $ normZoneElev dist 5 6
-elevOfZoneSpot dist t 4 = 4--avgZoneElev t $ normZoneElev dist 5 40
-elevOfZoneSpot dist t 5 = 5--avgZoneElev t $ normZoneElev dist 20 100
-elevOfZoneSpot dist t 6 = 6--avgZoneElev t $ normZoneElev dist 12 40
-elevOfZoneSpot dist t typ = 0
-
-normZoneElev :: Float -> Int -> Int -> Float
-normZoneElev x min max
-  | (x < 0.1) = (min'-max')/2.0
-  | otherwise = (((max' - min'))/(peaklevel))*x + min'
-  where min' = fromIntegral min
-        max' = fromIntegral max
-
-avgZoneElev :: Float -> Float -> Float
-avgZoneElev x y = x + (vigor'*y)
-  where vigor' = fromIntegral vigor
+elevOfZone :: State -> Int -> Int -> Float
+elevOfZone state x0 y0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)
