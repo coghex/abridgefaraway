@@ -235,8 +235,9 @@ elevZoneRow x0 y0 state zc c w x y z e0 cards (t1, t2) = (map (elevZoneTile x0 y
 elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> (Float, Int) -> (Float, Int)
 elevZoneTile x0 y0 state c e j w x y z e0 cards (t, i) = ((elevOfZone state x0 y0 i j e0 cards), i)
 
+-- east and west are swapped here, i must have made a mistake in my elevdist formula, this fixes it...
 elevOfZone :: State -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> Float
-elevOfZone state x0 y0 i j e (en, es, ee, ew) = elevDist e en es ee ew i j
+elevOfZone state x0 y0 i j e (en, es, ee, ew) = elevDist e en es ew ee i j
   --where e0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
 
 elevDist :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
