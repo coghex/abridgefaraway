@@ -11,6 +11,7 @@ import Game.Settings
 import Game.Map
 import Game.Draw
 import Game.Sun
+import Game.Noise
 
 
 drawZoneElev :: State -> [[GL.TextureObject]] -> IO ()
@@ -241,7 +242,7 @@ elevOfZone state x0 y0 i j e (en, es, ee, ew) = elevDist e en es ew ee i j
   --where e0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
 
 elevDist :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
-elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4*jfloat2)
+elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4*jfloat2) + 100.0*noise
   where enf = fromIntegral en
         esf = fromIntegral es
         eef = fromIntegral ee
@@ -260,6 +261,8 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
         b2 = (4.0 * ef/hfloat) - (enf/hfloat) - (3.0 * esf/hfloat)
         b3 = (2.0 * eef/wfloat2) + (2.0 * ewf/wfloat2) - (4.0 * ef/wfloat2)
         b4 = (2.0 * esf/hfloat2) + (2.0 * enf/hfloat2) - (4.0 * ef/hfloat2)
+        perlin = makePerlin 1 5 0.25 0.5
+        noise = getNoise i j perlin
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)

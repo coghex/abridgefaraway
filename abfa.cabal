@@ -30,6 +30,7 @@ executable abfa
         Game.Moon
         Game.Data
         Game.Zone
+        Game.Noise
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures
@@ -56,4 +57,5 @@ executable abfa
         parallel >=3.2.2 && <3.2.3,
         linear >=1.20.8 && <1.22.0,
         vector >=0.12.0.1 && <0.12.1.0,
-        array >=0.5.2.0 && <0.5.4.0
+        array >=0.5.2.0 && <0.5.4.0,
+        hsnoise >= 0.0.2 && <0.0.3
