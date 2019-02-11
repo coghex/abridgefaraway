@@ -194,7 +194,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      }
   where zoneconts        = zc1
         zoneelev         = take (zoneh*zonew) (repeat 1.0)
-        zc1              = initZoneCont state x y zc conts seeds rands nconts
+        zc1              = initZoneCont state newelev x y zc conts seeds rands nconts
         (en, es, ee, ew) = cardinalsXY x y (stateElev state)
         enn              = quot (en+e) 2
         esn              = quot (es+e) 2
@@ -263,27 +263,28 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)
 
-initZoneCont :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
-initZoneCont state _ _ zg0 []     []     []     _ = zg0
-initZoneCont state _ _ zg0 _      _      _      0 = zg0
-initZoneCont state x y zg0 (l:ls) (k:ks) (j:js) i = do
-  let zg = seedZoneCont state x y 0 i (fst l) (snd l) zg0 k j
-  initZoneCont state x y zg ls ks js (i-1)
+initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
+initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
+initZoneCont state elev _ _ zg0 _      _      _      0 = zg0
+initZoneCont state elev x y zg0 (l:ls) (k:ks) (j:js) i = do
+  let zg = seedZoneCont state elev x y 0 i (fst l) (snd l) zg0 k j
+  initZoneCont state elev x y zg ls ks js (i-1)
 
-seedZoneCont :: State -> Int -> Int -> Int -> Int -> Int -> Int -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
-seedZoneCont state _ _ _ _ _  _  zg []     []     = zg
-seedZoneCont state x y i c x0 y0 zg (k:ks) (j:js) = do
+seedZoneCont :: State -> [Float] -> Int -> Int -> Int -> Int -> Int -> Int -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
+seedZoneCont state elev _ _ _ _ _  _  zg []     []     = zg
+seedZoneCont state elev x y i c x0 y0 zg (k:ks) (j:js) = do
   let nzg = expandZone zg
-      zg0 = parMap rpar (seedZoneContRow state x y c i (fst k) (snd k) (fst j) (snd j)) nzg
+      zg0 = parMap rpar (seedZoneContRow state elev x y c i (fst k) (snd k) (fst j) (snd j)) nzg
       zg1 = stripGrid zg0
       zg2 = flattenGrid zg1
-  seedZoneCont state x y (i+1) c x0 y0 zg2 ks js
+  seedZoneCont state elev x y (i+1) c x0 y0 zg2 ks js
 
-seedZoneContRow :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-seedZoneContRow state x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile state x y i c t2 w x0 y0 z0) t1, t2)
+seedZoneContRow :: State -> [Float] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+seedZoneContRow state elev x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile state elev x y i c t2 w x0 y0 z0) t1, t2)
 
-seedZoneContTile :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-seedZoneContTile state x y it c j w x0 y0 z0 (t, i)
+seedZoneContTile :: State -> [Float] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+seedZoneContTile state elev x y it c j w x0 y0 z0 (t, i)
+  | e <= sealevel                                                                                 = (1, i)
   | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t' <= maxdist)           = (randstate, i)
   | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' <= maxdist)           = (randstate, i)
   | (randstate == 1) && (zoneDistance x y i j w x0         (y0+gridh) z0 t' <= maxdist)           = (randstate, i)
@@ -316,6 +317,7 @@ seedZoneContTile state x y it c j w x0 y0 z0 (t, i)
     maxdist   = 1000.0 * fromIntegral(((stateSizes state) !! c))
     cfudge    = 2.0 * fromIntegral(((stateRangeRands state) !! (c)) - minnconts)
     t'        = fromIntegral(t)
+    e         = tapZoneGrid i j elev
 
 formatZoneElev :: [Float] -> (Int, Int) -> String
 formatZoneElev e (x, y) = "Elev: " ++ (showFloatFoReal $ roundTo precision (getZoneElev e x y))
