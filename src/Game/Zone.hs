@@ -202,7 +202,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         een              = quot (ee+e) 2
         ewn              = quot (ew+e) 2
         e                = tapGrid (stateElev state) x y
-        g0               = initZoneGrid state 0
+        g0               = initZoneGrid state zoneconts
         newelev          = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
 
 blurZone :: State -> [Float] -> Int -> [Float]
@@ -264,8 +264,15 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
         perlin = makePerlin 1 5 0.25 0.5
         noise = getNoise i j perlin
 
-initZoneGrid :: State -> Int -> [Int]
-initZoneGrid state n = take (zoneh*zonew) (repeat n)
+initZoneGrid :: State -> [Int] -> [Int]
+initZoneGrid state zoneconts = map (seedZoneGrid state) zoneconts
+
+seedZoneGrid :: State -> Int -> Int
+seedZoneGrid state 3 = 9
+seedZoneGrid state 4 = 9
+seedZoneGrid state 5 = 9
+seedZoneGrid state 6 = 9
+seedZoneGrid state n = 0
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
@@ -289,6 +296,7 @@ seedZoneContRow state elev x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile 
 seedZoneContTile :: State -> [Float] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedZoneContTile state elev x y it c j w x0 y0 z0 (t, i)
   | e <= sealevel                                                                                 = (1, i)
+  | e >= sealevel && ((t == 1) || (randstate == 1))                                               = (8, i)
   | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t' <= maxdist)           = (randstate, i)
   | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' <= maxdist)           = (randstate, i)
   | (randstate == 1) && (zoneDistance x y i j w x0         (y0+gridh) z0 t' <= maxdist)           = (randstate, i)
