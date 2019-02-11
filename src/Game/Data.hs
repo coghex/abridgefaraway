@@ -30,6 +30,8 @@ data OceanZone = Solid Float | Ice Float | OceanZone { temp :: Float
 data Zone = Zone { grid :: [Int]
                  , cont :: [Int]
                  , elev :: [Float]
+                 , emax :: Float
+                 , emin :: Float
                  , mapx :: Int
                  , mapy :: Int
                  , camx :: Float

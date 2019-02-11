@@ -19,28 +19,30 @@ drawZoneElev state texs = do
       currentZone        = elev (head (stateZones state))
       (camx, camy, camz) = getZoneCam (head (stateZones state))
       nulltex            = texs !! 10
-  resequence_ (map (drawZoneElevRow nulltex camx camy camz) gnew)
+      emin0              = emin (head (stateZones state))
+      emax0              = emax (head (stateZones state))
+  resequence_ (map (drawZoneElevRow nulltex camx camy camz emin0 emax0) gnew)
   glFlush
 
-drawZoneElevRow :: [GL.TextureObject] -> Float -> Float -> Int -> ([(Float, Int)], Int) -> IO ()
-drawZoneElevRow texs camx camy camz (t1, t2) = resequence_ (map (drawZoneElevSpot texs camx camy camz t2) t1)
+drawZoneElevRow :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> ([(Float, Int)], Int) -> IO ()
+drawZoneElevRow texs camx camy camz emin emax (t1, t2) = resequence_ (map (drawZoneElevSpot texs camx camy camz emin emax t2) t1)
 
-drawZoneElevSpot :: [GL.TextureObject] -> Float -> Float -> Int -> Int -> (Float, Int) -> IO ()
-drawZoneElevSpot texs camx camy camz y (t, x) = withTextures2D texs $ drawZoneElevTile texs camx camy camz x y t
+drawZoneElevSpot :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> (Float, Int) -> IO ()
+drawZoneElevSpot texs camx camy camz emax emin y (t, x) = withTextures2D texs $ drawZoneElevTile texs camx camy camz emax emin x y t
 
-drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Int -> Int -> Float -> IO ()
-drawZoneElevTile texs camx camy camz x y t = do
+drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> Int -> Float -> IO ()
+drawZoneElevTile texs camx camy camz emax emin x y t = do
   glLoadIdentity
   glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
-  glColor3f elev elev $ elevZoneOcean elev
+  glColor3f elev elev $ elevZoneOcean t elev
   drawSquare
   where nx = fromIntegral(x)+camx
         ny = fromIntegral(y)+camy
-        elev = t/peaklevel
+        elev = (t-emin)/(emax-emin)
 
-elevZoneOcean :: Float -> Float
-elevZoneOcean x
-  | x <= (sealevel/(peaklevel)) = 8
+elevZoneOcean :: Float -> Float -> Float
+elevZoneOcean t x
+  | t <= (sealevel) = 8
   | otherwise = x
 
 drawZone :: State -> [[GL.TextureObject]] -> IO ()
@@ -128,6 +130,8 @@ moveCamZone :: Zone -> (Float, Float) -> Zone
 moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , cont = (cont zone)
                                , elev = (elev zone)
+                               , emax = (emax zone)
+                               , emin = (emin zone)
                                , mapx = (mapx zone)
                                , mapy = (mapy zone)
                                , camx = x
@@ -154,6 +158,8 @@ moveCursorZone :: Zone -> (Int, Int) -> Zone
 moveCursorZone zone (x, y) = Zone { grid = (grid zone)
                                   , cont = (cont zone)
                                   , elev = (elev zone)
+                                  , emax = (emax zone)
+                                  , emin = (emin zone)
                                   , mapx = (mapx zone)
                                   , mapy = (mapy zone)
                                   , camx = (camx zone)
@@ -175,7 +181,9 @@ generateZone state = genZone state x y zc conts seeds rands nconts
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
 genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
-                                                     , elev = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
+                                                     , elev = newelev
+                                                     , emax = maximum newelev
+                                                     , emin = minimum newelev
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -194,6 +202,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         ewn              = quot (ew+e) 2
         e                = tapGrid (stateElev state) x y
         g0               = initZoneGrid state 0
+        newelev          = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
 
 blurZone :: State -> [Float] -> Int -> [Float]
 blurZone state elev n = elev
