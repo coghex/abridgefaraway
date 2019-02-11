@@ -1,5 +1,7 @@
 module Game.Data where
 
+import Numeric.Noise.Perlin
+
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
                , hightroposphere  :: SkyZone
@@ -32,6 +34,7 @@ data Zone = Zone { grid :: [Int]
                  , elev :: [Float]
                  , emax :: Float
                  , emin :: Float
+                 , nois :: Int
                  , mapx :: Int
                  , mapy :: Int
                  , camx :: Float

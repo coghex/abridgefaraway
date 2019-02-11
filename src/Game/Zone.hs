@@ -134,6 +134,7 @@ moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , elev = (elev zone)
                                , emax = (emax zone)
                                , emin = (emin zone)
+                               , nois = (nois zone)
                                , mapx = (mapx zone)
                                , mapy = (mapy zone)
                                , camx = x
@@ -162,6 +163,7 @@ moveCursorZone zone (x, y) = Zone { grid = (grid zone)
                                   , elev = (elev zone)
                                   , emax = (emax zone)
                                   , emin = (emin zone)
+                                  , nois = (nois zone)
                                   , mapx = (mapx zone)
                                   , mapy = (mapy zone)
                                   , camx = (camx zone)
@@ -186,6 +188,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , elev = newelev
                                                      , emax = maximum newelev
                                                      , emin = minimum newelev
+                                                     , nois = perl
                                                      , mapx = x
                                                      , mapy = y
                                                      , camx = 0.0
@@ -202,48 +205,49 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         esn              = quot (es+e) 2
         een              = quot (ee+e) 2
         ewn              = quot (ew+e) 2
+        perl             = x+(y*gridh)
         e                = tapGrid (stateElev state) x y
         g0               = initZoneGrid state zoneconts
-        newelev          = initZoneBlurElev x y state zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
+        newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
 
 blurZone :: State -> [Float] -> Int -> [Float]
 blurZone state elev n = elev
 
-initZoneBlurElev :: Int -> Int -> State -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> (Int, Int, Int, Int) -> [Float]
-initZoneBlurElev x0 y0 state zc ze e l k j i cards = do
-  let e1 = elevZone x0 y0 state zc ze l k j i e cards
+initZoneBlurElev :: Int -> Int -> State -> Int -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> (Int, Int, Int, Int) -> [Float]
+initZoneBlurElev x0 y0 state perl zc ze e l k j i cards = do
+  let e1 = elevZone x0 y0 state perl zc ze l k j i e cards
   blurZone state e1 erosion
 
-elevZone :: Int -> Int -> State -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Int -> (Int, Int, Int, Int) -> [Float]
-elevZone x0 y0 state zc elev []     []     []     _ e0 cards = elev
-elevZone x0 y0 state zc elev _      _      _      0 e0 cards = elev
-elevZone x0 y0 state zc elev (l:ls) (k:ks) (j:js) i e0 cards = do
-  let x = findZoneElev x0 y0 state i (fst l) (snd l) zc elev k j e0 cards
-  elevZone x0 y0 state zc x ls ks js (i-1) e0 cards
+elevZone :: Int -> Int -> State -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Int -> (Int, Int, Int, Int) -> [Float]
+elevZone x0 y0 state perl zc elev []     []     []     _ e0 cards = elev
+elevZone x0 y0 state perl zc elev _      _      _      0 e0 cards = elev
+elevZone x0 y0 state perl zc elev (l:ls) (k:ks) (j:js) i e0 cards = do
+  let x = findZoneElev x0 y0 state perl i (fst l) (snd l) zc elev k j e0 cards
+  elevZone x0 y0 state perl zc x ls ks js (i-1) e0 cards
 
-findZoneElev :: Int -> Int -> State -> Int -> Int -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [(Int, Int)] -> Int -> (Int, Int, Int, Int) -> [Float]
-findZoneElev _  _  _     _ _ _ _  e []     []     ei cards = e
-findZoneElev x0 y0 state c x y zc e (k:ks) (j:js) ei cards = do
+findZoneElev :: Int -> Int -> State -> Int -> Int -> Int -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [(Int, Int)] -> Int -> (Int, Int, Int, Int) -> [Float]
+findZoneElev _  _  _     _    _ _ _ _  e []     []     ei cards = e
+findZoneElev x0 y0 state perl c x y zc e (k:ks) (j:js) ei cards = do
   let newzc = expandZone zc
       newe  = expandZone e
-      e0    = parMap rpar (elevZoneRow x0 y0 state newzc c (fst k) (snd k) (fst j) (snd j) ei cards) newe
+      e0    = parMap rpar (elevZoneRow x0 y0 state perl newzc c (fst k) (snd k) (fst j) (snd j) ei cards) newe
       e1    = stripGrid e0
       e2    = flattenGrid e1
-  findZoneElev x0 y0 state c x y zc e2 ks js ei cards
+  findZoneElev x0 y0 state perl c x y zc e2 ks js ei cards
 
-elevZoneRow :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
-elevZoneRow x0 y0 state zc c w x y z e0 cards (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 w x y z e0 cards) t1, t2)
+elevZoneRow :: Int -> Int -> State -> Int -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> ([(Float, Int)], Int) -> ([(Float, Int)], Int)
+elevZoneRow x0 y0 state perl zc c w x y z e0 cards (t1, t2) = (map (elevZoneTile x0 y0 state zc c t2 perl w x y z e0 cards) t1, t2)
 
-elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> (Float, Int) -> (Float, Int)
-elevZoneTile x0 y0 state c e j w x y z e0 cards (t, i) = ((elevOfZone state x0 y0 i j e0 cards), i)
+elevZoneTile :: Int -> Int -> State -> [([(Int, Int)], Int)] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> (Float, Int) -> (Float, Int)
+elevZoneTile x0 y0 state c e j perl w x y z e0 cards (t, i) = ((elevOfZone state x0 y0 i j perl e0 cards), i)
 
 -- east and west are swapped here, i must have made a mistake in my elevdist formula, this fixes it...
-elevOfZone :: State -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> Float
-elevOfZone state x0 y0 i j e (en, es, ee, ew) = elevDist e en es ew ee i j
+elevOfZone :: State -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int, Int) -> Float
+elevOfZone state x0 y0 i j perl e (en, es, ee, ew) = elevDist e en es ew ee i j perl
   --where e0 = fromIntegral ((stateElev state) !! (x0 + (y0*gridw)))
 
-elevDist :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
-elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4*jfloat2) + 100.0*noise
+elevDist :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
+elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4*jfloat2) + 100.0*noise
   where enf = fromIntegral en
         esf = fromIntegral es
         eef = fromIntegral ee
@@ -262,7 +266,7 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
         b2 = (4.0 * ef/hfloat) - (enf/hfloat) - (3.0 * esf/hfloat)
         b3 = (2.0 * eef/wfloat2) + (2.0 * ewf/wfloat2) - (4.0 * ef/wfloat2)
         b4 = (2.0 * esf/hfloat2) + (2.0 * enf/hfloat2) - (4.0 * ef/hfloat2)
-        perlin = makePerlin 1 5 0.25 0.5
+        perlin = makePerlin perl 5 0.25 0.5
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> [Int] -> [Int]
@@ -282,14 +286,16 @@ blankZoneGrid state 6 = 9
 blankZoneGrid state n = 0
 
 seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedPlainsZone state nc sc ec wc ng sg eg wg
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 9
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 9
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 9
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 
-
---seedPlainsZone :: State -> Int
+seedPlainsZone :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
+seedPlainsZone state nc sc ec wc ng sg eg wg
+  | (((nc == 1) && (ng == 0)) && ((sc == 1) && (sg == 0)) && ((ec == 1) && (eg == 0)) && ((wc == 1) && (wg == 0))) = 10
+  | otherwise = 9
 
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
