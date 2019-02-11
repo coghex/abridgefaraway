@@ -1,6 +1,7 @@
 module Game.Zone where
 
 import Control.Parallel.Strategies (parMap, rpar)
+import Data.List (zip4)
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
@@ -265,14 +266,31 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> [Int] -> [Int]
-initZoneGrid state zoneconts = map (seedZoneGrid state) zoneconts
+initZoneGrid state zoneconts = g0
+  where g0 = map (blankZoneGrid state) zoneconts
+        g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
+        (nc, sc, ec, wc) = cardinals zoneconts
+        (ng, sg, eg, wg) = cardinals g0
+        ccards = zip4 nc sc ec wc
+        gcards = zip4 ng sg eg wg
 
-seedZoneGrid :: State -> Int -> Int
-seedZoneGrid state 3 = 9
-seedZoneGrid state 4 = 9
-seedZoneGrid state 5 = 9
-seedZoneGrid state 6 = 9
-seedZoneGrid state n = 0
+blankZoneGrid :: State -> Int -> Int
+blankZoneGrid state 3 = 9
+blankZoneGrid state 4 = 9
+blankZoneGrid state 5 = 9
+blankZoneGrid state 6 = 9
+blankZoneGrid state n = 0
+
+seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
+
+
+--seedPlainsZone :: State -> Int
+
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
