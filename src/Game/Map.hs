@@ -28,7 +28,7 @@ cardinals x = do
   (nx, sx, ex, wx)
 
 cardinalsXY :: Int -> Int -> [a] -> (a, a, a, a)
-cardinalsXY x y l = cardMap (tapZoneGrid x y) (cardinals l)
+cardinalsXY x y l = cardMap (tapGridM x y) (cardinals l)
 
 cardMap :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 cardMap f (a1, a2, a3, a4) = (f a1, f a2, f a3, f a4)
@@ -66,6 +66,9 @@ moveCursor n (x, y) East
 
 tapGrid :: [a] -> Int -> Int -> a
 tapGrid g x y = g !! (x + (y*gridw))
+
+tapGridM :: Int -> Int -> [a] -> a
+tapGridM x y g = g !! (x + (y*gridw))
 
 tapZoneGrid :: Int -> Int -> [a] -> a
 tapZoneGrid x y zg = zg !! (x + (y*zonew))

@@ -192,7 +192,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         esn              = quot (es+e) 2
         een              = quot (ee+e) 2
         ewn              = quot (ew+e) 2
-        e                = tapZoneGrid x y (stateElev state)
+        e                = tapGrid (stateElev state) x y
         g0               = initZoneGrid state 0
 
 blurZone :: State -> [Float] -> Int -> [Float]
@@ -250,21 +250,6 @@ elevDist e en es ee ew i j = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) + (b4
         b2 = (4.0 * ef/hfloat) - (enf/hfloat) - (3.0 * esf/hfloat)
         b3 = (2.0 * eef/wfloat2) + (2.0 * ewf/wfloat2) - (4.0 * ef/wfloat2)
         b4 = (2.0 * esf/hfloat2) + (2.0 * enf/hfloat2) - (4.0 * ef/hfloat2)
-
-elevDistNorth :: Float -> Float -> Float
-elevDistNorth i j = sqrt $ ((i-(gridwf/2.0))^2) + j^2
-  where gridwf = fromIntegral gridw
-elevDistSouth :: Float -> Float -> Float
-elevDistSouth i j = sqrt $ ((i-(gridwf/2.0))^2) + ((j-gridhf)^2)
-  where gridwf = fromIntegral gridw
-        gridhf = fromIntegral gridh
-elevDistEast :: Float -> Float -> Float
-elevDistEast i j = sqrt $ ((i-gridwf)^2) + ((j-(gridhf/2.0))^2)
-  where gridwf = fromIntegral gridw
-        gridhf = fromIntegral gridh
-elevDistWest :: Float -> Float -> Float
-elevDistWest i j = sqrt $ i^2 + ((j - (gridhf/2.0))^2)
-  where gridhf = fromIntegral gridh
 
 initZoneGrid :: State -> Int -> [Int]
 initZoneGrid state n = take (zoneh*zonew) (repeat n)
