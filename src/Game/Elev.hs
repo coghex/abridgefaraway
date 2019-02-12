@@ -142,7 +142,7 @@ elevOfSpot dist t 1 = avgElev t $ normElev dist 1 4
 elevOfSpot dist t 2 = avgElev t $ -(normElev dist 40 80)
 elevOfSpot dist t 3 = avgElev t $ normElev dist 5 6
 elevOfSpot dist t 4 = avgElev t $ normElev dist 5 40
-elevOfSpot dist t 5 = avgElev t $ normElev dist 20 100
+elevOfSpot dist t 5 = avgElev t $ normElev dist 30 120
 elevOfSpot dist t 6 = avgElev t $ normElev dist 12 40
 elevOfSpot dist t typ = 0
 

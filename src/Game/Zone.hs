@@ -1,7 +1,7 @@
 module Game.Zone where
 
 import Control.Parallel.Strategies (parMap, rpar)
-import Data.List (zip4)
+import Data.List (zip4, zipWith4)
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
@@ -40,7 +40,7 @@ drawZoneElevTile texs camx camy camz emax emin x y t = do
   drawSquare
   where nx = fromIntegral(x)+camx
         ny = fromIntegral(y)+camy
-        elev = (t-emin)/(emax-emin)
+        elev = 1.0-((t-emin)/(emax-emin))
 
 elevZoneOcean :: Float -> Float -> Float
 elevZoneOcean t x
@@ -216,7 +216,7 @@ blurZone state elev n = elev
 initZoneBlurElev :: Int -> Int -> State -> Int -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> (Int, Int, Int, Int) -> [Float]
 initZoneBlurElev x0 y0 state perl zc ze e l k j i cards = do
   let e1 = elevZone x0 y0 state perl zc ze l k j i e cards
-  blurZone state e1 erosion
+  blurZone state zc e1 erosion
 
 elevZone :: Int -> Int -> State -> Int -> [Int] -> [Float] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Int -> (Int, Int, Int, Int) -> [Float]
 elevZone x0 y0 state perl zc elev []     []     []     _ e0 cards = elev
@@ -266,14 +266,14 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         b2 = (4.0 * ef/hfloat) - (enf/hfloat) - (3.0 * esf/hfloat)
         b3 = (2.0 * eef/wfloat2) + (2.0 * ewf/wfloat2) - (4.0 * ef/wfloat2)
         b4 = (2.0 * esf/hfloat2) + (2.0 * enf/hfloat2) - (4.0 * ef/hfloat2)
-        perlin = makePerlin perl 5 0.25 0.5
+        perlin = makePerlin perl 4 0.15 0.5
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> [Float] -> [Int] -> [Int]
 initZoneGrid state e zoneconts = g2
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
-        g2 = zipWith3 (seedZoneElevGrid state) gcards ecards g1
+        g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
         (nc, sc, ec, wc) = zoneCardinals zoneconts
         (ng, sg, eg, wg) = zoneCardinals g0
         (ne, se, ee, we) = zoneCardinals e
@@ -312,11 +312,28 @@ seedZoneEdges state n nc sc ec wc ng sg eg wg
   |              ((sc /= n))                           = 42
   |                           ((ec /= n))              = 40
   |                                        ((wc /= n)) = 38
-  | otherwise = 55
+  | otherwise                                          = 55
 
-seedZoneElevGrid :: State -> (Int, Int, Int, Int) -> (Float, Float, Float, Float) -> Int -> Int
-seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) 55 = 1
-seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) n  = n
+seedZoneElevGrid :: State -> (Int, Int, Int, Int) -> (Float, Float, Float, Float) -> Float -> Int -> Int
+seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 55
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 39
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev)                     = 49
+  | ((e-ne) > telev) && ((e-se) > telev) &&                     ((e-we) > telev) = 47
+  | ((e-ne) > telev) &&                     ((e-ee) > telev) && ((e-we) > telev) = 45
+  |                     ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 51
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 50
+  | ((e-ne) > telev) && ((e-se) > telev)                                         = 37
+  | ((e-ne) > telev) &&                     ((e-ee) > telev)                     = 35
+  | ((e-ne) > telev) &&                                         ((e-we) > telev) = 41
+  |                     ((e-se) > telev) &&                     ((e-we) > telev) = 43
+  |                                         ((e-ee) > telev) && ((e-we) > telev) = 44
+  | ((e-ne) > telev)                                                             = 36
+  |                     ((e-se) > telev)                                         = 42
+  |                                         ((e-ee) > telev)                     = 40
+  |                                                             ((e-we) > telev) = 38
+  | otherwise                                                                    = 55
+  where telev = 80
+seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e n  = n
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
