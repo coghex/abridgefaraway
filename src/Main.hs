@@ -212,6 +212,7 @@ draw SZone state env = do
     Just n  -> return n
   let unftime = stateTime newstate
       sun     = stateSun newstate
+      zcards  = (head (stateZones state))
   GL.preservingMatrix $ do
     drawZone state (envZTex env)
   GL.preservingMatrix $ do
