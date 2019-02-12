@@ -60,8 +60,8 @@ main = do
     -- only loads ttf fonts
     f1 <- loadFont "data/fonts/cheque/Cheque-Regular.ttf"
     f2 <- loadFont "data/fonts/smone/SupermercadoOne-Regular.ttf"
-    -- load textures for the world and zones respectively
-    (wtex, ztex, utex) <- liftIO $ initTexs window
+    -- load textures for the world, zones, utilities, and units respectively
+    (wtex, ztex, utex, unittex) <- liftIO $ initTexs window
 
     -- makes some std gens for most of the RNG
     s1 <- newStdGen

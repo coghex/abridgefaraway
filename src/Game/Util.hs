@@ -43,7 +43,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]], [[TextureObject]])
+initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]], [[TextureObject]], [[TextureObject]])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -59,7 +59,8 @@ initTexs win = do
   wtex <- loadWTextures "data/biome/"
   ztex <- loadZTextures "data/zone/"
   utex <- loadUTextures "data/util/"
-  return (wtex, ztex, utex)
+  unittex <- loadUnitTextures "data/units/"
+  return (wtex, ztex, utex, unittex)
 
 loadZTextures :: String -> IO ([[TextureObject]])
 loadZTextures fn = do
@@ -328,6 +329,15 @@ loadWTextures fn = do
 
   return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20])
 
+loadUnitTextures :: String -> IO ([[TextureObject]])
+loadUnitTextures fn = do
+  me0  <- loadTex (fn ++ "minion/minione0.png")
+  me1  <- loadTex (fn ++ "minion/minione1.png")
+  me2  <- loadTex (fn ++ "minion/minione2.png")
+  me3  <- loadTex (fn ++ "minion/minione3.png")
+  me4  <- loadTex (fn ++ "minion/minione4.png")
+
+  return ([[me0, me1, me2, me3, me4]])
 
 loadUTextures :: String -> IO ([[TextureObject]])
 loadUTextures fn = do

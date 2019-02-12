@@ -210,8 +210,8 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         g0               = initZoneGrid state newelev zoneconts
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
 
-blurZone :: State -> [Float] -> Int -> [Float]
-blurZone state elev n = elev
+blurZone :: State -> [Int] -> [Float] -> Int -> [Float]
+blurZone state conts elev n = elev
 
 initZoneBlurElev :: Int -> Int -> State -> Int -> [Int] -> [Float] -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> (Int, Int, Int, Int) -> [Float]
 initZoneBlurElev x0 y0 state perl zc ze e l k j i cards = do
