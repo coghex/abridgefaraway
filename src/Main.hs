@@ -217,7 +217,7 @@ draw SZone state env = do
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
   GL.preservingMatrix $ do
-    drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime]
+    drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime, "hellollllolloo"]
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SZoneElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]

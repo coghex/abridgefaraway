@@ -27,11 +27,23 @@ cardinals x = do
       wx  = replaceEveryW gridw x
   (nx, sx, ex, wx)
 
+zoneCardinals :: [a] -> ([a], [a], [a], [a])
+zoneCardinals x = do
+  let nx  = (drop zonew x) ++ (take zonew x)
+      sx  = (drop ((zoneh-1)*zonew) x) ++ (take ((zoneh-1)*zonew) x)
+      ext = (tail x)
+      ex  = replaceEveryE zonew ext x
+      wx  = replaceEveryW zonew x
+  (nx, sx, ex, wx)
+
 cardinalsXY :: Int -> Int -> [a] -> (a, a, a, a)
 cardinalsXY x y l = cardMap (tapGridM x y) (cardinals l)
 
 cardMap :: (a -> b) -> (a, a, a, a) -> (b, b, b, b)
 cardMap f (a1, a2, a3, a4) = (f a1, f a2, f a3, f a4)
+
+zoneCardinalsXY :: Int -> Int -> [a] -> (a, a, a, a)
+zoneCardinalsXY x y l = cardMap (tapZoneGridM x y) (zoneCardinals l)
 
 replaceEveryW :: Int -> [a] -> [a]
 replaceEveryW n [] = []
@@ -70,8 +82,11 @@ tapGrid g x y = g !! (x + (y*gridw))
 tapGridM :: Int -> Int -> [a] -> a
 tapGridM x y g = g !! (x + (y*gridw))
 
-tapZoneGrid :: Int -> Int -> [a] -> a
-tapZoneGrid x y zg = zg !! (x + (y*zonew))
+tapZoneGridM :: Int -> Int -> [a] -> a
+tapZoneGridM x y zg = zg !! (x + (y*zonew))
+
+tapZoneGrid :: [a] -> Int -> Int -> a
+tapZoneGrid g x y = g !! (x + (y*zonew))
 
 parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)

@@ -270,32 +270,33 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> [Int] -> [Int]
-initZoneGrid state zoneconts = g0
+initZoneGrid state zoneconts = g1
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
-        (nc, sc, ec, wc) = cardinals zoneconts
-        (ng, sg, eg, wg) = cardinals g0
+        (nc, sc, ec, wc) = zoneCardinals zoneconts
+        (ng, sg, eg, wg) = zoneCardinals g0
         ccards = zip4 nc sc ec wc
         gcards = zip4 ng sg eg wg
 
 blankZoneGrid :: State -> Int -> Int
-blankZoneGrid state 3 = 9
-blankZoneGrid state 4 = 9
-blankZoneGrid state 5 = 9
-blankZoneGrid state 6 = 9
+blankZoneGrid state 3 = 0
+blankZoneGrid state 4 = 0
+blankZoneGrid state 5 = 0
+blankZoneGrid state 6 = 0
 blankZoneGrid state n = 0
 
 seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedPlainsZone state nc sc ec wc ng sg eg wg
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 9
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 9
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 9
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 0
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 0
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 0
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 
 seedPlainsZone :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 seedPlainsZone state nc sc ec wc ng sg eg wg
-  | (((nc == 1) && (ng == 0)) && ((sc == 1) && (sg == 0)) && ((ec == 1) && (eg == 0)) && ((wc == 1) && (wg == 0))) = 10
-  | otherwise = 9
+  | ((nc /= 3) && (sc /= 3) && (ec /= 3) && (wc /= 3)) = 39
+  | ((nc /= 3) && (sc /= 3) && (ec /= 3)) = 49
+  | otherwise = 10
 
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
@@ -319,7 +320,7 @@ seedZoneContRow state elev x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile 
 
 seedZoneContTile :: State -> [Float] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
 seedZoneContTile state elev x y it c j w x0 y0 z0 (t, i)
-  | e <= sealevel                                                                                 = (1, i)
+  | e <= sealevel                                                                                 = (7, i)
   | e >= sealevel && ((t == 1) || (randstate == 1))                                               = (8, i)
   | (randstate == 1) && (zoneDistance x y i j w x0         y0         z0 t' <= maxdist)           = (randstate, i)
   | (randstate == 1) && (zoneDistance x y i j w (x0+gridw) y0         z0 t' <= maxdist)           = (randstate, i)
@@ -353,7 +354,7 @@ seedZoneContTile state elev x y it c j w x0 y0 z0 (t, i)
     maxdist   = 1000.0 * fromIntegral(((stateSizes state) !! c))
     cfudge    = 2.0 * fromIntegral(((stateRangeRands state) !! (c)) - minnconts)
     t'        = fromIntegral(t)
-    e         = tapZoneGrid i j elev
+    e         = tapZoneGridM i j elev
 
 formatZoneElev :: [Float] -> (Int, Int) -> String
 formatZoneElev e (x, y) = "Elev: " ++ (showFloatFoReal $ roundTo precision (getZoneElev e x y))
