@@ -207,7 +207,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         ewn              = quot (ew+e) 2
         perl             = x+(y*gridh)
         e                = tapGrid (stateElev state) x y
-        g0               = initZoneGrid state zoneconts
+        g0               = initZoneGrid state newelev zoneconts
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
 
 blurZone :: State -> [Float] -> Int -> [Float]
@@ -269,12 +269,15 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         perlin = makePerlin perl 5 0.25 0.5
         noise = getNoise i j perlin
 
-initZoneGrid :: State -> [Int] -> [Int]
-initZoneGrid state zoneconts = g1
+initZoneGrid :: State -> [Float] -> [Int] -> [Int]
+initZoneGrid state e zoneconts = g2
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
+        g2 = zipWith3 (seedZoneElevGrid state) gcards ecards g1
         (nc, sc, ec, wc) = zoneCardinals zoneconts
         (ng, sg, eg, wg) = zoneCardinals g0
+        (ne, se, ee, we) = zoneCardinals e
+        ecards = zip4 ne se ee we
         ccards = zip4 nc sc ec wc
         gcards = zip4 ng sg eg wg
 
@@ -311,6 +314,9 @@ seedZoneEdges state n nc sc ec wc ng sg eg wg
   |                                        ((wc /= n)) = 38
   | otherwise = 55
 
+seedZoneElevGrid :: State -> (Int, Int, Int, Int) -> (Float, Float, Float, Float) -> Int -> Int
+seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) 55 = 1
+seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) n  = n
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
