@@ -286,29 +286,29 @@ blankZoneGrid state 6 = 0
 blankZoneGrid state n = 0
 
 seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedPlainsZone state nc sc ec wc ng sg eg wg
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 0
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 0
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 0
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedZoneEdges state 3 nc sc ec wc ng sg eg wg
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 0--seedZoneEdges state 4 nc sc ec wc ng sg eg wg
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = seedZoneEdges state 5 nc sc ec wc ng sg eg wg
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 0--seedZoneEdges state 6 nc sc ec wc ng sg eg wg
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 
-seedPlainsZone :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
-seedPlainsZone state nc sc ec wc ng sg eg wg
-  | ((nc /= 3) && (sc /= 3) && (ec /= 3) && (wc /= 3)) = 39
-  | ((nc /= 3) && (sc /= 3) && (ec /= 3))              = 49
-  | ((nc /= 3) && (sc /= 3) &&              (wc /= 3)) = 47
-  | ((nc /= 3) &&              (ec /= 3) && (wc /= 3)) = 45
-  |              ((sc /= 3) && (ec /= 3) && (wc /= 3)) = 51
-  | ((nc /= 3) && (sc /= 3))                           = 50
-  | ((nc /= 3) &&              (ec /= 3))              = 37
-  | ((nc /= 3) &&                           (wc /= 3)) = 35
-  |              ((sc /= 3) &&              (wc /= 3)) = 41
-  |              ((sc /= 3) && (ec /= 3))              = 43
-  |                           ((ec /= 3) && (wc /= 3)) = 44
-  | ((nc /= 3))                                        = 36
-  |              ((sc /= 3))                           = 42
-  |                           ((ec /= 3))              = 40
-  |                                        ((wc /= 3)) = 38
+seedZoneEdges :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
+seedZoneEdges state n nc sc ec wc ng sg eg wg
+  | ((nc /= n) && (sc /= n) && (ec /= n) && (wc /= n)) = 39
+  | ((nc /= n) && (sc /= n) && (ec /= n))              = 49
+  | ((nc /= n) && (sc /= n) &&              (wc /= n)) = 47
+  | ((nc /= n) &&              (ec /= n) && (wc /= n)) = 45
+  |              ((sc /= n) && (ec /= n) && (wc /= n)) = 51
+  | ((nc /= n) && (sc /= n))                           = 50
+  | ((nc /= n) &&              (ec /= n))              = 37
+  | ((nc /= n) &&                           (wc /= n)) = 35
+  |              ((sc /= n) &&              (wc /= n)) = 41
+  |              ((sc /= n) && (ec /= n))              = 43
+  |                           ((ec /= n) && (wc /= n)) = 44
+  | ((nc /= n))                                        = 36
+  |              ((sc /= n))                           = 42
+  |                           ((ec /= n))              = 40
+  |                                        ((wc /= n)) = 38
   | otherwise = 55
 
 
