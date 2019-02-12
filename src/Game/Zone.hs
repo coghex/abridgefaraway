@@ -295,8 +295,21 @@ seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 seedPlainsZone :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 seedPlainsZone state nc sc ec wc ng sg eg wg
   | ((nc /= 3) && (sc /= 3) && (ec /= 3) && (wc /= 3)) = 39
-  | ((nc /= 3) && (sc /= 3) && (ec /= 3)) = 49
-  | otherwise = 10
+  | ((nc /= 3) && (sc /= 3) && (ec /= 3))              = 49
+  | ((nc /= 3) && (sc /= 3) &&              (wc /= 3)) = 47
+  | ((nc /= 3) &&              (ec /= 3) && (wc /= 3)) = 45
+  |              ((sc /= 3) && (ec /= 3) && (wc /= 3)) = 51
+  | ((nc /= 3) && (sc /= 3))                           = 50
+  | ((nc /= 3) &&              (ec /= 3))              = 37
+  | ((nc /= 3) &&                           (wc /= 3)) = 35
+  |              ((sc /= 3) &&              (wc /= 3)) = 41
+  |              ((sc /= 3) && (ec /= 3))              = 43
+  |                           ((ec /= 3) && (wc /= 3)) = 44
+  | ((nc /= 3))                                        = 36
+  |              ((sc /= 3))                           = 42
+  |                           ((ec /= 3))              = 40
+  |                                        ((wc /= 3)) = 38
+  | otherwise = 55
 
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
