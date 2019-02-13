@@ -15,6 +15,60 @@ import Game.Draw
 import Game.Map
 import Game.Zone
 
+evalUnits :: State -> Env -> [Unit]
+evalUnits state env = map (evalUnit utexs) units
+  where units = stateUnits state
+        utexs = envUnitTex env
+
+evalUnit :: [[GL.TextureObject]] -> Unit -> Unit
+evalUnit utexs u0 = Unit { unittexs = evalAction utexs texs up ud uac 
+                         , frame    = uf
+                         , unittype = ut
+                         , action   = nextAction up uac
+                         , zone     = zoneAction uac uz
+                         , position = posAction uac up
+                         , dir      = dirAction uac up ud }
+  where texs = unittexs u0
+        uf   = frame u0
+        ut   = unittype u0
+        uz   = zone u0
+        up   = position u0
+        uac  = action u0
+        ud   = dir u0
+
+evalAction :: [[GL.TextureObject]] -> [GL.TextureObject] -> (Float, Float) -> Int -> Action -> [GL.TextureObject]
+evalAction _     texs _   dir NullAction          = texs
+evalAction utexs _    pos dir (MoveTo dest speed) = utexs !! (moveDirection pos dest dir)
+evalAction _     texs _   dir _                   = texs
+
+nextAction :: (Float, Float) -> Action -> Action
+nextAction _   NullAction          = NullAction
+nextAction pos (MoveTo dest speed)
+  | dist <= 0.01 = NullAction
+  | otherwise    = MoveTo { dest  = dest
+                          , speed = speed }
+  where dist = zoneLinearDistance pos dest
+nextAction _   _                   = NullAction
+
+zoneAction :: Action -> (Int, Int) -> (Int, Int)
+zoneAction ac zone = zone
+
+posAction :: Action -> (Float, Float) -> (Float, Float)
+posAction NullAction              pos      = pos
+posAction (MoveTo (dx, dy) speed) (sx, sy) = (sx+rx, sy+ry)
+  where rx   = sf*((x/dist)/32.0)
+        ry   = sf*((y/dist)/32.0)
+        sf   = fromIntegral speed
+        x    = dx-sx
+        y    = dy-sy
+        dist = zoneLinearDistance (sx, sy) (dx, dy)
+posAction _ pos = pos
+
+dirAction :: Action -> (Float, Float) -> Int -> Int
+dirAction NullAction _ _              = 0
+dirAction (MoveTo dest speed) pos dir = moveDirection pos dest dir
+dirAction _                   _   dir = dir
+
 drawUnits :: State -> IO ()
 drawUnits state = resequence_ (map (drawUnit state) units)
   where units = stateUnits state
@@ -33,14 +87,18 @@ animateUnit :: Unit -> Unit
 animateUnit u0 = Unit { unittexs = frameControl len texs uf
                       , frame    = frameCounter len uf
                       , unittype = ut
+                      , action   = uac
                       , zone     = uz
-                      , position = up }
+                      , position = up
+                      , dir      = ud }
   where texs = unittexs u0
         uf   = frame u0
         ut   = unittype u0
         uz   = zone u0
         up   = position u0
-        len  = length texs - 1
+        uac  = action u0
+        ud   = dir u0
+        len  = 0
 
 frameControl :: Int -> [GL.TextureObject] -> Int -> [GL.TextureObject]
 frameControl len texs frame

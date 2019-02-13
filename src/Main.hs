@@ -83,11 +83,12 @@ main = do
     -- these channels pass data between the main thread and the timer thread
     -- this channel is for updating the main game state when changes occur
     stateChan1 <- atomically $ newTChan
-    -- this channel is for updating the timer's state when it is started/stopped
     stateChan2 <- atomically $ newTChan
-    -- this channel broadcasts the time as an integer,
-    -- seperated out for possible performance boost, im not sure if it makes a difference
+    -- this channel is for updating the timer's state when it is started/stopped
     timerChan  <- atomically $ newTChan
+    uTimerChan <- atomically $ newTChan
+    -- this channel will update the unit list
+    unitChan   <- atomically $ newTChan
 
     -- the enviornment for the game is read-only, nothing here will ever change
     let env    = Env
@@ -103,12 +104,16 @@ main = do
             , envStateChan1 = stateChan1
             , envStateChan2 = stateChan2
             , envTimerChan  = timerChan
+            , envUTimerChan = uTimerChan
+            , envUnitChan   = unitChan
             }
 
     -- the timer is forked initially stopped.  100 is pretty fast, 1000 is 1 game min = 1 real sec
     -- the timer state is not guaranteed to be correct, some things dont make sense
     -- for it to deal with and so it doesnt.
     forkIO $ (gameTime env state 1200 TStop)
+    -- this timer is for movement and for more time critical operations
+    forkIO $ (unitTime env state 100 TStop)
     -- runs the whole monad
     void $ evalRWST run env state
 
@@ -144,6 +149,7 @@ draw SLoad state env = do
   drawText (envFontBig env) 1 95 72 72 "Loading..."
   drawText (envFontSmall env) 1 75 36 36 "Creating World..."
   -- change modes to the world mode, again in the fifo
+  atomically $ writeTChan (envUTimerChan env) TStart
   atomically $ writeTChan (envTimerChan env) TStart
   newstate <- atomically $ readTChan (envStateChan1 env)
   liftIO $ loadedCallback (envEventsChan env) SLoadTime
@@ -154,9 +160,11 @@ draw SLoadTime state env = do
   drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
   -- start the timer once the chan has emptied (since its fifo)
   newstate <- atomically $ readTChan (envStateChan1 env)
+  --newunits <- atomically $ readTChan (envUnitChan env)
   -- set the monad state to the timer's state, (this fixes the notorious loading screen bug)
   let unftime = stateTime state
   liftIO $ timerCallback (envEventsChan env) newstate
+  --liftIO $ unitCallback (envEventsChan env) newunits
   -- wait until after the history has been running for a while
   if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
   else liftIO $ loadedCallback (envEventsChan env) SLoadTime
@@ -506,6 +514,9 @@ processEvent ev =
                        , stateSkies    = (stateSkies state)
                        , stateUnits    = (animateUnits state)
                        }
+    -- changes the units in the state when the move
+    (EventUpdateUnits units) -> do
+      modify $ \s -> s { stateUnits    = units }
 
 -- empties a channel bu reading everything left recursively
 emptyChan :: TChan a -> IO ()
@@ -579,3 +590,6 @@ loadedCallback tc state = atomically $ writeTQueue tc $ EventLoaded state
 -- changes parts of the state that the timer changes
 timerCallback :: TQueue Event -> State -> IO ()
 timerCallback tc state = atomically $ writeTQueue tc $ EventUpdateState state
+-- changes the unit list on its own timer
+unitCallback :: TQueue Event -> [Unit] -> IO ()
+unitCallback tc units = atomically $ writeTQueue tc $ EventUpdateUnits units

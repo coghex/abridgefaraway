@@ -94,31 +94,99 @@ initWorld state env = do
   let o1      = theGreatSeas g2 e1 sunspot
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
-  let testminion0 = Unit { unittexs = (envUnitTex env) !! 1
+  let testmove = MoveTo { dest     = (30, 24)
+                        , speed    = 1 }
+  let testminion = Unit { unittexs = (envUnitTex  env) !! 2
                         , frame    = 0
                         , unittype = 1
-                        , zone     = (10,10)
-                        , position = (30,20) }
-  let testminion1 = Unit { unittexs = (envUnitTex env) !! 1
+                        , action   = testmove
+                        , zone     = (10, 10)
+                        , position = (24, 24)
+                        , dir      = 7 }
+  let testminionnidle = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
+                        , action   = NullAction
                         , zone     = (10,10)
-                        , position = (31,20) }
-  let testminion2 = Unit { unittexs = (envUnitTex env) !! 1
+                        , position = (26,21)
+                        , dir      = 1 }
+  let testminionsidle = Unit { unittexs = (envUnitTex env) !! 2
                         , frame    = 0
                         , unittype = 1
+                        , action   = NullAction
                         , zone     = (10,10)
-                        , position = (32,20) }
-  let testminion3 = Unit { unittexs = (envUnitTex env) !! 1
+                        , position = (26,19)
+                        , dir      = 2 }
+  let testminioneidle = Unit { unittexs = (envUnitTex env) !! 3
                         , frame    = 0
                         , unittype = 1
+                        , action   = NullAction
                         , zone     = (10,10)
-                        , position = (33,20) }
-  let testminion4 = Unit { unittexs = (envUnitTex env) !! 1
+                        , position = (27,20)
+                        , dir      = 3 }
+  let testminionwidle = Unit { unittexs = (envUnitTex env) !! 4
                         , frame    = 0
                         , unittype = 1
+                        , action   = NullAction
                         , zone     = (10,10)
-                        , position = (34,20) }
+                        , position = (25,20)
+                        , dir      = 4 }
+  let testminionn = Unit { unittexs = (envUnitTex env) !! 5
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (31,21)
+                        , dir      = 5 }
+  let testminions = Unit { unittexs = (envUnitTex env) !! 6
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (31,19)
+                        , dir      = 6 }
+  let testminione = Unit { unittexs = (envUnitTex env) !! 7
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (32,20)
+                        , dir      = 7 }
+  let testminionw = Unit { unittexs = (envUnitTex env) !! 8
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (30,20)
+                        , dir      = 8 }
+  let testminionne = Unit { unittexs = (envUnitTex env) !! 9
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (30,21)
+                        , dir      = 9 }
+  let testminionnw = Unit { unittexs = (envUnitTex env) !! 10
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (32,21)
+                        , dir      = 10 }
+  let testminionse = Unit { unittexs = (envUnitTex env) !! 11
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (30,19)
+                        , dir      = 11 }
+  let testminionsw = Unit { unittexs = (envUnitTex env) !! 12
+                        , frame    = 0
+                        , unittype = 1
+                        , action   = NullAction
+                        , zone     = (10,10)
+                        , position = (32,19)
+                        , dir      = 12 }
   State
     { stateGame           = sg
     , stateStdGens        = stdgens
@@ -146,7 +214,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateZones          = zones
-    , stateUnits          = [testminion0, testminion1, testminion2, testminion3, testminion4]
+    , stateUnits          = [testminionnidle, testminionsidle, testminioneidle, testminionwidle, testminionn, testminions, testminione, testminionw, testminionne, testminionnw, testminionse, testminionsw, testminion]
     }
 
 nextSimState :: State -> Env -> State
@@ -218,7 +286,7 @@ nextState state env = State
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = stateSkies state
     , stateZones          = stateZones state
-    , stateUnits          = stateUnits state }
+    , stateUnits          = units }
   where
     time    = (stateTime state)+1
     sun     = moveSun oldsun time
@@ -229,6 +297,7 @@ nextState state env = State
     sspots  = theBigSpotter sun mspots
     mspots  = moonSpotter moon
     grid    = iceMap state env (stateGrid state) (stateOceans state) (stateOG state)
+    units   = evalUnits state env
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = parZipWith fixContSpots g e

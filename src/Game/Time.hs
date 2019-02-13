@@ -11,6 +11,40 @@ import Game.State
 import Game.Sun
 import Game.Settings
 
+unitTime :: Env -> State -> Int -> TimerState -> IO ()
+unitTime env state n TStart = do
+  let unitschan = envUnitChan env
+      timerchan = envUTimerChan env
+  start <- getCurrentTime
+  --let newsun = moveSun sun time
+  --writeChan sunchan newsun
+  let newunits = stateUnits state
+      newstate = state
+
+  atomically $ writeTChan unitschan newunits
+  timerstate <- (atomically (tryReadTChan timerchan))
+  tsnew <- case (timerstate) of
+    Nothing  -> return TStart
+    Just x   -> return x
+
+  end <- getCurrentTime
+  let diff = diffUTCTime end start
+      usecs = floor (toRational diff * 1000000) :: Int
+      delay = n*1000 - usecs
+  if delay > 0
+    then threadDelay delay
+    else return ()
+  unitTime env newstate n tsnew
+unitTime env state n TStop = do
+  let unitschan = envUnitChan env
+      timerchan = envUTimerChan env
+  tsnew      <- atomically $ readTChan timerchan
+  firstunits <- atomically $ readTChan unitschan
+  let newunits  = firstunits
+  let newstate  = state
+  pseq newstate $ unitTime env newstate n tsnew
+
+
 gameTime :: Env -> State -> Int -> TimerState -> IO ()
 gameTime env state n TStart = do
   let statechan = envStateChan1 env

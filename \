@@ -44,17 +44,12 @@ data Zone = Zone { grid :: [Int]
                  , cury :: Int
                  } deriving (Show, Eq)
 
-data Action = NullAction
-            | Loaf { time :: Int }
-            | MoveTo { dest  :: (Float, Float)
-                     , speed :: Int
-                     } deriving (Show, Eq)
+data Action = NullAction | MoveTo { destination :: (Float, Float)
+                                  } deriving (Show, Eq)
 
 data Unit = Unit { unittexs :: [GL.TextureObject]
                  , frame    :: Int
                  , unittype :: Int
-                 , action   :: Action
                  , zone     :: (Int, Int)
                  , position :: (Float, Float)
-                 , dir      :: Int
                  } deriving (Show, Eq)

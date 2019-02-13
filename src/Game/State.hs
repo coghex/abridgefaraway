@@ -28,6 +28,8 @@ data Env = Env
   , envStateChan1       :: TChan State
   , envStateChan2       :: TChan State
   , envTimerChan        :: TChan TimerState
+  , envUnitChan         :: TChan [Unit]
+  , envUTimerChan       :: TChan TimerState
   }
 
 data State = State
@@ -76,5 +78,6 @@ data Event =
   | EventWindowResize    !GLFW.Window !Int !Int
   | EventLoaded          !GameState
   | EventUpdateState     !State
+  | EventUpdateUnits     ![Unit]
   deriving Show
 

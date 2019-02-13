@@ -112,6 +112,26 @@ zoneDistance x1 y1 x y x2 y2 x3 y3 t = do
         nx3 = (fromIntegral(x3))
         ny3 = (fromIntegral(y3))
         
+zoneLinearDistance :: (Float, Float) -> (Float, Float) -> Float
+zoneLinearDistance (srcx, srcy) (dstx, dsty) = sqrt (((dstx-srcx)*(dstx-srcx)) + ((dsty-srcy)*(dsty-srcy)))
+
+moveDirection :: (Float, Float) -> (Float, Float) -> Int -> Int
+moveDirection (srcx, srcy) (dstx, dsty) prev
+  | (dstx-srcx > dirfudge)  && (dsty-srcy > dirfudge)          = 9
+  | (dstx-srcx < -dirfudge) && (dsty-srcy > dirfudge)          = 10
+  | (dstx-srcx > dirfudge)  && (dsty-srcy < -dirfudge)         = 11
+  | (dstx-srcx < -dirfudge) && (dsty-srcy < -dirfudge)         = 12
+  | (dsty-srcy > dirfudge)                                     = 5
+  | (dsty-srcy < -dirfudge)                                    = 6
+  | (dstx-srcx > dirfudge)                                     = 7
+  | (dstx-srcx < -dirfudge)                                    = 8
+  | (prev == 5) || (prev == 1)                                 = 1
+  | (prev == 6) || (prev == 2)                                 = 2
+  | (prev == 7) || (prev == 9)  || (prev == 11) || (prev == 3) = 3
+  | (prev == 8) || (prev == 10) || (prev == 12) || (prev == 4) = 4
+  | otherwise                                                  = 0
+
+  where dirfudge = 1
 
 showXYZ :: (String, String, String) -> String
 showXYZ (a, b, c) = "X:" ++ a ++ "Y:" ++ b ++ "Z:" ++ c
