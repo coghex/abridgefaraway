@@ -44,5 +44,5 @@ data Zone = Zone { grid :: [Int]
 
 data Unit = Unit { unittype :: Int
                  , zone     :: (Int, Int)
-                 , position :: (Int, Int)
+                 , position :: (Float, Float)
                  } deriving (Show, Eq)
