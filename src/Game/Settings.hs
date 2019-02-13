@@ -11,6 +11,8 @@ gridh = 30::Int
 -- should work for most standard screen sizes 720 or greater
 screenw = 2560::Int
 screenh = 1440::Int
+-- 30 and 60 should work
+fps = 30.0::Double
 -- the bigger the map the more zoom you need, soon to be controlled by keys
 zoom = 120::Float
 -- the precision of floating point numbers

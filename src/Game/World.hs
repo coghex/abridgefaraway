@@ -98,27 +98,27 @@ initWorld state env = do
                         , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
-                        , position = (0,0) }
+                        , position = (30,20) }
   let testminion1 = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
-                        , position = (2,0) }
+                        , position = (31,20) }
   let testminion2 = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
-                        , position = (4,0) }
+                        , position = (32,20) }
   let testminion3 = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
-                        , position = (6,0) }
+                        , position = (33,20) }
   let testminion4 = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
-                        , position = (8,0) }
+                        , position = (34,20) }
   State
     { stateGame           = sg
     , stateStdGens        = stdgens

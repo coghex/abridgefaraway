@@ -13,6 +13,7 @@ import Game.State
 import Game.Data
 import Game.Draw
 import Game.Map
+import Game.Zone
 
 drawUnits :: State -> IO ()
 drawUnits state = resequence_ (map (drawUnit state) units)
@@ -21,7 +22,8 @@ drawUnits state = resequence_ (map (drawUnit state) units)
 drawUnit :: State -> Unit -> IO ()
 drawUnit state unit = do
   let texs = unittexs unit
-  withTextures2D [(head texs)] $ drawUnitTile [(head texs)] unit
+      (camx, camy, _) = getZoneCam (head (stateZones state))
+  withTextures2D [(head texs)] $ drawUnitTile [(head texs)] camx camy unit
 
 animateUnits :: State -> [Unit]
 animateUnits state = map animateUnit units
@@ -49,11 +51,13 @@ frameCounter frame
   | frame >= 2 = 0
   | otherwise   = frame+1
 
-drawUnitTile :: [GL.TextureObject] -> Unit -> IO ()
-drawUnitTile tex unit = do
+drawUnitTile :: [GL.TextureObject] -> Float -> Float -> Unit -> IO ()
+drawUnitTile tex camx camy unit = do
   glLoadIdentity
-  glTranslatef x y (-zoom/4)
+  glTranslatef (2*((tx) - ((fromIntegral zonew)/2))) (2*((ty) - ((fromIntegral zoneh)/2))) (-zoom/4)
   glColor3f 1.0 1.0 1.0
   drawSquare
   where (x, y)   = position unit
+        tx       = x + camx
+        ty       = y + camy
         thiszoom = fromIntegral theZoom
