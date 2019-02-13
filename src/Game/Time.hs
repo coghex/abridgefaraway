@@ -48,7 +48,12 @@ formatTime time = do
       dr = mod time 720
       h  = quot dr 60
       m  = mod dr 60
-  "day " ++ (show dq) ++ ": " ++ (show h) ++ ":" ++ (show m)
+  "day " ++ (show dq) ++ ": " ++ (show h) ++ ":" ++ (showSec m)
+
+showSec :: Integer -> String
+showSec t
+  | t < 10    = "0" ++ (show t)
+  | otherwise = (show t)
 
 simTime :: Int -> State -> Env -> State
 simTime 0 state env = nextState state env

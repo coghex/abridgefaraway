@@ -491,8 +491,9 @@ seedZoneGrid	src/Game/Zone.hs	291;"	f
 setAttrib	src/GLUtil/ShaderProgram.hs	192;"	f
 setUniform	src/GLUtil/ShaderProgram.hs	178;"	f
 showFloatFoReal	src/Game/Map.hs	119;"	f
+showSec	src/Game/Time.hs	53;"	f
 showXYZ	src/Game/Map.hs	116;"	f
-simTime	src/Game/Time.hs	53;"	f
+simTime	src/Game/Time.hs	58;"	f
 simpleShaderExplicit	src/GLUtil/ShaderProgram.hs	44;"	f
 simpleShaderExplicit'	src/GLUtil/ShaderProgram.hs	52;"	f
 simpleShaderExplicitBS	src/GLUtil/ShaderProgram.hs	48;"	f
