@@ -50,6 +50,7 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateOceanCurrentsZ = 1
     , stateSkies          = []
     , stateZones          = []
+    , stateUnits          = []
     }
   
 
@@ -81,6 +82,7 @@ initWorld state env = do
       seacz   = stateOceanCurrentsZ state
       skies   = stateSkies          state
       zones   = stateZones          state
+      units   = stateUnits          state
 
   let nconts  = length (stateConts state)
   
@@ -118,6 +120,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateZones          = zones
+    , stateUnits          = units
     }
 
 nextSimState :: State -> Env -> State
@@ -147,7 +150,8 @@ nextSimState state env = State
     , stateOceanTempZ     = stateOceanTempZ state
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = stateSkies state
-    , stateZones          = stateZones state }
+    , stateZones          = stateZones state
+    , stateUnits          = stateUnits state }
   where
     time    = (stateTime state)+60
     sun     = moveSun oldsun time
@@ -187,7 +191,8 @@ nextState state env = State
     , stateOceanTempZ     = stateOceanTempZ state
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = stateSkies state
-    , stateZones          = stateZones state }
+    , stateZones          = stateZones state
+    , stateUnits          = stateUnits state }
   where
     time    = (stateTime state)+1
     sun     = moveSun oldsun time

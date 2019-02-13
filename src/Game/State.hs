@@ -56,6 +56,7 @@ data State = State
   , stateOceanCurrentsZ :: !Int
   , stateSkies          :: ![Sky]
   , stateZones          :: ![Zone]
+  , stateUnits          :: ![Unit]
   } deriving (Show)
 
 data Event =
