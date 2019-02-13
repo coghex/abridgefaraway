@@ -34,6 +34,7 @@ import Game.Ocean
 import Game.Map
 import Game.Zone
 import Game.Data
+import Game.Unit
 
 -- the game monad wrapper, gives us a threadsafe state and env
 type Game = RWST Env () State IO
@@ -97,6 +98,7 @@ main = do
             , envWTex       = wtex
             , envZTex       = ztex
             , envUTex       = utex
+            , envUnitTex    = unittex
             , envSeeds      = randomRs (1,100) (mkStdGen 43)
             , envStateChan1 = stateChan1
             , envStateChan2 = stateChan2
@@ -203,6 +205,8 @@ draw SWorld state env = do
   -- cursor is moving.  it could be updated, but as of now there is no need
     drawCursor state (envWTex env)
   -- this will change the state to either the new state from the timer, or the old state
+  GL.preservingMatrix $ do
+    drawUnits state
   liftIO $ timerCallback (envEventsChan env) newstate
 draw SZone state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
@@ -500,6 +504,7 @@ processEvent ev =
                        , stateTime     = (stateTime state)
                        , stateOceans   = (stateOceans state)
                        , stateSkies    = (stateSkies state)
+                       , stateUnits    = (animateUnits state)
                        }
 
 -- empties a channel bu reading everything left recursively

@@ -1,5 +1,7 @@
 module Game.Data where
 
+import qualified Graphics.Rendering.OpenGL as GL
+
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
                , hightroposphere  :: SkyZone
@@ -42,7 +44,8 @@ data Zone = Zone { grid :: [Int]
                  , cury :: Int
                  } deriving (Show, Eq)
 
-data Unit = Unit { unittype :: Int
+data Unit = Unit { unittexs :: [GL.TextureObject]
+                 , unittype :: Int
                  , zone     :: (Int, Int)
                  , position :: (Float, Float)
                  } deriving (Show, Eq)

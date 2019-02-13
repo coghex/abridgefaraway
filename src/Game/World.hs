@@ -13,6 +13,8 @@ import Game.Sun
 import Game.Moon
 import Game.Ocean
 import Game.Sky
+import Game.Unit
+import Game.Data
 
 genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> Moon -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
@@ -92,7 +94,10 @@ initWorld state env = do
   let o1      = theGreatSeas g2 e1 sunspot
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
-
+  let testminion = Unit { unittexs = (envUnitTex env) !! 1
+                        , unittype = 1
+                        , zone     = (10,10)
+                        , position = (0,0) }
   State
     { stateGame           = sg
     , stateStdGens        = stdgens
@@ -120,7 +125,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateZones          = zones
-    , stateUnits          = units
+    , stateUnits          = [testminion]
     }
 
 nextSimState :: State -> Env -> State

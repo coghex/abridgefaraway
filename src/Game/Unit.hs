@@ -12,21 +12,30 @@ import Game.Settings
 import Game.State
 import Game.Data
 import Game.Draw
+import Game.Map
 
-drawUnit :: State -> [GL.TextureObject] -> Unit -> IO ()
-drawUnit state texs unit = do
-  start <- getCurrentTime
-  let n = 1000
+drawUnits :: State -> IO ()
+drawUnits state = resequence_ (map (drawUnit state) units)
+  where units = stateUnits state
+
+drawUnit :: State -> Unit -> IO ()
+drawUnit state unit = do
+  let texs = unittexs unit
   withTextures2D [(head texs)] $ drawUnitTile [(head texs)] unit
-  end <- getCurrentTime
-  let diff  = diffUTCTime end start
-      usecs = floor (toRational diff * 1000000) :: Int
-      delay = n*1000 - usecs
-  if delay > 0
-    then threadDelay delay
-    else return ()
-  drawUnit state ((tail texs)++(head texs)) unit
 
+animateUnits :: State -> [Unit]
+animateUnits state = map animateUnit units
+  where units = stateUnits state
+
+animateUnit :: Unit -> Unit
+animateUnit u0 = Unit { unittexs = ((tail texs) ++ [(head texs)])
+                      , unittype = ut
+                      , zone     = uz
+                      , position = up }
+  where texs = unittexs u0
+        ut   = unittype u0
+        uz   = zone u0
+        up   = position u0
 
 drawUnitTile :: [GL.TextureObject] -> Unit -> IO ()
 drawUnitTile tex unit = do
@@ -35,4 +44,4 @@ drawUnitTile tex unit = do
   glColor3f 1.0 1.0 1.0
   drawSquare
   where (x, y)   = position unit
-        thiszoom = thisZoom
+        thiszoom = fromIntegral theZoom

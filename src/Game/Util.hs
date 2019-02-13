@@ -59,7 +59,7 @@ initTexs win = do
   wtex <- loadWTextures "data/biome/"
   ztex <- loadZTextures "data/zone/"
   utex <- loadUTextures "data/util/"
-  unittex <- loadUnitTextures "data/units/"
+  unittex <- loadUnitTextures "data/unit/"
   return (wtex, ztex, utex, unittex)
 
 loadZTextures :: String -> IO ([[TextureObject]])
@@ -331,13 +331,14 @@ loadWTextures fn = do
 
 loadUnitTextures :: String -> IO ([[TextureObject]])
 loadUnitTextures fn = do
+  n0 <- loadTex (fn ++ "util/null0.png")
   me0  <- loadTex (fn ++ "minion/minione0.png")
   me1  <- loadTex (fn ++ "minion/minione1.png")
   me2  <- loadTex (fn ++ "minion/minione2.png")
   me3  <- loadTex (fn ++ "minion/minione3.png")
   me4  <- loadTex (fn ++ "minion/minione4.png")
 
-  return ([[me0, me1, me2, me3, me4]])
+  return ([[n0], [me0, me1, me2, me3, me4]])
 
 loadUTextures :: String -> IO ([[TextureObject]])
 loadUTextures fn = do
