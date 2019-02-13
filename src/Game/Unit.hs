@@ -30,8 +30,8 @@ animateUnits state = map animateUnit units
   where units = stateUnits state
 
 animateUnit :: Unit -> Unit
-animateUnit u0 = Unit { unittexs = frameControl texs uf
-                      , frame    = frameCounter uf
+animateUnit u0 = Unit { unittexs = frameControl len texs uf
+                      , frame    = frameCounter len uf
                       , unittype = ut
                       , zone     = uz
                       , position = up }
@@ -40,16 +40,17 @@ animateUnit u0 = Unit { unittexs = frameControl texs uf
         ut   = unittype u0
         uz   = zone u0
         up   = position u0
+        len  = length texs - 1
 
-frameControl :: [GL.TextureObject] -> Int -> [GL.TextureObject]
-frameControl texs frame
-  | frame >= 1 = ((tail texs) ++ [(head texs)])
-  | otherwise   = texs
+frameControl :: Int -> [GL.TextureObject] -> Int -> [GL.TextureObject]
+frameControl len texs frame
+  | frame >= len = ((tail texs) ++ [(head texs)])
+  | otherwise    = texs
 
-frameCounter :: Int -> Int
-frameCounter frame
-  | frame >= 2 = 0
-  | otherwise   = frame+1
+frameCounter :: Int -> Int -> Int
+frameCounter len frame
+  | frame >= len = 0
+  | otherwise    = frame+1
 
 drawUnitTile :: [GL.TextureObject] -> Float -> Float -> Unit -> IO ()
 drawUnitTile tex camx camy unit = do

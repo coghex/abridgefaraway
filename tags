@@ -205,7 +205,7 @@ drawTextBoxMiddleBit	src/Game/Font.hs	96;"	f
 drawTextBoxMiddleRows	src/Game/Font.hs	83;"	f
 drawTextBoxTopRow	src/Game/Font.hs	103;"	f
 drawUnit	src/Game/Unit.hs	22;"	f
-drawUnitTile	src/Game/Unit.hs	54;"	f
+drawUnitTile	src/Game/Unit.hs	55;"	f
 drawUnits	src/Game/Unit.hs	18;"	f
 drawVZTile	src/Game/Ocean.hs	132;"	f
 drawZone	src/Game/Zone.hs	50;"	f
@@ -273,8 +273,8 @@ forward	src/GLUtil/Camera3D.hs	25;"	f
 fps	src/Game/Settings.hs	15;"	f
 fpsCamera	src/GLUtil/Camera3D.hs	127;"	f
 frame	src/Game/Data.hs	48;"	f
-frameControl	src/Game/Unit.hs	44;"	f
-frameCounter	src/Game/Unit.hs	49;"	f
+frameControl	src/Game/Unit.hs	45;"	f
+frameCounter	src/Game/Unit.hs	50;"	f
 freezeIce	src/Game/Ocean.hs	534;"	f
 freezingpoint	src/Game/Settings.hs	64;"	f
 freshTexture	src/GLUtil/Textures.hs	74;"	f
