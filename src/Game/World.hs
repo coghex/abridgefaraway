@@ -94,10 +94,31 @@ initWorld state env = do
   let o1      = theGreatSeas g2 e1 sunspot
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
-  let testminion = Unit { unittexs = (envUnitTex env) !! 1
+  let testminion0 = Unit { unittexs = (envUnitTex env) !! 1
+                        , frame    = 0
                         , unittype = 1
                         , zone     = (10,10)
                         , position = (0,0) }
+  let testminion1 = Unit { unittexs = (envUnitTex env) !! 1
+                        , frame    = 0
+                        , unittype = 1
+                        , zone     = (10,10)
+                        , position = (2,0) }
+  let testminion2 = Unit { unittexs = (envUnitTex env) !! 1
+                        , frame    = 0
+                        , unittype = 1
+                        , zone     = (10,10)
+                        , position = (4,0) }
+  let testminion3 = Unit { unittexs = (envUnitTex env) !! 1
+                        , frame    = 0
+                        , unittype = 1
+                        , zone     = (10,10)
+                        , position = (6,0) }
+  let testminion4 = Unit { unittexs = (envUnitTex env) !! 1
+                        , frame    = 0
+                        , unittype = 1
+                        , zone     = (10,10)
+                        , position = (8,0) }
   State
     { stateGame           = sg
     , stateStdGens        = stdgens
@@ -125,7 +146,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateZones          = zones
-    , stateUnits          = [testminion]
+    , stateUnits          = [testminion0, testminion1, testminion2, testminion3, testminion4]
     }
 
 nextSimState :: State -> Env -> State

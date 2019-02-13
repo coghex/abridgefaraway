@@ -45,6 +45,7 @@ data Zone = Zone { grid :: [Int]
                  } deriving (Show, Eq)
 
 data Unit = Unit { unittexs :: [GL.TextureObject]
+                 , frame    :: Int
                  , unittype :: Int
                  , zone     :: (Int, Int)
                  , position :: (Float, Float)

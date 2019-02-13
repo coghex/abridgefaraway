@@ -205,7 +205,7 @@ drawTextBoxMiddleBit	src/Game/Font.hs	96;"	f
 drawTextBoxMiddleRows	src/Game/Font.hs	83;"	f
 drawTextBoxTopRow	src/Game/Font.hs	103;"	f
 drawUnit	src/Game/Unit.hs	21;"	f
-drawUnitTile	src/Game/Unit.hs	40;"	f
+drawUnitTile	src/Game/Unit.hs	52;"	f
 drawUnits	src/Game/Unit.hs	17;"	f
 drawVZTile	src/Game/Ocean.hs	132;"	f
 drawZone	src/Game/Zone.hs	50;"	f
@@ -261,8 +261,8 @@ expandZone	src/Game/Map.hs	130;"	f
 fdiv	src/Game/Map.hs	94;"	f
 findElev	src/Game/Elev.hs	116;"	f
 findZoneElev	src/Game/Zone.hs	228;"	f
-fixContSpots	src/Game/World.hs	215;"	f
-fixConts	src/Game/World.hs	212;"	f
+fixContSpots	src/Game/World.hs	236;"	f
+fixConts	src/Game/World.hs	233;"	f
 flattenGrid	src/Game/Map.hs	144;"	f
 formatElev	src/Game/Elev.hs	166;"	f
 formatOceanCurrents	src/Game/Ocean.hs	492;"	f
@@ -271,6 +271,9 @@ formatTime	src/Game/Time.hs	45;"	f
 formatZoneElev	src/Game/Zone.hs	395;"	f
 forward	src/GLUtil/Camera3D.hs	25;"	f
 fpsCamera	src/GLUtil/Camera3D.hs	127;"	f
+frame	src/Game/Data.hs	48;"	f
+frameControl	src/Game/Unit.hs	42;"	f
+frameCounter	src/Game/Unit.hs	47;"	f
 freezeIce	src/Game/Ocean.hs	534;"	f
 freezingpoint	src/Game/Settings.hs	62;"	f
 freshTexture	src/GLUtil/Textures.hs	74;"	f
@@ -285,7 +288,7 @@ fromVector	src/GLUtil/BufferObjects.hs	63;"	f
 fudge	src/Game/Settings.hs	19;"	f
 gameTime	src/Game/Time.hs	14;"	f
 genParams	src/Game/World.hs	19;"	f
-genStep	src/Game/World.hs	241;"	f
+genStep	src/Game/World.hs	262;"	f
 genZone	src/Game/Zone.hs	185;"	f
 generateZone	src/Game/Zone.hs	176;"	f
 getActives	src/GLUtil/ShaderProgram.hs	144;"	f
@@ -415,8 +418,8 @@ newSkies	src/Game/Sky.hs	27;"	f
 newSky	src/Game/Sky.hs	30;"	f
 newZone	src/Game/Ocean.hs	216;"	f
 newZone	src/Game/Sky.hs	38;"	f
-nextSimState	src/Game/World.hs	131;"	f
-nextState	src/Game/World.hs	172;"	f
+nextSimState	src/Game/World.hs	152;"	f
+nextState	src/Game/World.hs	193;"	f
 nois	src/Game/Data.hs	37;"	f
 normElev	src/Game/Elev.hs	149;"	f
 normElevCrags	src/Game/Elev.hs	153;"	f
@@ -431,7 +434,7 @@ panGlobalRad	src/GLUtil/Camera3D.hs	47;"	f
 panRad	src/GLUtil/Camera3D.hs	34;"	f
 parZipWith	src/Game/Map.hs	91;"	f
 peaklevel	src/Game/Settings.hs	28;"	f
-position	src/Game/Data.hs	50;"	f
+position	src/Game/Data.hs	51;"	f
 precision	src/Game/Settings.hs	17;"	f
 pres	src/Game/Data.hs	25;"	f
 printError	src/GLUtil/GLError.hs	13;"	f
@@ -447,7 +450,7 @@ randomList	src/Game/Rand.hs	6;"	f
 randomN	src/Game/Rand.hs	10;"	f
 readTexInfo	src/GLUtil/JuicyTextures.hs	16;"	f
 readTexture	src/GLUtil/JuicyTextures.hs	31;"	f
-regenWorld	src/Game/World.hs	224;"	f
+regenWorld	src/Game/World.hs	245;"	f
 reloadTexture	src/GLUtil/Textures.hs	93;"	f
 renderFontMap	src/Game/Font.hs	53;"	f
 replaceBuffer	src/GLUtil/BufferObjects.hs	34;"	f
@@ -474,10 +477,10 @@ sceneSetup	src/Game/Util.hs	29;"	f
 screenh	src/Game/Settings.hs	13;"	f
 screenw	src/Game/Settings.hs	12;"	f
 sealevel	src/Game/Settings.hs	26;"	f
-seedConts	src/Game/World.hs	244;"	f
-seedGrid	src/Game/World.hs	251;"	f
-seedRow	src/Game/World.hs	260;"	f
-seedTile	src/Game/World.hs	263;"	f
+seedConts	src/Game/World.hs	265;"	f
+seedGrid	src/Game/World.hs	272;"	f
+seedRow	src/Game/World.hs	281;"	f
+seedTile	src/Game/World.hs	284;"	f
 seedZoneCont	src/Game/Zone.hs	345;"	f
 seedZoneContRow	src/Game/Zone.hs	354;"	f
 seedZoneContTile	src/Game/Zone.hs	357;"	f
@@ -576,7 +579,7 @@ uniformScalar	src/GLUtil/Shaders.hs	79;"	f
 uniformVec	src/GLUtil/Shaders.hs	85;"	f
 uniforms	src/GLUtil/ShaderProgram.hs	37;"	f
 unittexs	src/Game/Data.hs	47;"	f
-unittype	src/Game/Data.hs	48;"	f
+unittype	src/Game/Data.hs	49;"	f
 upward	src/GLUtil/Camera3D.hs	26;"	f
 variableDataType	src/GLUtil/TypeMapping.hs	52;"	f
 variableType	src/GLUtil/TypeMapping.hs	18;"	f
@@ -604,7 +607,7 @@ y	src/Game/Sun.hs	11;"	f
 yList	src/Game/Map.hs	56;"	f
 z	src/Game/Moon.hs	12;"	f
 z	src/Game/Sun.hs	12;"	f
-zone	src/Game/Data.hs	49;"	f
+zone	src/Game/Data.hs	50;"	f
 zoneCardinals	src/Game/Map.hs	30;"	f
 zoneCardinalsXY	src/Game/Map.hs	45;"	f
 zoneDistance	src/Game/Map.hs	103;"	f

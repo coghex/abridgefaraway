@@ -205,9 +205,7 @@ draw SWorld state env = do
   -- cursor is moving.  it could be updated, but as of now there is no need
     drawCursor state (envWTex env)
   -- this will change the state to either the new state from the timer, or the old state
-  GL.preservingMatrix $ do
-    drawUnits state
-  liftIO $ timerCallback (envEventsChan env) newstate
+    liftIO $ timerCallback (envEventsChan env) newstate
 draw SZone state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
   statebuff <- atomically $ tryReadTChan (envStateChan1 env)
@@ -221,6 +219,8 @@ draw SZone state env = do
     drawZone state (envZTex env)
   GL.preservingMatrix $ do
     drawZoneCursor state (envZTex env)
+  GL.preservingMatrix $ do
+    drawUnits state
   GL.preservingMatrix $ do
     drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime, "hellollllolloo"]
   liftIO $ timerCallback (envEventsChan env) newstate
