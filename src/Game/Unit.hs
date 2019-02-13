@@ -7,3 +7,8 @@ import qualified Graphics.UI.GLFW as GLFW
 import GLUtil.Textures
 
 import Game.Settings
+import Game.Draw
+
+--drawUnit :: State -> [GL.TextureObject] -> Int -> IO ()
+--drawUnit state texs unit = do\
+--  withTextures2D :
