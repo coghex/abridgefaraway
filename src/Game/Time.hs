@@ -18,12 +18,12 @@ unitTime env state n TStart = do
       timerchan = envUTimerChan env
   start <- getCurrentTime
   let newunits = evalUnits state env
+  let newstate = unitState state (animateJustUnits newunits)
   atomically $ writeTChan unitschan newunits
   timerstate <- (atomically (tryReadTChan timerchan))
   tsnew <- case (timerstate) of
     Nothing  -> return TStart
     Just x   -> return x
-  let newstate = unitState state (animateJustUnits newunits)
   end <- getCurrentTime
   let diff = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int

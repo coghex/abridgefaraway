@@ -117,21 +117,21 @@ zoneLinearDistance (srcx, srcy) (dstx, dsty) = sqrt (((dstx-srcx)*(dstx-srcx)) +
 
 moveDirection :: (Float, Float) -> (Float, Float) -> Int -> Int
 moveDirection (srcx, srcy) (dstx, dsty) prev
-  | (dstx-srcx > dirfudge)  && (dsty-srcy > dirfudge)          = 9
-  | (dstx-srcx < -dirfudge) && (dsty-srcy > dirfudge)          = 10
-  | (dstx-srcx > dirfudge)  && (dsty-srcy < -dirfudge)         = 11
-  | (dstx-srcx < -dirfudge) && (dsty-srcy < -dirfudge)         = 12
-  | (dsty-srcy > dirfudge)                                     = 5
-  | (dsty-srcy < -dirfudge)                                    = 6
-  | (dstx-srcx > dirfudge)                                     = 7
-  | (dstx-srcx < -dirfudge)                                    = 8
-  | (prev == 5) || (prev == 1)                                 = 1
-  | (prev == 6) || (prev == 2)                                 = 2
-  | (prev == 7) || (prev == 9)  || (prev == 11) || (prev == 3) = 3
-  | (prev == 8) || (prev == 10) || (prev == 12) || (prev == 4) = 4
-  | otherwise                                                  = 0
-
+  | (dstx-srcx > dirfudge)  && (dsty-srcy > dirfudge)                            = 9
+  | (dstx-srcx < -dirfudge) && (dsty-srcy > dirfudge)                            = 10
+  | (dstx-srcx > dirfudge)  && (dsty-srcy < -dirfudge)                           = 11
+  | (dstx-srcx < -dirfudge) && (dsty-srcy < -dirfudge)                           = 12
+  | (dsty-srcy > dirfudge)                                                       = 5
+  | (dsty-srcy < -dirfudge)                                                      = 6
+  | (dstx-srcx > dirfudge)                                                       = 7
+  | (dstx-srcx < -dirfudge)                                                      = 8
+  | ((prev == 5) || (prev == 1)) && (dist < 0.1)                                 = 1
+  | ((prev == 6) || (prev == 2)) && (dist < 0.1)                                 = 2
+  | ((prev == 7) || (prev == 9)  || (prev == 11) || (prev == 3)) && (dist < 0.1) = 3
+  | ((prev == 8) || (prev == 10) || (prev == 12) || (prev == 4)) && (dist < 0.1) = 4
+  | otherwise                                                                    = prev
   where dirfudge = 1
+        dist     = zoneLinearDistance (srcx, srcy) (dstx, dsty)
 
 showXYZ :: (String, String, String) -> String
 showXYZ (a, b, c) = "X:" ++ a ++ "Y:" ++ b ++ "Z:" ++ c

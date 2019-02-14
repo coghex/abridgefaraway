@@ -45,6 +45,7 @@ data Zone = Zone { grid :: [Int]
                  } deriving (Show, Eq)
 
 data Action = NullAction
+            | Idle { pos :: (Float, Float) }
             | Loaf { time :: Int }
             | MoveTo { dest  :: (Float, Float)
                      , speed :: Int
