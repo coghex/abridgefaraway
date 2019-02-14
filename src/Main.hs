@@ -88,7 +88,8 @@ main = do
     timerChan  <- atomically $ newTChan
     uTimerChan <- atomically $ newTChan
     -- this channel will update the unit list
-    unitChan   <- atomically $ newTChan
+    unitChan1  <- atomically $ newTChan
+    unitChan2  <- atomically $ newTChan
 
     -- the enviornment for the game is read-only, nothing here will ever change
     let env    = Env
@@ -105,7 +106,8 @@ main = do
             , envStateChan2 = stateChan2
             , envTimerChan  = timerChan
             , envUTimerChan = uTimerChan
-            , envUnitChan   = unitChan
+            , envUnitChan1  = unitChan1
+            , envUnitChan2  = unitChan2
             }
 
     -- the timer is forked initially stopped.  100 is pretty fast, 1000 is 1 game min = 1 real sec
@@ -152,6 +154,7 @@ draw SLoad state env = do
   atomically $ writeTChan (envUTimerChan env) TStart
   atomically $ writeTChan (envTimerChan env) TStart
   newstate <- atomically $ readTChan (envStateChan1 env)
+  newunits <- atomically $ readTChan (envUnitChan1 env)
   liftIO $ loadedCallback (envEventsChan env) SLoadTime
 -- this doesnt quite work right yet, this screen is only shown for an instance
 draw SLoadTime state env = do
@@ -160,11 +163,11 @@ draw SLoadTime state env = do
   drawText (envFontSmall env) 1 75 36 36 "Simulating History..."
   -- start the timer once the chan has emptied (since its fifo)
   newstate <- atomically $ readTChan (envStateChan1 env)
-  --newunits <- atomically $ readTChan (envUnitChan env)
+  newunits <- atomically $ readTChan (envUnitChan1 env)
   -- set the monad state to the timer's state, (this fixes the notorious loading screen bug)
   let unftime = stateTime state
   liftIO $ timerCallback (envEventsChan env) newstate
-  --liftIO $ unitCallback (envEventsChan env) newunits
+  liftIO $ unitCallback (envEventsChan env) newunits
   -- wait until after the history has been running for a while
   if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
   else liftIO $ loadedCallback (envEventsChan env) SLoadTime
@@ -199,8 +202,12 @@ draw SWorld state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
   -- read in a non blocking way, maintaining the old state if the channel is empty
   statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  unitbuff  <- atomically $ tryReadTChan (envUnitChan1 env)
   newstate <- case (statebuff) of
     Nothing -> return state
+    Just n  -> return n
+  newunits <- case (unitbuff) of
+    Nothing -> return (stateUnits newstate)
     Just n  -> return n
   let unftime = stateTime newstate
   beginDrawText
@@ -213,12 +220,17 @@ draw SWorld state env = do
   -- cursor is moving.  it could be updated, but as of now there is no need
     drawCursor state (envWTex env)
   -- this will change the state to either the new state from the timer, or the old state
-    liftIO $ timerCallback (envEventsChan env) newstate
+  liftIO $ timerCallback (envEventsChan env) newstate
+  liftIO $ unitCallback (envEventsChan env) newunits
 draw SZone state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
   statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  unitbuff  <- atomically $ tryReadTChan (envUnitChan1 env)
   newstate <- case (statebuff) of
     Nothing -> return state
+    Just n  -> return n
+  newunits <- case (unitbuff) of
+    Nothing -> return (stateUnits newstate)
     Just n  -> return n
   let unftime = stateTime newstate
       sun     = stateSun newstate
@@ -232,6 +244,7 @@ draw SZone state env = do
   GL.preservingMatrix $ do
     drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime, "hellollllolloo"]
   liftIO $ timerCallback (envEventsChan env) newstate
+  liftIO $ unitCallback (envEventsChan env) newunits
 draw SZoneElev state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
   statebuff <- atomically $ tryReadTChan (envStateChan1 env)
@@ -361,8 +374,10 @@ processEvent ev =
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
             liftIO $ loadedCallback (envEventsChan env) SLoad
             let newstate = initWorld state env
+                newunits = stateUnits newstate
             -- let the timer know that we have generated a new state
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
+            liftIO $ atomically $ writeTChan (envUnitChan2 env) newunits
             modify $ \s -> s { stateGrid = (stateGrid newstate)
                              , stateElev = (stateElev newstate)
                              }
@@ -512,7 +527,7 @@ processEvent ev =
                        , stateTime     = (stateTime state)
                        , stateOceans   = (stateOceans state)
                        , stateSkies    = (stateSkies state)
-                       , stateUnits    = (animateUnits state)
+                       --, stateUnits    = (animateUnits state)
                        }
     -- changes the units in the state when the move
     (EventUpdateUnits units) -> do

@@ -10,23 +10,20 @@ import Game.World
 import Game.State
 import Game.Sun
 import Game.Settings
+import Game.Unit
 
 unitTime :: Env -> State -> Int -> TimerState -> IO ()
 unitTime env state n TStart = do
-  let unitschan = envUnitChan env
+  let unitschan = envUnitChan1 env
       timerchan = envUTimerChan env
   start <- getCurrentTime
-  --let newsun = moveSun sun time
-  --writeChan sunchan newsun
-  let newunits = stateUnits state
-      newstate = state
-
+  let newunits = evalUnits state env
   atomically $ writeTChan unitschan newunits
   timerstate <- (atomically (tryReadTChan timerchan))
   tsnew <- case (timerstate) of
     Nothing  -> return TStart
     Just x   -> return x
-
+  let newstate = unitState state (animateJustUnits newunits)
   end <- getCurrentTime
   let diff = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int
@@ -36,12 +33,12 @@ unitTime env state n TStart = do
     else return ()
   unitTime env newstate n tsnew
 unitTime env state n TStop = do
-  let unitschan = envUnitChan env
+  let unitschan = envUnitChan2 env
       timerchan = envUTimerChan env
   tsnew      <- atomically $ readTChan timerchan
   firstunits <- atomically $ readTChan unitschan
   let newunits  = firstunits
-  let newstate  = state
+  let newstate  = unitState state newunits
   pseq newstate $ unitTime env newstate n tsnew
 
 

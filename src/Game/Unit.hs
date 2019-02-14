@@ -15,6 +15,36 @@ import Game.Draw
 import Game.Map
 import Game.Zone
 
+unitState :: State -> [Unit] -> State
+unitState state units = State
+  { stateGame           = stateGame state
+  , stateStdGens        = stateStdGens state
+  , stateScreenW        = stateScreenW state
+  , stateScreenH        = stateScreenH state
+  , stateGrid           = stateGrid state
+  , stateOG             = stateOG state
+  , stateElev           = stateElev state
+  , stateCursor         = stateCursor state
+  , stateNConts         = stateNConts state
+  , stateCurrMap        = stateCurrMap state
+  , stateConts          = stateConts state
+  , stateSeeds          = stateSeeds state
+  , stateRands          = stateRands state
+  , stateSizes          = stateSizes state
+  , stateTypes          = stateTypes state
+  , stateRandI          = stateRandI state
+  , stateRangeRands     = stateRangeRands state
+  , stateSun            = stateSun state
+  , stateMoon           = stateMoon state
+  , stateSunSpots       = stateSunSpots state
+  , stateTime           = stateTime state
+  , stateOceans         = stateOceans state
+  , stateOceanTempZ     = stateOceanTempZ state
+  , stateOceanCurrentsZ = stateOceanCurrentsZ state
+  , stateSkies          = stateSkies state
+  , stateZones          = stateZones state
+  , stateUnits          = units }
+
 evalUnits :: State -> Env -> [Unit]
 evalUnits state env = map (evalUnit utexs) units
   where units = stateUnits state
@@ -78,6 +108,9 @@ drawUnit state unit = do
   let texs = unittexs unit
       (camx, camy, _) = getZoneCam (head (stateZones state))
   withTextures2D [(head texs)] $ drawUnitTile [(head texs)] camx camy unit
+
+animateJustUnits :: [Unit] -> [Unit]
+animateJustUnits units = map animateUnit units
 
 animateUnits :: State -> [Unit]
 animateUnits state = map animateUnit units

@@ -286,7 +286,7 @@ nextState state env = State
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = stateSkies state
     , stateZones          = stateZones state
-    , stateUnits          = units }
+    , stateUnits          = stateUnits state }
   where
     time    = (stateTime state)+1
     sun     = moveSun oldsun time

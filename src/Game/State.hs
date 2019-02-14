@@ -28,7 +28,8 @@ data Env = Env
   , envStateChan1       :: TChan State
   , envStateChan2       :: TChan State
   , envTimerChan        :: TChan TimerState
-  , envUnitChan         :: TChan [Unit]
+  , envUnitChan1        :: TChan [Unit]
+  , envUnitChan2        :: TChan [Unit]
   , envUTimerChan       :: TChan TimerState
   }
 
