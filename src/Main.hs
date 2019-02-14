@@ -207,7 +207,7 @@ draw SWorld state env = do
     Nothing -> return state
     Just n  -> return n
   newunits <- case (unitbuff) of
-    Nothing -> return (stateUnits newstate)
+    Nothing -> return (stateUnits state)
     Just n  -> return n
   let unftime = stateTime newstate
   beginDrawText
@@ -230,7 +230,7 @@ draw SZone state env = do
     Nothing -> return state
     Just n  -> return n
   newunits <- case (unitbuff) of
-    Nothing -> return (stateUnits newstate)
+    Nothing -> return (stateUnits state)
     Just n  -> return n
   let unftime = stateTime newstate
       sun     = stateSun newstate
