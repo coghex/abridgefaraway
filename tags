@@ -232,6 +232,7 @@ drawZoneText	src/Game/Font.hs	42;"	f
 drawZoneTile	src/Game/Zone.hs	85;"	f
 dropEvery	src/Game/Elev.hs	56;"	f
 dynlibdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
+efitlist	src/Game/Settings.hs	199;"	f
 elev	src/Game/Data.hs	34;"	f
 elevBlurMap	src/Game/Elev.hs	104;"	f
 elevDist	src/Game/Zone.hs	249;"	f
@@ -514,6 +515,7 @@ seedZoneGrid	src/Game/Zone.hs	292;"	f
 seedZoneGridGaps	src/Game/Zone.hs	339;"	f
 setAttrib	src/GLUtil/ShaderProgram.hs	192;"	f
 setUniform	src/GLUtil/ShaderProgram.hs	178;"	f
+sfitlist	src/Game/Settings.hs	195;"	f
 showFloatFoReal	src/Game/Map.hs	139;"	f
 showSec	src/Game/Time.hs	84;"	f
 showXYZ	src/Game/Map.hs	136;"	f
@@ -622,6 +624,7 @@ vmin	src/Game/Map.hs	184;"	f
 vx	src/Game/Data.hs	27;"	f
 vy	src/Game/Data.hs	28;"	f
 vz	src/Game/Data.hs	29;"	f
+wfitlist	src/Game/Settings.hs	203;"	f
 whileM_	src/Main.hs	336;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
