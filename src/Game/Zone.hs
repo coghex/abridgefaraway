@@ -274,6 +274,7 @@ initZoneGrid state e zoneconts = g2
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
+        g3 = zipWith (seedZoneGridGaps state) gcards g1
         (nc, sc, ec, wc) = zoneCardinals zoneconts
         (ng, sg, eg, wg) = zoneCardinals g0
         (ne, se, ee, we) = zoneCardinals e
@@ -334,6 +335,19 @@ seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 55
   | otherwise                                                                    = 55
   where telev = 80
 seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e n  = n
+
+seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int
+seedZoneGridGaps state (ng, sg, eg, wg) 55 = bestTileFit ng sg eg wg ntiles
+seedZoneGridGaps _     _                n  = n
+
+bestTileFit :: Int -> Int -> Int -> Int -> Int -> Int
+bestTileFit ng sg eg wg n
+  | (n `elem` (tileNFits sg)) = 1
+  | otherwise                 = 0
+                            
+
+tileNFits :: Int -> [Int]
+tileNFits n = nfitlist !! n
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0
