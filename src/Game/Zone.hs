@@ -298,7 +298,12 @@ seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r = seedPlainsGrid ng sg eg wg r
 seedZoneGridGaps state (ng, sg, eg, wg) c g  r = g
 
 seedPlainsGrid :: Int -> Int -> Int -> Int -> Int -> Int
-seedPlainsGrid ng sg eg wg r = r
+seedPlainsGrid _  _  _  _  r
+  | ((r > 35) && (r < 66)) || 
+    ((r > 71) && (r  < 87)) || 
+    (r == 93) || (r == 95) || (r == 96) || 
+    ((r > 97) && (r < 111))                = (r `mod` 6)
+  | otherwise                              = r
 
 solveGridPuzzle :: Int -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int -> Int
 solveGridPuzzle _ _             _          g _ = g
