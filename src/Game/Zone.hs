@@ -2,6 +2,7 @@ module Game.Zone where
 
 import Control.Parallel.Strategies (parMap, rpar)
 import Data.List (zip4, zipWith4)
+import System.Random
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as GLFW
@@ -13,7 +14,7 @@ import Game.Map
 import Game.Draw
 import Game.Sun
 import Game.Noise
-
+import Game.Rand
 
 drawZoneElev :: State -> [[GL.TextureObject]] -> IO ()
 drawZoneElev state texs = do
@@ -207,8 +208,9 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         ewn              = quot (ew+e) 2
         perl             = x+(y*gridh)
         e                = tapGrid (stateElev state) x y
-        g0               = initZoneGrid state newelev zoneconts
+        g0               = initZoneGrid state r newelev zoneconts
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
+        r                = x+(y*gridw)
 
 blurZone :: State -> [Int] -> [Float] -> Int -> [Float]
 blurZone state conts elev n = elev
@@ -269,12 +271,12 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         perlin = makePerlin perl 4 0.15 0.5
         noise = getNoise i j perlin
 
-initZoneGrid :: State -> [Float] -> [Int] -> [Int]
-initZoneGrid state e zoneconts = g2
+initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
+initZoneGrid state r e zoneconts = g3
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
-        --g3 = zipWith3 (seedZoneGridGaps state) gcards2 zoneconts g2
+        g3 = zipWith4 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist
         (nc, sc, ec, wc) = zoneCardinals zoneconts
         (ng, sg, eg, wg) = zoneCardinals g0
         (ng2, sg2, eg2, wg2) = zoneCardinals g2
@@ -283,6 +285,15 @@ initZoneGrid state e zoneconts = g2
         ccards = zip4 nc sc ec wc
         gcards = zip4 ng sg eg wg
         gcards2 = zip4 ng2 sg2 eg2 wg2
+        rlist = randomList (0, 110) (zoneh*zonew) stdgen0
+        stdgen0 = mkStdGen r
+
+seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int
+seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r = seedPlainsGrid ng sg eg wg r
+seedZoneGridGaps state (ng, sg, eg, wg) c g  r = g
+
+seedPlainsGrid :: Int -> Int -> Int -> Int -> Int -> Int
+seedPlainsGrid ng sg eg wg r = r
 
 blankZoneGrid :: State -> Int -> Int
 blankZoneGrid state 3 = 0
@@ -300,48 +311,48 @@ seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 
 seedZoneEdges :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 seedZoneEdges state n nc sc ec wc ng sg eg wg
-  | ((nc /= n) && (sc /= n) && (ec /= n) && (wc /= n)) = 39
-  | ((nc /= n) && (sc /= n) && (ec /= n))              = 49
-  | ((nc /= n) && (sc /= n) &&              (wc /= n)) = 47
-  | ((nc /= n) &&              (ec /= n) && (wc /= n)) = 45
-  |              ((sc /= n) && (ec /= n) && (wc /= n)) = 51
-  | ((nc /= n) && (sc /= n))                           = 50
-  | ((nc /= n) &&              (ec /= n))              = 37
-  | ((nc /= n) &&                           (wc /= n)) = 35
-  |              ((sc /= n) &&              (wc /= n)) = 41
-  |              ((sc /= n) && (ec /= n))              = 43
-  |                           ((ec /= n) && (wc /= n)) = 44
-  | ((nc /= n))                                        = 36
-  |              ((sc /= n))                           = 42
-  |                           ((ec /= n))              = 40
-  |                                        ((wc /= n)) = 38
-  | otherwise                                          = 55
+  | ((nc /= n) && (sc /= n) && (ec/= n) && (wc /= n))  = 40
+  | ((nc /= n) && (sc /= n) && (ec /= n))              = 50
+  | ((nc /= n) && (sc /= n) &&              (wc /= n)) = 48
+  | ((nc /= n) &&              (ec /= n) && (wc /= n)) = 46
+  |              ((sc /= n) && (ec /= n) && (wc /= n)) = 52
+  | ((nc /= n) && (sc /= n))                           = 51
+  | ((nc /= n) &&              (ec /= n))              = 38
+  | ((nc /= n) &&                           (wc /= n)) = 36
+  |              ((sc /= n) &&              (wc /= n)) = 42
+  |              ((sc /= n) && (ec /= n))              = 44
+  |                           ((ec /= n) && (wc /= n)) = 45
+  | ((nc /= n))                                        = 37
+  |              ((sc /= n))                           = 43
+  |                           ((ec /= n))              = 41
+  |                                        ((wc /= n)) = 39
+  | otherwise                                          = 56
 
 seedZoneElevGrid :: State -> (Int, Int, Int, Int) -> (Float, Float, Float, Float) -> Float -> Int -> Int
-seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 55
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 39
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev)                     = 49
-  | ((e-ne) > telev) && ((e-se) > telev) &&                     ((e-we) > telev) = 47
-  | ((e-ne) > telev) &&                     ((e-ee) > telev) && ((e-we) > telev) = 45
-  |                     ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 51
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 50
-  | ((e-ne) > telev) && ((e-se) > telev)                                         = 37
-  | ((e-ne) > telev) &&                     ((e-ee) > telev)                     = 35
-  | ((e-ne) > telev) &&                                         ((e-we) > telev) = 41
-  |                     ((e-se) > telev) &&                     ((e-we) > telev) = 43
-  |                                         ((e-ee) > telev) && ((e-we) > telev) = 44
-  | ((e-ne) > telev)                                                             = 36
-  |                     ((e-se) > telev)                                         = 42
-  |                                         ((e-ee) > telev)                     = 40
-  |                                                             ((e-we) > telev) = 38
-  | otherwise                                                                    = 55
+seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 56
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 40
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev)                     = 50
+  | ((e-ne) > telev) && ((e-se) > telev) &&                     ((e-we) > telev) = 48
+  | ((e-ne) > telev) &&                     ((e-ee) > telev) && ((e-we) > telev) = 46
+  |                     ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 52
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 51
+  | ((e-ne) > telev) && ((e-se) > telev)                                         = 38
+  | ((e-ne) > telev) &&                     ((e-ee) > telev)                     = 36
+  | ((e-ne) > telev) &&                                         ((e-we) > telev) = 42
+  |                     ((e-se) > telev) &&                     ((e-we) > telev) = 44
+  |                                         ((e-ee) > telev) && ((e-we) > telev) = 45
+  | ((e-ne) > telev)                                                             = 37
+  |                     ((e-se) > telev)                                         = 43
+  |                                         ((e-ee) > telev)                     = 41
+  |                                                             ((e-we) > telev) = 39
+  | otherwise                                                                    = 56
   where telev = 80
 seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e n  = n
 
-seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int
-seedZoneGridGaps state (ng, sg, eg, wg) 3 55 = fitGap ng sg eg wg (ntiles-2)
+--seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int
+--seedZoneGridGaps state (ng, sg, eg, wg) 3 55 = fitGap ng sg eg wg (ntiles-2)
 --seedZoneGridGaps state (ng, sg, eg, wg) 5 55 = fitGap ng sg eg wg (ntiles-1)
-seedZoneGridGaps _     _                c n  = n
+--seedZoneGridGaps _     _                c n  = n
 
 fitGap :: Int -> Int -> Int -> Int -> Int -> Int
 fitGap ng sg eg wg 0 = 55
