@@ -36,6 +36,33 @@ zoneCardinals x = do
       wx  = replaceEveryW zonew x
   (nx, sx, ex, wx)
 
+zoneCardinalsC :: [Int] -> ([Int], [Int], [Int], [Int])
+zoneCardinalsC x = do
+  let nx  = (drop zonew x) ++ (drop ((zoneh-1)*zonew) x)
+      sx  = (take (zonew) x) ++ (take ((zoneh-1)*zonew) x)
+      ext = (tail x)
+      ex  = replaceEveryEC zonew x
+      wx  = replaceEveryWC zonew x
+  (nx, sx, ex, wx)
+
+zoneCardinalsG :: [Int] -> Int -> ([Int], [Int], [Int], [Int])
+zoneCardinalsG x n = do
+  let nx  = (drop zonew x) ++ (take zonew (repeat n))
+      sx  = (take zonew (repeat n)) ++ (take ((zoneh-1)*zonew) x)
+      ext = (tail x)
+      ex  = replaceEveryEG 56 zonew x
+      wx  = replaceEveryWG 56 zonew x
+  (nx, sx, ex, wx)
+
+zoneCardinalsE :: [Float] -> ([Float], [Float], [Float], [Float])
+zoneCardinalsE x = do
+  let nx  = (drop zonew x) ++ (drop ((zoneh-1)*zonew) x)
+      sx  = (take (zonew) x) ++ (take ((zoneh-1)*zonew) x)
+      ext = (tail x)
+      ex  = replaceEveryEC zonew x
+      wx  = replaceEveryWC zonew x
+  (nx, sx, ex, wx)
+
 cardinalsXY :: Int -> Int -> [a] -> (a, a, a, a)
 cardinalsXY x y l = cardMap (tapGridM x y) (cardinals l)
 
@@ -52,6 +79,24 @@ replaceEveryW n s  = (s !! (n-1)) : (take (n-1) s) ++ (replaceEveryW (n) (drop n
 replaceEveryE :: Int -> [a] -> [a] -> [a]
 replaceEveryE n [] b = []
 replaceEveryE n s  b = (take (n-1) s) ++ [(head b)] ++ (replaceEveryE (n) (drop n s) (drop n b))
+
+replaceEveryWC :: Int -> [a] -> [a]
+replaceEveryWC n [] = []
+replaceEveryWC n s  = c : (take (n-1) s) ++ (replaceEveryWC (n) (drop n s))
+  where c = head s
+
+replaceEveryEC :: Int -> [a] -> [a]
+replaceEveryEC n [] = []
+replaceEveryEC n s  = (take (n-1) (tail s)) ++ [c] ++ (replaceEveryEC (n) (drop n s))
+  where c = s !! (n-1)
+
+replaceEveryWG :: a -> Int -> [a] -> [a]
+replaceEveryWG c n [] = []
+replaceEveryWG c n s  = c : (take (n-1) s) ++ (replaceEveryWG c (n) (drop n s))
+
+replaceEveryEG :: a -> Int -> [a] -> [a]
+replaceEveryEG c n [] = []
+replaceEveryEG c n s = (take (n-1) s) ++ [c] ++ (replaceEveryEG c (n) (drop n s))
 
 yList :: [Int]
 yList = makeYList gridw [1..gridh]

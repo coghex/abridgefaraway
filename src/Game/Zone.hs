@@ -1,7 +1,7 @@
 module Game.Zone where
 
 import Control.Parallel.Strategies (parMap, rpar)
-import Data.List (zip4, zipWith4)
+import Data.List (zip4, zipWith4, zipWith5)
 import System.Random
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
@@ -276,17 +276,22 @@ initZoneGrid state r e zoneconts = g3
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
-        g3 = zipWith4 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist
-        (nc, sc, ec, wc) = zoneCardinals zoneconts
-        (ng, sg, eg, wg) = zoneCardinals g0
-        (ng2, sg2, eg2, wg2) = zoneCardinals g2
-        (ne, se, ee, we) = zoneCardinals e
+        g3 = zipWith4 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist2
+        g4 = zipWith5 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3
+        (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
+        (ng, sg, eg, wg) = zoneCardinalsG g0 56
+        (ng2, sg2, eg2, wg2) = zoneCardinalsG g2 56
+        (ng3, sg3, eg3, wg3) = zoneCardinalsG g3 56
+        (ne, se, ee, we) = zoneCardinalsE e
         ecards = zip4 ne se ee we
         ccards = zip4 nc sc ec wc
         gcards = zip4 ng sg eg wg
         gcards2 = zip4 ng2 sg2 eg2 wg2
-        rlist = randomList (0, 110) (zoneh*zonew) stdgen0
+        gcards3 = zip4 ng3 sg3 eg3 wg3
+        rlist2 = randomList (0, 110) (zoneh*zonew) stdgen0
+        rlist3 = randomList (0, 110) (zoneh*zonew) stdgen1
         stdgen0 = mkStdGen r
+        (_, stdgen1) = next stdgen0
 
 seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int
 seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r = seedPlainsGrid ng sg eg wg r
@@ -294,6 +299,9 @@ seedZoneGridGaps state (ng, sg, eg, wg) c g  r = g
 
 seedPlainsGrid :: Int -> Int -> Int -> Int -> Int -> Int
 seedPlainsGrid ng sg eg wg r = r
+
+solveGridPuzzle :: Int -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int -> Int
+solveGridPuzzle _ _             _          g _ = g
 
 blankZoneGrid :: State -> Int -> Int
 blankZoneGrid state 3 = 0
