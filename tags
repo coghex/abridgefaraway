@@ -624,7 +624,7 @@ vmin	src/Game/Map.hs	184;"	f
 vx	src/Game/Data.hs	27;"	f
 vy	src/Game/Data.hs	28;"	f
 vz	src/Game/Data.hs	29;"	f
-wfitlist	src/Game/Settings.hs	313;"	f
+wfitlist	src/Game/Settings.hs	423;"	f
 whileM_	src/Main.hs	336;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
