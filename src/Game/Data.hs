@@ -48,7 +48,7 @@ data Action = NullAction
             | Idle { pos :: (Float, Float) }
             | Loaf { time :: Int }
             | MoveTo { dest  :: (Float, Float)
-                     , speed :: Int
+                     , speed :: Float
                      } deriving (Show, Eq)
 
 data Unit = Unit { unittexs :: [GL.TextureObject]

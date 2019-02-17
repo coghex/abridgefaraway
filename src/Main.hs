@@ -115,7 +115,7 @@ main = do
     -- for it to deal with and so it doesnt.
     forkIO $ (gameTime env state 1200 TStop)
     -- this timer is for movement and for more time critical operations
-    forkIO $ (unitTime env state 100 TStop)
+    forkIO $ (unitTime env state 10 TStop)
     -- runs the whole monad
     void $ evalRWST run env state
 

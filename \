@@ -274,15 +274,13 @@ initZoneGrid state e zoneconts = g2
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
-        --g3 = zipWith3 (seedZoneGridGaps state) gcards2 zoneconts g2
+        g3 = zipWith (seedZoneGridGaps state) gcards g1
         (nc, sc, ec, wc) = zoneCardinals zoneconts
         (ng, sg, eg, wg) = zoneCardinals g0
-        (ng2, sg2, eg2, wg2) = zoneCardinals g2
         (ne, se, ee, we) = zoneCardinals e
         ecards = zip4 ne se ee we
         ccards = zip4 nc sc ec wc
         gcards = zip4 ng sg eg wg
-        gcards2 = zip4 ng2 sg2 eg2 wg2
 
 blankZoneGrid :: State -> Int -> Int
 blankZoneGrid state 3 = 0
@@ -338,36 +336,41 @@ seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 55
   where telev = 80
 seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e n  = n
 
-seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int
-seedZoneGridGaps state (ng, sg, eg, wg) 3 55 = fitGap ng sg eg wg (ntiles-2)
---seedZoneGridGaps state (ng, sg, eg, wg) 5 55 = fitGap ng sg eg wg (ntiles-1)
-seedZoneGridGaps _     _                c n  = n
+seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int
+seedZoneGridGaps state (ng, sg, eg, wg) 55 = fitGap ng sg eg wg ntiles
+seedZoneGridGaps _     _                n  = n
 
 fitGap :: Int -> Int -> Int -> Int -> Int -> Int
 fitGap ng sg eg wg 0 = 55
-fitGap ng sg eg wg n = if (tileAllFits (ng+1) (sg+1) (eg+1) (wg+1) (n+1)) then n else (fitGap ng sg eg wg (n-1))
+fitGap ng sg eg wg n = do
+  if (tileAllFits ng sg eg wg n)
+    return n
+  else
+    return fitGap ng sg eg wg (n-1)
+
+bestTileFit :: Int -> Int -> Int -> Int -> Int -> Int
+bestTileFit ng sg eg wg n
+  | (n `elem` (tileNFits sg)) = 1
+  | otherwise                 = 0
 
 tileAllFits :: Int -> Int -> Int -> Int -> Int -> Bool
-tileAllFits 56 56 56 56 _ = False
 tileAllFits ng sg eg wg n = (n `elem` tileNFits sg) && (n `elem` tileSFits ng) && (n `elem` tileEFits wg) && (n `elem` tileWFits eg)
 
 tileNFits :: Int -> [Int]
-tileNFits 56 = [1..ntiles]
-tileNFits n  = if (0 `elem` nfitlist !! n) then [] else (nfitlist !! n)
+tileNFits 55 = [1..ntiles]
+tileNFits n  = nfitlist !! n
 
 tileSFits :: Int -> [Int]
-tileSFits 56 = [1..ntiles]
-tileSFits n  = if (0 `elem` sfitlist !! n) then [] else (sfitlist !! n)
-
+tileSFits 55 = [1..ntiles]
+tileSFits n  = sfitlist !! n
 
 tileEFits :: Int -> [Int]
-tileEFits 56 = [1..ntiles]
-tileEFits n  = if (0 `elem` efitlist !! n) then [] else (efitlist !! n)
-
+tileEFits 55 = [1..ntiles]
+tileEFits n  = efitlist !! n
 
 tileWFits :: Int -> [Int]
-tileWFits 56 = [1..ntiles]
-tileWFits n  = if (0 `elem` wfitlist !! n) then [] else (wfitlist !! n)
+tileWFits 55 = [1..ntiles]
+tileWFits n  = wfitlist !! n
 
 initZoneCont :: State -> [Float] -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
 initZoneCont state elev _ _ zg0 []     []     []     _ = zg0

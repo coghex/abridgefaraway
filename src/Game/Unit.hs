@@ -93,9 +93,8 @@ posAction :: Action -> (Float, Float) -> (Float, Float)
 posAction NullAction              pos      = pos
 posAction (Idle pos)              _        = pos
 posAction (MoveTo (dx, dy) speed) (sx, sy) = (sx+rx, sy+ry)
-  where rx   = sf*((x/dist)/32.0)
-        ry   = sf*((y/dist)/32.0)
-        sf   = fromIntegral speed
+  where rx   = speed*((x/dist)/32.0)
+        ry   = speed*((y/dist)/32.0)
         x    = dx-sx
         y    = dy-sy
         dist = zoneLinearDistance (sx, sy) (dx, dy)

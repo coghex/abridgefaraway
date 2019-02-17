@@ -94,15 +94,25 @@ initWorld state env = do
   let o1      = theGreatSeas g2 e1 sunspot
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
-  let testmove = MoveTo { dest     = (30, 24)
-                        , speed    = 1 }
-  let testminion = Unit { unittexs = (envUnitTex  env) !! 2
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = testmove
-                        , zone     = (10, 10)
-                        , position = (24, 24)
-                        , dir      = 7 }
+  let testmove0 = MoveTo { dest     = (30, 24)
+                         , speed    = 1.5 }
+  let testminion0 = Unit { unittexs = (envUnitTex  env) !! 2
+                         , frame    = 0
+                         , unittype = 1
+                         , action   = testmove0
+                         , zone     = (10, 10)
+                         , position = (24, 24)
+                         , dir      = 7 }
+  let testmove1 = MoveTo { dest     = (24, 22)
+                         , speed    = 1.0 }
+  let testminion1 = Unit { unittexs = (envUnitTex  env) !! 2
+                         , frame    = 0
+                         , unittype = 1
+                         , action   = testmove1
+                         , zone     = (10, 10)
+                         , position = (30, 22)
+                         , dir      = 8 }
+
   let testminionnidle = Unit { unittexs = (envUnitTex env) !! 1
                         , frame    = 0
                         , unittype = 1
@@ -214,7 +224,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateZones          = zones
-    , stateUnits          = [testminionnidle, testminionsidle, testminioneidle, testminionwidle, testminionn, testminions, testminione, testminionw, testminionne, testminionnw, testminionse, testminionsw, testminion]
+    , stateUnits          = [testminion0, testminion1]
     }
 
 nextSimState :: State -> Env -> State
