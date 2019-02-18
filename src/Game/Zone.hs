@@ -1,7 +1,7 @@
 module Game.Zone where
 
 import Control.Parallel.Strategies (parMap, rpar)
-import Data.List (zip4, zipWith4, zipWith6)
+import Data.List (zip4, zipWith4, zipWith5, zipWith6)
 import System.Random
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
@@ -276,8 +276,9 @@ initZoneGrid state r e zoneconts = g4
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
-        g3 = zipWith4 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist2
-        g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
+        g3 = zipWith5 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist2 kochance2
+        --g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
+        g4 = iterateGridSolution 200 stdgen1 zoneconts ccards gcards3 g3 rlist3 kochance3
         (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
         (ng, sg, eg, wg) = zoneCardinalsG g0 56
         (ng2, sg2, eg2, wg2) = zoneCardinalsG g2 56
@@ -288,30 +289,44 @@ initZoneGrid state r e zoneconts = g4
         gcards = zip4 ng sg eg wg
         gcards2 = zip4 ng2 sg2 eg2 wg2
         gcards3 = zip4 ng3 sg3 eg3 wg3
-        kochance3 = randomList (0,1) (zoneh*zonew) stdgen0
-        rlist2 = randomList (0, 110) (zoneh*zonew) stdgen1
-        rlist3 = randomList (0, 110) (zoneh*zonew) stdgen2
+        kochance2 = randomList (0,2) (zoneh*zonew) stdgen1
+        kochance3 = randomList (0,2) (zoneh*zonew) stdgen0
+        rlist2 = randomList (0, (ntiles-1)) (zoneh*zonew) stdgen1
+        rlist3 = randomList (0, (ntiles-1)) (zoneh*zonew) stdgen2
         stdgen0 = mkStdGen r
-        (_, stdgen1) = next stdgen0
-        (_, stdgen2) = next stdgen1
+        (_, stdgen1) = split stdgen0
+        (_, stdgen2) = split stdgen1
 
-seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int
-seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r = seedPlainsGrid ng sg eg wg r
-seedZoneGridGaps state (ng, sg, eg, wg) c g  r = g
+seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int -> Int
+seedZoneGridGaps _     (_,  _,  _,  _ ) 3 _  r 1  = r `mod` 6
+seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r ko = seedPlainsGrid ng sg eg wg r
+seedZoneGridGaps state (ng, sg, eg, wg) c g  r ko = g
 
 seedPlainsGrid :: Int -> Int -> Int -> Int -> Int -> Int
 seedPlainsGrid _  _  _  _  r
-  | ((r > 35) && (r < 66)) || 
+  | ((r > 35) && (r < 66)) ||
     ((r > 71) && (r  < 87)) || 
     (r == 93) || (r == 95) || (r == 96) || 
     ((r > 97) && (r < 111))                = (r `mod` 6)
   | otherwise                              = r
 
+iterateGridSolution :: Int -> StdGen -> [Int] -> [(Int, Int, Int, Int)] -> [(Int, Int, Int, Int)] -> [Int] -> [Int] -> [Int] -> [Int]
+iterateGridSolution 0 _      _  _      _      g _ _  = g
+iterateGridSolution n stdgen zc ccards gcards g r ko = iterateGridSolution (n-1) stdgennew zc ccards gcardsnew gnew rnew konew
+  where gnew = zipWith6 solveGridPuzzle zc ccards gcards g r ko
+        gcardsnew = zip4 ng sg eg wg
+        (ng, sg, eg, wg) = zoneCardinalsG gnew 56
+        rnew = randomList (0, (ntiles-1)) (zoneh*zonew) stdgennew
+        (_, stdgennew) = split stdtemp
+        (_, stdtemp) = split stdgen
+        konew = randomList (0,2) (zoneh*zonew) stdtemp
+
 solveGridPuzzle :: Int -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int
-solveGridPuzzle c (nc, sc, ec, wc) (ng, sg, eg, wg) g r ko
+solveGridPuzzle 3 ( 3,  3,  3,  3) (ng, sg, eg, wg) g r ko
   | (g > 35) && (g < 66)                             = g
   | (ko == 1)                                        = g
   | otherwise                                        = bestMove ng sg eg wg g r
+solveGridPuzzle c (nc, sc, ec, wc) (ng, sg, eg, wg) g r ko = g
 
 
 bestMove :: Int -> Int -> Int -> Int -> Int -> Int -> Int
@@ -321,8 +336,16 @@ bestMove ng sg eg wg g r = randbs
         escores = map (eFitScore eg) [0..ntiles]
         wscores = map (wFitScore wg) [0..ntiles]
         cscores = zipWith4 addScores nscores sscores escores wscores
-        bestscs = findBestScores cscores 0
-        randbs  = randScore bestscs r g
+        bestscs = findAllBestScores cscores
+        randbs  = randScores bestscs r g
+
+randScores :: ([Int], [Int], [Int], [Int]) -> Int -> Int -> Int
+randScores (s1, s2, s3, s4) i g
+  | length s1 > 0 = randScore s1 i g
+  | length s2 > 0 = randScore s2 i g
+  | length s3 > 0 = randScore s3 i g
+  | length s4 > 0 = randScore s4 i g
+  | otherwise = 56
 
 randScore :: [Int] -> Int -> Int -> Int
 randScore scores i g
@@ -330,11 +353,14 @@ randScore scores i g
   | otherwise           = g
   where ir = i `mod` (length scores)
 
-findBestScores :: [Int] -> Int -> [Int]
-findBestScores []    _ = []
-findBestScores score n
-  | (head score) == 4 = n : findBestScores (tail score) (n+1)
-  | otherwise         = findBestScores (tail score) (n+1)
+findAllBestScores :: [Int] -> ([Int], [Int], [Int], [Int])
+findAllBestScores score = (findBestScores score 0 4, findBestScores score 0 3, findBestScores score 0 2, findBestScores score 0 1)
+
+findBestScores :: [Int] -> Int -> Int -> [Int]
+findBestScores []    _ _ = []
+findBestScores score n i
+  | (head score) == i = n : findBestScores (tail score) (n+1) i
+  | otherwise         = findBestScores (tail score) (n+1) i
 
 nFitScore :: Int -> Int -> Int
 nFitScore ng g   = if (g `elem` (sfitlist !! ng)) then 1 else 0
