@@ -76,7 +76,9 @@ currentslevel       = 0.02::Float
 zonew = 60::Int
 zoneh = 45::Int
 -- the number of tiles for a zone
-ntiles = 111::Int
+ntiles = 384::Int
+-- this is the null tile
+nulltile = 111::Int
 -- the list of tiles and how they fit together
 nfitlist = [
            [0, 1, 2, 3, 4, 5, 12, 13, 14, 18, 19, 20, 21, 23, 24, 25, 26, 33, 34, 35] --0

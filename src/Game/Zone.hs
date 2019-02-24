@@ -272,7 +272,7 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
-initZoneGrid state r e zoneconts = g4
+initZoneGrid state r e zoneconts = g0
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
@@ -375,11 +375,11 @@ addScores :: Int -> Int -> Int -> Int -> Int
 addScores ns ss es ws = ns + ss + es + ws
 
 blankZoneGrid :: State -> Int -> Int
-blankZoneGrid state 3 = 0
-blankZoneGrid state 4 = 0
-blankZoneGrid state 5 = 0
-blankZoneGrid state 6 = 0
-blankZoneGrid state n = 0
+blankZoneGrid state 3 = nulltile
+blankZoneGrid state 4 = nulltile
+blankZoneGrid state 5 = nulltile
+blankZoneGrid state 6 = nulltile
+blankZoneGrid state n = nulltile
 
 seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedZoneEdges state 3 nc sc ec wc ng sg eg wg

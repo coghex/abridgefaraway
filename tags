@@ -234,7 +234,7 @@ drawZoneTile	src/Game/Zone.hs	86;"	f
 dropEvery	src/Game/Elev.hs	56;"	f
 dynlibdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 eFitScore	src/Game/Zone.hs	369;"	f
-efitlist	src/Game/Settings.hs	309;"	f
+efitlist	src/Game/Settings.hs	311;"	f
 elev	src/Game/Data.hs	34;"	f
 elevBlurMap	src/Game/Elev.hs	104;"	f
 elevDist	src/Game/Zone.hs	251;"	f
@@ -305,7 +305,7 @@ freshTextureFloat	src/GLUtil/Textures.hs	83;"	f
 freshTextureWord8	src/GLUtil/Textures.hs	79;"	f
 fromByteString	src/GLUtil/BufferObjects.hs	51;"	f
 fromForeignPtr	src/GLUtil/BufferObjects.hs	57;"	f
-fromJust	src/Game/Util.hs	436;"	f
+fromJust	src/Game/Util.hs	449;"	f
 fromPtr	src/GLUtil/BufferObjects.hs	43;"	f
 fromSource	src/GLUtil/BufferObjects.hs	88;"	f
 fromVector	src/GLUtil/BufferObjects.hs	63;"	f
@@ -378,6 +378,7 @@ libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/bu
 linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
 linkShaderProgramWith	src/GLUtil/Shaders.hs	47;"	f
 loadFont	src/Game/Font.hs	31;"	f
+loadNTexs	src/Game/Util.hs	334;"	f
 loadShader	src/GLUtil/Shaders.hs	18;"	f
 loadShaderBS	src/GLUtil/Shaders.hs	23;"	f
 loadShaderFamily	src/GLUtil/ShaderProgram.hs	132;"	f
@@ -386,11 +387,11 @@ loadShaderProgramBS	src/GLUtil/ShaderProgram.hs	123;"	f
 loadShaderProgramWith	src/GLUtil/ShaderProgram.hs	96;"	f
 loadShaderProgramWith'	src/GLUtil/ShaderProgram.hs	105;"	f
 loadShaderProgramWithBS	src/GLUtil/ShaderProgram.hs	100;"	f
-loadTex	src/Game/Util.hs	429;"	f
+loadTex	src/Game/Util.hs	442;"	f
 loadTexture	src/GLUtil/Textures.hs	87;"	f
-loadUTextures	src/Game/Util.hs	415;"	f
-loadUnitTextures	src/Game/Util.hs	332;"	f
-loadWTextures	src/Game/Util.hs	306;"	f
+loadUTextures	src/Game/Util.hs	428;"	f
+loadUnitTextures	src/Game/Util.hs	341;"	f
+loadWTextures	src/Game/Util.hs	308;"	f
 loadZTextures	src/Game/Util.hs	65;"	f
 loadedCallback	src/Main.hs	603;"	f
 location	src/GLUtil/Camera3D.hs	29;"	f
@@ -448,11 +449,12 @@ newZone	src/Game/Sky.hs	38;"	f
 nextAction	src/Game/Unit.hs	80;"	f
 nextSimState	src/Game/World.hs	230;"	f
 nextState	src/Game/World.hs	271;"	f
-nfitlist	src/Game/Settings.hs	81;"	f
+nfitlist	src/Game/Settings.hs	83;"	f
 nois	src/Game/Data.hs	37;"	f
 normElev	src/Game/Elev.hs	149;"	f
 normElevCrags	src/Game/Elev.hs	153;"	f
 ntiles	src/Game/Settings.hs	79;"	f
+nulltile	src/Game/Settings.hs	81;"	f
 offset0	src/GLUtil/BufferObjects.hs	82;"	f
 offsetPtr	src/GLUtil/BufferObjects.hs	78;"	f
 orientation	src/GLUtil/Camera3D.hs	28;"	f
@@ -530,7 +532,7 @@ seedZoneGrid	src/Game/Zone.hs	384;"	f
 seedZoneGridGaps	src/Game/Zone.hs	300;"	f
 setAttrib	src/GLUtil/ShaderProgram.hs	192;"	f
 setUniform	src/GLUtil/ShaderProgram.hs	178;"	f
-sfitlist	src/Game/Settings.hs	195;"	f
+sfitlist	src/Game/Settings.hs	197;"	f
 showFloatFoReal	src/Game/Map.hs	184;"	f
 showSec	src/Game/Time.hs	84;"	f
 showXYZ	src/Game/Map.hs	181;"	f
@@ -645,7 +647,7 @@ vx	src/Game/Data.hs	27;"	f
 vy	src/Game/Data.hs	28;"	f
 vz	src/Game/Data.hs	29;"	f
 wFitScore	src/Game/Zone.hs	371;"	f
-wfitlist	src/Game/Settings.hs	423;"	f
+wfitlist	src/Game/Settings.hs	425;"	f
 whileM_	src/Main.hs	336;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
