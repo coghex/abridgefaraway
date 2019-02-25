@@ -272,7 +272,7 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
-initZoneGrid state r e zoneconts = g0
+initZoneGrid state r e zoneconts = g2
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
@@ -298,17 +298,29 @@ initZoneGrid state r e zoneconts = g0
         (_, stdgen2) = split stdgen1
 
 seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int -> Int
-seedZoneGridGaps _     (_,  _,  _,  _ ) 3 _  r 1  = r `mod` 6
-seedZoneGridGaps state (ng, sg, eg, wg) 3 56 r ko = seedPlainsGrid ng sg eg wg r
-seedZoneGridGaps state (ng, sg, eg, wg) c g  r ko = g
+--seedZoneGridGaps _     (_ , _ , _ , _ ) 3 g r 1  = g
+seedZoneGridGaps state (ng, sg, eg, wg) 3 g r ko
+  | (g == nulltile) = seedGaps ng sg eg wg r
+  | otherwise       = g
+seedZoneGridGaps _     (_ , _ , _ , _ ) c g r ko = g
 
-seedPlainsGrid :: Int -> Int -> Int -> Int -> Int -> Int
-seedPlainsGrid _  _  _  _  r
-  | ((r > 35) && (r < 66)) ||
-    ((r > 71) && (r  < 87)) || 
-    (r == 93) || (r == 95) || (r == 96) || 
-    ((r > 97) && (r < 111))                = (r `mod` 6)
-  | otherwise                              = r
+seedGaps :: Int -> Int -> Int -> Int -> Int -> Int
+seedGaps ng sg eg wg r
+  | perfectFit ng sg eg wg 244 = 244
+  | perfectFit ng sg eg wg 245 = 245
+  | perfectFit ng sg eg wg 246 = 246
+  | perfectFit ng sg eg wg 252 = 252
+  | perfectFit ng sg eg wg 260 = 260
+  | otherwise                  = nulltile
+
+perfectFit :: Int -> Int -> Int -> Int -> Int -> Bool
+perfectFit ng sg eg wg n
+  | (ng `elem` nfitn) && (sg `elem` sfitn) && (eg `elem` efitn) && (wg `elem` wfitn) = True
+  | otherwise                                                                        = False
+  where nfitn = []--nfitlist !! n
+        sfitn = []--sfitlist !! n
+        efitn = []--efitlist !! n
+        wfitn = []--wfitlist !! n
 
 iterateGridSolution :: Int -> StdGen -> [Int] -> [(Int, Int, Int, Int)] -> [(Int, Int, Int, Int)] -> [Int] -> [Int] -> [Int] -> [Int]
 iterateGridSolution 0 _      _  _      _      g _ _  = g
@@ -384,47 +396,47 @@ blankZoneGrid state n = nulltile
 seedZoneGrid :: State -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 3 = seedZoneEdges state 3 nc sc ec wc ng sg eg wg
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 4 = 0--seedZoneEdges state 4 nc sc ec wc ng sg eg wg
-seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = seedZoneEdges state 5 nc sc ec wc ng sg eg wg
+seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 5 = 0--seedZoneEdges state 5 nc sc ec wc ng sg eg wg
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) 6 = 0--seedZoneEdges state 6 nc sc ec wc ng sg eg wg
 seedZoneGrid state (nc, sc, ec, wc) (ng, sg, eg, wg) n = 0
 
 seedZoneEdges :: State -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 seedZoneEdges state n nc sc ec wc ng sg eg wg
-  | ((nc /= n) && (sc /= n) && (ec/= n) && (wc /= n))  = 40
-  | ((nc /= n) && (sc /= n) && (ec /= n))              = 50
-  | ((nc /= n) && (sc /= n) &&              (wc /= n)) = 48
-  | ((nc /= n) &&              (ec /= n) && (wc /= n)) = 46
-  |              ((sc /= n) && (ec /= n) && (wc /= n)) = 52
-  | ((nc /= n) && (sc /= n))                           = 51
-  | ((nc /= n) &&              (ec /= n))              = 38
-  | ((nc /= n) &&                           (wc /= n)) = 36
-  |              ((sc /= n) &&              (wc /= n)) = 42
-  |              ((sc /= n) && (ec /= n))              = 44
-  |                           ((ec /= n) && (wc /= n)) = 45
-  | ((nc /= n))                                        = 37
-  |              ((sc /= n))                           = 43
-  |                           ((ec /= n))              = 41
-  |                                        ((wc /= n)) = 39
-  | otherwise                                          = 56
+  | ((nc /= n) && (sc /= n) && (ec/= n) && (wc /= n))  = 225
+  | ((nc /= n) && (sc /= n) && (ec /= n))              = 235
+  | ((nc /= n) && (sc /= n) &&              (wc /= n)) = 233
+  | ((nc /= n) &&              (ec /= n) && (wc /= n)) = 232
+  |              ((sc /= n) && (ec /= n) && (wc /= n)) = 234
+  | ((nc /= n) && (sc /= n))                           = 227
+  | ((nc /= n) &&              (ec /= n))              = 239
+  | ((nc /= n) &&                           (wc /= n)) = 236
+  |              ((sc /= n) &&              (wc /= n)) = 237
+  |              ((sc /= n) && (ec /= n))              = 238
+  |                           ((ec /= n) && (wc /= n)) = 226
+  | ((nc /= n))                                        = 265
+  |              ((sc /= n))                           = 267
+  |                           ((ec /= n))              = 264
+  |                                        ((wc /= n)) = 266
+  | otherwise                                          = nulltile
 
 seedZoneElevGrid :: State -> (Int, Int, Int, Int) -> (Float, Float, Float, Float) -> Float -> Int -> Int
 seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e 56
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 40
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev)                     = 50
-  | ((e-ne) > telev) && ((e-se) > telev) &&                     ((e-we) > telev) = 48
-  | ((e-ne) > telev) &&                     ((e-ee) > telev) && ((e-we) > telev) = 46
-  |                     ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 52
-  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 51
-  | ((e-ne) > telev) && ((e-se) > telev)                                         = 38
-  | ((e-ne) > telev) &&                     ((e-ee) > telev)                     = 36
-  | ((e-ne) > telev) &&                                         ((e-we) > telev) = 42
-  |                     ((e-se) > telev) &&                     ((e-we) > telev) = 44
-  |                                         ((e-ee) > telev) && ((e-we) > telev) = 45
-  | ((e-ne) > telev)                                                             = 37
-  |                     ((e-se) > telev)                                         = 43
-  |                                         ((e-ee) > telev)                     = 41
-  |                                                             ((e-we) > telev) = 39
-  | otherwise                                                                    = 56
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 225
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev)                     = 235
+  | ((e-ne) > telev) && ((e-se) > telev) &&                     ((e-we) > telev) = 233
+  | ((e-ne) > telev) &&                     ((e-ee) > telev) && ((e-we) > telev) = 232
+  |                     ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 234
+  | ((e-ne) > telev) && ((e-se) > telev) && ((e-ee) > telev) && ((e-we) > telev) = 227
+  | ((e-ne) > telev) && ((e-se) > telev)                                         = 239
+  | ((e-ne) > telev) &&                     ((e-ee) > telev)                     = 236
+  | ((e-ne) > telev) &&                                         ((e-we) > telev) = 237
+  |                     ((e-se) > telev) &&                     ((e-we) > telev) = 238
+  |                                         ((e-ee) > telev) && ((e-we) > telev) = 226
+  | ((e-ne) > telev)                                                             = 265
+  |                     ((e-se) > telev)                                         = 267
+  |                                         ((e-ee) > telev)                     = 264
+  |                                                             ((e-we) > telev) = 266
+  | otherwise                                                                    = nulltile
   where telev = 80
 seedZoneElevGrid state (ng, sg, eg, wg) (ne, se, ee, we) e n  = n
 
