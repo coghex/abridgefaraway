@@ -235,6 +235,20 @@ draw SZone state env = do
   let unftime = stateTime newstate
       sun     = stateSun newstate
       zcards  = (head (stateZones state))
+  let z            = grid zcards
+      zc           = cont zcards
+      i            = curx zcards
+      j            = cury zcards
+      (n, s, e, w) = zoneCardinals z
+      (cn, cs, ce, cw) = zoneCardinalsC zc
+      ng           = show $ tapZoneGrid n i j
+      sg           = show $ tapZoneGrid s i j
+      eg           = show $ tapZoneGrid e i j
+      wg           = show $ tapZoneGrid w i j
+      nc           = show $ tapZoneGrid cn i j
+      sc           = show $ tapZoneGrid cs i j
+      ec           = show $ tapZoneGrid ce i j
+      wc           = show $ tapZoneGrid cw i j
   GL.preservingMatrix $ do
     drawZone state (envZTex env)
   GL.preservingMatrix $ do
@@ -242,7 +256,8 @@ draw SZone state env = do
   GL.preservingMatrix $ do
     drawUnits state
   GL.preservingMatrix $ do
-    drawZoneText (envUTex env) (envFontSmall env) (-120) (-40) 36 36 $ [formatTime unftime, "hellollllolloo"]
+    --drawZoneText (envUTex env) (envFontSmall env) (-120) (-20) 36 36 $ [formatTime unftime, ("     n: " ++ nc), ("w: " ++ wc ++ "  e: " ++ ec), ("     s: " ++ sc)]
+    drawZoneText (envUTex env) (envFontSmall env) (-120) (-20) 36 36 $ [formatTime unftime, ("     n: " ++ ng), ("w: " ++ wg ++ "  e: " ++ eg), ("     s: " ++ sg)]
   liftIO $ timerCallback (envEventsChan env) newstate
   liftIO $ unitCallback (envEventsChan env) newunits
 draw SZoneElev state env = do

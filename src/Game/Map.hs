@@ -50,8 +50,8 @@ zoneCardinalsG x n = do
   let nx  = (drop zonew x) ++ (take zonew (repeat n))
       sx  = (take zonew (repeat n)) ++ (take ((zoneh-1)*zonew) x)
       ext = (tail x)
-      ex  = replaceEveryEG 56 zonew x
-      wx  = replaceEveryWG 56 zonew x
+      ex  = replaceEveryEG nulltile zonew x
+      wx  = replaceEveryWG nulltile zonew x
   (nx, sx, ex, wx)
 
 zoneCardinalsE :: [Float] -> ([Float], [Float], [Float], [Float])

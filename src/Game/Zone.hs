@@ -272,17 +272,17 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
-initZoneGrid state r e zoneconts = g2
+initZoneGrid state r e zoneconts = g3
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
-        g3 = zipWith5 (seedZoneGridGaps state) gcards2 zoneconts g2 rlist2 kochance2
+        g3 = zipWith5 (seedZoneGridGaps) gcards2 zoneconts g2 rlist2 kochance2
         --g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
         g4 = iterateGridSolution 200 stdgen1 zoneconts ccards gcards3 g3 rlist3 kochance3
         (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
-        (ng, sg, eg, wg) = zoneCardinalsG g0 56
-        (ng2, sg2, eg2, wg2) = zoneCardinalsG g2 56
-        (ng3, sg3, eg3, wg3) = zoneCardinalsG g3 56
+        (ng, sg, eg, wg) = zoneCardinalsG g0 nulltile
+        (ng2, sg2, eg2, wg2) = zoneCardinals g2
+        (ng3, sg3, eg3, wg3) = zoneCardinals g3
         (ne, se, ee, we) = zoneCardinalsE e
         ecards = zip4 ne se ee we
         ccards = zip4 nc sc ec wc
@@ -297,12 +297,12 @@ initZoneGrid state r e zoneconts = g2
         (_, stdgen1) = split stdgen0
         (_, stdgen2) = split stdgen1
 
-seedZoneGridGaps :: State -> (Int, Int, Int, Int) -> Int -> Int -> Int -> Int -> Int
+seedZoneGridGaps :: (Int, Int, Int, Int) -> Int -> Int -> Int -> Int -> Int
 --seedZoneGridGaps _     (_ , _ , _ , _ ) 3 g r 1  = g
-seedZoneGridGaps state (ng, sg, eg, wg) 3 g r ko
+seedZoneGridGaps (ng, sg, eg, wg) 3 g r ko
   | (g == nulltile) = seedGaps ng sg eg wg r
   | otherwise       = g
-seedZoneGridGaps _     (_ , _ , _ , _ ) c g r ko = g
+seedZoneGridGaps (_ , _ , _ , _ ) c g r ko = g
 
 seedGaps :: Int -> Int -> Int -> Int -> Int -> Int
 seedGaps ng sg eg wg r
@@ -315,12 +315,18 @@ seedGaps ng sg eg wg r
 
 perfectFit :: Int -> Int -> Int -> Int -> Int -> Bool
 perfectFit ng sg eg wg n
-  | (ng `elem` nfitn) && (sg `elem` sfitn) && (eg `elem` efitn) && (wg `elem` wfitn) = True
-  | otherwise                                                                        = False
-  where nfitn = []--nfitlist !! n
-        sfitn = []--sfitlist !! n
-        efitn = []--efitlist !! n
-        wfitn = []--wfitlist !! n
+  | (n `elem` nfitn) && (n `elem` sfitn) && (n `elem` efitn) && (n `elem` wfitn) = True
+  | otherwise                                                                  = False
+  where nfitn = sfitlist !! ng
+        sfitn = nfitlist !! sg
+        efitn = wfitlist !! eg
+        wfitn = efitlist !! wg
+
+elemOrNull :: Int -> [Int] -> Bool
+elemOrNull g fitn
+  | (g == nulltile) = True
+  | (g `elem` fitn) = True
+  | otherwise       = False
 
 iterateGridSolution :: Int -> StdGen -> [Int] -> [(Int, Int, Int, Int)] -> [(Int, Int, Int, Int)] -> [Int] -> [Int] -> [Int] -> [Int]
 iterateGridSolution 0 _      _  _      _      g _ _  = g
