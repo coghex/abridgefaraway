@@ -567,8 +567,8 @@ processEvent ev =
       state <- get
       when (((stateGame state) == SWorld) && (mb == GLFW.MouseButton'1)) $ do
         (x, y) <- liftIO $ GLFW.getCursorPos win
-        let rx        = round $ x - 11.5
-        let ry        = round $ y - 3.0
+        let rx        = round $ (x)
+        let ry        = round $ (y)
         let rrx       = min (gridw-1) rx
         let rry       = min (gridh) ry
         let rrrx      = max 0 rrx
