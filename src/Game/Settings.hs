@@ -77,8 +77,10 @@ zonew = 60::Int
 zoneh = 45::Int
 -- the number of tiles for a zone
 ntiles = 384::Int
--- this is the null tile
+-- this is the null tile, special tile, and the blank tile
 nulltile = 111::Int
+specialtile = 224::Int
+blanktile = 223::Int
 -- the list of tiles and how they fit together
 nfitlist = [
            [0, 1, 3, 5, 6, 8, 9, 11, 13, 14, 17, 18, 19, 21, 22, 25, 26, 27, 29, 30, 35, 43, 51, 59, 67, 75, 83, 91, 98, 99, 106, 107, 108, 109] --0

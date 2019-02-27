@@ -272,14 +272,13 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         noise = getNoise i j perlin
 
 initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
-initZoneGrid state r e zoneconts = g5
+initZoneGrid state r e zoneconts = g4
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
         g3 = zipWith4 (seedZoneGridGaps) gcards2 zoneconts g2 rlist2
         --g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
         g4 = zipWith3 (seedZoneSpaces) gcards3 zoneconts g3
-        g5 = findOpenSpaceChunks 1 2 2 zoneconts g4 stdgen0
         (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
         (ng, sg, eg, wg) = zoneCardinalsG g0 nulltile
         (ng2, sg2, eg2, wg2) = zoneCardinals g2
@@ -296,59 +295,19 @@ initZoneGrid state r e zoneconts = g5
         (_, stdgen1) = split stdgen0
         (_, stdgen2) = split stdgen1
 
-findOpenSpaceChunks :: Int -> Int -> Int -> [Int] -> [Int] -> StdGen -> [Int]
-findOpenSpaceChunks 0 _ _ _ g _ = g
+findOpenSpaceChunks Int -> Int -> Int -> [Int] -> [Int] -> [Int] -> [(Int, Int)]
 findOpenSpaceChunks n w h c g r = findOpenSpaceChunks (n-1) w h c gnew r
   where gnew = findOpenSpaceChunk w h c g r
 
-findOpenSpaceChunk :: Int -> Int -> [Int] -> [Int] -> StdGen -> [Int]
-findOpenSpaceChunk w h c g r
-  | (length ilis) == 0 = g
-  | otherwise          = g4
-  where zg   = expandZone g
-        g1   = zipWith (findOpenSpaceChunkRows w h g) c zg
-        ilis = findSpaces g1
-        i0   = head $ randomList (0, ((length ilis)-1)) 1 r
-        g2   = zipWith (placeBlankSpace w h ilis i0) c zg
-        g3   = stripGrid g2
-        g4   = flattenGrid g3
+findOpenSpaceChunk Int -> Int -> [Int] -> [Int] -> [Int] -> [Int]
+findOpenSpaceChunk w h c g r = ret
+  let zg   = expandZone g
+      g1   = map (findOpenSpaceChunkRows w h zg) g
 
-placeBlankSpace :: Int -> Int -> [(Int, Int)] -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-placeBlankSpace w h ilis i0 3 (g, j)
-  | ((length ilis) <= 0) = (g, j)
-  | otherwise            = ((map (placeBlankSpaceRows w h x y j) g), j)
-  where (x, y) = ilis !! i0
-placeBlankSpace w h ilis i0 _ (g, j) = (g, j)
+findOpenSpaceChunkRows :: Int -> Int -> [Int] -> ([(Int, Int)], Int) -> Int
+findOpenSpaceChunkRows w h zg (g, j) = map (findOpenSpaceChunkSpot w h j zg) g
 
-placeBlankSpaceRows :: Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-placeBlankSpaceRows w h x y j (g, i) = ((placeBlankSpaceSpot w h x y i j g), i)
-
-placeBlankSpaceSpot :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
-placeBlankSpaceSpot w h x y i j g
-  | ((abs (x-i)) < w) && ((abs (y-j)) < h) = specialtile
-  | otherwise                              = g
-
-findSpaces :: [([(Int, Int)], Int)] -> [(Int, Int)]
-findSpaces [] = []
-findSpaces x  = ss
-  where ss  = ret ++ findSpaces (tail x)
-        ret = findSpacesFromRow (head x)
-
-findSpacesFromRow :: ([(Int, Int)], Int) -> [(Int, Int)]
-findSpacesFromRow ([], _) = []
-findSpacesFromRow (x,  j) = ss
-  where ss  = ret ++ findSpacesFromRow ((tail x), j)
-        ret = findSpacesAtSpot j (head x)
-
-findSpacesAtSpot :: Int -> (Int, Int) -> [(Int, Int)]
-findSpacesAtSpot j (1, i) = [(i, j)]
-findSpacesAtSpot _ (_, _) = []
-
-findOpenSpaceChunkRows :: Int -> Int -> [Int] -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-findOpenSpaceChunkRows w h zg 3 (g, j) = ((map (findOpenSpaceChunkSpot w h j zg) g), j)
-findOpenSpaceChunkRows w h zg c (g, j) = (g, j)
-
-findOpenSpaceChunkSpot :: Int -> Int -> Int -> [Int] -> (Int, Int) -> (Int, Int)
+findOpenSpaceChunkSpot :: Int -> Int -> Int -> [Int] -> (Int, Int) -> Int
 findOpenSpaceChunkSpot w h j zg (g, i)
   | (g == blanktile) = (isSpaceEmpty i j w h g zg, i)
   | otherwise        = (0, i)
@@ -356,17 +315,13 @@ findOpenSpaceChunkSpot w h j zg (g, i)
 isSpaceEmpty :: Int -> Int -> Int -> Int -> Int -> [Int] -> Int
 isSpaceEmpty i j 0 h g zg = 1
 isSpaceEmpty i j w h g zg
-  | ((i+1) >= zonew)                       = 0
-  | isSpaceRowEmpty (i+1) j h newg zg == 0 = 0
-  | (newg == blanktile)                    = isSpaceEmpty (i+1) j (w-1) h newg zg
-  | otherwise                              = 0
+  | (newg == blanktile) = isSpaceEmpty (i+1) j (w-1) h newg zg
+  | otherwise           = 0
   where newg = tapZoneGrid zg (i+1) j
 
-isSpaceRowEmpty :: Int -> Int -> Int -> Int -> [Int] -> Int
-isSpaceRowEmpty _ _ 0 _ _  = 1
+isSpaceRowEmpty :: Int -> Int -> Int -> [Int] -> Int
 isSpaceRowEmpty i j h g zg
-  | ((j+1) >= zoneh)    = 0
-  | (newg == blanktile) = isSpaceRowEmpty i (j+1) (h-1) newg zg
+  | (newg == blanktile) = isSpaceRowEmpty i (j+1) w (h-1) newg zg
   | otherwise           = 0
   where newg = tapZoneGrid zg i (j+1)
 
