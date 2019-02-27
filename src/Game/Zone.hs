@@ -10,6 +10,7 @@ import GLUtil.Textures
 import Game.Data
 import Game.State
 import Game.Settings
+import Game.Fits
 import Game.Map
 import Game.Draw
 import Game.Sun

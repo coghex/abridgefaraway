@@ -17,6 +17,10 @@ resequence_ = foldr (>>) (return ())
 theZoom :: Int
 theZoom = max (quot (4192*gridh) screenh) (quot (4192*gridw) screenw)
 
+-- calculates x and y based on glfw mouse cursor position
+--findCursorPoint :: Double -> Double -> (Int, Int)
+--findCursorPoint x y = (rx, ry)
+
 -- returns a cardinal list of elements surrounding each element
 cardinals :: [a] -> ([a], [a], [a], [a])
 cardinals x = do

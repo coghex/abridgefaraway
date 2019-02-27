@@ -17,6 +17,7 @@ executable abfa
         Game.State
         Game.Font
         Game.Settings
+        Game.Fits
         Game.Util
         Game.Rand
         Game.Draw

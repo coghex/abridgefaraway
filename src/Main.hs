@@ -53,10 +53,11 @@ main = do
   -- opens the GLFW and sets the callbacks to handle errors and user input
   withWindow screenw screenh "A Bridge Far Away..." $ \window -> do
     initWindow
-    GLFW.setErrorCallback             $ Just $ errorCallback   eventsChan
-    GLFW.setKeyCallback        window $ Just $ keyCallback     eventsChan
-    GLFW.setWindowSizeCallback window $ Just $ reshapeCallback eventsChan
-    GLFW.setScrollCallback     window $ Just $ scrollCallback  eventsChan
+    GLFW.setErrorCallback              $ Just $ errorCallback       eventsChan
+    GLFW.setKeyCallback         window $ Just $ keyCallback         eventsChan
+    GLFW.setMouseButtonCallback window $ Just $ mouseButtonCallback eventsChan
+    GLFW.setWindowSizeCallback  window $ Just $ reshapeCallback     eventsChan
+    GLFW.setScrollCallback      window $ Just $ scrollCallback      eventsChan
     GLFW.swapInterval 0
 
     -- only loads ttf fonts
@@ -561,6 +562,20 @@ processEvent ev =
                        , stateSkies    = (stateSkies state)
                        --, stateUnits    = (animateUnits state)
                        }
+    -- handles mouse input
+    (EventMouseButton win mb mbs mk) -> do
+      state <- get
+      when (((stateGame state) == SWorld) && (mb == GLFW.MouseButton'1)) $ do
+        (x, y) <- liftIO $ GLFW.getCursorPos win
+        let rx        = round $ x - 11.5
+        let ry        = round $ y - 3.0
+        let rrx       = min (gridw-1) rx
+        let rry       = min (gridh) ry
+        let rrrx      = max 0 rrx
+        let rrry      = max 1 rry
+        liftIO $ print $ "x: " ++ (show rx) ++ " y: " ++ (show (gridh-ry))
+        let newcursor = (rrrx, (gridh - rrry))
+        modify $ \s -> s { stateCursor = newcursor }
     -- handles mouse scrolling
     (EventScroll win x y) -> do
       state <- get
@@ -637,6 +652,9 @@ errorCallback tc e s = atomically $ writeTQueue tc $ EventError e s
 -- registers key states on input
 keyCallback :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys -> IO ()
 keyCallback tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
+-- registers mouse buttons
+mouseButtonCallback :: TQueue Event -> GLFW.Window -> GLFW.MouseButton -> GLFW.MouseButtonState -> GLFW.ModifierKeys -> IO ()
+mouseButtonCallback tc win mb mbs mk = atomically $ writeTQueue tc $ EventMouseButton win mb mbs mk
 -- registers mouse scrolling
 scrollCallback :: TQueue Event -> GLFW.Window -> Double -> Double -> IO () --State -> IO ()
 scrollCallback tc win x y = atomically $ writeTQueue tc $ EventScroll win x y
