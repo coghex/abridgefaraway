@@ -567,13 +567,13 @@ processEvent ev =
       state <- get
       when (((stateGame state) == SWorld) && (mb == GLFW.MouseButton'1)) $ do
         (x, y) <- liftIO $ GLFW.getCursorPos win
-        let rx        = round $ (x)
-        let ry        = round $ (y)
-        let rrx       = min (gridw-1) rx
-        let rry       = min (gridh) ry
+        let rx        = round $ ((fromIntegral theZoom)*x) / 3600.0
+        let ry        = round $ ((fromIntegral theZoom)*y) / 3600.0
+        let rrx       = min (gridw-1) (rx - 11)
+        let rry       = min (gridh) (ry - 2)
         let rrrx      = max 0 rrx
         let rrry      = max 1 rry
-        liftIO $ print $ "x: " ++ (show rx) ++ " y: " ++ (show (gridh-ry))
+        --liftIO $ print $ "x: " ++ (show rrrx) ++ " y: " ++ (show (gridh-rrry))
         let newcursor = (rrrx, (gridh - rrry))
         modify $ \s -> s { stateCursor = newcursor }
     -- handles mouse scrolling
