@@ -64,8 +64,8 @@ isWater _  = False
 
 goodWorld :: State -> Bool
 goodWorld state
-  | (water > (quot (zoneh*zonew) 6)) && (water < ((quot (zoneh*zonew) 3))) = True
-  | otherwise                                                                = False
+  | (water > (quot (gridh*gridw) 6)) && (water < ((2*(quot (gridh*gridw) 3)))) = True
+  | otherwise                                                              = False
   where water      = length waterinmap
         waterinmap = filter (isWater) grid
         grid       = stateGrid state
