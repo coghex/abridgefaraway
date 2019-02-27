@@ -54,7 +54,30 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateZones          = []
     , stateUnits          = []
     }
-  
+
+isWater :: Int -> Bool
+isWater 1  = True
+isWater 7  = True
+isWater 12 = True
+isWater _  = False
+
+goodWorld :: State -> Bool
+goodWorld state
+  | (water > (quot (zoneh*zonew) 6)) && (water < ((quot (zoneh*zonew) 3))) = True
+  | otherwise                                                                = False
+  where water      = length waterinmap
+        waterinmap = filter (isWater) grid
+        grid       = stateGrid state
+
+initGoodWorld :: State -> Env -> State
+initGoodWorld state env = initWorldWithCheck newstate env
+  where newstate = initWorld state env
+
+initWorldWithCheck :: State -> Env -> State
+initWorldWithCheck state env
+  | (goodWorld nextstate) = nextstate
+  | otherwise             = initWorldWithCheck nextstate env
+  where nextstate = regenWorld state env
 
 initWorld :: State -> Env -> State
 initWorld state env = do

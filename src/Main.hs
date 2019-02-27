@@ -388,14 +388,15 @@ processEvent ev =
         -- creates a new world
         when (((stateGame state) == SMenu) && (k == GLFW.Key'C)) $ do
             liftIO $ loadedCallback (envEventsChan env) SLoad
-            let newstate = initWorld state env
+            let newstate = initGoodWorld state env
                 newunits = stateUnits newstate
             -- let the timer know that we have generated a new state
             liftIO $ atomically $ writeTChan (envStateChan2 env) newstate
             liftIO $ atomically $ writeTChan (envUnitChan2 env) newunits
-            modify $ \s -> s { stateGrid = (stateGrid newstate)
-                             , stateElev = (stateElev newstate)
-                             }
+            modify $ \s -> newstate
+            --modify $ \s -> s { stateGrid = (stateGrid newstate)
+            --                 , stateElev = (stateElev newstate)
+            --                 }
         -- regenerates the world
         when (((stateGame state) == SWorld) && (k == GLFW.Key'R)) $ do
             -- stops the timer
