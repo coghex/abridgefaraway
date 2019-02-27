@@ -405,7 +405,8 @@ processEvent ev =
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)
             liftIO $ loadedCallback (envEventsChan env) SLoad
-            let newstate = regenWorld state env
+            --let newstate = regenWorld state env
+            let newstate = initWorldWithCheck state env
             -- just to be sure, we clear the channels again
             liftIO $ emptyChan (envStateChan1 env)
             liftIO $ emptyChan (envStateChan2 env)

@@ -132,7 +132,7 @@ _textRenderer	src/Game/FontData.hs	26;"	f
 abyssopelagic	src/Game/Data.hs	21;"	f
 action	src/Game/Data.hs	57;"	f
 addScores	src/Game/Zone.hs	476;"	f
-adjustWindow	src/Main.hs	563;"	f
+adjustWindow	src/Main.hs	564;"	f
 animateJustUnits	src/Game/Unit.hs	118;"	f
 animateUnit	src/Game/Unit.hs	125;"	f
 animateUnits	src/Game/Unit.hs	121;"	f
@@ -253,7 +253,7 @@ elevZoneRow	src/Game/Zone.hs	240;"	f
 elevZoneTile	src/Game/Zone.hs	243;"	f
 emax	src/Game/Data.hs	35;"	f
 emin	src/Game/Data.hs	36;"	f
-emptyChan	src/Main.hs	553;"	f
+emptyChan	src/Main.hs	554;"	f
 enableAttrib	src/GLUtil/ShaderProgram.hs	207;"	f
 envEventsChan	src/Game/State.hs	19;"	f
 envFontBig	src/Game/State.hs	21;"	f
@@ -275,7 +275,7 @@ eqOceanTemp	src/Game/Ocean.hs	457;"	f
 eqSeaMaybe	src/Game/Ocean.hs	424;"	f
 eqSeaTemp	src/Game/Ocean.hs	467;"	f
 erosion	src/Game/Settings.hs	32;"	f
-errorCallback	src/Main.hs	610;"	f
+errorCallback	src/Main.hs	611;"	f
 evalAction	src/Game/Unit.hs	74;"	f
 evalUnit	src/Game/Unit.hs	58;"	f
 evalUnits	src/Game/Unit.hs	53;"	f
@@ -376,7 +376,7 @@ initSkyHum	src/Game/Sky.hs	54;"	f
 initSkyPres	src/Game/Sky.hs	51;"	f
 initSkyTemp	src/Game/Sky.hs	47;"	f
 initTexs	src/Game/Util.hs	46;"	f
-initWindow	src/Main.hs	580;"	f
+initWindow	src/Main.hs	581;"	f
 initWorld	src/Game/World.hs	82;"	f
 initWorldWithCheck	src/Game/World.hs	76;"	f
 initZoneBlurElev	src/Game/Zone.hs	218;"	f
@@ -386,7 +386,7 @@ isSpaceEmpty	src/Game/Zone.hs	356;"	f
 isSpaceRowEmpty	src/Game/Zone.hs	365;"	f
 isWater	src/Game/World.hs	58;"	f
 iterateGridSolution	src/Game/Zone.hs	415;"	f
-keyCallback	src/Main.hs	613;"	f
+keyCallback	src/Main.hs	614;"	f
 l	src/Game/Moon.hs	13;"	f
 l	src/Game/Sun.hs	13;"	f
 libdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
@@ -409,7 +409,7 @@ loadUTextures	src/Game/Util.hs	428;"	f
 loadUnitTextures	src/Game/Util.hs	341;"	f
 loadWTextures	src/Game/Util.hs	308;"	f
 loadZTextures	src/Game/Util.hs	65;"	f
-loadedCallback	src/Main.hs	619;"	f
+loadedCallback	src/Main.hs	620;"	f
 location	src/GLUtil/Camera3D.hs	29;"	f
 lowstratosphere	src/Game/Data.hs	8;"	f
 lowtroposphere	src/Game/Data.hs	5;"	f
@@ -518,7 +518,7 @@ replaceEveryWC	src/Game/Map.hs	83;"	f
 replaceEveryWG	src/Game/Map.hs	93;"	f
 replaceVector	src/GLUtil/BufferObjects.hs	71;"	f
 resequence_	src/Game/Map.hs	13;"	f
-reshapeCallback	src/Main.hs	616;"	f
+reshapeCallback	src/Main.hs	617;"	f
 resizeScene	src/Game/Util.hs	34;"	f
 rightward	src/GLUtil/Camera3D.hs	27;"	f
 roll	src/GLUtil/Camera2D.hs	31;"	f
@@ -645,7 +645,7 @@ tiltGlobalRad	src/GLUtil/Camera3D.hs	73;"	f
 tiltRad	src/GLUtil/Camera3D.hs	60;"	f
 time	src/Game/Data.hs	49;"	f
 timedLoop	src/Main.hs	343;"	f
-timerCallback	src/Main.hs	622;"	f
+timerCallback	src/Main.hs	623;"	f
 track	src/GLUtil/Camera2D.hs	20;"	f
 tupMap	src/Game/Map.hs	220;"	f
 unUL	src/GLUtil/Shaders.hs	75;"	f
@@ -654,7 +654,7 @@ uniformMat	src/GLUtil/Shaders.hs	105;"	f
 uniformScalar	src/GLUtil/Shaders.hs	79;"	f
 uniformVec	src/GLUtil/Shaders.hs	85;"	f
 uniforms	src/GLUtil/ShaderProgram.hs	37;"	f
-unitCallback	src/Main.hs	625;"	f
+unitCallback	src/Main.hs	626;"	f
 unitState	src/Game/Unit.hs	18;"	f
 unitTime	src/Game/Time.hs	15;"	f
 unittexs	src/Game/Data.hs	54;"	f
@@ -678,7 +678,7 @@ withTextures2D	src/GLUtil/Textures.hs	153;"	f
 withTexturesAt	src/GLUtil/Textures.hs	160;"	f
 withVAO	src/GLUtil/VertexArrayObjects.hs	24;"	f
 withViewport	src/GLUtil/Viewport.hs	10;"	f
-withWindow	src/Main.hs	596;"	f
+withWindow	src/Main.hs	597;"	f
 workRows	src/Game/Map.hs	205;"	f
 workZoneRows	src/Game/Map.hs	198;"	f
 x	src/Game/Moon.hs	10;"	f
