@@ -14,7 +14,7 @@ screenh = 1440::Int
 -- 30 and 60 should work
 fps = 30.0::Double
 -- the bigger the map the more zoom you need, soon to be controlled by keys
-zoom = 120::Float
+--zoom = 120::Float
 -- the precision of floating point numbers
 precision = 2::Int
 -- fudges various lists to avoid NPE

@@ -56,6 +56,7 @@ main = do
     GLFW.setErrorCallback             $ Just $ errorCallback   eventsChan
     GLFW.setKeyCallback        window $ Just $ keyCallback     eventsChan
     GLFW.setWindowSizeCallback window $ Just $ reshapeCallback eventsChan
+    GLFW.setScrollCallback     window $ Just $ scrollCallback  eventsChan
     GLFW.swapInterval 0
 
     -- only loads ttf fonts
@@ -430,6 +431,13 @@ processEvent ev =
         -- displays the ocean currents with arrows
         when (((stateGame state) == SWorld) && (k == GLFW.Key'I)) $ do
             modify $ \s -> s { stateGame = SLoadSeaCurrents }
+        -- zooms in and out of the zone screens
+        when (((stateGame state) == SZone) && (k == GLFW.Key'PadAdd)) $ do
+            let zoom = stateZoom state
+            modify $ \s -> s { stateZoom = (zoom-5.0) }
+        when (((stateGame state) == SZone) && (k == GLFW.Key'PadSubtract)) $ do
+            let zoom = stateZoom state
+            modify $ \s -> s { stateZoom = (zoom+5.0) }
         -- moves the cursor with left, right, up, down, or h,l,k,j
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
@@ -499,9 +507,16 @@ processEvent ev =
         -- exits zone view into world view
         when (((stateGame state) == SZone) && (k == GLFW.Key'Escape)) $ do
             modify $ \s -> s { stateGame = SWorld }
+      -- these will preform more movement if you hold down the keys
       when (ks == GLFW.KeyState'Repeating) $ do
         state <- get
         env   <- ask
+        when (((stateGame state) == SZone) && (k == GLFW.Key'PadAdd)) $ do
+            let zoom = stateZoom state
+            modify $ \s -> s { stateZoom = (zoom-10.0) }
+        when (((stateGame state) == SZone) && (k == GLFW.Key'PadSubtract)) $ do
+            let zoom = stateZoom state
+            modify $ \s -> s { stateZoom = (zoom+10.0) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
         when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
@@ -546,6 +561,15 @@ processEvent ev =
                        , stateSkies    = (stateSkies state)
                        --, stateUnits    = (animateUnits state)
                        }
+    -- handles mouse scrolling
+    (EventScroll win x y) -> do
+      state <- get
+      when (((stateGame state) == SZone) && ((stateZoom state) > 20) && (y > 0)) $ do
+        let zoom = (stateZoom state) - (10*(realToFrac y))
+        modify $ \s -> s { stateZoom     = zoom }
+      when (((stateGame state) == SZone) && ((stateZoom state) < 500) && (y < 0)) $ do
+        let zoom = (stateZoom state) - (10*(realToFrac y))
+        modify $ \s -> s { stateZoom     = zoom }
     -- changes the units in the state when the move
     (EventUpdateUnits units) -> do
       modify $ \s -> s { stateUnits    = units }
@@ -613,6 +637,9 @@ errorCallback tc e s = atomically $ writeTQueue tc $ EventError e s
 -- registers key states on input
 keyCallback :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys -> IO ()
 keyCallback tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
+-- registers mouse scrolling
+scrollCallback :: TQueue Event -> GLFW.Window -> Double -> Double -> IO () --State -> IO ()
+scrollCallback tc win x y = atomically $ writeTQueue tc $ EventScroll win x y
 -- called when the window is resized
 reshapeCallback :: TQueue Event -> GLFW.Window -> Int -> Int -> IO ()
 reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h

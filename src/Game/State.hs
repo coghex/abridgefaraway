@@ -38,6 +38,7 @@ data State = State
   , stateStdGens        :: ![StdGen]
   , stateScreenW        :: !Int
   , stateScreenH        :: !Int
+  , stateZoom           :: !Float
   , stateGrid           :: ![Int]
   , stateOG             :: ![Int]
   , stateElev           :: ![Int]

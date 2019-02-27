@@ -21,6 +21,7 @@ unitState state units = State
   , stateStdGens        = stateStdGens state
   , stateScreenW        = stateScreenW state
   , stateScreenH        = stateScreenH state
+  , stateZoom           = stateZoom state
   , stateGrid           = stateGrid state
   , stateOG             = stateOG state
   , stateElev           = stateElev state
@@ -113,7 +114,8 @@ drawUnit :: State -> Unit -> IO ()
 drawUnit state unit = do
   let texs = unittexs unit
       (camx, camy, _) = getZoneCam (head (stateZones state))
-  withTextures2D [(head texs)] $ drawUnitTile [(head texs)] camx camy unit
+      zoom = stateZoom state
+  withTextures2D [(head texs)] $ drawUnitTile [(head texs)] camx camy zoom unit
 
 animateJustUnits :: [Unit] -> [Unit]
 animateJustUnits units = map animateUnit units
@@ -149,8 +151,8 @@ frameCounter len frame
   | frame >= len = 0
   | otherwise    = frame+1
 
-drawUnitTile :: [GL.TextureObject] -> Float -> Float -> Unit -> IO ()
-drawUnitTile tex camx camy unit = do
+drawUnitTile :: [GL.TextureObject] -> Float -> Float -> Float -> Unit -> IO ()
+drawUnitTile tex camx camy zoom unit = do
   glLoadIdentity
   glTranslatef (2*((tx) - ((fromIntegral zonew)/2))) (2*((ty) - ((fromIntegral zoneh)/2))) (-zoom/4)
   glColor3f 1.0 1.0 1.0

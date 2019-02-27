@@ -24,17 +24,18 @@ drawZoneElev state texs = do
       nulltex            = texs !! 10
       emin0              = emin (head (stateZones state))
       emax0              = emax (head (stateZones state))
-  resequence_ (map (drawZoneElevRow nulltex camx camy camz emin0 emax0) gnew)
+      zoom               = stateZoom state
+  resequence_ (map (drawZoneElevRow nulltex camx camy camz emin0 emax0 zoom) gnew)
   glFlush
 
-drawZoneElevRow :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> ([(Float, Int)], Int) -> IO ()
-drawZoneElevRow texs camx camy camz emin emax (t1, t2) = resequence_ (map (drawZoneElevSpot texs camx camy camz emin emax t2) t1)
+drawZoneElevRow :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Float -> ([(Float, Int)], Int) -> IO ()
+drawZoneElevRow texs camx camy camz emin emax zoom (t1, t2) = resequence_ (map (drawZoneElevSpot texs camx camy camz emin emax t2 zoom) t1)
 
-drawZoneElevSpot :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> (Float, Int) -> IO ()
-drawZoneElevSpot texs camx camy camz emax emin y (t, x) = withTextures2D texs $ drawZoneElevTile texs camx camy camz emax emin x y t
+drawZoneElevSpot :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> Float -> (Float, Int) -> IO ()
+drawZoneElevSpot texs camx camy camz emax emin y zoom (t, x) = withTextures2D texs $ drawZoneElevTile texs camx camy camz emax emin x y t zoom
 
-drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> Int -> Float -> IO ()
-drawZoneElevTile texs camx camy camz emax emin x y t = do
+drawZoneElevTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> Int -> Float -> Float -> IO ()
+drawZoneElevTile texs camx camy camz emax emin x y t zoom = do
   glLoadIdentity
   glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
   glColor3f elev elev $ elevZoneOcean t elev
@@ -60,15 +61,16 @@ drawZone state texs = do
       zcnew              = expandZone $ (cont currzone)
       zgnew              = expandZone $ (grid currzone)
       zgzip              = zip zgnew zcnew
-  resequence_ (map (drawZoneRow texs camx camy camz sun) zgzip)
+      zoom               = stateZoom state
+  resequence_ (map (drawZoneRow texs camx camy camz sun zoom) zgzip)
   glFlush
 
-drawZoneRow :: [[GL.TextureObject]] -> Float -> Float -> Int -> Float -> (([(Int, Int)], Int), ([(Int, Int)], Int)) -> IO ()
-drawZoneRow texs camx camy camz sun ((a, y), (b, _)) = resequence_ (map (drawZoneSpot texs camx camy camz sun y) newzgzip)
+drawZoneRow :: [[GL.TextureObject]] -> Float -> Float -> Int -> Float -> Float -> (([(Int, Int)], Int), ([(Int, Int)], Int)) -> IO ()
+drawZoneRow texs camx camy camz sun zoom ((a, y), (b, _)) = resequence_ (map (drawZoneSpot texs camx camy camz sun zoom y) newzgzip)
   where newzgzip = zip a b
 
-drawZoneSpot :: [[GL.TextureObject]] -> Float -> Float -> Int -> Float -> Int -> ((Int, Int), (Int, Int)) -> IO ()
-drawZoneSpot texs camx camy camz sun y ((g, x), (c, _)) = withTextures2D tex $ drawZoneTile tex camx camy camz sun x y
+drawZoneSpot :: [[GL.TextureObject]] -> Float -> Float -> Int -> Float -> Float -> Int -> ((Int, Int), (Int, Int)) -> IO ()
+drawZoneSpot texs camx camy camz sun zoom y ((g, x), (c, _)) = withTextures2D tex $ drawZoneTile tex camx camy camz sun zoom x y
   where tex = [((texs !! c) !! g)]
 
 drawZoneCursor :: State -> [[GL.TextureObject]] -> IO ()
@@ -81,10 +83,11 @@ drawZoneCursor state texs = do
       sunspots           = stateSunSpots state
       (camx, camy, camz) = getZoneCam currzone
       currzone           = head zgs
-  withTextures2D (head texs) $ drawZoneTile (head texs) camx camy camz (sun) cx cy
+      zoom               = stateZoom state
+  withTextures2D (head texs) $ drawZoneTile (head texs) camx camy camz (sun) zoom cx cy
 
-drawZoneTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Int -> Int -> IO ()
-drawZoneTile texs camx camy 0 sun x y = do
+drawZoneTile :: [GL.TextureObject] -> Float -> Float -> Int -> Float -> Float -> Int -> Int -> IO ()
+drawZoneTile texs camx camy 0 sun zoom x y = do
   glLoadIdentity
   glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
   glColor3f t1 t2 t3
