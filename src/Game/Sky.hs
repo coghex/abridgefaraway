@@ -44,15 +44,15 @@ drawSkyTile n texs x y (Sky lt mt ht ls hs) = do
   glLoadIdentity
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   case n of 1     -> case (lt) of Land t              -> glColor3f 1.0 1.0 1.0
-                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/18.0)-1) (abs (((t+2)-18.0)/18.0)) (1.0-((t+2)/18.0))
+                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/18.0)-1) (1.0 - (abs (((t+2)-18.0)/18.0))) (1.0-((t+2)/18.0))
             2000  -> case (mt) of Land t              -> glColor3f 1.0 1.0 1.0
-                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (abs (((t+2)-8.0)/8.0)) (1.0-((t+2)/8.0))
+                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
             8000  -> case (ht) of Land t              -> glColor3f 1.0 1.0 1.0
-                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (abs (((t+2)-8.0)/8.0)) (1.0-((t+2)/8.0))
+                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
             16000 -> case (ht) of Land t              -> glColor3f 1.0 1.0 1.0
-                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (abs (((t+2)-8.0)/8.0)) (1.0-((t+2)/8.0))
+                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
             24000 -> case (ht) of Land t              -> glColor3f 1.0 1.0 1.0
-                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (abs (((t+2)-8.0)/8.0)) (1.0-((t+2)/8.0))
+                                  SkyZone t _ _ _ _ _ -> glColor3f (((t+2)/8.0)-1) (1.0 - (abs (((t+2)-8.0)/8.0))) (1.0-((t+2)/8.0))
   drawSkySquare
   where thiszoom = fromIntegral theZoom
 
