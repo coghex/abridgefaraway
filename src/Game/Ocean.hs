@@ -4,7 +4,6 @@ import Numeric (showFFloat)
 import Data.List
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies (parMap, rpar)
-import Game.Map
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import GLUtil.Textures
@@ -80,12 +79,12 @@ drawOceanCurrentsTile n texs x y (OceanZone _ _ _ vx vy vz)
   | (vx < (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!14)] $ drawOceanCurrentsTileTex n (((-vx)+(-vy))/(sqrt 2)) vz texs x y
   | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!19)] $ drawOceanCurrentsTileTex n vx                       vz texs x y
   | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!15)] $ drawOceanCurrentsTileTex n (-vy)                    vz texs x y
-  | otherwise                                                = withTextures2D [(texs!!1)]  $ drawVZTile vz texs x y
+  | otherwise                                                = withTextures2D [(texs!!21)]  $ drawVZTile vz texs x y
 
 drawOceanCurrentsBackgroundTile :: [GL.TextureObject] -> Int -> Int -> OceanZone -> IO ()
 drawOceanCurrentsBackgroundTile texs x y (Solid _)                = withTextures2D [(texs!!10)] $ drawNullTile texs x y
 drawOceanCurrentsBackgroundTile texs x y (Ice _)                  = withTextures2D [(texs!!11)] $ drawNullTile texs x y
-drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ vz) = withTextures2D [(texs!!1)] $ drawVZTile vz texs x y
+drawOceanCurrentsBackgroundTile texs x y (OceanZone _ _ _ _ _ vz) = withTextures2D [(texs!!21)] $ drawVZTile vz texs x y
 
 drawOceanCurrentsTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawOceanCurrentsTileTex 1    size vz texs x y = do
@@ -176,13 +175,13 @@ drawOceanTile n texs x y (Dry _) = do
 drawOceanSquare :: IO ()
 drawOceanSquare = do
   glBegin GL_QUADS
-  glTexCoord2f   0    0
-  glVertex3f   (-1) (-1)  1
-  glTexCoord2f   1    0
-  glVertex3f     1  (-1)  1
-  glTexCoord2f   1    1
-  glVertex3f     1    1   1
   glTexCoord2f   0    1
+  glVertex3f   (-1) (-1)  1
+  glTexCoord2f   1    1
+  glVertex3f     1  (-1)  1
+  glTexCoord2f   1    0
+  glVertex3f     1    1   1
+  glTexCoord2f   0    0
   glVertex3f   (-1)   1   1
   glEnd
 
@@ -288,8 +287,8 @@ getZoneTempForSure (OceanZone t _ _ _ _ _) ot = t
 
 getZoneTempMaybe :: OceanZone -> String
 getZoneTempMaybe o = case (o) of OceanZone t _ _ _ _ _ -> showFloatFoReal $ roundTo precision t
-                                 Solid     t           -> "Solid Rock Temp:" ++ (showFloatFoReal $ roundTo precision t)
-                                 Ice       t           -> "Solid Ice Temp" ++ (showFloatFoReal $ roundTo precision t)
+                                 Solid     t           -> "Solid Rock Temp: " ++ (showFloatFoReal $ roundTo precision t)
+                                 Ice       t           -> "Solid Ice Temp: " ++ (showFloatFoReal $ roundTo precision t)
 
 getZone :: Int -> Ocean -> OceanZone
 getZone n    (Dry t)         = Solid t

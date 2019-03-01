@@ -31,6 +31,7 @@ import Game.Time
 import Game.Moon
 import Game.Sun
 import Game.Ocean
+import Game.Sky
 import Game.Map
 import Game.Zone
 import Game.Data
@@ -195,6 +196,11 @@ draw SLoadSeaTemp state env = do
   drawText (envFontBig env) 1 95 72 72 "Loading..."
   drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Temperatures..."
   liftIO $ loadedCallback (envEventsChan env) SSeaTemp
+draw SLoadSkyTemp state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Air Temperatures..."
+  liftIO $ loadedCallback (envEventsChan env) SSkyTemp
 draw SLoadSeaCurrents state env = do
   beginDrawText
   drawText (envFontBig env) 1 95 72 72 "Loading..."
@@ -333,6 +339,24 @@ draw SSeaCurrents state env = do
   GL.preservingMatrix $ do
     drawCursor state (envWTex env)
   liftIO $ timerCallback (envEventsChan env) newstate
+draw SSkyTemp state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  -- the ocean temp z will give the temperature of the 5 different zones of the sea
+  drawText (envFontSmall env) (-120) (-55) 36 36 $ formatSkyTemp (stateSkyTempZ state) (stateSkies state) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawSky state (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
 draw _ _ _ = do
   -- i have yet to see this called, that is good...
   print "fuck"
@@ -432,6 +456,9 @@ processEvent ev =
         -- displays the ocean currents with arrows
         when (((stateGame state) == SWorld) && (k == GLFW.Key'I)) $ do
             modify $ \s -> s { stateGame = SLoadSeaCurrents }
+        -- displays the air temp in C at 5 different altitudes
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'T)) $ do
+            modify $ \s -> s { stateGame = SLoadSkyTemp }
         -- zooms in and out of the zone screens
         when (((stateGame state) == SZone) && (k == GLFW.Key'PadAdd)) $ do
             let zoom = stateZoom state
@@ -440,22 +467,22 @@ processEvent ev =
             let zoom = stateZoom state
             modify $ \s -> s { stateZoom = (zoom+5.0) }
         -- moves the cursor with left, right, up, down, or h,l,k,j
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) South) }
         -- moves the cursor 10 with the shift key
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- moves the camera when in a zone
         when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Left)))) $ do
@@ -490,6 +517,9 @@ processEvent ev =
         -- exits the sea currents screen
         when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'I) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
+        -- exits the sky temperature screen
+        when (((stateGame state) == SSkyTemp) && ((k == GLFW.Key'T) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SWorld }
         -- moves the Z level of the Sea currents viewer up
         when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'U))) $ do
             modify $ \s -> s { stateOceanCurrentsZ = (decreaseOceanZ (stateOceanCurrentsZ state)) }
@@ -502,6 +532,12 @@ processEvent ev =
         -- moves the Z level of the Sea temp viewer down
         when (((stateGame state) == SSeaTemp) && ((k == GLFW.Key'M))) $ do
             modify $ \s -> s { stateOceanTempZ = (increaseOceanZ (stateOceanTempZ state)) }
+        -- moves the Z level of the Sky temp viewer up
+        when (((stateGame state) == SSkyTemp) && ((k == GLFW.Key'U))) $ do
+            modify $ \s -> s { stateSkyTempZ = (decreaseSkyZ (stateSkyTempZ state)) }
+        -- moves the Z level of the Sky temp viewer down
+        when (((stateGame state) == SSkyTemp) && ((k == GLFW.Key'M))) $ do
+            modify $ \s -> s { stateSkyTempZ = (increaseSkyZ (stateSkyTempZ state)) }
         -- exits the game, in future, this should save
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Escape)) $ do
             liftIO $ GLFW.setWindowShouldClose window True

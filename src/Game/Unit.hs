@@ -43,6 +43,7 @@ unitState state units = State
   , stateOceanTempZ     = stateOceanTempZ state
   , stateOceanCurrentsZ = stateOceanCurrentsZ state
   , stateSkies          = stateSkies state
+  , stateSkyTempZ       = stateSkyTempZ state
   , stateZones          = stateZones state
   , stateUnits          = units }
 
