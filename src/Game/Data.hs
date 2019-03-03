@@ -8,7 +8,7 @@ data Sky = Sky { lowtroposphere   :: SkyZone
                , lowstratosphere  :: SkyZone
                , highstratosphere :: SkyZone
                } deriving (Show, Eq)
-data SkyZone = Land Float | SkyZone { stemp :: Float
+data SkyZone = Land Float | Space Float | SkyZone { stemp :: Float
                                      , bar   :: Float
                                      , hum   :: Float
                                      , svx   :: Float

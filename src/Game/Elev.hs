@@ -166,6 +166,8 @@ getElev e0 x y = do
 formatElev :: [Int] -> (Int, Int) -> String
 formatElev e (x, y) = "Elev: " ++ (show (getElev e x y))
 
+normalizeElevs :: [Int] -> [Int]
+normalizeElevs e = map (subSeaLevel) e
 
-
-
+subSeaLevel :: Int -> Int
+subSeaLevel e = e - (round sealevel)
