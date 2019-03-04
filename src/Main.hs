@@ -116,7 +116,7 @@ main = do
     -- the timer is forked initially stopped.  100 is pretty fast, 1000 is 1 game min = 1 real sec
     -- the timer state is not guaranteed to be correct, some things dont make sense
     -- for it to deal with and so it doesnt.
-    forkIO $ (gameTime env state 1200 TStop)
+    forkIO $ (gameTime env state 1000 TStop)
     -- this timer is for movement and for more time critical operations
     forkIO $ (unitTime env state 10 TStop)
     -- runs the whole monad

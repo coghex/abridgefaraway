@@ -364,7 +364,7 @@ calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
         ps  = getSkyP p0 zs
         pe  = getSkyP p0 ze
         pw  = getSkyP p0 zw
-        nn  = 1.0+fromIntegral(n)*0.04
+        nn  = 100.0+fromIntegral(n)*0.04
 
 calcLight :: Float -> Float -> Float
 calcLight l lat = l*(0.2+(cos (1.5*pi*(lat/((fromIntegral gridh))))))
@@ -373,10 +373,14 @@ pvnrtSky :: Int -> Float -> Float -> Int -> Ocean -> Float -> SkyZone -> SkyZone
 pvnrtSky 1 p t e (Sea ep _ _ _ _) l z za zb zn zs ze zw = ((t*specificheatofair)+(newt)+(ot))/(specificheatofair+2)
   where ot = getOTemp ep
         h  = hum z
-        newt = p*0.02 + ((l-0.5)*(1-h))
+        newt = p*0.01 + ((l-1)*(1-h))
+pvnrtSky 1 p t e (Dry te)         l z za zb zn zs ze zw = ((t*specificheatofair)+(newt)+(et))/(specificheatofair+1)
+  where h  = hum z
+        et = te
+        newt = p*0.01 + (40*(l-1)*(1-h))
 pvnrtSky n p t e _                l z za zb zn zs ze zw = ((t*specificheatofair)+(newt))/(specificheatofair+1)
   where h  = hum z
-        newt = p*0.02 + (10*(l-0.5)*(1-h))
+        newt = p*0.01 + (0.2*(l-1)*(1-h)) - 40
 
 pSkyZone :: Int -> Float -> SkyZone -> Int -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
 pSkyZone n p z e za zb zn zs ze zw = ((p*momentumofair) + pbase + pn + ps + pe + pw)/(momentumofair+5)
