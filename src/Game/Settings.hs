@@ -62,7 +62,7 @@ momentumofair       = 100::Float
 clarityofwater      = 0.5::Float
 -- the strength of the tides
 tidalstrength       = 0.2::Float
--- the strength of the coriolis effect on water
+-- the strength of the coriolis effect on fluids
 coriolispower       = 0.1::Float
 -- freezing point of water
 freezingpoint       = -1.1::Float

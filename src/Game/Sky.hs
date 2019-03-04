@@ -106,14 +106,14 @@ drawWindBackgroundSpot 16000 texs y ((Sky  _  _  _ ls  _), x) = drawWindBackgrou
 drawWindBackgroundSpot 24000 texs y ((Sky  _  _  _  _ hs), x) = drawWindBackgroundTile texs x y hs
 
 drawWindBackgroundTile :: [GL.TextureObject] -> Int -> Int -> SkyZone -> IO ()
-drawWindBackgroundTile texs x y (Land _)               = drawNullTile texs x y
-drawWindBackgroundTile texs x y (SkyZone _ _ _ _ _ vz) = drawVZTile vz texs x y
+drawWindBackgroundTile texs x y (Land _)               = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawWindBackgroundTile texs x y (SkyZone _ _ _ _ _ vz) = withTextures2D [(texs!!10)] $ drawVZTile vz texs x y
 
 drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawVZTile vz texs x y = do
   glLoadIdentity
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
-  glColor3f vz vz 1.0
+  glColor3f vz 1.0 1.0
   drawSkySquare
   where thiszoom = fromIntegral theZoom
 
@@ -136,7 +136,7 @@ drawWindTileTex 1     size vz texs x y = do
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz vz 1.0
+  glColor3f vz 1.0 1.0
   drawSkySquare
   GL.depthFunc GL.$= Nothing
   where currentszoom = min 1 (max (size*6) 0)
@@ -146,7 +146,7 @@ drawWindTileTex 2000  size vz texs x y = do
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz vz 1.0
+  glColor3f vz 1.0 1.0
   drawSkySquare
   GL.depthFunc GL.$= Nothing
   where currentszoom = min 1 (max (size) 0)
@@ -156,7 +156,7 @@ drawWindTileTex 8000  size vz texs x y = do
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz vz 1.0
+  glColor3f vz 1.0 1.0
   drawSkySquare
   GL.depthFunc GL.$= Nothing
   where currentszoom = min 1 (max (size) 0)
@@ -166,7 +166,7 @@ drawWindTileTex n     size vz texs x y = do
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz vz 1.0
+  glColor3f vz 1.0 1.0
   drawSkySquare
   GL.depthFunc GL.$= Nothing
   where currentszoom = min 1 (max (size) 0)
@@ -354,7 +354,7 @@ getSkyP p0 (SkyZone _ p _ _ _ _) = p
 
 calcWindV :: Int -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> (Float, Float, Float)
 calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = min nn (max (((pw-p0)-(pe-p0))-(coriolispower*(cos (2*pi*(lat/((fromIntegral gridh))))))) (-nn))
+  where nvx = min nn (max (((pw-p0)-(pe-p0))-(10*coriolispower*(cos (2/3*pi*(lat/((fromIntegral gridh))))))) (-nn))
         nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
         nvz = min nn (max ((pa - p0) - (pb - p0)) (-nn))
         p0  = getSkyP 0.0 z
