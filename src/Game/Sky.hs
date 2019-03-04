@@ -40,11 +40,11 @@ drawSkyRow n texs (a, b) = resequence_ (map (drawSkySpot n texs b) a)
 drawSkySpot :: Int -> [GL.TextureObject] -> Int -> (Sky, Int) -> IO ()
 drawSkySpot n texs y (s, x) = withTextures2D [(texs!!10)] $ drawSkyTile n texs x y s
 
-drawNullTile :: [GL.TextureObject] -> Int -> Int -> IO ()
-drawNullTile texs x y = do
+drawNullTile :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> Int -> IO ()
+drawNullTile n texs g e x y = do
   glLoadIdentity
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
-  glColor3f 1.0 1.0 1.0
+  setWindColor n 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   where thiszoom = fromIntegral theZoom
 
@@ -82,94 +82,135 @@ drawWind :: State -> [GL.TextureObject] -> IO ()
 drawWind state texs = do
   let snew = expandGrid $ stateSkies state
       n    = stateWindZ state
-  resequence_ ((map (drawWindBackgroundRow n texs) snew) ++ (map (drawWindRow n texs) snew))
+      g    = stateGrid state
+      e    = stateElev state
+  resequence_ ((map (drawWindBackgroundRow n texs g e) snew) ++ (map (drawWindRow n texs g e) snew))
   glFlush
 
-drawWindRow :: Int -> [GL.TextureObject] -> ([(Sky, Int)], Int) -> IO ()
-drawWindRow n texs (a, b) = resequence_ (map (drawWindSpot n texs b) a)
+drawWindRow :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> ([(Sky, Int)], Int) -> IO ()
+drawWindRow n texs g e (a, b) = resequence_ (map (drawWindSpot n texs g e b) a)
 
-drawWindBackgroundRow :: Int -> [GL.TextureObject] -> ([(Sky, Int)], Int) -> IO ()
-drawWindBackgroundRow n texs (a, b) = resequence_ (map (drawWindBackgroundSpot n texs b) a)
+drawWindBackgroundRow :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> ([(Sky, Int)], Int) -> IO ()
+drawWindBackgroundRow n texs g e (a, b) = resequence_ (map (drawWindBackgroundSpot n texs g e b) a)
 
-drawWindSpot :: Int -> [GL.TextureObject] -> Int -> (Sky, Int) -> IO ()
-drawWindSpot 1     texs y ((Sky lt  _  _  _  _), x) = drawWindTile 1     texs x y lt
-drawWindSpot 2000  texs y ((Sky  _ mt  _  _  _), x) = drawWindTile 2000  texs x y mt
-drawWindSpot 8000  texs y ((Sky  _  _ ht  _  _), x) = drawWindTile 8000  texs x y ht
-drawWindSpot 16000 texs y ((Sky  _  _  _ ls  _), x) = drawWindTile 16000 texs x y ls
-drawWindSpot 24000 texs y ((Sky  _  _  _  _ hs), x) = drawWindTile 24900 texs x y hs
+drawWindSpot :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> (Sky, Int) -> IO ()
+drawWindSpot 1     texs g e y ((Sky lt  _  _  _  _), x) = drawWindTile 1     texs g e x y lt
+drawWindSpot 2000  texs g e y ((Sky  _ mt  _  _  _), x) = drawWindTile 2000  texs g e x y mt
+drawWindSpot 8000  texs g e y ((Sky  _  _ ht  _  _), x) = drawWindTile 8000  texs g e x y ht
+drawWindSpot 16000 texs g e y ((Sky  _  _  _ ls  _), x) = drawWindTile 16000 texs g e x y ls
+drawWindSpot 24000 texs g e y ((Sky  _  _  _  _ hs), x) = drawWindTile 24900 texs g e x y hs
 
-drawWindBackgroundSpot :: Int -> [GL.TextureObject] -> Int -> (Sky, Int) -> IO ()
-drawWindBackgroundSpot 1     texs y ((Sky lt  _  _  _  _), x) = drawWindBackgroundTile texs x y lt
-drawWindBackgroundSpot 2000  texs y ((Sky  _ mt  _  _  _), x) = drawWindBackgroundTile texs x y mt
-drawWindBackgroundSpot 8000  texs y ((Sky  _  _ ht  _  _), x) = drawWindBackgroundTile texs x y ht
-drawWindBackgroundSpot 16000 texs y ((Sky  _  _  _ ls  _), x) = drawWindBackgroundTile texs x y ls
-drawWindBackgroundSpot 24000 texs y ((Sky  _  _  _  _ hs), x) = drawWindBackgroundTile texs x y hs
+drawWindBackgroundSpot :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> (Sky, Int) -> IO ()
+drawWindBackgroundSpot 1     texs g e y ((Sky lt  _  _  _  _), x) = drawWindBackgroundTile 1     texs g e x y lt
+drawWindBackgroundSpot 2000  texs g e y ((Sky  _ mt  _  _  _), x) = drawWindBackgroundTile 2000  texs g e x y mt
+drawWindBackgroundSpot 8000  texs g e y ((Sky  _  _ ht  _  _), x) = drawWindBackgroundTile 8000  texs g e x y ht
+drawWindBackgroundSpot 16000 texs g e y ((Sky  _  _  _ ls  _), x) = drawWindBackgroundTile 16000 texs g e x y ls
+drawWindBackgroundSpot 24000 texs g e y ((Sky  _  _  _  _ hs), x) = drawWindBackgroundTile 24000 texs g e x y hs
 
-drawWindBackgroundTile :: [GL.TextureObject] -> Int -> Int -> SkyZone -> IO ()
-drawWindBackgroundTile texs x y (Land _)               = withTextures2D [(texs!!10)] $ drawNullTile texs x y
-drawWindBackgroundTile texs x y (SkyZone _ _ _ _ _ vz) = withTextures2D [(texs!!10)] $ drawVZTile vz texs x y
+drawWindBackgroundTile :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> Int -> SkyZone -> IO ()
+drawWindBackgroundTile n texs g e x y (Land _)               = withTextures2D [(texs!!10)] $ drawNullTile n texs g e x y
+drawWindBackgroundTile n texs g e x y (SkyZone _ _ _ _ _ vz) = withTextures2D [(texs!!10)] $ drawVZTile n vz texs g e x y
 
-drawVZTile :: Float -> [GL.TextureObject] -> Int -> Int -> IO ()
-drawVZTile vz texs x y = do
+drawVZTile :: Int -> Float -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> Int -> IO ()
+drawVZTile n vz texs g e x y = do
   glLoadIdentity
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
-  glColor3f vz 1.0 1.0
+  setWindColor n 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   where thiszoom = fromIntegral theZoom
 
-drawWindTile :: Int -> [GL.TextureObject] -> Int -> Int -> SkyZone -> IO ()
-drawWindTile n texs x y (Land _)                             = withTextures2D [(texs!!10)] $ drawNullTile texs x y
-drawWindTile n texs x y (SkyZone _ _ _ vx vy vz)
-  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!26)] $ drawWindTileTex n vy                       vz texs x y
-  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!27)] $ drawWindTileTex n ((vx+vy)/(sqrt 2))       vz texs x y
-  | (vx > (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!25)] $ drawWindTileTex n (((-vx)+vy)/(sqrt 2))    vz texs x y
-  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!22)] $ drawWindTileTex n (-vy)                    vz texs x y
-  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!28)] $ drawWindTileTex n ((vx+(-vy))/(sqrt 2))    vz texs x y
-  | (vx > (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!23)] $ drawWindTileTex n (((-vx)+(-vy))/(sqrt 2)) vz texs x y
-  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!27)] $ drawWindTileTex n vx                       vz texs x y
-  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!24)] $ drawWindTileTex n (-vy)                    vz texs x y
-  | otherwise                                                = withTextures2D [(texs!!30)] $ drawVZTile vz texs x y
+setWindColor :: Int -> Float -> Int -> Int -> IO ()
+setWindColor n     vz 1 _ = glColor3f vz       1.0 1.0
+setWindColor n     vz 7 _ = glColor3f vz       1.0 1.0
+setWindColor 1     vz g e
+  | e < 1     = glColor3f vz       1.0 1.0
+  | e < 2000  = glColor3f (0.5*vz) 0.5 0.5
+  | e < 8000  = glColor3f (0.0*vz) 0.0 0.0
+  | e < 16000 = glColor3f (0.0*vz) 0.0 0.0
+  | e < 24000 = glColor3f (0.0*vz) 0.0 0.0
+  | otherwise = glColor3f 0.0      0.0 0.0
+setWindColor 2000  vz g e
+  | e < 1     = glColor3f vz       1.0 1.0
+  | e < 2000  = glColor3f (0.6*vz) 0.6 0.6
+  | e < 8000  = glColor3f (0.2*vz) 0.2 0.2
+  | e < 16000 = glColor3f (0.0*vz) 0.0 0.0
+  | e < 24000 = glColor3f (0.0*vz) 0.0 0.0
+  | otherwise = glColor3f 0.0      0.0 0.0
+setWindColor 8000  vz g e
+  | e < 1     = glColor3f vz       1.0 1.0
+  | e < 2000  = glColor3f (0.8*vz) 0.8 0.8
+  | e < 8000  = glColor3f (0.5*vz) 0.5 0.5
+  | e < 16000 = glColor3f (0.2*vz) 0.2 0.2
+  | e < 24000 = glColor3f (0.0*vz) 0.0 0.0
+  | otherwise = glColor3f 0.0      0.0 0.0
+setWindColor 16000 vz g e
+  | e < 1     = glColor3f vz       1.0 1.0
+  | e < 2000  = glColor3f (1.0*vz) 1.0 1.0
+  | e < 8000  = glColor3f (0.8*vz) 0.8 0.8
+  | e < 16000 = glColor3f (0.5*vz) 0.5 0.5
+  | e < 24000 = glColor3f (0.2*vz) 0.2 0.2
+  | otherwise = glColor3f 0.0      0.0 0.0
+setWindColor 24000 vz g e
+  | e < 1     = glColor3f vz       1.0 1.0
+  | e < 2000  = glColor3f (1.0*vz) 1.0 1.0
+  | e < 8000  = glColor3f (1.0*vz) 1.0 1.0
+  | e < 16000 = glColor3f (0.8*vz) 0.8 0.8
+  | e < 24000 = glColor3f (0.5*vz) 0.5 0.5
+  | otherwise = glColor3f 0.2      0.2 0.2
 
-drawWindTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
-drawWindTileTex 1     size vz texs x y = do
+drawWindTile :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> Int -> SkyZone -> IO ()
+drawWindTile n texs g e x y (Land _)                             = withTextures2D [(texs!!10)] $ drawNullTile n texs g e x y
+drawWindTile n texs g e x y (SkyZone _ _ _ vx vy vz)
+  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!26)] $ drawWindTileTex n vy                       vz g e texs x y
+  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!27)] $ drawWindTileTex n ((vx+vy)/(sqrt 2))       vz g e texs x y
+  | (vx > (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!25)] $ drawWindTileTex n (((-vx)+vy)/(sqrt 2))    vz g e texs x y
+  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!22)] $ drawWindTileTex n (-vy)                    vz g e texs x y
+  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!28)] $ drawWindTileTex n ((vx+(-vy))/(sqrt 2))    vz g e texs x y
+  | (vx > (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!23)] $ drawWindTileTex n (((-vx)+(-vy))/(sqrt 2)) vz g e texs x y
+  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!27)] $ drawWindTileTex n vx                       vz g e texs x y
+  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!24)] $ drawWindTileTex n (-vy)                    vz g e texs x y
+  | otherwise                                                = withTextures2D [(texs!!30)] $ drawVZTile n vz texs g e x y
+
+drawWindTileTex :: Int -> Float -> Float -> [Int] -> [Int] -> [GL.TextureObject] -> Int -> Int -> IO ()
+drawWindTileTex 1     size vz g e texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz 1.0 1.0
+  setWindColor 1 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   GL.depthFunc GL.$= Nothing
-  where currentszoom = min 1 (max (size*6) 0)
+  where currentszoom = min 1 (max (size*0.06) 0)
         thiszoom     = fromIntegral theZoom
-drawWindTileTex 2000  size vz texs x y = do
+drawWindTileTex 2000  size vz g e texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz 1.0 1.0
+  setWindColor 2000 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   GL.depthFunc GL.$= Nothing
-  where currentszoom = min 1 (max (size) 0)
+  where currentszoom = min 1 (max (size*0.01) 0)
         thiszoom     = fromIntegral theZoom
-drawWindTileTex 8000  size vz texs x y = do
+drawWindTileTex 8000  size vz g e texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz 1.0 1.0
+  setWindColor 8000 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   GL.depthFunc GL.$= Nothing
-  where currentszoom = min 1 (max (size) 0)
+  where currentszoom = min 1 (max (size*0.01) 0)
         thiszoom     = fromIntegral theZoom
-drawWindTileTex n     size vz texs x y = do
+drawWindTileTex n     size vz g e texs x y = do
   glLoadIdentity
   GL.depthFunc GL.$= Nothing
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glScalef (currentszoom) (currentszoom) (currentszoom)
-  glColor3f vz 1.0 1.0
+  setWindColor n 1.0 (tapGrid g x y) ((tapGrid e x y)-(round sealevel))
   drawSkySquare
   GL.depthFunc GL.$= Nothing
-  where currentszoom = min 1 (max (size) 0)
+  where currentszoom = min 1 (max (size*0.01) 0)
         thiszoom     = fromIntegral theZoom
 
 formatSkyTemp :: Int -> [Sky] -> (Int, Int) -> String
