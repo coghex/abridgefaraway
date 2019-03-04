@@ -52,8 +52,12 @@ history = 200::Int
 specificheatofwater = 1009::Float
 -- how hard it is to heat the earth
 specificheatofterra = 777::Float
+-- how hard it is to heat air
+specificheatofair   = 200::Float
 -- how hard it is to move the oceans
 momentumofwater     = 912::Float
+-- how hard it is to move the air
+momentumofair       = 100::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- the strength of the tides

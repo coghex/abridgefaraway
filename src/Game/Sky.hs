@@ -95,28 +95,28 @@ newSkies o g e l = zipWith4 newSky o g ne l
 
 newSky :: Ocean -> Int -> Int -> Float -> Sky
 newSky o g e l
- | (e > 2000) && (e < 8000)   = Sky { lowtroposphere   = Land 1.0
+ | (e > 2000) && (e < 8000)   = Sky { lowtroposphere   = Land 20.0
                                     , midtroposphere   = newZone o g e l 2000  0 0 0
                                     , hightroposphere  = newZone o g e l 8000  0 0 0
                                     , lowstratosphere  = newZone o g e l 16000 0 0 0
                                     , highstratosphere = newZone o g e l 24000 0 0 0
                                     }
- | (e > 8000) && (e < 16000)  = Sky { lowtroposphere   = Land 1.0
-                                    , midtroposphere   = Land 1.0
+ | (e > 8000) && (e < 16000)  = Sky { lowtroposphere   = Land 20.0
+                                    , midtroposphere   = Land 20.0
                                     , hightroposphere  = newZone o g e l 8000  0 0 0
                                     , lowstratosphere  = newZone o g e l 16000 0 0 0
                                     , highstratosphere = newZone o g e l 24000 0 0 0
                                     }
- | (e > 16000) && (e < 24000) = Sky { lowtroposphere   = Land 1.0
-                                    , midtroposphere   = Land 1.0
-                                    , hightroposphere  = Land 1.0
+ | (e > 16000) && (e < 24000) = Sky { lowtroposphere   = Land 20.0
+                                    , midtroposphere   = Land 20.0
+                                    , hightroposphere  = Land 20.0
                                     , lowstratosphere  = newZone o g e l 16000 0 0 0
                                     , highstratosphere = newZone o g e l 24000 0 0 0
                                     }
- | (e > 24000)                = Sky { lowtroposphere   = Land 1.0
-                                    , midtroposphere   = Land 1.0
-                                    , hightroposphere  = Land 1.0
-                                    , lowstratosphere  = Land 1.0
+ | (e > 24000)                = Sky { lowtroposphere   = Land 20.0
+                                    , midtroposphere   = Land 20.0
+                                    , hightroposphere  = Land 20.0
+                                    , lowstratosphere  = Land 20.0
                                     , highstratosphere = newZone o g e l 24000 0 0 0
                                     }
  | otherwise                  = Sky { lowtroposphere   = newZone o g e l 1     0 0 0
@@ -174,47 +174,47 @@ decreaseSkyZ 16000 = 24000
 decreaseSkyZ 24000 = 24000
 decreaseSkyZ x     = x
 
-tempSky :: [Sky] -> [Ocean] -> [Float] -> [Float] -> [Sky]
-tempSky s o l ml = do
+tempSky :: [Sky] -> [Ocean] -> [Int] -> [Float] -> [Float] -> [Sky]
+tempSky s o e l ml = do
   let (sn, ss, se, sw) = cardinals s
   let xys           = yList
-  map eqSkyTemp (zip7 s sn ss se sw (zip3 o l ml) xys)
+  map eqSkyTemp (zip7 s sn ss se sw (zip4 o e l ml) xys)
 
-eqSkyTemp :: (Sky, Sky, Sky, Sky, Sky, (Ocean, Float, Float), Int) -> Sky
-eqSkyTemp ((Sky lt mt ht ls hs), sn, ss, se, sw, (o, l, ml), y) = Sky { lowtroposphere   = eqAirTemp 1     l ml lat lt (Land 1) mt        o sn ss se sw
-                                                                      , midtroposphere   = eqAirTemp 2000  l ml lat mt lt       ht        o sn ss se sw
-                                                                      , hightroposphere  = eqAirTemp 8000  l ml lat ht mt       ls        o sn ss se sw
-                                                                      , lowstratosphere  = eqAirTemp 16000 l ml lat ls ht       hs        o sn ss se sw
-                                                                      , highstratosphere = eqAirTemp 24000 l ml lat hs ls       (Space 1) o sn ss se sw
-                                                                      }
+eqSkyTemp :: (Sky, Sky, Sky, Sky, Sky, (Ocean, Int, Float, Float), Int) -> Sky
+eqSkyTemp ((Sky lt mt ht ls hs), sn, ss, se, sw, (o, e, l, ml), y) = Sky { lowtroposphere   = eqAirTemp 1     e l ml lat lt (Land 1) mt        o sn ss se sw
+                                                                         , midtroposphere   = eqAirTemp 2000  e l ml lat mt lt       ht        o sn ss se sw
+                                                                         , hightroposphere  = eqAirTemp 8000  e l ml lat ht mt       ls        o sn ss se sw
+                                                                         , lowstratosphere  = eqAirTemp 16000 e l ml lat ls ht       hs        o sn ss se sw
+                                                                         , highstratosphere = eqAirTemp 24000 e l ml lat hs ls       (Space 1) o sn ss se sw
+                                                                         }
   where lat = abs (fromIntegral (y) - (fromIntegral (gridh) / 2))
 
-eqAirTemp :: Int -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> Ocean -> Sky -> Sky -> Sky -> Sky -> SkyZone
-eqAirTemp n l ml lat z za zb o sn ss se sw = case (eqAirMaybe n l ml lat z za zb o sn ss se sw) of
-                                               Nothing -> Land terratemp
-                                               Just z  -> z
+eqAirTemp :: Int -> Int -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> Ocean -> Sky -> Sky -> Sky -> Sky -> SkyZone
+eqAirTemp n e l ml lat z za zb o sn ss se sw = case (eqAirMaybe n e l ml lat z za zb o sn ss se sw) of
+                                                 Nothing -> Land terratemp
+                                                 Just z  -> z
 
-eqAirMaybe :: Int -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> Ocean -> Sky -> Sky -> Sky -> Sky -> Maybe SkyZone
-eqAirMaybe n l ml lat z za zb o sn ss se sw = case (z) of
-                                                Land t -> Just ( tempLand n t lat z za zb zn zs ze zw)
-                                                SkyZone t p h svx svy svz -> Just ( newSkyZone n t p h svx svy svz z za zb zn zs ze zw lat l)
+eqAirMaybe :: Int -> Int -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> Ocean -> Sky -> Sky -> Sky -> Sky -> Maybe SkyZone
+eqAirMaybe n e l ml lat z za zb o sn ss se sw = case (z) of
+                                                  Land t -> Just ( tempLand n t lat z za zb zn zs ze zw)
+                                                  SkyZone t p h svx svy svz -> Just ( newSkyZone n t p h o svx svy svz z za zb zn zs ze zw lat e l)
   where zn = getSkyZone n sn
         zs = getSkyZone n ss
         ze = getSkyZone n se
         zw = getSkyZone n sw
 
-newSkyZone :: Int -> Float -> Float -> Float -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float -> Float -> SkyZone
-newSkyZone n t p h svx0 svy0 svz0 z za zb zn zs ze zw lat l = SkyZone { stemp = newt
-                                                            , bar   = newp
-                                                            , hum   = newh
-                                                            , svx   = svx
-                                                            , svy   = svy
-                                                            , svz   = svz
-                                                            }
+newSkyZone :: Int -> Float -> Float -> Float -> Ocean -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float -> Int -> Float -> SkyZone
+newSkyZone n t p h o svx0 svy0 svz0 z za zb zn zs ze zw lat e l = SkyZone { stemp = newt
+                                                                          , bar   = newp
+                                                                          , hum   = newh
+                                                                          , svx   = svx
+                                                                          , svy   = svy
+                                                                          , svz   = svz
+                                                                          }
   where (svx, svy, svz) = calcWindV n l lat z za zb zn zs ze zw
-        newt            = (pvnrtSky n p t norml z za zb zn zs ze zw)
-        newp            = (pSkyZone n p z za zb zn zs ze zw)
-        newh            = (humSkyZone n h z za zb zn zs ze zw)
+        newt            = (pvnrtSky n p t e o norml z za zb zn zs ze zw)
+        newp            = (pSkyZone n p z e za zb zn zs ze zw)
+        newh            = (humSkyZone n t h o z za zb zn zs ze zw)
         norml           = calcLight l lat
 
 getSkyZone :: Int -> Sky -> SkyZone
@@ -238,6 +238,10 @@ tempLand n t0 lat z za zb zn zs ze zw = Land ((specificheatofterra*(t0+tterra) +
         te     = getSkyT t0 ze
         tw     = getSkyT t0 zw
 
+getWind :: (Float, Float, Float) -> SkyZone -> (Float, Float, Float)
+getWind (vx0, vy0, vz0) (Land _)                 = (0.0, 0.0, 0.0)
+getWind (vx0, vy0, vz0) (SkyZone _ _ _ vx vy vz) = ( vx,  vy,  vz)
+
 getSkyT :: Float -> SkyZone -> Float
 getSkyT t0 (Land t)              = t
 getSkyT t0 (SkyZone t _ _ _ _ _) = t
@@ -252,8 +256,8 @@ calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
         nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
         nvz = min nn (max ((pa - p0) - (pb - p0)) (-nn))
         p0  = getSkyP 0.0 z
-        pa  = (getSkyP p0 za) - (fromIntegral(decreaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
-        pb  = (getSkyP p0 zb) - (fromIntegral(increaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
+        pa  = (getSkyP p0 za) - (fromIntegral(increaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
+        pb  = (getSkyP p0 zb) - (fromIntegral(decreaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
         pn  = getSkyP p0 zn
         ps  = getSkyP p0 zs
         pe  = getSkyP p0 ze
@@ -263,11 +267,40 @@ calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
 calcLight :: Float -> Float -> Float
 calcLight l lat = l*(0.2+(cos (1.5*pi*(lat/((fromIntegral gridh))))))
 
-pvnrtSky :: Int -> Float -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
-pvnrtSky n p t l z za zb zn zs ze zw = t
+pvnrtSky :: Int -> Float -> Float -> Int -> Ocean -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
+pvnrtSky 1 p t e (Sea ep _ _ _ _) l z za zb zn zs ze zw = ((t*specificheatofair)+(newt)+(ot))/(specificheatofair+2)
+  where ot = getOTemp ep
+        h  = hum z
+        newt = p*0.02 + ((l-0.5)*(1-h))
+pvnrtSky n p t e _                l z za zb zn zs ze zw = ((t*specificheatofair)+(newt))/(specificheatofair+1)
+  where h  = hum z
+        newt = p*0.02 + (10*(l-0.5)*(1-h))
 
-pSkyZone :: Int -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
-pSkyZone n p z za zb zn zs ze zw = p
+pSkyZone :: Int -> Float -> SkyZone -> Int -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
+pSkyZone n p z e za zb zn zs ze zw = ((p*momentumofair) + pbase + pn + ps + pe + pw)/(momentumofair+5)
+  where pbase = 1000.0 - (0.04*(fromIntegral n))
+        pn    = (1+((-vyn)/momentumofair))*(getSkyP p zn)
+        ps    = (1+(vys/momentumofair))*(getSkyP p zs)
+        pe    = (1+((-vxe)/momentumofair))*(getSkyP p ze)
+        pw    = (1+(vxw/momentumofair))*(getSkyP p zw)
+        ( vx,  vy,  vz) = getWind (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getWind ( vx,  vy,  vz) za
+        (vxb, vyb, vzb) = getWind ( vx,  vy,  vz) zb
+        (vxn, vyn, vzn) = getWind ( vx,  vy,  vz) zn
+        (vxs, vys, vzs) = getWind ( vx,  vy,  vz) zs
+        (vxe, vye, vze) = getWind ( vx,  vy,  vz) ze
+        (vxw, vyw, vzw) = getWind ( vx,  vy,  vz) zw
 
-humSkyZone :: Int -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
-humSkyZone n h z za zb zn zs ze zw = h
+humSkyZone :: Int -> Float-> Float -> Ocean -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
+humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh)/(specificheatofair+1)
+  where maxh = min 1.0 (max 0.1 ((30.0-t) / 30.0))
+        ot   = getOTemp ep
+        newh = min (ot/30.0) maxh
+humSkyZone n t h (Dry _)          z za zb zn zs ze zw = ((h*specificheatofair)+newh)/(specificheatofair+1)
+  where maxh = min 1.0 (max 0.1 ((30.0-t) / 30.0))
+        newh = maxh
+
+getOTemp :: OceanZone -> Float
+getOTemp (Solid t)               = t
+getOTemp (Ice   t)               = t
+getOTemp (OceanZone t _ _ _ _ _) = t

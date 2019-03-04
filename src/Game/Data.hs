@@ -9,12 +9,12 @@ data Sky = Sky { lowtroposphere   :: SkyZone
                , highstratosphere :: SkyZone
                } deriving (Show, Eq)
 data SkyZone = Land Float | Space Float | SkyZone { stemp :: Float
-                                     , bar   :: Float
-                                     , hum   :: Float
-                                     , svx   :: Float
-                                     , svy   :: Float
-                                     , svz   :: Float
-                                     } deriving (Show, Eq)
+                                                  , bar   :: Float
+                                                  , hum   :: Float
+                                                  , svx   :: Float
+                                                  , svy   :: Float
+                                                  , svz   :: Float
+                                                  } deriving (Show, Eq)
 data Ocean = Dry Float | Sea { epipelagic    :: OceanZone
                              , mesopelagic   :: OceanZone
                              , bathypelagic  :: OceanZone
