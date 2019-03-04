@@ -328,9 +328,18 @@ loadWTextures fn = do
   t18 <- loadTex (fn ++ "sea/sease.png")
   t19 <- loadTex (fn ++ "sea/seae.png")
   t20 <- loadTex (fn ++ "sea/seane.png")
-  t21  <- loadTex (fn ++ "sea/wseacurrent.png")
+  t21 <- loadTex (fn ++ "sea/wseacurrent.png")
+  t22 <- loadTex (fn ++ "sky/skyn.png")
+  t23 <- loadTex (fn ++ "sky/skynw.png")
+  t24 <- loadTex (fn ++ "sky/skyw.png")
+  t25 <- loadTex (fn ++ "sky/skysw.png")
+  t26 <- loadTex (fn ++ "sky/skys.png")
+  t27 <- loadTex (fn ++ "sky/skyse.png")
+  t28 <- loadTex (fn ++ "sky/skye.png")
+  t29 <- loadTex (fn ++ "sky/skyne.png")
+  t30 <- loadTex (fn ++ "sky/sky.png")
 
-  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21])
+  return ([t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30])
 
 loadNTexs :: Int -> String -> [TextureObject] -> IO ([TextureObject])
 loadNTexs 0 _  texs = return texs

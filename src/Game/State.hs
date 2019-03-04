@@ -12,7 +12,7 @@ import Game.Sun
 import Game.Moon
 import Game.Data
 
-data GameState  = SWorld | SElev | SSeaTemp | SSeaCurrents | SSkyTemp | SZone | SZoneElev | SMenu | SLoad | SLoadTime | SLoadZone | SLoadElev | SLoadZoneElev | SLoadSeaTemp | SLoadSeaCurrents | SLoadSkyTemp | SFucked | SPause deriving (Eq, Show)
+data GameState  = SWorld | SElev | SSeaTemp | SSeaCurrents | SSkyTemp | SWind | SRain | SZone | SZoneElev | SMenu | SLoad | SLoadTime | SLoadZone | SLoadElev | SLoadZoneElev | SLoadSeaTemp | SLoadSeaCurrents | SLoadSkyTemp | SLoadWind | SLoadRain | SFucked | SPause deriving (Eq, Show)
 data TimerState = TStart | TStop | TPause
 
 data Env = Env
@@ -61,6 +61,7 @@ data State = State
   , stateOceanCurrentsZ :: !Int
   , stateSkies          :: ![Sky]
   , stateSkyTempZ       :: !Int
+  , stateWindZ          :: !Int
   , stateZones          :: ![Zone]
   , stateUnits          :: ![Unit]
   } deriving (Show)

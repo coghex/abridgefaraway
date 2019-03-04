@@ -53,6 +53,7 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateOceanCurrentsZ = 1
     , stateSkies          = []
     , stateSkyTempZ       = 1
+    , stateWindZ          = 1
     , stateZones          = []
     , stateUnits          = []
     }
@@ -110,6 +111,7 @@ initWorld state env = do
       seacz   = stateOceanCurrentsZ state
       skies   = stateSkies          state
       skyz    = stateSkyTempZ       state
+      windz   = stateWindZ          state
       zones   = stateZones          state
       units   = stateUnits          state
 
@@ -252,6 +254,7 @@ initWorld state env = do
     , stateOceanCurrentsZ = seacz
     , stateSkies          = s1
     , stateSkyTempZ       = skyz
+    , stateWindZ          = windz
     , stateZones          = zones
     , stateUnits          = [testminion0, testminion1]
     }
@@ -285,6 +288,7 @@ nextSimState state env = State
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = newss
     , stateSkyTempZ       = stateSkyTempZ state
+    , stateWindZ          = stateWindZ state
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where
@@ -329,6 +333,7 @@ nextState state env = State
     , stateOceanCurrentsZ = stateOceanCurrentsZ state
     , stateSkies          = newss
     , stateSkyTempZ       = stateSkyTempZ state
+    , stateWindZ          = stateWindZ state
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where

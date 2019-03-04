@@ -118,17 +118,9 @@ drawVZTile vz texs x y = do
   where thiszoom = fromIntegral theZoom
 
 drawWindTile :: Int -> [GL.TextureObject] -> Int -> Int -> SkyZone -> IO ()
-drawWindTile n texs x y (Land _)                             = withTextures2D [(texs!!10)] $ drawNullTile texs x y
+drawWindTile n texs x y (Land _)                       = withTextures2D [(texs!!10)] $ drawNullTile texs x y
 drawWindTile n texs x y (SkyZone _ _ _ vx vy vz)
-  | ((abs vx) < currentslevel) && (vy > currentslevel)       = withTextures2D [(texs!!26)] $ drawWindTileTex n vy                       vz texs x y
-  | (vx > currentslevel)       && (vy > currentslevel)       = withTextures2D [(texs!!27)] $ drawWindTileTex n ((vx+vy)/(sqrt 2))       vz texs x y
-  | (vx > (-currentslevel))    && (vy > currentslevel)       = withTextures2D [(texs!!25)] $ drawWindTileTex n (((-vx)+vy)/(sqrt 2))    vz texs x y
-  | ((abs vx) < currentslevel) && (vy < (-currentslevel))    = withTextures2D [(texs!!22)] $ drawWindTileTex n (-vy)                    vz texs x y
-  | (vx > currentslevel)       && (vy < (-currentslevel))    = withTextures2D [(texs!!28)] $ drawWindTileTex n ((vx+(-vy))/(sqrt 2))    vz texs x y
-  | (vx > (-currentslevel))    && (vy < (-currentslevel))    = withTextures2D [(texs!!23)] $ drawWindTileTex n (((-vx)+(-vy))/(sqrt 2)) vz texs x y
-  | (vx > currentslevel)       && ((abs vy) < currentslevel) = withTextures2D [(texs!!27)] $ drawWindTileTex n vx                       vz texs x y
-  | (vx < (-currentslevel))    && ((abs vy) < currentslevel) = withTextures2D [(texs!!24)] $ drawWindTileTex n (-vy)                    vz texs x y
-  | otherwise                                                = withTextures2D [(texs!!30)] $ drawVZTile vz texs x y
+  | ((abs vx) < currentslevel) && (vy > currentslevel) = withTextures2D [(texs!!26)] $ drawWindTileTex n vy vz texs x y
 
 drawWindTileTex :: Int -> Float -> Float -> [GL.TextureObject] -> Int -> Int -> IO ()
 drawWindTileTex 1     size vz texs x y = do
@@ -340,9 +332,9 @@ tempLand n t0 lat z za zb zn zs ze zw = Land ((specificheatofterra*(t0+tterra) +
         te     = getSkyT t0 ze
         tw     = getSkyT t0 zw
 
-getWindV :: (Float, Float, Float) -> SkyZone -> (Float, Float, Float)
-getWindV (vx0, vy0, vz0) (Land _)                 = (0.0, 0.0, 0.0)
-getWindV (vx0, vy0, vz0) (SkyZone _ _ _ vx vy vz) = ( vx,  vy,  vz)
+getWind :: (Float, Float, Float) -> SkyZone -> (Float, Float, Float)
+getWind (vx0, vy0, vz0) (Land _)                 = (0.0, 0.0, 0.0)
+getWind (vx0, vy0, vz0) (SkyZone _ _ _ vx vy vz) = ( vx,  vy,  vz)
 
 getSkyT :: Float -> SkyZone -> Float
 getSkyT t0 (Land t)              = t
@@ -385,13 +377,13 @@ pSkyZone n p z e za zb zn zs ze zw = ((p*momentumofair) + pbase + pn + ps + pe +
         ps    = (1+(vys/momentumofair))*(getSkyP p zs)
         pe    = (1+((-vxe)/momentumofair))*(getSkyP p ze)
         pw    = (1+(vxw/momentumofair))*(getSkyP p zw)
-        ( vx,  vy,  vz) = getWindV (0.0, 0.0, 0.0) z
-        (vxa, vya, vza) = getWindV ( vx,  vy,  vz) za
-        (vxb, vyb, vzb) = getWindV ( vx,  vy,  vz) zb
-        (vxn, vyn, vzn) = getWindV ( vx,  vy,  vz) zn
-        (vxs, vys, vzs) = getWindV ( vx,  vy,  vz) zs
-        (vxe, vye, vze) = getWindV ( vx,  vy,  vz) ze
-        (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
+        ( vx,  vy,  vz) = getWind (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getWind ( vx,  vy,  vz) za
+        (vxb, vyb, vzb) = getWind ( vx,  vy,  vz) zb
+        (vxn, vyn, vzn) = getWind ( vx,  vy,  vz) zn
+        (vxs, vys, vzs) = getWind ( vx,  vy,  vz) zs
+        (vxe, vye, vze) = getWind ( vx,  vy,  vz) ze
+        (vxw, vyw, vzw) = getWind ( vx,  vy,  vz) zw
 
 humSkyZone :: Int -> Float-> Float -> Ocean -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
 humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh)/(specificheatofair+1)
@@ -406,26 +398,3 @@ getOTemp :: OceanZone -> Float
 getOTemp (Solid t)               = t
 getOTemp (Ice   t)               = t
 getOTemp (OceanZone t _ _ _ _ _) = t
-
-formatWind :: Int -> [Sky] -> (Int, Int) -> String
-formatWind n ss (x, y) = getWind n s x y
-  where s = (ss !! (x+gridw*y))
-
-getWind :: Int -> Sky -> Int -> Int -> String
-getWind 1     (Sky lt  _  _  _  _) x y = "Low Tropospheric Wind: "    ++ (getZoneWindMaybe lt)
-getWind 2000  (Sky  _ mt  _  _  _) x y = "Mid Tropospheric Wind: "    ++ (getZoneWindMaybe mt)
-getWind 8000  (Sky  _  _ ht  _  _) x y = "High Tropospheric Wind: "   ++ (getZoneWindMaybe ht)
-getWind 16000 (Sky  _  _  _ ls  _) x y = "Low Stratospheric Wind: "   ++ (getZoneWindMaybe ls)
-getWind 24000 (Sky  _  _  _  _ hs) x y = "High Stratospheric Wind: "  ++ (getZoneWindMaybe hs)
-
-getZoneWindMaybe :: SkyZone -> String
-getZoneWindMaybe s = case (getZoneWind s) of Nothing -> "Below Ground..."
-                                             Just t  -> ((showXYZ(mapXYZ showFloatFoReal t)) ++ " Pressure: " ++ (showFloatFoReal np))
-  where np = roundTo precision (bar s)
-
-getZoneWind :: SkyZone -> Maybe (Float, Float, Float)
-getZoneWind (SkyZone _ _ _ vx vy vz) = Just (nvx, nvy, nvz)
-  where nvx = roundTo precision vx
-        nvy = roundTo precision vy
-        nvz = roundTo precision vz
-

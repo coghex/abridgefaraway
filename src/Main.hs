@@ -206,6 +206,16 @@ draw SLoadSeaCurrents state env = do
   drawText (envFontBig env) 1 95 72 72 "Loading..."
   drawText (envFontSmall env) 1 75 36 36 "Calculating Ocean Currents..."
   liftIO $ loadedCallback (envEventsChan env) SSeaCurrents
+draw SLoadWind state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Wind Currents..."
+  liftIO $ loadedCallback (envEventsChan env) SWind
+draw SLoadRain state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Rain..."
+  liftIO $ loadedCallback (envEventsChan env) SRain
 draw SWorld state env = do
   GL.clear[GL.ColorBuffer, GL.DepthBuffer]
   -- read in a non blocking way, maintaining the old state if the channel is empty
@@ -357,6 +367,24 @@ draw SSkyTemp state env = do
   GL.preservingMatrix $ do
     drawCursor state (envWTex env)
   liftIO $ timerCallback (envEventsChan env) newstate
+draw SWind state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+      sun     = stateSun newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  -- the ocean temp z will give the temperature of the 5 different zones of the sea
+  drawText (envFontSmall env) (-120) (-55) 36 36 $ formatWind (stateWindZ state) (stateSkies state) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawWind state (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
 draw _ _ _ = do
   -- i have yet to see this called, that is good...
   print "fuck"
@@ -456,6 +484,9 @@ processEvent ev =
         -- displays the ocean currents with arrows
         when (((stateGame state) == SWorld) && (k == GLFW.Key'I)) $ do
             modify $ \s -> s { stateGame = SLoadSeaCurrents }
+        -- displays the wind with arrows
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'Y)) $ do
+            modify $ \s -> s { stateGame = SLoadWind }
         -- displays the air temp in C at 5 different altitudes
         when (((stateGame state) == SWorld) && (k == GLFW.Key'T)) $ do
             modify $ \s -> s { stateGame = SLoadSkyTemp }
@@ -520,6 +551,15 @@ processEvent ev =
         -- exits the sky temperature screen
         when (((stateGame state) == SSkyTemp) && ((k == GLFW.Key'T) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
+        -- exits the wind screen
+        when (((stateGame state) == SWind) && ((k == GLFW.Key'Y) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SWorld }
+        -- moves the Z level of the Wind viewer up
+        when (((stateGame state) == SWind) && ((k == GLFW.Key'U))) $ do
+            modify $ \s -> s { stateWindZ = (decreaseSkyZ (stateWindZ state)) }
+        -- moves the Z level of the Wind viewer down
+        when (((stateGame state) == SWind) && ((k == GLFW.Key'M))) $ do
+            modify $ \s -> s { stateWindZ = (increaseSkyZ (stateWindZ state)) }
         -- moves the Z level of the Sea currents viewer up
         when (((stateGame state) == SSeaCurrents) && ((k == GLFW.Key'U))) $ do
             modify $ \s -> s { stateOceanCurrentsZ = (decreaseOceanZ (stateOceanCurrentsZ state)) }
