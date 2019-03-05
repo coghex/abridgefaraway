@@ -56,15 +56,15 @@ drawRainTile :: Int -> [GL.TextureObject] -> Int -> Int -> Sky -> IO ()
 drawRainTile n texs x y (Sky lt mt ht ls hs) = do
   glLoadIdentity
   glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
-  case n of 1     -> case (lt) of Land t              -> glColor3f 1.0 1.0 1.0
+  case n of 1     -> case (lt) of Land t              -> glColor3f 0.0 0.0 0.0
                                   SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
-            2000  -> case (mt) of Land t              -> glColor3f 1.0 1.0 1.0
+            2000  -> case (mt) of Land t              -> glColor3f 0.0 0.0 0.0
                                   SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
-            8000  -> case (ht) of Land t              -> glColor3f 1.0 1.0 1.0
+            8000  -> case (ht) of Land t              -> glColor3f 0.0 0.0 0.0
                                   SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
-            16000 -> case (ls) of Land t              -> glColor3f 1.0 1.0 1.0
+            16000 -> case (ls) of Land t              -> glColor3f 0.0 0.0 0.0
                                   SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
-            24000 -> case (hs) of Land t              -> glColor3f 1.0 1.0 1.0
+            24000 -> case (hs) of Land t              -> glColor3f 0.0 0.0 0.0
                                   SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
   drawSkySquare
   where thiszoom = fromIntegral theZoom
@@ -423,14 +423,19 @@ getSkyP :: Float -> SkyZone -> Float
 getSkyP p0 (Land t)              = 1.01*p0
 getSkyP p0 (SkyZone _ p _ _ _ _) = p
 
+getSkyH :: Float -> SkyZone -> Float
+getSkyH h0 (Land t)              = h0
+getSkyH h0 (SkyZone _ _ h _ _ _) = h
+
+
 calcWindV :: Int -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> (Float, Float, Float)
 calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
   where nvx = min nn (max (((pw-p0)-(pe-p0))-(10*coriolispower*(cos (2/3*pi*(lat/((fromIntegral gridh))))))) (-nn))
         nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
         nvz = min nn (max ((pa - p0) - (pb - p0)) (-nn))
         p0  = getSkyP 0.0 z
-        pa  = (getSkyP p0 za) - (fromIntegral(increaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
-        pb  = (getSkyP p0 zb) - (fromIntegral(decreaseSkyZ(n))*0.04) + (fromIntegral(n)*0.04)
+        pa  = (getSkyP p0 za) - ((fromIntegral(decreaseSkyZ(n))*0.04) + 1000.0)
+        pb  = (getSkyP p0 zb) - ((fromIntegral(increaseSkyZ(n))*0.04) + 1000.0)
         pn  = getSkyP p0 zn
         ps  = getSkyP p0 zs
         pe  = getSkyP p0 ze
@@ -469,13 +474,37 @@ pSkyZone n p z e za zb zn zs ze zw = ((p*momentumofair) + pbase + pn + ps + pe +
         (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
 
 humSkyZone :: Int -> Float-> Float -> Ocean -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
-humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh)/(specificheatofair+1)
-  where maxh = min 1.0 (max 0.1 ((30.0-t) / 30.0))
+humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
+  where maxh = min 1.0 (max 0.1 ((t) / 30.0))
         ot   = getOTemp ep
         newh = min (ot/30.0) maxh
-humSkyZone n t h (Dry _)          z za zb zn zs ze zw = ((h*specificheatofair)+newh)/(specificheatofair+1)
-  where maxh = min 1.0 (max 0.1 ((30.0-t) / 30.0))
-        newh = maxh
+        windh = max 0.1 (min 1.0 ((hn+hs+he+hw)/4.0))
+        hn   = (1+((-vyn)/momentumofair))*(getSkyH h zn)
+        hs   = (1+(vys/momentumofair))*(getSkyH h zs)
+        he   = (1+((-vxe)/momentumofair))*(getSkyH h ze)
+        hw   = (1+(vxw/momentumofair))*(getSkyH h zw)
+        ( vx,  vy,  vz) = getWindV (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getWindV ( vx,  vy,  vz) za
+        (vxb, vyb, vzb) = getWindV ( vx,  vy,  vz) zb
+        (vxn, vyn, vzn) = getWindV ( vx,  vy,  vz) zn
+        (vxs, vys, vzs) = getWindV ( vx,  vy,  vz) zs
+        (vxe, vye, vze) = getWindV ( vx,  vy,  vz) ze
+        (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
+humSkyZone n t h (Dry _)          z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
+  where maxh = min 1.0 (max 0.1 ((t) / 30.0))
+        newh = min (0.2) maxh
+        windh = max 0.1 (min 1.0 ((hn+hs+he+hw)/4.0))
+        hn   = (1+((-vyn)/momentumofair))*(getSkyH h zn)
+        hs   = (1+(vys/momentumofair))*(getSkyH h zs)
+        he   = (1+((-vxe)/momentumofair))*(getSkyH h ze)
+        hw   = (1+(vxw/momentumofair))*(getSkyH h zw)
+        ( vx,  vy,  vz) = getWindV (0.0, 0.0, 0.0) z
+        (vxa, vya, vza) = getWindV ( vx,  vy,  vz) za
+        (vxb, vyb, vzb) = getWindV ( vx,  vy,  vz) zb
+        (vxn, vyn, vzn) = getWindV ( vx,  vy,  vz) zn
+        (vxs, vys, vzs) = getWindV ( vx,  vy,  vz) zs
+        (vxe, vye, vze) = getWindV ( vx,  vy,  vz) ze
+        (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
 
 getOTemp :: OceanZone -> Float
 getOTemp (Solid t)               = t
@@ -495,8 +524,7 @@ getWind 24000 (Sky  _  _  _  _ hs) x y = "High Stratospheric Wind: "  ++ (getZon
 
 getHumMaybe :: SkyZone -> String
 getHumMaybe s = case (getHum s) of Nothing -> "Dry Land..."
-                                   Just t  -> " Humidity: " ++ (showFloatFoReal nh)
-  where nh = roundTo precision (hum s)
+                                   Just t  -> " Humidity: " ++ (showFloatFoReal (roundTo precision (hum s)))
 
 getHum :: SkyZone -> Maybe String
 getHum (Land _)              = Nothing
@@ -508,6 +536,7 @@ getZoneWindMaybe s = case (getZoneWind s) of Nothing -> "Below Ground..."
   where np = roundTo precision (bar s)
 
 getZoneWind :: SkyZone -> Maybe (Float, Float, Float)
+getZoneWind (Land _)                 = Nothing
 getZoneWind (SkyZone _ _ _ vx vy vz) = Just (nvx, nvy, nvz)
   where nvx = roundTo precision vx
         nvy = roundTo precision vy
@@ -515,7 +544,7 @@ getZoneWind (SkyZone _ _ _ vx vy vz) = Just (nvx, nvy, nvz)
 
 formatHumidity :: Int -> [Sky] -> (Int, Int) -> String
 formatHumidity n ss (x, y) = getHumidity n s x y
-  where s = (ss !! (x+gridw+y))
+  where s = (ss !! (x+gridw*y))
 
 getHumidity :: Int -> Sky -> Int -> Int -> String
 getHumidity 1     (Sky lt  _  _  _  _) x y = getHumMaybe lt
