@@ -108,7 +108,12 @@ yList = makeYList gridw [1..gridh]
 makeYList :: Int -> [Int] -> [Int]
 makeYList _ []      = []
 makeYList 0 _       = []
-makeYList n (x:xs) = (take gridw (repeat x)) ++ (makeYList (n-1) xs)
+makeYList n (x:xs)  = (take gridw (repeat x)) ++ (makeYList (n-1) xs)
+
+makeXList :: Int -> [Int] -> [Int]
+makeXList _ []     = []
+makeXList 0 _      = []
+makeXList n (x:xs) = [0..(gridw-1)] ++ (makeXList (n-1) xs)
 
 -- checks the bounds of the cursor, doesnt move the cursor if at the edge
 moveCursor :: Int -> (Int, Int) -> Card -> (Int, Int)

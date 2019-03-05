@@ -46,6 +46,7 @@ unitState state units = State
   , stateSkyTempZ       = stateSkyTempZ state
   , stateWindZ          = stateWindZ state
   , stateRainZ          = stateRainZ state
+  , stateVolcanism      = stateVolcanism state
   , stateZones          = stateZones state
   , stateUnits          = units }
 

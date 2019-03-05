@@ -63,6 +63,7 @@ data State = State
   , stateSkyTempZ       :: !Int
   , stateRainZ          :: !Int
   , stateWindZ          :: !Int
+  , stateVolcanism      :: ![Float]
   , stateZones          :: ![Zone]
   , stateUnits          :: ![Unit]
   } deriving (Show)

@@ -15,6 +15,7 @@ import Game.Ocean
 import Game.Sky
 import Game.Unit
 import Game.Data
+import Game.Volc
 
 genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> Moon -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
@@ -55,6 +56,7 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateSkyTempZ       = 1
     , stateWindZ          = 1
     , stateRainZ          = 1
+    , stateVolcanism      = []
     , stateZones          = []
     , stateUnits          = []
     }
@@ -114,6 +116,7 @@ initWorld state env = do
       skyz    = stateSkyTempZ       state
       windz   = stateWindZ          state
       rainz   = stateRainZ          state
+      volc    = stateVolcanism      state
       zones   = stateZones          state
       units   = stateUnits          state
 
@@ -125,6 +128,7 @@ initWorld state env = do
   let o1      = theGreatSeas g2 e1 sunspot
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
+  let v1      = volcanate state env g3 e1
   let testmove0 = MoveTo { dest     = (30, 24)
                          , speed    = 1.5 }
   let testminion0 = Unit { unittexs = (envUnitTex  env) !! 2
@@ -258,6 +262,7 @@ initWorld state env = do
     , stateSkyTempZ       = skyz
     , stateWindZ          = windz
     , stateRainZ          = rainz
+    , stateVolcanism      = v1
     , stateZones          = zones
     , stateUnits          = [testminion0, testminion1]
     }
@@ -293,6 +298,7 @@ nextSimState state env = State
     , stateSkyTempZ       = stateSkyTempZ state
     , stateWindZ          = stateWindZ state
     , stateRainZ          = stateRainZ state
+    , stateVolcanism      = stateVolcanism state
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where
@@ -339,6 +345,7 @@ nextState state env = State
     , stateSkyTempZ       = stateSkyTempZ state
     , stateWindZ          = stateWindZ state
     , stateRainZ          = stateRainZ state
+    , stateVolcanism      = stateVolcanism state
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where

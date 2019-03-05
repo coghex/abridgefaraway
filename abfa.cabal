@@ -33,6 +33,7 @@ executable abfa
         Game.Zone
         Game.Noise
         Game.Unit
+        Game.Volc
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures
