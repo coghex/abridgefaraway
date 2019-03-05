@@ -61,6 +61,7 @@ data State = State
   , stateOceanCurrentsZ :: !Int
   , stateSkies          :: ![Sky]
   , stateSkyTempZ       :: !Int
+  , stateRainZ          :: !Int
   , stateWindZ          :: !Int
   , stateZones          :: ![Zone]
   , stateUnits          :: ![Unit]

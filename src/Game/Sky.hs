@@ -27,6 +27,12 @@ import Game.Elev
 --                       , svz   :: Float
 --                       } deriving (Show, Eq)
 
+drawRain :: State -> [GL.TextureObject] -> IO ()
+drawRain state texs = do
+  let snew = expandGrid $ stateSkies state
+      n    = stateSkyTempZ state
+  resequence_ (map (drawRainRow n texs) snew)
+
 drawSky :: State -> [GL.TextureObject] -> IO ()
 drawSky state texs = do
   let snew = expandGrid $ stateSkies state
@@ -39,6 +45,30 @@ drawSkyRow n texs (a, b) = resequence_ (map (drawSkySpot n texs b) a)
 
 drawSkySpot :: Int -> [GL.TextureObject] -> Int -> (Sky, Int) -> IO ()
 drawSkySpot n texs y (s, x) = withTextures2D [(texs!!10)] $ drawSkyTile n texs x y s
+
+drawRainRow :: Int -> [GL.TextureObject] -> ([(Sky, Int)], Int) -> IO ()
+drawRainRow n texs (a, b) = resequence_ (map (drawRainSpot n texs b) a)
+
+drawRainSpot :: Int -> [GL.TextureObject] -> Int -> (Sky, Int) -> IO ()
+drawRainSpot n texs y (s, x) = withTextures2D [(texs!!10)] $ drawRainTile n texs x y s
+
+drawRainTile :: Int -> [GL.TextureObject] -> Int -> Int -> Sky -> IO ()
+drawRainTile n texs x y (Sky lt mt ht ls hs) = do
+  glLoadIdentity
+  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  case n of 1     -> case (lt) of Land t              -> glColor3f 1.0 1.0 1.0
+                                  SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
+            2000  -> case (mt) of Land t              -> glColor3f 1.0 1.0 1.0
+                                  SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
+            8000  -> case (ht) of Land t              -> glColor3f 1.0 1.0 1.0
+                                  SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
+            16000 -> case (ls) of Land t              -> glColor3f 1.0 1.0 1.0
+                                  SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
+            24000 -> case (hs) of Land t              -> glColor3f 1.0 1.0 1.0
+                                  SkyZone _ _ h _ _ _ -> glColor3f   h   h   h
+  drawSkySquare
+  where thiszoom = fromIntegral theZoom
+
 
 drawNullTile :: Int -> [GL.TextureObject] -> [Int] -> [Int] -> Int -> Int -> IO ()
 drawNullTile n texs g e x y = do
@@ -463,6 +493,15 @@ getWind 8000  (Sky  _  _ ht  _  _) x y = "High Tropospheric Wind: "   ++ (getZon
 getWind 16000 (Sky  _  _  _ ls  _) x y = "Low Stratospheric Wind: "   ++ (getZoneWindMaybe ls)
 getWind 24000 (Sky  _  _  _  _ hs) x y = "High Stratospheric Wind: "  ++ (getZoneWindMaybe hs)
 
+getHumMaybe :: SkyZone -> String
+getHumMaybe s = case (getHum s) of Nothing -> "Dry Land..."
+                                   Just t  -> " Humidity: " ++ (showFloatFoReal nh)
+  where nh = roundTo precision (hum s)
+
+getHum :: SkyZone -> Maybe String
+getHum (Land _)              = Nothing
+getHum (SkyZone _ _ h _ _ _) = Just (show h)
+
 getZoneWindMaybe :: SkyZone -> String
 getZoneWindMaybe s = case (getZoneWind s) of Nothing -> "Below Ground..."
                                              Just t  -> ((showXYZ(mapXYZ showFloatFoReal t)) ++ " Pressure: " ++ (showFloatFoReal np))
@@ -474,3 +513,13 @@ getZoneWind (SkyZone _ _ _ vx vy vz) = Just (nvx, nvy, nvz)
         nvy = roundTo precision vy
         nvz = roundTo precision vz
 
+formatHumidity :: Int -> [Sky] -> (Int, Int) -> String
+formatHumidity n ss (x, y) = getHumidity n s x y
+  where s = (ss !! (x+gridw+y))
+
+getHumidity :: Int -> Sky -> Int -> Int -> String
+getHumidity 1     (Sky lt  _  _  _  _) x y = getHumMaybe lt
+getHumidity 2000  (Sky  _ mt  _  _  _) x y = getHumMaybe mt
+getHumidity 8000  (Sky  _  _ ht  _  _) x y = getHumMaybe ht
+getHumidity 16000 (Sky  _  _  _ ls  _) x y = getHumMaybe ls
+getHumidity 24000 (Sky  _  _  _  _ hs) x y = getHumMaybe hs
