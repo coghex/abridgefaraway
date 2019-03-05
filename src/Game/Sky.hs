@@ -30,7 +30,7 @@ import Game.Elev
 drawRain :: State -> [GL.TextureObject] -> IO ()
 drawRain state texs = do
   let snew = expandGrid $ stateSkies state
-      n    = stateSkyTempZ state
+      n    = stateRainZ state
   resequence_ (map (drawRainRow n texs) snew)
 
 drawSky :: State -> [GL.TextureObject] -> IO ()
@@ -387,7 +387,7 @@ newSkyZone n t p h o svx0 svy0 svz0 z za zb zn zs ze zw lat e l = SkyZone { stem
   where (svx, svy, svz) = calcWindV n l lat z za zb zn zs ze zw
         newt            = (pvnrtSky n p t e o norml z za zb zn zs ze zw)
         newp            = (pSkyZone n p z e za zb zn zs ze zw)
-        newh            = (humSkyZone n t h o z za zb zn zs ze zw)
+        newh            = (humSkyZone n lat t h o z za zb zn zs ze zw)
         norml           = calcLight l lat
 
 getSkyZone :: Int -> Sky -> SkyZone
@@ -430,7 +430,7 @@ getSkyH h0 (SkyZone _ _ h _ _ _) = h
 
 calcWindV :: Int -> Float -> Float -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> (Float, Float, Float)
 calcWindV n l lat z za zb zn zs ze zw = (nvx, nvy, nvz)
-  where nvx = min nn (max (((pw-p0)-(pe-p0))-(10*coriolispower*(cos (2/3*pi*(lat/((fromIntegral gridh))))))) (-nn))
+  where nvx = min nn (max (((pw-p0)-(pe-p0))-(100*coriolispower*(cos (2/3*pi*(lat/((fromIntegral gridh))))))) (-nn))
         nvy = min nn (max ((ps - p0) - (pn - p0)) (-nn))
         nvz = min nn (max ((pa - p0) - (pb - p0)) (-nn))
         p0  = getSkyP 0.0 z
@@ -473,12 +473,13 @@ pSkyZone n p z e za zb zn zs ze zw = ((p*momentumofair) + pbase + pn + ps + pe +
         (vxe, vye, vze) = getWindV ( vx,  vy,  vz) ze
         (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
 
-humSkyZone :: Int -> Float-> Float -> Ocean -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
-humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
-  where maxh = min 1.0 (max 0.1 ((t) / 30.0))
+humSkyZone :: Int -> Float -> Float-> Float -> Ocean -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> SkyZone -> Float
+humSkyZone n lat t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
+  where maxh = min 1.0 (max 0.1 ((t) / 24.0))
         ot   = getOTemp ep
-        newh = min (ot/30.0) maxh
-        windh = max 0.1 (min 1.0 ((hn+hs+he+hw)/4.0))
+        newh = min (ot/24.0) maxh
+        windh = max hummin (min 1.0 ((hn+hs+he+hw)/4.0))
+        hummin = 0.5+(0.5*(cos (7*pi*(lat/((fromIntegral gridh))))))
         hn   = (1+((-vyn)/momentumofair))*(getSkyH h zn)
         hs   = (1+(vys/momentumofair))*(getSkyH h zs)
         he   = (1+((-vxe)/momentumofair))*(getSkyH h ze)
@@ -490,10 +491,11 @@ humSkyZone n t h (Sea ep _ _ _ _) z za zb zn zs ze zw = ((h*specificheatofair)+n
         (vxs, vys, vzs) = getWindV ( vx,  vy,  vz) zs
         (vxe, vye, vze) = getWindV ( vx,  vy,  vz) ze
         (vxw, vyw, vzw) = getWindV ( vx,  vy,  vz) zw
-humSkyZone n t h (Dry _)          z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
-  where maxh = min 1.0 (max 0.1 ((t) / 30.0))
-        newh = min (0.2) maxh
-        windh = max 0.1 (min 1.0 ((hn+hs+he+hw)/4.0))
+humSkyZone n lat t h (Dry _)          z za zb zn zs ze zw = ((h*specificheatofair)+newh+windh)/(specificheatofair+2)
+  where maxh = min 1.0 (max 0.1 ((t) / 24.0))
+        newh = min hummin maxh
+        windh = max hummin (min 1.0 ((hn+hs+he+hw)/4.0))
+        hummin = 0.5+(0.5*(cos (7*pi*(lat/((fromIntegral gridh))))))
         hn   = (1+((-vyn)/momentumofair))*(getSkyH h zn)
         hs   = (1+(vys/momentumofair))*(getSkyH h zs)
         he   = (1+((-vxe)/momentumofair))*(getSkyH h ze)

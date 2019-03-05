@@ -57,7 +57,7 @@ specificheatofair   = 200::Float
 -- how hard it is to move the oceans
 momentumofwater     = 912::Float
 -- how hard it is to move the air
-momentumofair       = 100::Float
+momentumofair       = 200::Float
 -- the amount of light that goes throught the water
 clarityofwater      = 0.5::Float
 -- the strength of the tides

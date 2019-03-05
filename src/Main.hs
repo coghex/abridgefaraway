@@ -579,7 +579,7 @@ processEvent ev =
         -- moves the Z level of the Rain viewer up
         when (((stateGame state) == SRain) && ((k == GLFW.Key'U))) $ do
             modify $ \s -> s { stateRainZ = (decreaseSkyZ (stateRainZ state)) }
-        -- moves the Z level of the Rains viewer down
+        -- moves the Z level of the Rain viewer down
         when (((stateGame state) == SRain) && ((k == GLFW.Key'M))) $ do
             modify $ \s -> s { stateRainZ = (increaseSkyZ (stateRainZ state)) }
         -- moves the Z level of the Wind viewer up
