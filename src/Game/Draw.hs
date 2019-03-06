@@ -34,7 +34,7 @@ drawCursor state texs = do
 
 drawScene :: State -> [GL.TextureObject] -> IO ()
 drawScene state texs = do
-  let gnew   = expandGrid $ stateGrid state
+  let gnew     = expandGrid $ stateGrid state
       sunspots = stateSunSpots state
   resequence_ (map (drawSceneRow texs sunspots) gnew)
   glFlush
