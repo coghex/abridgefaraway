@@ -283,7 +283,7 @@ initZoneGrid state r e zoneconts = g5
         g3 = zipWith4 (seedZoneGridGaps) gcards2 zoneconts g2 rlist2
         --g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
         g4 = zipWith3 (seedZoneSpaces) gcards3 zoneconts g3
-        g5 = findOpenSpaceChunks 6 2 2 zoneconts g4 stdgen0
+        g5 = findOpenSpaceChunks 6 6 6 zoneconts g4 stdgen0
         (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
         (ng, sg, eg, wg) = zoneCardinalsG g0 nulltile
         (ng2, sg2, eg2, wg2) = zoneCardinals g2
@@ -303,7 +303,9 @@ initZoneGrid state r e zoneconts = g5
 findOpenSpaceChunks :: Int -> Int -> Int -> [Int] -> [Int] -> StdGen -> [Int]
 findOpenSpaceChunks 0 _ _ _ g _ = g
 findOpenSpaceChunks n w h c g r = findOpenSpaceChunks (n-1) w h c gnew r
-  where gnew = findOpenSpaceChunk w h c g r
+  where gnew = findOpenSpaceChunk wn hn c g r
+        wn   = w--if (h >= w) then (w) else (w-1)
+        hn   = h--if (w >= h) then (h) else (h-1)
 
 findOpenSpaceChunk :: Int -> Int -> [Int] -> [Int] -> StdGen -> [Int]
 findOpenSpaceChunk w h c g r
@@ -320,7 +322,7 @@ findOpenSpaceChunk w h c g r
 placeBlankSpace :: Int -> Int -> [(Int, Int)] -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
 placeBlankSpace w h ilis i0 3 (g, j)
   | ((length ilis) <= 0) = (g, j)
-  | otherwise            = ((map (placeBlankSpaceRows (w-1) (h-1) x y j) g), j)
+  | otherwise            = ((map (placeBlankSpaceRows (w) (h) x y j) g), j)
   where (x, y) = ilis !! i0
 placeBlankSpace w h ilis i0 _ (g, j) = (g, j)
 
@@ -329,7 +331,7 @@ placeBlankSpaceRows w h x y j (g, i) = ((placeBlankSpaceSpot w h x y i j g), i)
 
 placeBlankSpaceSpot :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 placeBlankSpaceSpot w h x y i j g
-  | ((abs (x-i)) < w) && ((abs (y-j)) < h) = specialtile
+  | (((x-i)) <= w) && ((x-i) > 0) && (((y-j)) <= h) && ((y-j) > 0) = specialtile
   | otherwise                              = g
 
 findSpaces :: [([(Int, Int)], Int)] -> [(Int, Int)]
