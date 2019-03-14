@@ -33,6 +33,7 @@ data Zone = Zone { grid :: [Int]
                  , cont :: [Int]
                  , elev :: [Float]
                  , zazz :: [Zazz]
+                 , zgrd :: [Int]
                  , emax :: Float
                  , emin :: Float
                  , nois :: Int

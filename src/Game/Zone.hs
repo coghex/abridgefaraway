@@ -138,6 +138,7 @@ moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , cont = (cont zone)
                                , elev = (elev zone)
                                , zazz = (zazz zone)
+                               , zgrd = (zgrd zone)
                                , emax = (emax zone)
                                , emin = (emin zone)
                                , nois = (nois zone)
@@ -168,6 +169,7 @@ moveCursorZone zone (x, y) = Zone { grid = (grid zone)
                                   , cont = (cont zone)
                                   , elev = (elev zone)
                                   , zazz = (zazz zone)
+                                  , zgrd = (zgrd zone)
                                   , emax = (emax zone)
                                   , emin = (emin zone)
                                   , nois = (nois zone)
@@ -179,6 +181,26 @@ moveCursorZone zone (x, y) = Zone { grid = (grid zone)
                                   , curx = x
                                   , cury = y }
 
+makeZazzGrid :: [Zazz] -> [Int] -> [Int]
+makeZazzGrid []     g = g
+makeZazzGrid (z:zs) g = makeZazzGrid zs ng
+  where ng = makeZazzGridFromZazz z g
+
+makeZazzGridFromZazz :: Zazz -> [Int] -> [Int]
+makeZazzGridFromZazz (Zazz x y s t) g = g3
+  where zg = expandZone g
+        g1 = map (makeZazzGridRow x y s t) zg
+        g2 = stripGrid g1
+        g3 = flattenGrid g2
+
+makeZazzGridRow :: Int -> Int -> (Int, Int) -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+makeZazzGridRow x y (w, h) t (g, j) = ((map (makeZazzGridSpot x y w h t j) g), j)
+
+makeZazzGridSpot :: Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
+makeZazzGridSpot x y w h t j (g, i)
+  | (g /= 0)                                                   = (g, i)
+  | ((i-x) < w) && ((j-y) < h) && ((i-x) >= 0) && ((j-y) >= 0) = (((((i-x)) `mod` w) + ((j-y) * h)), i)
+  | otherwise                                                  = (0, i)
 
 generateZone :: State -> Zone
 generateZone state = genZone state x y zc conts seeds rands nconts
@@ -194,6 +216,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
                                                      , cont = zoneconts
                                                      , elev = newelev
                                                      , zazz = newzazz
+                                                     , zgrd = newzazzgrid
                                                      , emax = maximum newelev
                                                      , emin = minimum newelev
                                                      , nois = perl
@@ -219,6 +242,7 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         --g1               = initZoneGridZazz state s0 g0 zoneconts
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
         newzazz          = initZazz (length zazzcounts) s0 g0 zoneconts zazzcounts []
+        newzazzgrid      = makeZazzGrid newzazz (take (gridw*gridh) (repeat 0))
         s0               = mkStdGen r
         r                = x+(y*gridw)
 

@@ -454,7 +454,7 @@ loadETextures :: String -> IO ([[[TextureObject]]])
 loadETextures fn = do
   v1 <- loadNTexs 40  (fn ++ "volcano01") []
   v2 <- loadNTexs 9   (fn ++ "volcano02") []
-  v3 <- loadNTexs 192 (fn ++ "volcano03") []
+  v3 <- loadNTexs 128 (fn ++ "volcano03") []
 
   return ([[[]], [v1], [v2], [v3]])
 

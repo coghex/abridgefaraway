@@ -509,6 +509,7 @@ processEvent ev =
         when (((stateGame state) == SWorld) && (k == GLFW.Key'Enter)) $ do
             let z     = generateZone state
                 oldzs = stateZones state
+                --newzazz = makeZazzGrid z (take (zonew*zoneh) (repeat 1))
             liftIO $ loadedCallback (envEventsChan env) SLoadZone
             modify $ \s -> s { stateZones = (z:oldzs) }
         -- displays the elevation in meters
@@ -532,7 +533,7 @@ processEvent ev =
         -- displays the volcanism
         when (((stateGame state) == SWorld) && (k == GLFW.Key'V)) $ do
             modify $ \s -> s { stateGame = SLoadVolc }
-            liftIO $ print $ zazz (head (stateZones state))
+            liftIO $ print $ zgrd (head (stateZones state))
         -- displays the air temp in C at 5 different altitudes
         when (((stateGame state) == SWorld) && (k == GLFW.Key'T)) $ do
             modify $ \s -> s { stateGame = SLoadSkyTemp }
