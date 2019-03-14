@@ -532,6 +532,7 @@ processEvent ev =
         -- displays the volcanism
         when (((stateGame state) == SWorld) && (k == GLFW.Key'V)) $ do
             modify $ \s -> s { stateGame = SLoadVolc }
+            liftIO $ print $ zazz (head (stateZones state))
         -- displays the air temp in C at 5 different altitudes
         when (((stateGame state) == SWorld) && (k == GLFW.Key'T)) $ do
             modify $ \s -> s { stateGame = SLoadSkyTemp }

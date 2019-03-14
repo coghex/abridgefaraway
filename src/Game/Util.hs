@@ -452,10 +452,11 @@ loadUTextures fn = do
 
 loadETextures :: String -> IO ([[[TextureObject]]])
 loadETextures fn = do
-  v0  <- loadTex (fn ++ "volcano01.png")
-  v1 <- loadNTexs 40 (fn ++ "volcano02") []
+  v1 <- loadNTexs 40  (fn ++ "volcano01") []
+  v2 <- loadNTexs 9   (fn ++ "volcano02") []
+  v3 <- loadNTexs 192 (fn ++ "volcano03") []
 
-  return ([[[]], [[v0]], [v1]])
+  return ([[[]], [v1], [v2], [v3]])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do

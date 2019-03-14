@@ -45,11 +45,11 @@ data Zone = Zone { grid :: [Int]
                  , cury :: Int
                  } deriving (Show, Eq)
 
-data Zazz = Zazz { x :: Int
-                 , y :: Int
-                 , w :: Int
-                 , h :: Int
-                 , t :: Int
+
+data Zazz = Zazz { zazzx :: Int
+                 , zazzy :: Int
+                 , zazzs :: (Int, Int)
+                 , zazzt :: Int
                  } deriving (Show, Eq)
 
 data Action = NullAction
