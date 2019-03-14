@@ -32,6 +32,7 @@ data OceanZone = Solid Float | Ice Float | OceanZone { temp :: Float
 data Zone = Zone { grid :: [Int]
                  , cont :: [Int]
                  , elev :: [Float]
+                 , zazz :: [Zazz]
                  , emax :: Float
                  , emin :: Float
                  , nois :: Int
@@ -42,6 +43,13 @@ data Zone = Zone { grid :: [Int]
                  , camz :: Int
                  , curx :: Int
                  , cury :: Int
+                 } deriving (Show, Eq)
+
+data Zazz = Zazz { x :: Int
+                 , y :: Int
+                 , w :: Int
+                 , h :: Int
+                 , t :: Int
                  } deriving (Show, Eq)
 
 data Action = NullAction

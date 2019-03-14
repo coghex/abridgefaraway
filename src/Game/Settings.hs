@@ -81,6 +81,8 @@ zonew = 60::Int
 zoneh = 45::Int
 -- the number of tiles for a zone
 ntiles = 384::Int
+-- the maximum number of zazz objects in a zone
+nzazz = 4::Int
 -- this is the null tile, special tile, and the blank tile
 nulltile = 111::Int
 specialtile = 224::Int

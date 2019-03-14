@@ -43,7 +43,7 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]], [[TextureObject]], [[TextureObject]])
+initTexs :: GLFW.Window -> IO ([TextureObject], [[TextureObject]], [[TextureObject]], [[TextureObject]], [[[TextureObject]]])
 initTexs win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -59,8 +59,9 @@ initTexs win = do
   wtex <- loadWTextures "data/biome/"
   ztex <- loadZTextures "data/zone/"
   utex <- loadUTextures "data/util/"
+  etex <- loadETextures "data/zazz/"
   unittex <- loadUnitTextures "data/unit/"
-  return (wtex, ztex, utex, unittex)
+  return (wtex, ztex, utex, unittex, etex)
 
 loadZTextures :: String -> IO ([[TextureObject]])
 loadZTextures fn = do
@@ -448,6 +449,13 @@ loadUTextures fn = do
   b8  <- loadTex (fn ++ "box/boxw.png")
 
   return ([[], [b0, b1, b2, b3, b4, b5, b6, b7, b8]])
+
+loadETextures :: String -> IO ([[[TextureObject]]])
+loadETextures fn = do
+  v0  <- loadTex (fn ++ "volcano01.png")
+  v1 <- loadNTexs 40 (fn ++ "volcano02") []
+
+  return ([[[]], [[v0]], [v1]])
 
 loadTex :: String -> IO GL.TextureObject
 loadTex fn = do

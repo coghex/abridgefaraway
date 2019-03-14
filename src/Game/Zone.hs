@@ -137,6 +137,7 @@ moveCamZone :: Zone -> (Float, Float) -> Zone
 moveCamZone zone (x, y) = Zone { grid = (grid zone)
                                , cont = (cont zone)
                                , elev = (elev zone)
+                               , zazz = (zazz zone)
                                , emax = (emax zone)
                                , emin = (emin zone)
                                , nois = (nois zone)
@@ -166,6 +167,7 @@ moveCursorZone :: Zone -> (Int, Int) -> Zone
 moveCursorZone zone (x, y) = Zone { grid = (grid zone)
                                   , cont = (cont zone)
                                   , elev = (elev zone)
+                                  , zazz = (zazz zone)
                                   , emax = (emax zone)
                                   , emin = (emin zone)
                                   , nois = (nois zone)
@@ -188,9 +190,10 @@ generateZone state = genZone state x y zc conts seeds rands nconts
         nconts = stateNConts state
 
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
-genZone state x y zc conts seeds rands nconts = Zone { grid = g0
+genZone state x y zc conts seeds rands nconts = Zone { grid = g1
                                                      , cont = zoneconts
                                                      , elev = newelev
+                                                     , zazz = newzazz
                                                      , emax = maximum newelev
                                                      , emin = minimum newelev
                                                      , nois = perl
@@ -212,8 +215,11 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         ewn              = quot (ew+e) 2
         perl             = x+(y*gridh)
         e                = tapGrid (stateElev state) x y
-        g0               = initZoneGrid state r newelev zoneconts
+        g0               = initZoneGrid state s0 newelev zoneconts
+        g1               = initZoneGridZazz state s0 g0 zoneconts
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
+        newzazz          = initZoneZazz state s0 g1 zoneconts
+        s0               = mkStdGen r
         r                = x+(y*gridw)
 
 blurZone :: State -> [Int] -> [Float] -> Int -> [Float]
@@ -275,15 +281,15 @@ elevDist e en es ee ew i j perl = b0 + (b1*ifloat) + (b2*jfloat) + (b3*ifloat2) 
         perlin = makePerlin perl 4 0.15 0.5
         noise = getNoise i j perlin
 
-initZoneGrid :: State -> Int -> [Float] -> [Int] -> [Int]
-initZoneGrid state r e zoneconts = g5
+initZoneGrid :: State -> StdGen -> [Float] -> [Int] -> [Int]
+initZoneGrid state s0 e zoneconts = g4
   where g0 = map (blankZoneGrid state) zoneconts
         g1 = zipWith3 (seedZoneGrid state) ccards gcards zoneconts
         g2 = zipWith4 (seedZoneElevGrid state) gcards ecards e g1
         g3 = zipWith4 (seedZoneGridGaps) gcards2 zoneconts g2 rlist2
         --g4 = zipWith6 (solveGridPuzzle) zoneconts ccards gcards3 g3 rlist3 kochance3
         g4 = zipWith3 (seedZoneSpaces) gcards3 zoneconts g3
-        g5 = findOpenSpaceChunks 6 6 6 zoneconts g4 stdgen0
+        --g5 = findOpenSpaceChunks 1 8 5 zoneconts g4 stdgen0
         (nc, sc, ec, wc) = zoneCardinalsC zoneconts 
         (ng, sg, eg, wg) = zoneCardinalsG g0 nulltile
         (ng2, sg2, eg2, wg2) = zoneCardinals g2
@@ -296,9 +302,21 @@ initZoneGrid state r e zoneconts = g5
         gcards3 = zip4 ng3 sg3 eg3 wg3
         rlist2 = randomList (0, (ntiles-1)) (zoneh*zonew) stdgen1
         rlist3 = randomList (0, (ntiles-1)) (zoneh*zonew) stdgen2
-        stdgen0 = mkStdGen r
+        stdgen0 = s0
         (_, stdgen1) = split stdgen0
         (_, stdgen2) = split stdgen1
+
+initZoneGridZazz :: State -> StdGen -> [Int] -> [Int] -> [Int]
+initZoneGridZazz state s0 g zc = g1
+  where g1 = findOpenSpaceChunks 1 8 5 zc g s0
+
+initZoneZazz :: State -> StdGen -> [Int] -> [Int] -> [Zazz]
+initZoneZazz state s0 g zc = do
+  let gz = expandZone g
+      cz = expandZone c
+      r  = randomList (0, ((length ilis)-1)) 1 r
+      g1 = zipWith (findOpenSpaceChunkRows w h g) cz zg
+      ilis = findSpaces g1
 
 findOpenSpaceChunks :: Int -> Int -> Int -> [Int] -> [Int] -> StdGen -> [Int]
 findOpenSpaceChunks 0 _ _ _ g _ = g
@@ -312,27 +330,42 @@ findOpenSpaceChunk w h c g r
   | (length ilis) == 0 = g
   | otherwise          = g4
   where zg   = expandZone g
-        g1   = zipWith (findOpenSpaceChunkRows w h g) c zg
+        cz   = expandZone c
+        g1   = zipWith (findOpenSpaceChunkRows w h g) cz zg
         ilis = findSpaces g1
         i0   = head $ randomList (0, ((length ilis)-1)) 1 r
-        g2   = zipWith (placeBlankSpace w h ilis i0) c zg
+        rs   = expandZone $ randomList (0, 8) (zoneh*zonew) r
+        g2   = zipWith3 (placeBlankSpace w h ilis i0) cz zg rs
         g3   = stripGrid g2
         g4   = flattenGrid g3
 
-placeBlankSpace :: Int -> Int -> [(Int, Int)] -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-placeBlankSpace w h ilis i0 3 (g, j)
+placeBlankSpace :: Int -> Int -> [(Int, Int)] -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int) -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+placeBlankSpace w h ilis i0 (c, _) (g, j) (r, _)
   | ((length ilis) <= 0) = (g, j)
-  | otherwise            = ((map (placeBlankSpaceRows (w) (h) x y j) g), j)
+  | otherwise            = ((zipWith3 (placeBlankSpaceRows (w) (h) x y j) g r c), j)
   where (x, y) = ilis !! i0
-placeBlankSpace w h ilis i0 _ (g, j) = (g, j)
+--placeBlankSpace w h ilis i0 (_, _) (g, j) (r, _) = (g, j)
 
-placeBlankSpaceRows :: Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-placeBlankSpaceRows w h x y j (g, i) = ((placeBlankSpaceSpot w h x y i j g), i)
+placeBlankSpaceRows :: Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int) -> (Int, Int) -> (Int, Int)
+placeBlankSpaceRows w h x y j (g, i) (r, _) (3, _) = ((placeBlankSpaceSpot w h x y i j g r), i)
+placeBlankSpaceRows w h x y j (g, i) (r, _) (c, _) = (g, i)
 
-placeBlankSpaceSpot :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
-placeBlankSpaceSpot w h x y i j g
-  | (((x-i)) <= w) && ((x-i) > 0) && (((y-j)) <= h) && ((y-j) > 0) = specialtile
+placeBlankSpaceSpot :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
+placeBlankSpaceSpot w h x y i j g r
+  | (((x-i)) <= w) && ((x-i) > 0) && (((y-j)) <= h) && ((y-j) > 0) = calcZazzTileBackground r
   | otherwise                              = g
+
+calcZazzTileBackground :: Int -> Int
+calcZazzTileBackground 0 = 95
+calcZazzTileBackground 1 = 96
+calcZazzTileBackground 2 = 97
+calcZazzTileBackground 3 = 104
+calcZazzTileBackground 4 = 105
+calcZazzTileBackground 5 = 208
+calcZazzTileBackground 6 = 209
+calcZazzTileBackground 7 = 216
+calcZazzTileBackground 8 = 217
+calcZazzTileBackground _ = specialtile
 
 findSpaces :: [([(Int, Int)], Int)] -> [(Int, Int)]
 findSpaces [] = []
@@ -350,14 +383,15 @@ findSpacesAtSpot :: Int -> (Int, Int) -> [(Int, Int)]
 findSpacesAtSpot j (1, i) = [(i, j)]
 findSpacesAtSpot _ (_, _) = []
 
-findOpenSpaceChunkRows :: Int -> Int -> [Int] -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-findOpenSpaceChunkRows w h zg 3 (g, j) = ((map (findOpenSpaceChunkSpot w h j zg) g), j)
-findOpenSpaceChunkRows w h zg c (g, j) = (g, j)
+findOpenSpaceChunkRows :: Int -> Int -> [Int] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+--findOpenSpaceChunkRows w h zg (3, _) (g, j) = ((map (findOpenSpaceChunkSpot w h j zg) g), j)
+findOpenSpaceChunkRows w h zg (c, _) (g, j) = ((zipWith (findOpenSpaceChunkSpot w h j zg) g c), j)--(g, j)
 
-findOpenSpaceChunkSpot :: Int -> Int -> Int -> [Int] -> (Int, Int) -> (Int, Int)
-findOpenSpaceChunkSpot w h j zg (g, i)
+findOpenSpaceChunkSpot :: Int -> Int -> Int -> [Int] -> (Int, Int) -> (Int, Int) -> (Int, Int)
+findOpenSpaceChunkSpot w h j zg (g, i) (3, _)
   | (g == blanktile) = (isSpaceEmpty i j w h g zg, i)
   | otherwise        = (0, i)
+findOpenSpaceChunkSpot w h j zg (g, i) (c, _) = (g, i)
 
 isSpaceEmpty :: Int -> Int -> Int -> Int -> Int -> [Int] -> Int
 isSpaceEmpty i j 0 h g zg = 1

@@ -24,6 +24,7 @@ data Env = Env
   , envZTex             :: ![[GL.TextureObject]]
   , envUTex             :: ![[GL.TextureObject]]
   , envUnitTex          :: ![[GL.TextureObject]]
+  , envZazzTex          :: ![[[GL.TextureObject]]]
   , envSeeds            :: ![Int]
   , envStateChan1       :: TChan State
   , envStateChan2       :: TChan State

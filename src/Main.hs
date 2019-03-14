@@ -66,7 +66,7 @@ main = do
     f1 <- loadFont "data/fonts/cheque/Cheque-Regular.ttf"
     f2 <- loadFont "data/fonts/smone/SupermercadoOne-Regular.ttf"
     -- load textures for the world, zones, utilities, and units respectively
-    (wtex, ztex, utex, unittex) <- liftIO $ initTexs window
+    (wtex, ztex, utex, unittex, etex) <- liftIO $ initTexs window
 
     -- makes some std gens for most of the RNG
     s1 <- newStdGen
@@ -105,6 +105,7 @@ main = do
             , envZTex       = ztex
             , envUTex       = utex
             , envUnitTex    = unittex
+            , envZazzTex    = etex
             , envSeeds      = randomRs (1,100) (mkStdGen 43)
             , envStateChan1 = stateChan1
             , envStateChan2 = stateChan2
