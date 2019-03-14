@@ -83,6 +83,11 @@ zoneh = 45::Int
 ntiles = 384::Int
 -- the maximum number of zazz objects in a zone
 nzazz = 4::Int
+-- this is the maximum number of zazz objects of each size in a zone, and their respective sizes
+zazzcounts = [0, 0, 1, 0, 0,  1, 0, 1, 0]::[Int]
+zazzsizes  = [(16, 16), (16, 8), (8, 8), (8, 4), (4, 4), (4, 3), (3, 3), (3, 2), (1, 1)]::[(Int, Int)]
+-- this is the number of volcano tiles i have made at each size so far
+volccounts = [0, 0, 1, 0, 0,  1, 0, 1, 0]::[Int]
 -- this is the null tile, special tile, and the blank tile
 nulltile = 111::Int
 specialtile = 224::Int
