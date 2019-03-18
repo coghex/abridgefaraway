@@ -16,6 +16,7 @@ import Game.Sky
 import Game.Unit
 import Game.Data
 import Game.Volc
+import Game.Civ
 
 genParams :: GameState -> Int -> Int -> Int -> [Int] -> Sun -> Moon -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> StdGen -> State
 genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
@@ -57,6 +58,7 @@ genParams gs currmap nconts i rangers sol luna s1 s2 s3 s4 s5 s6 = do
     , stateWindZ          = 1
     , stateRainZ          = 1
     , stateVolcanism      = []
+    , stateDesireability  = []
     , stateZones          = []
     , stateUnits          = []
     }
@@ -117,6 +119,7 @@ initWorld state env = do
       windz   = stateWindZ          state
       rainz   = stateRainZ          state
       volc    = stateVolcanism      state
+      des     = stateDesireability  state
       zones   = stateZones          state
       units   = stateUnits          state
 
@@ -263,6 +266,7 @@ initWorld state env = do
     , stateWindZ          = windz
     , stateRainZ          = rainz
     , stateVolcanism      = v1
+    , stateDesireability  = des
     , stateZones          = zones
     , stateUnits          = [testminion0, testminion1]
     }
@@ -299,6 +303,7 @@ nextSimState state env = State
     , stateWindZ          = stateWindZ state
     , stateRainZ          = stateRainZ state
     , stateVolcanism      = stateVolcanism state
+    , stateDesireability  = des
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where
@@ -312,6 +317,7 @@ nextSimState state env = State
     sspots  = theBigSpotter sun mspots
     mspots  = moonSpotter moon
     grid    = iceMap state env (stateGrid state) (stateOceans state) (stateOG state)
+    des     = calcDesireability state env
 
 
 nextState :: State -> Env -> State
@@ -346,6 +352,7 @@ nextState state env = State
     , stateWindZ          = stateWindZ state
     , stateRainZ          = stateRainZ state
     , stateVolcanism      = stateVolcanism state
+    , stateDesireability  = des
     , stateZones          = stateZones state
     , stateUnits          = stateUnits state }
   where
@@ -360,6 +367,7 @@ nextState state env = State
     mspots  = moonSpotter moon
     grid    = iceMap state env (stateGrid state) (stateOceans state) (stateOG state)
     units   = evalUnits state env
+    des     = calcDesireability state env
 
 fixConts :: State -> Env -> [Int] -> [Int] -> [Int]
 fixConts state env g e = parZipWith fixContSpots g e

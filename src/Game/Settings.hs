@@ -73,7 +73,8 @@ terratemp           = 14.6::Float
 maxdensitytemp      = -1.9::Float
 -- the velocity at which currents will display
 currentslevel       = 0.02::Float
-
+-- the temp at which humans prefer
+idealtemp           = 20.0::Float
 
 -- these settings effect the zones:
 -- width and height
@@ -87,7 +88,7 @@ nzazz = 4::Int
 zazzcounts = [0, 0, 1, 0, 0,  1, 0, 1, 0]::[Int]
 zazzsizes  = [(16, 16), (16, 8), (8, 8), (8, 4), (4, 4), (4, 3), (3, 3), (3, 2), (1, 1)]::[(Int, Int)]
 -- this is the number of volcano tiles i have made at each size so far
-volccounts = [0, 0, 1, 0, 0,  1, 0, 1, 0]::[Int]
+volccounts = [0, 0, 10, 0, 0,  2, 0, 1, 0]::[Int]
 -- this is the null tile, special tile, and the blank tile
 nulltile = 111::Int
 specialtile = 224::Int

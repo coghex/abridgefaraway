@@ -37,6 +37,7 @@ import Game.Zone
 import Game.Data
 import Game.Unit
 import Game.Volc
+import Game.Civ
 
 -- the game monad wrapper, gives us a threadsafe state and env
 type Game = RWST Env () State IO
@@ -218,6 +219,11 @@ draw SLoadVolc state env = do
   drawText (envFontBig env) 1 95 72 72 "Loading..."
   drawText (envFontSmall env) 1 75 36 36 "Calculating Volcanism..."
   liftIO $ loadedCallback (envEventsChan env) SVolc
+draw SLoadCiv state env = do
+  beginDrawText
+  drawText (envFontBig env) 1 95 72 72 "Loading..."
+  drawText (envFontSmall env) 1 75 36 36 "Calculating Civilization..."
+  liftIO $ loadedCallback (envEventsChan env) SCiv
 draw SLoadRain state env = do
   beginDrawText
   drawText (envFontBig env) 1 95 72 72 "Loading..."
@@ -424,6 +430,22 @@ draw SVolc state env = do
   GL.preservingMatrix $ do
     drawCursor state (envWTex env)
   liftIO $ timerCallback (envEventsChan env) newstate
+draw SCiv state env = do
+  GL.clear[GL.ColorBuffer, GL.DepthBuffer]
+  statebuff <- atomically $ tryReadTChan (envStateChan1 env)
+  newstate <- case (statebuff) of
+    Nothing -> return state
+    Just n  -> return n
+  let unftime = stateTime newstate
+  beginDrawText
+  drawText (envFontSmall env) (-120) (-40) 36 36 $ formatTime unftime
+  drawText (envFontSmall env) (-120) (-25) 36 36 $ "x:" ++ (show (fst (stateCursor state))) ++ " y:" ++ (show (snd (stateCursor state)))
+  drawText (envFontSmall env) (-120) (-55) 36 36 $ formatDesireability (stateDesireability state) (stateCursor state)
+  GL.preservingMatrix $ do
+    drawCiv state (envWTex env)
+  GL.preservingMatrix $ do
+    drawCursor state (envWTex env)
+  liftIO $ timerCallback (envEventsChan env) newstate
 draw _ _ _ = do
   -- i have yet to see this called, that is good...
   print "fuck"
@@ -533,7 +555,11 @@ processEvent ev =
         -- displays the volcanism
         when (((stateGame state) == SWorld) && (k == GLFW.Key'V)) $ do
             modify $ \s -> s { stateGame = SLoadVolc }
-            liftIO $ print $ zgrd (head (stateZones state))
+            --liftIO $ print $ zgrd (head (stateZones state))
+        -- displays the desireability of each zone, along with civilizations
+        when (((stateGame state) == SWorld) && (k == GLFW.Key'C)) $ do
+            modify $ \s -> s { stateGame = SLoadCiv }
+            --liftIO $ print $ stateDesireability state
         -- displays the air temp in C at 5 different altitudes
         when (((stateGame state) == SWorld) && (k == GLFW.Key'T)) $ do
             modify $ \s -> s { stateGame = SLoadSkyTemp }
@@ -545,22 +571,22 @@ processEvent ev =
             let zoom = stateZoom state
             modify $ \s -> s { stateZoom = (zoom+5.0) }
         -- moves the cursor with left, right, up, down, or h,l,k,j
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) South) }
         -- moves the cursor 10 with the shift key
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SSkyTemp) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         -- moves the camera when in a zone
         when (((((stateGame state) == SZoneElev) || ((stateGame state) == SZone)) && ((k == GLFW.Key'Left)))) $ do
@@ -606,6 +632,9 @@ processEvent ev =
             modify $ \s -> s { stateGame = SWorld }
         -- exits the volcano screen
         when (((stateGame state) == SVolc) && ((k == GLFW.Key'V) || (k == GLFW.Key'Escape))) $ do
+            modify $ \s -> s { stateGame = SWorld }
+        -- exits the civ screen
+        when (((stateGame state) == SCiv) && ((k == GLFW.Key'C) || (k == GLFW.Key'Escape))) $ do
             modify $ \s -> s { stateGame = SWorld }
         -- moves the Z level of the Rain viewer up
         when (((stateGame state) == SRain) && ((k == GLFW.Key'U))) $ do
@@ -653,21 +682,21 @@ processEvent ev =
         when (((stateGame state) == SZone) && (k == GLFW.Key'PadSubtract)) $ do
             let zoom = stateZoom state
             modify $ \s -> s { stateZoom = (zoom+10.0) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J))) $ do
             modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) South) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) West) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Right) || (k == GLFW.Key'L)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) East) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Up) || (k == GLFW.Key'K)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) North) }
-        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
+        when ((((stateGame state) == SWorld) || ((stateGame state) == SElev) || ((stateGame state) == SSeaTemp) || ((stateGame state) == SSeaCurrents) || ((stateGame state) == SWind) || ((stateGame state) == SRain) || ((stateGame state) == SVolc) || ((stateGame state) == SCiv)) && ((k == GLFW.Key'Down) || (k == GLFW.Key'J)) && (GLFW.modifierKeysShift mk)) $ do
             modify $ \s -> s { stateCursor = (moveCursor 9 (stateCursor state) South) }
         when ((((stateGame state) == SZone) && ((k == GLFW.Key'Left) || (k == GLFW.Key'H))) && (GLFW.modifierKeysControl mk)) $ do
             modify $ \s -> s { stateZones = ((moveZoneCam (2.0/32.0) (head (stateZones state)) West):(tail (stateZones state))) }
@@ -688,14 +717,15 @@ processEvent ev =
       modify $ \s -> s { stateGame = state }
     -- changes the state of the timer related stuff through the event queue
     (EventUpdateState state) -> do
-      modify $ \s -> s { stateGrid     = (stateGrid state)
-                       , stateElev     = (stateElev state)
-                       , stateSun      = (stateSun state)
-                       , stateSunSpots = (stateSunSpots state)
-                       , stateTime     = (stateTime state)
-                       , stateOceans   = (stateOceans state)
-                       , stateSkies    = (stateSkies state)
-                       --, stateUnits    = (animateUnits state)
+      modify $ \s -> s { stateGrid          = (stateGrid state)
+                       , stateElev          = (stateElev state)
+                       , stateSun           = (stateSun state)
+                       , stateSunSpots      = (stateSunSpots state)
+                       , stateTime          = (stateTime state)
+                       , stateOceans        = (stateOceans state)
+                       , stateSkies         = (stateSkies state)
+                       , stateDesireability = (stateDesireability state)
+                       --, stateUnits          = (animateUnits state)
                        }
     -- handles mouse input
     (EventMouseButton win mb mbs mk) -> do

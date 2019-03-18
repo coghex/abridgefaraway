@@ -554,3 +554,9 @@ getHumidity 2000  (Sky  _ mt  _  _  _) x y = getHumMaybe mt
 getHumidity 8000  (Sky  _  _ ht  _  _) x y = getHumMaybe ht
 getHumidity 16000 (Sky  _  _  _ ls  _) x y = getHumMaybe ls
 getHumidity 24000 (Sky  _  _  _  _ hs) x y = getHumMaybe hs
+
+getAirTemps :: [Sky] -> [Float]
+getAirTemps s = map getAirTempSpot s
+
+getAirTempSpot :: Sky -> Float
+getAirTempSpot (Sky lt _ _ _ _) = getSkyT 20.0 lt

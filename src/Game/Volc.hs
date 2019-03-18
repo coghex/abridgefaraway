@@ -45,7 +45,7 @@ volcanate state env g e = zipWith5 (volcSpot perlin) ijlist gcards ecards g e
   
 
 volcSpot :: Perlin -> (Int, Int) -> (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Int -> Int -> Float
-volcSpot perlin (i, j) (gn, gs, ge, gw) (en, es, ee, ew) g e = volcScore perlin i j g gn gs ge gw e en es ee ew
+volcSpot perlin (i, j) (gn, gs, ge, gw) (en, es, ee, ew) g e = max 0 (volcScore perlin i j g gn gs ge gw e en es ee ew)
 
 volcScore :: Perlin -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float
 volcScore perlin i j g gn gs ge gw e en es ee ew = p * (calcGVolc g gn gs ge gw) * (calcEVolc e en es ee ew)

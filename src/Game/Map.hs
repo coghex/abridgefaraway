@@ -142,6 +142,11 @@ tapZoneGridM x y zg = zg !! (x + (y*zonew))
 tapZoneGrid :: [a] -> Int -> Int -> a
 tapZoneGrid g x y = g !! (x + (y*zonew))
 
+findZoneIndex :: Int -> (Int, Int)
+findZoneIndex i = (x, y)
+  where x = i `mod`  zonew
+        y = i `quot` zoneh
+
 parZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 parZipWith f xs ys = parMap rpar (uncurry f) (zip xs ys)
 

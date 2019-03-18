@@ -212,7 +212,7 @@ generateZone state = genZone state x y zc conts seeds rands nconts
         nconts = stateNConts state
 
 genZone :: State -> Int -> Int -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
-genZone state x y zc conts seeds rands nconts = Zone { grid = g0
+genZone state x y zc conts seeds rands nconts = Zone { grid = g1
                                                      , cont = zoneconts
                                                      , elev = newelev
                                                      , zazz = newzazz
@@ -239,12 +239,13 @@ genZone state x y zc conts seeds rands nconts = Zone { grid = g0
         perl             = x+(y*gridh)
         e                = tapGrid (stateElev state) x y
         g0               = initZoneGrid state s0 newelev zoneconts
-        --g1               = initZoneGridZazz state s0 g0 zoneconts
+        g1               = initZoneGridZazz state s0 g0 zoneconts newzazz
         newelev          = initZoneBlurElev x y state perl zoneconts zoneelev e conts seeds rands nconts (enn, esn, een, ewn)
-        newzazz          = initZazz (length zazzcounts) s0 g0 zoneconts zazzcounts []
+        newzazz          = initZazz (length zazzcounts) s0 v g0 zoneconts zazzcounts []
         newzazzgrid      = makeZazzGrid newzazz (take (gridw*gridh) (repeat 0))
         s0               = mkStdGen r
         r                = x+(y*gridw)
+        v                = tapGrid (stateVolcanism state) x y
 
 blurZone :: State -> [Int] -> [Float] -> Int -> [Float]
 blurZone state conts elev n = elev
@@ -330,43 +331,33 @@ initZoneGrid state s0 e zoneconts = g4
         (_, stdgen1) = split stdgen0
         (_, stdgen2) = split stdgen1
 
+initZoneGridZazz :: State -> StdGen -> [Int] -> [Int] -> [Zazz] -> [Int]
+initZoneGridZazz _     _  g  _  []            = g
+initZoneGridZazz state s0 g0 zc (zazz:zazzes) = initZoneGridZazz state s0 g1 zc zazzes
+  where g1 = applyZazz g0 zazz s0
+
+applyZazz :: [Int] -> Zazz -> StdGen -> [Int]
+applyZazz g0 (Zazz x y s t) s0 = zipWith3 (applyZazzSpots x y s t) rs g0 ([1..(zoneh*zonew)])
+  where rs   = randomList (0, 8) (zoneh*zonew) s0
+
+applyZazzSpots :: Int -> Int -> (Int, Int) -> Int -> Int -> Int -> Int -> Int
+applyZazzSpots x y (w, h) t r g index
+  | (((x-i)) <= w) && ((x-i) > 0) && (((y-j)) <= h) && ((y-j) > 0) = calcZazzTileBackground r
+  | otherwise                                                      = g
+  where (i, j) = findZoneIndex index
 
 findZazzSize :: Int -> (Int, Int)
 findZazzSize n = zazzsizes !! (n-1)
 
-initZazz :: Int -> StdGen -> [Int] -> [Int] -> [Int] -> [Zazz] -> [Zazz]
-initZazz 0 s0 g0 zc _        z = z
-initZazz n s0 g0 zc []       z = z
-initZazz n s0 g0 zc ( 0:zss) z = initZazz (n-1) s0 g0 zc zss z
-initZazz n s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
-  where zr     = findVolcChunks zs n x y zc g0 s0 []
-        gnew   = findOpenSpaceChunks zs x y zc g0 s0
+initZazz :: Int -> StdGen -> Float -> [Int] -> [Int] -> [Int] -> [Zazz] -> [Zazz]
+initZazz 0 s0 v g0 zc _        z = z
+initZazz n s0 v g0 zc []       z = z
+initZazz n s0 v g0 zc ( 0:zss) z = initZazz (n-1) s0 v g0 zc zss z
+initZazz n s0 v g0 zc (zs:zss) z = initZazz (n-1) s0 v gnew zc zss (z ++ zr)
+  where zr     = findVolcChunks zsn n x y zc g0 s0 []
+        gnew   = findOpenSpaceChunks zsn x y zc g0 s0
         (x, y) = findZazzSize n
---initZazz 8 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs 16  8 zc g0 s0
---        gnew = findOpenSpaceChunks zs 16  8 zc g0 s0
---initZazz 7 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  8  8 zc g0 s0
---        gnew = findOpenSpaceChunks zs  8  8 zc g0 s0
---initZazz 6 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  8  4 zc g0 s0
---        gnew = findOpenSpaceChunks zs  8  4 zc g0 s0
---initZazz 5 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  4  4 zc g0 s0
---        gnew = findOpenSpaceChunks zs  4  4 zc g0 s0
---initZazz 4 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  4  3 zc g0 s0
---        gnew = findOpenSpaceChunks zs  4  3 zc g0 s0
---initZazz 3 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  3  3 zc g0 s0
---        gnew = findOpenSpaceChunks zs  3  3 zc g0 s0
---initZazz 2 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  3  2 zc g0 s0
---        gnew = findOpenSpaceChunks zs  3  2 zc g0 s0
---initZazz 1 s0 g0 zc (zs:zss) z = initZazz (n-1) s0 gnew zc zss (z ++ zr)
---  where zr = findZazzChunks zs  1  1 zc g0 s0
---        gnew = findOpenSpaceChunks zs  1  1 zc g0 s0
-
+        zsn    = round $ (fromIntegral zs) * v
 
 findVolcChunks :: Int -> Int -> Int -> Int -> [Int] -> [Int] -> StdGen -> [Zazz] -> [Zazz]
 findVolcChunks 0 nn _ _ _ g _ z = z
