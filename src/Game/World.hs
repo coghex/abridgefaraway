@@ -132,109 +132,25 @@ initWorld state env = do
   let g3      = iceMap state env g2 o1 g2
   let s1      = theExpanseAbove o1 g3 e1 sunspot
   let v1      = volcanate state env g3 e1
-  let testmove0 = MoveTo { dest     = (30, 24)
-                         , speed    = 1.5 }
+  let testmove0 = moveAtSpeed (24, 24) (30, 24) 1.5 [] --MoveTo { dest     = (30, 24)
+                   --      , speed    = 1.5 }
   let testminion0 = Unit { unittexs = (envUnitTex  env) !! 2
                          , frame    = 0
                          , unittype = 1
-                         , action   = testmove0
+                         , actions  = testmove0
                          , zone     = (10, 10)
                          , position = (24, 24)
                          , dir      = 7 }
-  let testmove1 = MoveTo { dest     = (24, 22)
-                         , speed    = 1.0 }
+  let testmove1 = moveAtSpeed (30, 22) (24, 22) 0.3 [] --MoveTo { dest     = (24, 22)
+                  --       , speed    = 1.0 }
   let testminion1 = Unit { unittexs = (envUnitTex  env) !! 2
                          , frame    = 0
                          , unittype = 1
-                         , action   = testmove1
+                         , actions  = testmove1
                          , zone     = (10, 10)
                          , position = (30, 22)
                          , dir      = 8 }
 
-  let testminionnidle = Unit { unittexs = (envUnitTex env) !! 1
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (26,21)
-                        , dir      = 1 }
-  let testminionsidle = Unit { unittexs = (envUnitTex env) !! 2
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (26,19)
-                        , dir      = 2 }
-  let testminioneidle = Unit { unittexs = (envUnitTex env) !! 3
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (27,20)
-                        , dir      = 3 }
-  let testminionwidle = Unit { unittexs = (envUnitTex env) !! 4
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (25,20)
-                        , dir      = 4 }
-  let testminionn = Unit { unittexs = (envUnitTex env) !! 5
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (31,21)
-                        , dir      = 5 }
-  let testminions = Unit { unittexs = (envUnitTex env) !! 6
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (31,19)
-                        , dir      = 6 }
-  let testminione = Unit { unittexs = (envUnitTex env) !! 7
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (32,20)
-                        , dir      = 7 }
-  let testminionw = Unit { unittexs = (envUnitTex env) !! 8
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (30,20)
-                        , dir      = 8 }
-  let testminionne = Unit { unittexs = (envUnitTex env) !! 9
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (30,21)
-                        , dir      = 9 }
-  let testminionnw = Unit { unittexs = (envUnitTex env) !! 10
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (32,21)
-                        , dir      = 10 }
-  let testminionse = Unit { unittexs = (envUnitTex env) !! 11
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (30,19)
-                        , dir      = 11 }
-  let testminionsw = Unit { unittexs = (envUnitTex env) !! 12
-                        , frame    = 0
-                        , unittype = 1
-                        , action   = NullAction
-                        , zone     = (10,10)
-                        , position = (32,19)
-                        , dir      = 12 }
   State
     { stateGame           = sg
     , stateStdGens        = stdgens

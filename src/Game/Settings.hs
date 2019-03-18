@@ -46,7 +46,7 @@ radius = 20::Int
 
 -- hours of history that pass before the world is presented
 -- there are 60 min in an hour, 24 hours in a day, 360 days in a year
-history = 1200::Int
+history = 12::Int
 
 -- how hard it is to heat the oceans
 specificheatofwater = 1009::Float
@@ -93,3 +93,7 @@ volccounts = [0, 0, 10, 0, 0,  2, 0, 1, 0]::[Int]
 nulltile = 111::Int
 specialtile = 224::Int
 blanktile = 223::Int
+
+-- these settings will effect units
+-- the steps at which the pathing algorithm will work
+pathstep = 0.1::Float

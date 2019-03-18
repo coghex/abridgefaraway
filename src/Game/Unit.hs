@@ -1,6 +1,7 @@
 module Game.Unit where
 
 import Graphics.GL
+import Data.List (elemIndex)
 import qualified Graphics.Rendering.OpenGL as GL
 import System.Random (StdGen, mkStdGen)
 import qualified Graphics.UI.GLFW as GLFW
@@ -65,7 +66,7 @@ evalUnit :: [[GL.TextureObject]] -> Unit -> Unit
 evalUnit utexs u0 = Unit { unittexs = evalAction utexs texs up ud uf uac 
                          , frame    = uf
                          , unittype = ut
-                         , action   = nextAction up uac
+                         , actions  = nextAction (actions u0) up
                          , zone     = zoneAction uac uz
                          , position = posAction uac up
                          , dir      = dirAction uac up ud }
@@ -74,7 +75,7 @@ evalUnit utexs u0 = Unit { unittexs = evalAction utexs texs up ud uf uac
         ut   = unittype u0
         uz   = zone u0
         up   = position u0
-        uac  = action u0
+        uac  = head $ actions u0
         ud   = dir u0
 
 evalAction :: [[GL.TextureObject]] -> [GL.TextureObject] -> (Float, Float) -> Int -> Int -> Action -> [GL.TextureObject]
@@ -83,14 +84,20 @@ evalAction utexs _    pos dir frame (MoveTo dest speed) = theTex (utexs !! (move
 evalAction utexs _    pos dir frame (Idle p)            = theTex (utexs !! dir) frame
 evalAction _     texs _   dir frame _                   = theTex (texs) frame
 
-nextAction :: (Float, Float) -> Action -> Action
-nextAction _   NullAction          = NullAction
-nextAction pos (MoveTo dest speed)
-  | dist <= 0.1 = Idle { pos = pos }
-  | otherwise    = MoveTo { dest  = dest
-                          , speed = speed }
-  where dist = zoneLinearDistance pos dest
-nextAction _   a                   = a
+nextAction :: [Action] -> (Float, Float) -> [Action]
+nextAction [] ( _,  _) = [NullAction]
+nextAction ac (px, py)
+  | actionComplete (head ac) (px, py) = tail ac
+  | otherwise                         = ac
+
+actionComplete :: Action -> (Float, Float) -> Bool
+actionComplete (NullAction)        ( _,  _) = True
+actionComplete (Idle _)            ( _,  _) = False
+actionComplete (MoveTo dest speed) (px, py)
+  | dist <= 0.1 = True
+  | otherwise   = False
+  where dist     = zoneLinearDistance (px, py) (dx, dy)
+        (dx, dy) = dest
 
 zoneAction :: Action -> (Int, Int) -> (Int, Int)
 zoneAction ac zone = zone
@@ -110,6 +117,51 @@ dirAction :: Action -> (Float, Float) -> Int -> Int
 dirAction NullAction _ _              = 0
 dirAction (MoveTo dest speed) pos dir = moveDirection pos dest dir
 dirAction _                   _   dir = dir
+
+moveAtSpeed :: (Float, Float) -> (Float, Float) -> Float -> [Action] -> [Action]
+moveAtSpeed (px, py) (dx, dy) s a
+  | dist <= 0.2 = [Idle { pos = (px, py) }]
+  | otherwise   = nextm:(moveAtSpeed (dest nextm) (dx, dy) s a)
+  where dist  = zoneLinearDistance (px, py) (dx, dy)
+        nextm = (moveOne (px, py) (dx, dy) s)
+
+moveOne :: (Float, Float) -> (Float, Float) -> Float -> Action
+moveOne pos dest s = MoveTo { dest   = (x, y)
+                            , speed  = s
+                            }
+  where (x, y) = findMove pos dest
+
+findMove :: (Float, Float) -> (Float, Float) -> (Float, Float)
+findMove (px, py) dest = (x, y)
+  where (x, y) = bestUnitMove (px, py) bs
+        bs     = elemIndex (maximum scores) scores
+        scores = [n, s, e, w, ne, nw, se, sw]
+        n      = scoreMove (           px, (py+pathstep)) (px, py) dest
+        s      = scoreMove (           px, (py-pathstep)) (px, py) dest
+        e      = scoreMove ((px+pathstep),            py) (px, py) dest
+        w      = scoreMove ((px-pathstep),            py) (px, py) dest
+        ne     = scoreMove ((px+pathstep), (py+pathstep)) (px, py) dest
+        nw     = scoreMove ((px-pathstep), (py+pathstep)) (px, py) dest
+        se     = scoreMove ((px+pathstep), (py-pathstep)) (px, py) dest
+        sw     = scoreMove ((px-pathstep), (py-pathstep)) (px, py) dest
+
+bestUnitMove :: (Float, Float) -> Maybe Int -> (Float, Float)
+bestUnitMove (px, py) Nothing  = (px, py)
+bestUnitMove (px, py) (Just 1) = (           px, (py+pathstep))
+bestUnitMove (px, py) (Just 2) = (           px, (py-pathstep))
+bestUnitMove (px, py) (Just 3) = ((px+pathstep),            py)
+bestUnitMove (px, py) (Just 4) = ((px-pathstep),            py)
+bestUnitMove (px, py) (Just 5) = ((px+pathstep), (py+pathstep))
+bestUnitMove (px, py) (Just 6) = ((px-pathstep), (py+pathstep))
+bestUnitMove (px, py) (Just 7) = ((px+pathstep), (py-pathstep))
+bestUnitMove (px, py) (Just 8) = ((px-pathstep), (py-pathstep))
+
+
+scoreMove :: (Float, Float) -> (Float, Float) -> (Float, Float) -> Float
+scoreMove move pos dest = score
+  where score = (dist - distm)
+        dist  = zoneLinearDistance pos dest
+        distm = zoneLinearDistance move dest
 
 drawUnits :: State -> IO ()
 drawUnits state = resequence_ (map (drawUnit state) units)
@@ -133,7 +185,7 @@ animateUnit :: Unit -> Unit
 animateUnit u0 = Unit { unittexs = texs--frameControl len texs uf
                       , frame    = frameCounter len uf
                       , unittype = ut
-                      , action   = uac
+                      , actions  = uac
                       , zone     = uz
                       , position = up
                       , dir      = ud }
@@ -142,7 +194,7 @@ animateUnit u0 = Unit { unittexs = texs--frameControl len texs uf
         ut   = unittype u0
         uz   = zone u0
         up   = position u0
-        uac  = action u0
+        uac  = actions u0
         ud   = dir u0
         len  = length texs
 

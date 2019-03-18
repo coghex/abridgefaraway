@@ -189,7 +189,7 @@ moveDirection (srcx, srcy) (dstx, dsty) prev
   | ((prev == 7) || (prev == 9)  || (prev == 11) || (prev == 3)) && (dist < 0.1) = 3
   | ((prev == 8) || (prev == 10) || (prev == 12) || (prev == 4)) && (dist < 0.1) = 4
   | otherwise                                                                    = prev
-  where dirfudge = 1
+  where dirfudge = 0.1
         dist     = zoneLinearDistance (srcx, srcy) (dstx, dsty)
 
 showXYZ :: (String, String, String) -> String
@@ -242,8 +242,4 @@ crossProduct (a1, a2, a3) (b1, b2, b3) = ((a2*b3 - a3*b2), (a3*b1 - a1*b3), (a1*
 
 vmin :: (Int, Int, Int) -> (Int, Int, Int) -> (Int, Int, Int)
 vmin (a1, a2, a3) (b1, b2, b3) = ((a1-b1), (a2-b2), (a3-b3))
-
-
-
-
 

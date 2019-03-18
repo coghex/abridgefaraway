@@ -63,8 +63,13 @@ data Action = NullAction
 data Unit = Unit { unittexs :: [GL.TextureObject]
                  , frame    :: Int
                  , unittype :: Int
-                 , action   :: Action
+                 , actions  :: [Action]
                  , zone     :: (Int, Int)
                  , position :: (Float, Float)
                  , dir      :: Int
                  } deriving (Show, Eq)
+
+data Civ = Civ { civtype :: Int
+               , units   :: [Unit]
+               }
+
