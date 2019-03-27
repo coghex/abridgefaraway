@@ -14,27 +14,6 @@ executable abfa
     main-is: Main.hs
     hs-source-dirs: src
     other-modules:
-        Game.State
-        Game.Font
-        Game.Settings
-        Game.Fits
-        Game.Util
-        Game.Rand
-        Game.Draw
-        Game.World
-        Game.Map
-        Game.Elev
-        Game.Ocean
-        Game.Sky
-        Game.Time
-        Game.Sun
-        Game.Moon
-        Game.Data
-        Game.Zone
-        Game.Noise
-        Game.Unit
-        Game.Volc
-        Game.Civ
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures
