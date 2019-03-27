@@ -1,0 +1,16 @@
+!_TAG_FILE_SORTED	1	//
+Env	Game.hs	17;"	t
+Game	Game.hs	12;"	t
+Game	Game.hs	1;"	m
+GameState	Game.hs	32;"	t
+SElev	Game.hs	32;"	C
+SFucked	Game.hs	32;"	C
+SLoadElev	Game.hs	32;"	C
+SLoadWorld	Game.hs	32;"	C
+SMenu	Game.hs	32;"	C
+SPause	Game.hs	32;"	C
+SWorld	Game.hs	32;"	C
+State	Game.hs	27;"	t
+envEventsChan	Game.hs	18;"	f
+envWindow	Game.hs	21;"	f
+stateGame	Game.hs	28;"	f
