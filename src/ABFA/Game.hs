@@ -7,6 +7,7 @@ import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, gets, get, evalRWST, m
 
 import qualified GLUtil.ABFA as GLFW
 import ABFA.Event
+import ABFA.State
 
 -- the game monad wrapper, providing a threadsafe state and env
 type Game = RWST Env () State IO
@@ -20,13 +21,3 @@ data Env = Env
                                   -- communication occurs in
   , envWindow     :: !GLFW.Window -- the window defined by GLFW
   }
-
--- the game state consists of most everything time critical
--- that happens, such as window state, random seeds, screen
--- width and height, grids and zones.
-data State = State
-  { stateGame    :: !GameState
-  }
-
--- the gamestate controls which screen we are currently drawing
-data GameState = SMenu | SLoadWorld | SLoadElev | SWorld | SElev | SPause | SFucked deriving (Eq, Show)

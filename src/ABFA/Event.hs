@@ -2,18 +2,63 @@ module ABFA.Event where
 -- the event queue that handles all user input and many
 -- other things is defined
 
-import Control.Concurrent.STM (TQueue, newTQueueIO)
+import Control.Concurrent.STM (TQueue, newTQueueIO, writeTQueue, atomically)
 import Control.Concurrent.STM.TChan
 import Control.Concurrent.STM.TMVar
 
 import qualified GLUtil.ABFA as GLFW
+import ABFA.State
 
+-- type synonym
 type Queue = TQueue
 
+-- all possible events
 data Event =
-    EventError          !GLFW.Error !String
-  | EventWindowPos      !GLFW.Window !Int !Int
+    EventError           !GLFW.Error !String
+  | EventWindowPos       !GLFW.Window !Int !Int
+  | EventWindowSize      !GLFW.Window !Int !Int
+  | EventWindowClose     !GLFW.Window
+  | EventWindowRefresh   !GLFW.Window
+  | EventFrameBufferSize !GLFW.Window !Int !Int
+  | EventMouseButton     !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
+  | EventCursorPos       !GLFW.Window !Double !Double
+  | EventCursorEnter     !GLFW.Window !GLFW.CursorState
+  | EventScroll          !GLFW.Window !Double !Double
+  | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
+  | EventChar            !GLFW.Window !Char
+  | EventWindowResize    !GLFW.Window !Int !Int
+  | EventLoaded          !GameState
+  | EventUpdateState     !State
+  | EventUpdateAnimState !State
   deriving Show
 
+-- function synonym
 newQueue :: IO (TQueue Event)
 newQueue = newTQueueIO
+
+-- these event callbacks allow me to do things to GLFW or mine own program
+-- registers errors
+errorCallback :: Queue Event -> GLFW.Error -> String -> IO ()
+errorCallback tc e s = atomically $ writeTQueue tc $ EventError e s
+-- registers key states on input
+keyCallback :: Queue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys -> IO ()
+keyCallback tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey win k sc ka mk
+-- registers mouse buttons
+mouseButtonCallback :: Queue Event -> GLFW.Window -> GLFW.MouseButton -> GLFW.MouseButtonState -> GLFW.ModifierKeys -> IO ()
+mouseButtonCallback tc win mb mbs mk = atomically $ writeTQueue tc $ EventMouseButton win mb mbs mk
+-- registers mouse scrolling
+scrollCallback :: Queue Event -> GLFW.Window -> Double -> Double -> IO ()
+scrollCallback tx win x y = atomically $ writeTQueue tx $ EventScroll win x y
+-- called when the window is resized
+reshapeCallback :: Queue Event -> GLFW.Window -> Int -> Int -> IO ()
+reshapeCallback tc win w h = atomically $ writeTQueue tc $ EventWindowResize win w h
+-- call to change the state
+loadedCallback :: Queue Event -> GameState -> IO ()
+loadedCallback tc state = atomically $ writeTQueue tc $ EventLoaded state
+-- changes parts of the state with the world timer
+timerCallback :: Queue Event -> State -> IO ()
+timerCallback tc state = atomically $ writeTQueue tc $ EventUpdateState state
+-- changes parts of the state with the animation timer
+animCallback :: Queue Event -> State -> IO ()
+animCallback tc state = atomically $ writeTQueue tc $ EventUpdateAnimState state
+

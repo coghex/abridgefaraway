@@ -15,6 +15,7 @@ executable abfa
     hs-source-dirs: src
     other-modules:
         ABFA.Game
+        ABFA.State
         ABFA.Event
         GLUtil.ABFA
         GLUtil.Textures
