@@ -10,6 +10,7 @@ import Control.Concurrent.STM (TQueue, newTQueueIO, atomically, writeTQueue, try
 import Control.Concurrent.STM.TChan (TChan, newTChan, readTChan, tryReadTChan, writeTChan, dupTChan, isEmptyTChan)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen, randomRs)
+--import Foreign.Lua
 
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
