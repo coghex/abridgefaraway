@@ -17,6 +17,8 @@ executable abfa
         ABFA.Game
         ABFA.State
         ABFA.Event
+        ABFA.Settings
+        ABFA.World
         GLUtil.ABFA
         GLUtil.Textures
         GLUtil.TypeMapping
