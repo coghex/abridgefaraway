@@ -54,11 +54,14 @@ loadTex fp = do
   texture2DWrap $= (GL.Mirrored, GL.ClampToEdge)
   return t
 
-drawFont :: Font -> (Int, Int) -> String -> IO ()
-drawFont font pos str = do
+beginDrawFont :: IO ()
+beginDrawFont = do
   sceneSetup
   GL.blend $= GL.Enabled
   GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
+  
+drawFont :: Font -> (Int, Int) -> String -> IO ()
+drawFont font pos str = do
   drawFontLoop font (posr pos) str
   where posr = \(x,y) -> ((fromIntegral x), (fromIntegral y))
 
