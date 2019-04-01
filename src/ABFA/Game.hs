@@ -6,6 +6,7 @@ import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, gets, get, evalRWST, modify, local)
 
 import qualified GLUtil.ABFA as GLFW
+import GLUtil.Font
 import ABFA.Event
 import ABFA.State
 
@@ -20,4 +21,5 @@ data Env = Env
                                   -- user interface and much thread
                                   -- communication occurs in
   , envWindow     :: !GLFW.Window -- the window defined by GLFW
+  , envFonts      :: ![Font]      -- the list of fonts loaded
   }

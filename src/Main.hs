@@ -11,6 +11,10 @@ import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen)
 
 import qualified GLUtil.ABFA as GLFW
+import qualified Graphics.Rendering.OpenGL as GL
+import GLUtil.ABFA
+import GLUtil.Font
+import GLUtil.Util
 import ABFA.Game
 import ABFA.Event
 import ABFA.Settings
@@ -24,8 +28,9 @@ main = do
       fs      = fullscreen settings
       sw      = screenw settings
       sh      = screenh settings
-  --event channel handles user input, state changes, and loading screens
+  -- event channel handles user input, state changes, and loading screens
   eventsChan <- newQueue --newTQueueIO :: IO (TQueue Event)
+
 
   -- opens the GLFW and sets the callbacks to handle errors and user input
   GLFW.withWindow fs sw sh "A Bridge Far Away..." $ \window -> do
@@ -36,10 +41,16 @@ main = do
     GLFW.setScrollCallback      window $ Just $ scrollCallback      eventsChan
     GLFW.swapInterval 0
 
-    let env = Env
-                { envEventsChan = eventsChan
-                , envWindow     = window
-                }
+    -- loads all textures into memory
+    ftex <- liftIO $ loadAllTextures window
+    -- loads the default font
+    let fonts = makeFonts(ftex)
+
+    --creates the enviornment
+    let env = Env { envEventsChan = eventsChan
+                  , envWindow     = window
+                  , envFonts      = fonts
+                  }
     -- runs the whole monad
     void $ evalRWST run env state
 
@@ -54,7 +65,7 @@ run = do
     liftIO $ do
       GLFW.swapBuffers window
       GLFW.pollGLFWEvents
-      GLFW.getGLErrors
+      getGLErrors
       whileM_ ((\cur -> (cur - tick) < (1.0/framespersecond)) <$> getCurTick) (return ())
       draw (stateGame state) state env
     processEvents
@@ -62,7 +73,9 @@ run = do
 
 draw :: GameState -> State -> Env -> IO ()
 draw SMenu state env = do
-  print "menu"
+  GL.preservingMatrix $ do
+    drawFont dfont (60, 40) "abcdabcdabcdabcdabcdabcdabcdabcdabcdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  where dfont = (envFonts env) !! 1
 draw _ _ _ = do
   print "fuck"
 

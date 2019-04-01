@@ -3,9 +3,15 @@ module GLUtil.ABFA where
 -- away to allow for new graphics libs (eg vulkan)
 -- in the future.
 
+import Data.Bits ((.|.))
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
 import qualified Graphics.UI.GLFW as GLFW
+import Graphics.GL
+import Graphics.GLU
+import Graphics.UI.GLUT (($=))
+import GLUtil.Util
+import GLUtil.Font
 
 -- these are just type synonyms
 type Window           = GLFW.Window
@@ -46,14 +52,6 @@ keyPressed ks          = ks == GLFW.KeyState'Pressed
 keyEscape              :: GLFW.Key -> Bool
 keyEscape k            = k == GLFW.Key'Escape
 
-
-
--- used to print GL errors
-getGLErrors :: IO ()
-getGLErrors = do
-  err <- GL.get GL.errors
-  mapM_ print err
-
 -- this will use GLFW to create a window and destroy it when closed
 withWindow :: Bool -> Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()
 withWindow True ww wh title f = GLFW.terminate
@@ -83,3 +81,33 @@ initWindow width height = do
     GLU.perspective 45 (1/h) (0.1) 500
     GL.matrixMode GL.$= GL.Modelview 0
     GL.loadIdentity
+
+-- this will resize the scene
+resizeScene :: GLFW.WindowSizeCallback
+resizeScene win w     0      = resizeScene win w 1
+resizeScene _   width height = do
+  glViewport 0 0 (fromIntegral width) (fromIntegral height)
+  glMatrixMode GL_PROJECTION
+  glLoadIdentity
+  gluPerspective 45 (fromIntegral width/fromIntegral height) 0.1 500
+  gluLookAt 0.0 0.0 0.0 0.0 0.0 (-1.0) 0.0 1.0 0.0
+  glMatrixMode GL_MODELVIEW
+  glLoadIdentity
+  glFlush
+
+-- this will load all of the games textures
+loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]])
+loadAllTextures win = do
+  glEnable GL_TEXTURE_2D
+  glShadeModel GL_SMOOTH
+  glClearColor 0 0 0 0
+  glClearDepth 1
+  glEnable GL_DEPTH_TEST
+  glDepthFunc GL_LEQUAL
+  glEnable GL_BLEND
+  glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+  glHint GL_PERSPECTIVE_CORRECTION_HINT GL_NICEST
+  (w, h) <- GLFW.getFramebufferSize win
+  resizeScene win w h
+  ftex <- loadFontTextures "data/fonts/"
+  return (ftex)

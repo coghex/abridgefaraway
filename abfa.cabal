@@ -20,6 +20,8 @@ executable abfa
         ABFA.Settings
         ABFA.World
         GLUtil.ABFA
+        GLUtil.Util
+        GLUtil.Font
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures
