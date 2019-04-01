@@ -4,6 +4,7 @@ Action	src/Game/Data.hs	56;"	t
 AsUniform	src/GLUtil/Linear.hs	17;"	c
 BufferObjects	src/GLUtil/BufferObjects.hs	3;"	m
 BufferSource	src/GLUtil/BufferObjects.hs	87;"	c
+CQFONT	src/GLUtil/Font.hs	17;"	C
 Camera	src/GLUtil/Camera3D.hs	25;"	t
 Camera2D	src/GLUtil/Camera2D.hs	4;"	m
 Camera3D	src/GLUtil/Camera3D.hs	7;"	m
@@ -57,10 +58,11 @@ EventWindowResize	src/Game/State.hs	88;"	C
 EventWindowSize	src/ABFA/Event.hs	19;"	C
 EventWindowSize	src/Game/State.hs	78;"	C
 Fits	src/Game/Fits.hs	1;"	m
-Font	src/GLUtil/Font.hs	17;"	t
+Font	src/GLUtil/Font.hs	18;"	t
 Font	src/GLUtil/Font.hs	1;"	m
 Font	src/Game/Font.hs	1;"	m
 FontData	src/Game/FontData.hs	2;"	m
+FontType	src/GLUtil/Font.hs	17;"	t
 GLError	src/GLUtil/GLError.hs	25;"	t
 GLError	src/GLUtil/GLError.hs	3;"	m
 GLUtil	src/GLUtil/GLUtil.hs	3;"	m
@@ -91,6 +93,7 @@ Moon	src/Game/Moon.hs	1;"	m
 MouseButton	src/GLUtil/ABFA.hs	19;"	t
 MouseButtonState	src/GLUtil/ABFA.hs	20;"	t
 MoveTo	src/Game/Data.hs	59;"	C
+NULLFONT	src/GLUtil/Font.hs	17;"	C
 Noise	src/Game/Noise.hs	1;"	m
 North	src/Game/Map.hs	10;"	C
 NotSet	src/Game/Settings.hs	5;"	C
@@ -121,6 +124,7 @@ SLoadWind	src/Game/State.hs	16;"	C
 SLoadWorld	src/ABFA/State.hs	15;"	C
 SLoadZone	src/Game/State.hs	16;"	C
 SLoadZoneElev	src/Game/State.hs	16;"	C
+SMFONT	src/GLUtil/Font.hs	17;"	C
 SMenu	src/ABFA/State.hs	15;"	C
 SMenu	src/Game/State.hs	16;"	C
 SPause	src/ABFA/State.hs	15;"	C
@@ -212,7 +216,7 @@ attribs	src/GLUtil/ShaderProgram.hs	36;"	f
 avgElev	src/Game/Elev.hs	157;"	f
 bar	src/Game/Data.hs	12;"	f
 bathypelagic	src/Game/Data.hs	20;"	f
-beginDrawFont	src/GLUtil/Font.hs	59;"	f
+beginDrawFont	src/GLUtil/Font.hs	65;"	f
 beginDrawText	src/Game/Font.hs	25;"	f
 bestMove	src/Game/Zone.hs	538;"	f
 bestUnitMove	src/Game/Unit.hs	148;"	f
@@ -280,9 +284,9 @@ drawElevRow	src/Game/Elev.hs	23;"	f
 drawElevSpot	src/Game/Elev.hs	26;"	f
 drawElevSquare	src/Game/Elev.hs	43;"	f
 drawElevTile	src/Game/Elev.hs	29;"	f
-drawFont	src/GLUtil/Font.hs	65;"	f
-drawFontLoop	src/GLUtil/Font.hs	70;"	f
-drawFontSquare	src/GLUtil/Font.hs	80;"	f
+drawFont	src/GLUtil/Font.hs	71;"	f
+drawFontLoop	src/GLUtil/Font.hs	76;"	f
+drawFontSquare	src/GLUtil/Font.hs	87;"	f
 drawIndexedTris	src/GLUtil/Drawing.hs	10;"	f
 drawNullTile	src/Game/Ocean.hs	139;"	f
 drawNullTile	src/Game/Sky.hs	73;"	f
@@ -410,7 +414,7 @@ fdiv	src/Game/Map.hs	153;"	f
 findAllBestScores	src/Game/Zone.hs	562;"	f
 findBestScores	src/Game/Zone.hs	565;"	f
 findElev	src/Game/Elev.hs	116;"	f
-findLetter	src/GLUtil/Font.hs	88;"	f
+findLetter	src/GLUtil/Font.hs	95;"	f
 findMove	src/Game/Unit.hs	134;"	f
 findOpenSpace	src/Game/Zone.hs	483;"	f
 findOpenSpaceChunk	src/Game/Zone.hs	392;"	f
@@ -429,7 +433,8 @@ fitGap	src/Game/Zone.hs	642;"	f
 fixContSpots	src/Game/World.hs	291;"	f
 fixConts	src/Game/World.hs	288;"	f
 flattenGrid	src/Game/Map.hs	223;"	f
-fontfilepath	src/GLUtil/Font.hs	17;"	f
+fontfilepath	src/GLUtil/Font.hs	18;"	f
+fonttype	src/GLUtil/Font.hs	19;"	f
 formatDesireability	src/Game/Civ.hs	97;"	f
 formatElev	src/Game/Elev.hs	166;"	f
 formatHumidity	src/Game/Sky.hs	547;"	f
@@ -470,7 +475,7 @@ getAirTemps	src/Game/Sky.hs	558;"	f
 getAttrib	src/GLUtil/ShaderProgram.hs	202;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getCurTick	/home/hoest/temp/abridgefaraway/src/Main.hs	481;"	f
-getCurTick	src/Main.hs	99;"	f
+getCurTick	src/Main.hs	100;"	f
 getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	47;"	f
 getDes	src/Game/Civ.hs	101;"	f
@@ -565,10 +570,9 @@ linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
 linkShaderProgramWith	src/GLUtil/Shaders.hs	47;"	f
 loadAllTextures	src/GLUtil/ABFA.hs	99;"	f
 loadETextures	src/Game/Util.hs	453;"	f
-loadFont	src/GLUtil/Font.hs	31;"	f
 loadFont	src/Game/Font.hs	31;"	f
-loadFontTextures	src/GLUtil/Font.hs	44;"	f
-loadNTexs	src/GLUtil/Font.hs	37;"	f
+loadFontTextures	src/GLUtil/Font.hs	50;"	f
+loadNTexs	src/GLUtil/Font.hs	43;"	f
 loadNTexs	src/Game/Util.hs	345;"	f
 loadShader	src/GLUtil/Shaders.hs	18;"	f
 loadShaderBS	src/GLUtil/Shaders.hs	23;"	f
@@ -578,7 +582,7 @@ loadShaderProgramBS	src/GLUtil/ShaderProgram.hs	123;"	f
 loadShaderProgramWith	src/GLUtil/ShaderProgram.hs	96;"	f
 loadShaderProgramWith'	src/GLUtil/ShaderProgram.hs	105;"	f
 loadShaderProgramWithBS	src/GLUtil/ShaderProgram.hs	100;"	f
-loadTex	src/GLUtil/Font.hs	52;"	f
+loadTex	src/GLUtil/Font.hs	58;"	f
 loadTex	src/Game/Util.hs	461;"	f
 loadTexture	src/GLUtil/Textures.hs	87;"	f
 loadUTextures	src/Game/Util.hs	439;"	f
@@ -595,7 +599,7 @@ main	Setup.hs	2;"	f
 main	src/Main.hs	23;"	f
 makeBuffer	src/GLUtil/BufferObjects.hs	14;"	f
 makeBufferLen	src/GLUtil/BufferObjects.hs	20;"	f
-makeFonts	src/GLUtil/Font.hs	28;"	f
+makeFonts	src/GLUtil/Font.hs	33;"	f
 makeMoon	src/Game/Moon.hs	16;"	f
 makePerlin	src/Game/Noise.hs	5;"	f
 makeSeeds	src/Game/Rand.hs	18;"	f
@@ -644,7 +648,7 @@ moveZoneCursor	src/Game/Zone.hs	153;"	f
 nFitScore	src/Game/Zone.hs	571;"	f
 namedUniform	src/GLUtil/Shaders.hs	58;"	f
 namedUniformMat	src/GLUtil/Shaders.hs	96;"	f
-newFont	src/GLUtil/Font.hs	20;"	f
+newFont	src/GLUtil/Font.hs	23;"	f
 newOcean	src/Game/Ocean.hs	194;"	f
 newOceanRow	src/Game/Ocean.hs	188;"	f
 newOceanSpot	src/Game/Ocean.hs	191;"	f
@@ -664,7 +668,7 @@ normElev	src/Game/Elev.hs	149;"	f
 normElevCrags	src/Game/Elev.hs	153;"	f
 normalizeElevs	src/Game/Elev.hs	169;"	f
 ntiles	src/Game/Settings.hs	101;"	f
-nullFont	src/GLUtil/Font.hs	24;"	f
+nullFont	src/GLUtil/Font.hs	28;"	f
 nulltile	src/Game/Settings.hs	110;"	f
 nzazz	src/Game/Settings.hs	103;"	f
 offset0	src/GLUtil/BufferObjects.hs	82;"	f
@@ -694,9 +698,9 @@ printError	src/GLUtil/GLError.hs	13;"	f
 printErrorMsg	src/GLUtil/GLError.hs	18;"	f
 printGLErrors	src/GLUtil/GLError.hs	31;"	f
 processEvent	/home/hoest/temp/abridgefaraway/src/Main.hs	498;"	f
-processEvent	src/Main.hs	115;"	f
+processEvent	src/Main.hs	116;"	f
 processEvents	/home/hoest/temp/abridgefaraway/src/Main.hs	487;"	f
-processEvents	src/Main.hs	105;"	f
+processEvents	src/Main.hs	106;"	f
 program	src/GLUtil/ShaderProgram.hs	38;"	f
 projectionMatrix	src/GLUtil/Camera3D.hs	133;"	f
 pvnrt	src/Game/Ocean.hs	304;"	f
@@ -859,7 +863,7 @@ texData	src/GLUtil/Textures.hs	25;"	f
 texHeight	src/GLUtil/Textures.hs	23;"	f
 texInfo	src/GLUtil/Textures.hs	29;"	f
 texWidth	src/GLUtil/Textures.hs	22;"	f
-texs	src/GLUtil/Font.hs	18;"	f
+texs	src/GLUtil/Font.hs	20;"	f
 texture2DWrap	src/GLUtil/Textures.hs	123;"	f
 texture3DWrap	src/GLUtil/Textures.hs	130;"	f
 theBigSpotter	src/Game/Sun.hs	32;"	f
@@ -881,7 +885,7 @@ tiltGlobalRad	src/GLUtil/Camera3D.hs	73;"	f
 tiltRad	src/GLUtil/Camera3D.hs	60;"	f
 time	src/Game/Data.hs	58;"	f
 timedLoop	/home/hoest/temp/abridgefaraway/src/Main.hs	468;"	f
-timedLoop	src/Main.hs	86;"	f
+timedLoop	src/Main.hs	87;"	f
 timerCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	843;"	f
 timerCallback	src/ABFA/Event.hs	66;"	f
 track	src/GLUtil/Camera2D.hs	20;"	f
@@ -915,7 +919,7 @@ vz	src/Game/Data.hs	29;"	f
 wFitScore	src/Game/Zone.hs	577;"	f
 wfitlist	src/Game/Fits.hs	1165;"	f
 whileM_	/home/hoest/temp/abridgefaraway/src/Main.hs	476;"	f
-whileM_	src/Main.hs	94;"	f
+whileM_	src/Main.hs	95;"	f
 windowShouldClose	src/GLUtil/ABFA.hs	44;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
