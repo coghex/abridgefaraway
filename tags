@@ -280,8 +280,8 @@ drawElevSpot	src/Game/Elev.hs	26;"	f
 drawElevSquare	src/Game/Elev.hs	43;"	f
 drawElevTile	src/Game/Elev.hs	29;"	f
 drawFont	src/GLUtil/Font.hs	57;"	f
-drawFontLoop	src/GLUtil/Font.hs	64;"	f
-drawFontSquare	src/GLUtil/Font.hs	73;"	f
+drawFontLoop	src/GLUtil/Font.hs	65;"	f
+drawFontSquare	src/GLUtil/Font.hs	75;"	f
 drawIndexedTris	src/GLUtil/Drawing.hs	10;"	f
 drawNullTile	src/Game/Ocean.hs	139;"	f
 drawNullTile	src/Game/Sky.hs	73;"	f
@@ -409,7 +409,7 @@ fdiv	src/Game/Map.hs	153;"	f
 findAllBestScores	src/Game/Zone.hs	562;"	f
 findBestScores	src/Game/Zone.hs	565;"	f
 findElev	src/Game/Elev.hs	116;"	f
-findLetter	src/GLUtil/Font.hs	81;"	f
+findLetter	src/GLUtil/Font.hs	83;"	f
 findMove	src/Game/Unit.hs	134;"	f
 findOpenSpace	src/Game/Zone.hs	483;"	f
 findOpenSpaceChunk	src/Game/Zone.hs	392;"	f

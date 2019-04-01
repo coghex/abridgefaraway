@@ -74,7 +74,7 @@ run = do
 draw :: GameState -> State -> Env -> IO ()
 draw SMenu state env = do
   GL.preservingMatrix $ do
-    drawFont dfont (60, 40) "abcdabcdabcdabcdabcdabcdabcdabcdabcdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    drawFont dfont (0, 0) "the quick brown fox jumps over the lazy dog"
   where dfont = (envFonts env) !! 1
 draw _ _ _ = do
   print "fuck"
