@@ -26,7 +26,7 @@ nullFont        = Font { fontfilepath = ""
                        , texs         = [] }
 
 makeFonts :: [[GL.TextureObject]] -> [Font]
-makeFonts texs = [nullFont, (newFont "data/fonts/sm/smalph" (texs!!1))]
+makeFonts texs = [nullFont, (newFont "data/fonts/sm/smalph" (texs!!1)), (newFont "data/fonts/smwhite/smalph" (texs !! 2))]
 
 loadFont :: String -> IO (Font)
 loadFont fp = do
@@ -43,9 +43,11 @@ loadNTexs n fp texs = do
 
 loadFontTextures :: String -> IO ([[GL.TextureObject]])
 loadFontTextures str = do
-  smfont <- loadNTexs 80 smfp []
-  return $ [[], smfont]
-  where smfp   = str ++ "sm/smalph"
+  smfont      <- loadNTexs 80 smfp []
+  smwhitefont <- loadNTexs 80 smwhitefp []
+  return $ [[], smfont, smwhitefont]
+  where smfp      = str ++ "sm/smalph"
+        smwhitefp = str ++ "smwhite/smalph"
 
 loadTex :: String -> IO (GL.TextureObject)
 loadTex fp = do

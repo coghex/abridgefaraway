@@ -78,6 +78,7 @@ draw SMenu state env = do
   drawFont dfont (0, 1) "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"
   --drawFontLoop dfont (0, 40) "THE"
   where dfont = (envFonts env) !! 1
+        wfont = (envFonts env) !! 2
 draw _ _ _ = do
   print "fuck"
 
