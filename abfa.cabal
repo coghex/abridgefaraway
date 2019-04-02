@@ -19,6 +19,7 @@ executable abfa
         ABFA.Event
         ABFA.Settings
         ABFA.World
+        ABFA.UI
         GLUtil.ABFA
         GLUtil.Util
         GLUtil.Font

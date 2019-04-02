@@ -19,6 +19,7 @@ import ABFA.Game
 import ABFA.Event
 import ABFA.Settings
 import ABFA.State
+import ABFA.UI
 
 main :: IO ()
 main = do
@@ -73,13 +74,7 @@ run = do
 
 draw :: GameState -> State -> Env -> IO ()
 draw SMenu state env = do
-  beginDrawFont
-  drawFont dfont (0, 0) "the quick brown fox jumps over the lazy dog"
-  drawFont dfont (0, 1) "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"
-  drawFont cfont (0, 2) "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"
-  --drawFontLoop dfont (0, 40) "THE"
-  where dfont = (envFonts env) !! 1
-        cfont = (envFonts env) !! 2
+  drawMenu state env
 draw _ _ _ = do
   print "fuck"
 

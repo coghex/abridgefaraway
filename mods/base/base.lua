@@ -10,6 +10,9 @@ screenh = 1440
 -- weather or not the game is fullscreen
 fullscreen = false
 
+-- the size of the fonts
+fontsize = 40
+
 -- frames per second of display
 fps = 30.0
 

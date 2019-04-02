@@ -15,6 +15,7 @@ import GLUtil.Textures
 import GLUtil.JuicyTextures
 
 data FontType = NULLFONT | SMFONT | CQFONT deriving (Show, Eq)
+data FontAttribute = FBOLD | FRED | FYELLOW | FBLUE | FITALIC | FNULL deriving (Show, Eq)
 data Font = Font { fontfilepath :: String
                  , fonttype     :: FontType
                  , texs         :: [GL.TextureObject] } deriving (Show, Eq)
@@ -68,26 +69,28 @@ beginDrawFont = do
   GL.blend $= GL.Enabled
   GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
   
-drawFont :: Font -> (Int, Int) -> String -> IO ()
-drawFont font pos str = do
-  drawFontLoop font (posr pos) str
-  where posr = \(x,y) -> ((fromIntegral x), (fromIntegral y))
+drawFont :: Font -> Int -> FontAttribute -> (Float, Float) -> String -> IO ()
+drawFont font size attr pos str = drawFontLoop font size attr pos str
 
-drawFontLoop :: Font -> (Float, Float) -> String -> IO ()
-drawFontLoop _    (_, _) []      = glFlush
-drawFontLoop font (x, y) (l:str) = do
-  withTextures2D [(ts!!n)] $ drawFontSquare ts l thiszoom x y
-  drawFontLoop font ((x+(nstep)), y) str
-  where thiszoom = 50
-        ts         = texs font
+drawFontLoop :: Font -> Int -> FontAttribute -> (Float, Float) -> String -> IO ()
+drawFontLoop _    _    _    (_, _) []      = glFlush
+drawFontLoop font size attr (x, y) (l:str) = do
+  withTextures2D [(ts!!n)] $ drawFontSquare ts attr l (fromIntegral size) x y
+  drawFontLoop font size attr ((x+(nstep)), y) str
+  where ts         = texs font
         (n, nsize) = findLetter ft l
         nstep      = (fromIntegral nsize) / 32.0
         ft         = fonttype font
 
-drawFontSquare :: [GL.TextureObject] -> Char -> Float -> Float -> Float -> IO ()
-drawFontSquare texs c zoom x y = do
+drawFontSquare :: [GL.TextureObject] -> FontAttribute -> Char -> Float -> Float -> Float -> IO ()
+drawFontSquare texs FYELLOW c zoom x y = do
   glLoadIdentity
-  glTranslatef (2*((x))) (2*((y))) (-zoom)
+  glTranslatef (2*x) (2*y) (-zoom)
+  glColor3f 0.9 1.0 0.4
+  drawSquare
+drawFontSquare texs attr    c zoom x y = do
+  glLoadIdentity
+  glTranslatef (2*x) (2*y) (-zoom)
   glColor3f 1.0 1.0 1.0
   drawSquare
 
@@ -147,7 +150,7 @@ findLetter SMFONT 'S'  = (50, 12)
 findLetter SMFONT 'T'  = (51, 12)
 findLetter SMFONT 'U'  = (52, 16)
 findLetter SMFONT 'V'  = (53, 20)
-findLetter SMFONT 'W'  = (54, 16)
+findLetter SMFONT 'W'  = (54, 24)
 findLetter SMFONT 'X'  = (55, 16)
 findLetter SMFONT 'Y'  = (56, 16)
 findLetter SMFONT 'Z'  = (57, 16)
@@ -204,7 +207,7 @@ findLetter CQFONT '('  = (28, 12)
 findLetter CQFONT ')'  = (29, 12)
 findLetter CQFONT '\'' = (30,  8)
 findLetter CQFONT '"'  = (31,  8)
-findLetter CQFONT 'A'  = (32, 30)
+findLetter CQFONT 'A'  = (32, 28)
 findLetter CQFONT 'B'  = (33, 24)
 findLetter CQFONT 'C'  = (34, 26)
 findLetter CQFONT 'D'  = (35, 26)
@@ -253,3 +256,9 @@ findLetter CQFONT '%'  = (77, 26)
 findLetter CQFONT '&'  = (78, 26)
 findLetter SMFONT c    = (79, 12)
 findLetter CQFONT c    = (79, 24)
+
+-- returns the length of a string in a certain font
+lengthOfString :: Font -> String -> Float
+lengthOfString _    []      = 0
+lengthOfString font (c:str) = ((fromIntegral (snd (findLetter ft c))) / 32.0) + (lengthOfString font str)
+   where ft = fonttype font
