@@ -20,6 +20,8 @@ executable abfa
         ABFA.Settings
         ABFA.World
         ABFA.UI
+        ABFA.Rand
+        ABFA.Time
         GLUtil.ABFA
         GLUtil.Util
         GLUtil.Font

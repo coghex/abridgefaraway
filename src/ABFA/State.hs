@@ -1,5 +1,6 @@
 module ABFA.State where
 import ABFA.Settings
+import ABFA.Data
 
 -- the state is defined
 
@@ -7,8 +8,16 @@ import ABFA.Settings
 -- that happens, such as window state, random seeds, screen
 -- width and height, grids and zones.
 data State = State
-  { stateGame     :: !GameState -- the current screen
-  , stateSettings :: !Settings  -- the currents settings
+  { stateGame     :: !GameState   -- the current screen
+  , stateSettings :: !Settings    -- the currents settings
+  , stateWParams  :: !WorldParams -- parameters for the world generator
+  , stateStdGens  :: ![StdGen]    -- a set of rngs
+  , stateZoom     :: !Float       -- the zoom when in the zone screen
+  , stateGrid     :: ![Int]       -- the world grid
+  , stateOG       :: ![Int]       -- the original world grid
+  , stateElev     :: ![Int]       -- the average elevation of each tile
+  , stateCursor   :: !(Int, Int)  -- the cursor position
+  , stateTime     :: !Integer     -- the time since 0
   } deriving (Eq, Show)
 
 -- the gamestate controls which screen we are currently drawing
@@ -16,5 +25,13 @@ data GameState = SMenu | SLoadWorld | SLoadElev | SWorld | SElev | SPause | SFuc
 
 -- initializes the state
 initState :: GameState -> Settings -> State
-initState gs settings = State { stateGame = gs
-                              , stateSettings = settings }
+initState gs settings stdgens = State { stateGame     = gs
+                                      , stateSettings = settings
+                                      , stateWParams  = NULLPARAMS
+                                      , stateStdGens  = []
+                                      , stateZoom     = 1
+                                      , stateGrid     = []
+                                      , stateOG       = []
+                                      , stateElev     = []
+                                      , stateCursor   = (5, 5)
+                                      , stateTimer    = 0 }

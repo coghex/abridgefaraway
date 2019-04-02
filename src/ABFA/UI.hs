@@ -23,8 +23,10 @@ drawMenu state env = do
       fsize    = fontsize settings
   beginDrawFont
   drawFont cfont fsize FNULL   (x, y) "A Bridge Far Away..."
-  drawFont dfont fsize FYELLOW (x, (y-4)) "C"
-  drawFont dfont fsize FNULL   ((x+(lengthOfString dfont "C")), (y-4)) "reate New World"
+  drawFont dfont fsize FYELLOW (x, (y-3)) "C"
+  drawFont dfont fsize FNULL   ((x+(lengthOfString dfont "C")), (y-3)) "reate New World"
+  drawFont dfont fsize FYELLOW (x, (y-4)) "S"
+  drawFont dfont fsize FNULL   ((x+(lengthOfString dfont "S")), (y-4)) "ettings"
   drawFont dfont fsize FYELLOW (x, (y-5)) "Esc"
   drawFont dfont fsize FNULL   ((x+(lengthOfString dfont "Esc")), (y-5)) "ape"
 

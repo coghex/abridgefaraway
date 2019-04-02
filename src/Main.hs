@@ -20,6 +20,7 @@ import ABFA.Event
 import ABFA.Settings
 import ABFA.State
 import ABFA.UI
+import ABFA.Rand
 
 main :: IO ()
 main = do
@@ -47,12 +48,39 @@ main = do
     -- loads the default font
     let fonts = makeFonts(ftex)
 
+    -- this will provide some seeds to have consistent randomness
+    seeds <- makeSeeds
+    -- these channels pass data between the main GL thread and the timer threads
+    -- these channels are for updating the main game state when changes occur in one of the threads
+    stateChan1 <- newChan
+    stateChan2 <- newChan
+    -- these channels handle updating the timer's state (pause, unpause, etc)
+    wTimerChan <- newChan
+    aTimerChan <- newChan
+
     --creates the enviornment
     let env = Env { envEventsChan = eventsChan
                   , envWindow     = window
                   , envFonts      = fonts
+                  , envWTex       = []
+                  , envZTex       = [[]]
+                  , envUTex       = [[]]
+                  , envZazzTex    = [[[]]]
+                  , envStateChan1 = stateChan1
+                  , envStateChan2 = stateChan2
+                  , envWTimerChan = wTimerChan
+                  , envATimerChan = aTimerChan
                   }
-    -- runs the whole monad
+
+    -- forks the timers initially stopped, 100 is pretty fast, 1000 means one game min = one real sec
+    -- the timer states are not guaranteed to be correct, since they do different things, only the main
+    -- GL state is correct
+    -- timer handles the world events, weather, time, etc. since its slow, its safe to do lots of math here
+    forkIO $ (worldTime env state 1000 TStop)
+    -- timer handles animation of the units
+    forkIO $ (animTime env state 100 TStop)
+
+    -- runs the whole game monad
     void $ evalRWST run env state
 
 -- this is the main GL loop
