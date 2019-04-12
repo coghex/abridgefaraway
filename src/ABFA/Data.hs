@@ -3,16 +3,55 @@ module ABFA.Data where
 
 import qualified Graphics.Rendering.OpenGL as GL
 
+-- starts stops and pauses the timers
+data TimerState = TStart | TStop | TPause
 
-data WorldParams = NULLPARAMS | WorldParams { nconts :: Int
-                                            , conts  :: ![(Int, Int)]
-                                            , seeds  :: ![[(Int, Int)]]
-                                            , rands  :: ![[(Int, Int)]]
-                                            , sizes  :: ![Int]
-                                            , types  :: ![Int]
-                                            , randi  :: !Int
-                                            , rrands :: ![Int]
-                                            }
+-- settings datatype
+data Settings = Settings
+  { settingScreenW    :: Int
+  , settingScreenH    :: Int
+  , settingRefSW      :: Int
+  , settingRefSH      :: Int
+  , settingFullscreen :: Bool
+  , settingFontSize   :: Int
+  , settingFPS        :: Double
+  , settingTimeSpeed  :: Int
+  , settingAnimSpeed  :: Int
+  , settingHistory    :: Int
+  , settingPrecision  :: Int
+  , settingGridW      :: Int
+  , settingGridH      :: Int
+  , settingWGSettings :: WorldGenSettings
+  } deriving (Eq, Show)
+
+-- world settings for the generator, these get manipulated into the world parameters
+data WorldGenSettings = WorldGenSettings
+  { wgFudge     :: Int
+  , wgSalt      :: Int
+  , wgSugar     :: Float
+  , wgVigor     :: Int
+  , wgMinNConts :: Int
+  , wgMaxNConts :: Int
+  , wgMinSize   :: Int
+  , wgMaxSize   :: Int
+  , wgMinNSpots :: Int
+  , wgMaxNSpots :: Int
+  , wgSealevel  :: Int
+  , wgPeaklevel :: Int
+  } deriving (Eq, Show)
+
+-- worldparameters for the generator
+data WorldParams = NULLPARAMS | WorldParams { wpNConts :: Int
+                                            , wpConts  :: ![(Int, Int)]
+                                            , wpSeeds  :: ![[(Int, Int)]]
+                                            , wpRands  :: ![[(Int, Int)]]
+                                            , wpSizes  :: ![Int]
+                                            , wpTypes  :: ![Int]
+                                            , wpRandI  :: !Int
+                                            , wpRRands :: ![Int]
+                                            } deriving (Show, Eq)
+
+
 
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone

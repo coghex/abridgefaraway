@@ -16,20 +16,24 @@ import GLUtil.ABFA
 import GLUtil.Font
 import GLUtil.Util
 import ABFA.Game
+import ABFA.Data
 import ABFA.Event
 import ABFA.Settings
 import ABFA.State
+import ABFA.Time
 import ABFA.UI
 import ABFA.Rand
 
 main :: IO ()
 main = do
+  -- this will provide some seeds to have consistent randomness
+  seeds <- newSeeds
   -- this will import screen width and height from lua script
   settings <- importSettings
-  let state   = initState SMenu settings
-      fs      = fullscreen settings
-      sw      = screenw settings
-      sh      = screenh settings
+  let state   = initState SMenu seeds settings
+      fs      = settingFullscreen settings
+      sw      = settingScreenW settings
+      sh      = settingScreenH settings
   -- event channel handles user input, state changes, and loading screens
   eventsChan <- newQueue --newTQueueIO :: IO (TQueue Event)
 
@@ -48,12 +52,12 @@ main = do
     -- loads the default font
     let fonts = makeFonts(ftex)
 
-    -- this will provide some seeds to have consistent randomness
-    seeds <- makeSeeds
     -- these channels pass data between the main GL thread and the timer threads
     -- these channels are for updating the main game state when changes occur in one of the threads
     stateChan1 <- newChan
     stateChan2 <- newChan
+    stateChan3 <- newChan
+    stateChan4 <- newChan
     -- these channels handle updating the timer's state (pause, unpause, etc)
     wTimerChan <- newChan
     aTimerChan <- newChan
@@ -68,6 +72,8 @@ main = do
                   , envZazzTex    = [[[]]]
                   , envStateChan1 = stateChan1
                   , envStateChan2 = stateChan2
+                  , envStateChan3 = stateChan3
+                  , envStateChan4 = stateChan4
                   , envWTimerChan = wTimerChan
                   , envATimerChan = aTimerChan
                   }
@@ -89,7 +95,7 @@ run = do
   env <- ask
   timedLoop $ \lastTick tick -> do
     state <- get
-    let framespersecond = (fps (stateSettings state))
+    let framespersecond = (settingFPS (stateSettings state))
     window <- asks envWindow
     liftIO $ do
       GLFW.swapBuffers window

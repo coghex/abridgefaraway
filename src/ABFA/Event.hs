@@ -5,6 +5,7 @@ module ABFA.Event where
 import qualified Control.Concurrent.STM as STM
 import Control.Concurrent.STM.TChan
 import Control.Concurrent.STM.TMVar
+import qualified Control.Concurrent as CC
 
 import qualified GLUtil.ABFA as GLFW
 import ABFA.State
@@ -30,17 +31,28 @@ data Event =
   | EventLoaded          !GameState
   | EventUpdateState     !State
   | EventUpdateAnimState !State
-  deriving Show
 
 -- function synonym
 newQueue     :: IO (STM.TQueue Event)
 newQueue     = STM.newTQueueIO
 tryReadQueue :: STM.TQueue a -> STM.STM (Maybe a)
 tryReadQueue = STM.tryReadTQueue
+readQueue    :: STM.TQueue a -> STM.STM a
+readQueue    = STM.readTQueue
 writeQueue   :: STM.TQueue a -> a -> STM.STM ()
 writeQueue   = STM.writeTQueue
+tryReadChan  :: STM.TChan a -> STM.STM (Maybe a)
+tryReadChan  = STM.tryReadTChan
+newChan      :: IO (TChan a)
+newChan      = atomically $ STM.newTChan
+readChan     :: STM.TChan a -> STM.STM a
+readChan     = STM.readTChan
+writeChan    :: STM.TChan a -> a -> STM.STM ()
+writeChan    = STM.writeTChan
 atomically   :: STM.STM a -> IO a
 atomically   = STM.atomically
+threadDelay  :: Int -> IO ()
+threadDelay  = CC.threadDelay
 
 
 -- these event callbacks allow me to do things to GLFW or mine own program

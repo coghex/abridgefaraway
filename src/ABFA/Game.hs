@@ -4,11 +4,14 @@ module ABFA.Game where
 
 import Control.Monad.Trans (MonadIO)
 import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, gets, get, evalRWST, modify, local)
+import qualified Graphics.Rendering.OpenGL as GL
+import Control.Concurrent.STM.TChan
 
 import qualified GLUtil.ABFA as GLFW
 import GLUtil.Font
 import ABFA.Event
 import ABFA.State
+import ABFA.Data
 
 -- the game monad wrapper, providing a threadsafe state and env
 type Game = RWST Env () State IO
@@ -28,6 +31,8 @@ data Env = Env
   , envZazzTex    :: ![[[GL.TextureObject]]] -- extra textures
   , envStateChan1 :: TChan State             -- chan to send state to main
   , envStateChan2 :: TChan State             -- chan to send state to world timer       
+  , envStateChan3 :: TChan State             -- another set of chans to
+  , envStateChan4 :: TChan State             -- send and recieve state from the anim timer
   , envWTimerChan :: TChan TimerState        -- chan to start world timer
   , envATimerChan :: TChan TimerState        -- chan to start animation timer
   }

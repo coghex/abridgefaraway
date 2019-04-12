@@ -1,7 +1,6 @@
--- base mod
+-- config mod
 
--- imports all the settings as well as defines some
--- basic gameplay
+-- imports all the settings
 
 -- this is the screen width and height in pixels
 screenw = 2560
@@ -41,6 +40,9 @@ vigor = 1
 -- seas, trenches and ridges
 minnconts = 10
 maxnconts = 80
+-- size of created continents
+minsize   = 20
+maxsize   = 800
 -- amount of spots created for each continent
 minnspots = 1
 maxnspots = 10

@@ -5,22 +5,23 @@ import GLUtil.Font
 import ABFA.State
 import ABFA.Settings
 import ABFA.Game
+import ABFA.Data
 
 
 -- draws the menu
 drawMenu :: State -> Env -> IO ()
 drawMenu state env = do
-  let settings = stateSettings state
-      w        = screenw settings
-      h        = screenh settings
-      rw       = refsw   settings
-      rh       = refsh   settings
+  let settings = stateSettings  state
+      w        = settingScreenW settings
+      h        = settingScreenH settings
+      rw       = settingRefSW   settings
+      rh       = settingRefSH   settings
       fonts    = envFonts env
       dfont    = fonts !! 1
       cfont    = fonts !! 2
       x        = -8
       y        = 5
-      fsize    = fontsize settings
+      fsize    = settingFontSize settings
   beginDrawFont
   drawFont cfont fsize FNULL   (x, y) "A Bridge Far Away..."
   drawFont dfont fsize FYELLOW (x, (y-3)) "C"
@@ -34,10 +35,10 @@ drawMenu state env = do
 drawTopLeftText :: State -> Env -> String -> IO ()
 drawTopLeftText state env str = do
   let settings = stateSettings state
-      w  = screenw settings
-      h  = screenh settings
-      rw = refsw   settings
-      rh = refsh   settings
+      w  = settingScreenW settings
+      h  = settingScreenH settings
+      rw = settingRefSW   settings
+      rh = settingRefSH   settings
       fonts = envFonts env
       dfont = fonts !! 1
       cfont = fonts !! 2

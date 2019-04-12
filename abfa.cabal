@@ -18,6 +18,7 @@ executable abfa
         ABFA.State
         ABFA.Event
         ABFA.Settings
+        ABFA.Data
         ABFA.World
         ABFA.UI
         ABFA.Rand
@@ -31,7 +32,7 @@ executable abfa
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
     build-depends:
-        base ==4.12.*,
+        base >=4.11.0 && <5.0.0,
         OpenGL >=3.0.2 && <3.1,
         OpenGLRaw >=3.3.0 && <3.4,
         GLFW-b >=3.2.1 && <3.3,

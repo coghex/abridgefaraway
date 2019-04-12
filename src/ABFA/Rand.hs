@@ -14,8 +14,8 @@ buildList2 :: ([a], [a]) -> [(a, a)]
 buildList2 ([], [])     = []
 buildList2 (a:as, b:bs) = [(a, b)] ++ buildList2 (as, bs)
 
-makeSeeds :: IO ([StdGen])
-makeSeeds = do 
+newSeeds :: IO ([StdGen])
+newSeeds = do 
   s1 <- newStdGen
   s2 <- newStdGen
   s3 <- newStdGen
