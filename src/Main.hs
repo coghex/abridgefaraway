@@ -19,6 +19,7 @@ import ABFA.Game
 import ABFA.Data
 import ABFA.Event
 import ABFA.Settings
+import ABFA.Input
 import ABFA.State
 import ABFA.Time
 import ABFA.UI
@@ -174,12 +175,13 @@ processEvent ev =
         liftIO $ GLFW.closeGLFW window
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
+        evalKey window k
       --when (ks == GLFW.KeyState'Pressed) $ do
-        state <- get
-        env   <- ask
-        -- exits game
-        when (((stateGame state) == SMenu) && (GLFW.keyEscape k)) $ do
-          liftIO $ GLFW.closeGLFW window
+      --  state <- get
+      --  env   <- ask
+      --  -- exits game
+      --  when (((stateGame state) == SMenu) && (GLFW.keyEscape k)) $ do
+       --   liftIO $ GLFW.closeGLFW window
     -- changes the gamestate when we have loaded
     (EventLoaded gamestate) -> do
       modify $ \s -> s { stateGame = gamestate }

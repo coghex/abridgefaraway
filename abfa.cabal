@@ -24,6 +24,7 @@ executable abfa
         ABFA.Rand
         ABFA.Time
         ABFA.Draw
+        ABFA.Input
         GLUtil.ABFA
         GLUtil.Util
         GLUtil.Font

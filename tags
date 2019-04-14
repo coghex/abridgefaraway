@@ -109,6 +109,7 @@ Ice	src/Game/Data.hs	24;"	C
 Idle	src/ABFA/Data.hs	116;"	C
 Idle	src/Game/Data.hs	57;"	C
 Image	src/Game/Util.hs	27;"	t
+Input	src/ABFA/Input.hs	1;"	m
 IsPixelData	src/GLUtil/Textures.hs	33;"	c
 JuicyTextures	src/GLUtil/JuicyTextures.hs	4;"	m
 Key	src/GLUtil/ABFA.hs	23;"	t
@@ -382,7 +383,7 @@ dirAction	src/Game/Unit.hs	116;"	f
 distance	src/Game/Map.hs	156;"	f
 dolly	src/GLUtil/Camera3D.hs	110;"	f
 draw	/home/hoest/temp/abridgefaraway/src/Main.hs	153;"	f
-draw	src/Main.hs	111;"	f
+draw	src/Main.hs	112;"	f
 drawBoxTile	src/Game/Font.hs	117;"	f
 drawCiv	src/Game/Civ.hs	17;"	f
 drawCivRow	src/Game/Civ.hs	24;"	f
@@ -550,6 +551,7 @@ erosion	src/Game/Settings.hs	49;"	f
 errorCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	825;"	f
 errorCallback	src/ABFA/Event.hs	60;"	f
 evalAction	src/Game/Unit.hs	81;"	f
+evalKey	src/ABFA/Input.hs	12;"	f
 evalUnit	src/Game/Unit.hs	65;"	f
 evalUnits	src/Game/Unit.hs	60;"	f
 expandGrid	src/Game/Map.hs	216;"	f
@@ -624,16 +626,18 @@ getAirTemps	src/Game/Sky.hs	558;"	f
 getAttrib	src/GLUtil/ShaderProgram.hs	202;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getCurTick	/home/hoest/temp/abridgefaraway/src/Main.hs	481;"	f
-getCurTick	src/Main.hs	151;"	f
+getCurTick	src/Main.hs	152;"	f
 getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	47;"	f
 getDes	src/Game/Civ.hs	101;"	f
 getDynLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getElev	src/Game/Elev.hs	161;"	f
 getExplicits	src/GLUtil/ShaderProgram.hs	159;"	f
+getGLFWKey	src/GLUtil/ABFA.hs	56;"	f
 getHum	src/Game/Sky.hs	531;"	f
 getHumMaybe	src/Game/Sky.hs	527;"	f
 getHumidity	src/Game/Sky.hs	551;"	f
+getKey	src/ABFA/Input.hs	27;"	f
 getLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getLibexecDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getNoise	src/Game/Noise.hs	8;"	f
@@ -703,7 +707,7 @@ initSkyTemp	src/Game/Sky.hs	311;"	f
 initState	src/ABFA/State.hs	29;"	f
 initTexs	src/Game/Util.hs	46;"	f
 initWindow	/home/hoest/temp/abridgefaraway/src/Main.hs	795;"	f
-initWindow	src/GLUtil/ABFA.hs	72;"	f
+initWindow	src/GLUtil/ABFA.hs	79;"	f
 initWorld	/home/hoest/temp/abridgefaraway/src/Game/World.hs	90;"	f
 initWorld	src/Game/World.hs	90;"	f
 initWorldWithCheck	/home/hoest/temp/abridgefaraway/src/Game/World.hs	84;"	f
@@ -721,6 +725,7 @@ iterateGridSolution	src/Game/Zone.hs	519;"	f
 keyC	src/ABFA/Data.hs	46;"	f
 keyCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	828;"	f
 keyCallback	src/ABFA/Event.hs	63;"	f
+keyCheck	src/ABFA/Input.hs	22;"	f
 keyESC	src/ABFA/Data.hs	48;"	f
 keyEscape	src/GLUtil/ABFA.hs	52;"	f
 keyPressed	src/GLUtil/ABFA.hs	50;"	f
@@ -732,7 +737,7 @@ libdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/
 libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
 linkShaderProgramWith	src/GLUtil/Shaders.hs	47;"	f
-loadAllTextures	src/GLUtil/ABFA.hs	99;"	f
+loadAllTextures	src/GLUtil/ABFA.hs	106;"	f
 loadETextures	src/Game/Util.hs	453;"	f
 loadFont	src/Game/Font.hs	31;"	f
 loadFontTextures	src/GLUtil/Font.hs	51;"	f
@@ -762,7 +767,7 @@ lowtroposphere	src/ABFA/Data.hs	64;"	f
 lowtroposphere	src/Game/Data.hs	5;"	f
 main	/home/hoest/temp/abridgefaraway/src/Main.hs	50;"	f
 main	Setup.hs	2;"	f
-main	src/Main.hs	28;"	f
+main	src/Main.hs	29;"	f
 makeBuffer	src/GLUtil/BufferObjects.hs	14;"	f
 makeBufferLen	src/GLUtil/BufferObjects.hs	20;"	f
 makeFonts	src/GLUtil/Font.hs	34;"	f
@@ -881,9 +886,9 @@ printError	src/GLUtil/GLError.hs	13;"	f
 printErrorMsg	src/GLUtil/GLError.hs	18;"	f
 printGLErrors	src/GLUtil/GLError.hs	31;"	f
 processEvent	/home/hoest/temp/abridgefaraway/src/Main.hs	498;"	f
-processEvent	src/Main.hs	167;"	f
+processEvent	src/Main.hs	168;"	f
 processEvents	/home/hoest/temp/abridgefaraway/src/Main.hs	487;"	f
-processEvents	src/Main.hs	157;"	f
+processEvents	src/Main.hs	158;"	f
 program	src/GLUtil/ShaderProgram.hs	38;"	f
 projectionMatrix	src/GLUtil/Camera3D.hs	133;"	f
 pvnrt	src/Game/Ocean.hs	304;"	f
@@ -918,7 +923,7 @@ replaceVector	src/GLUtil/BufferObjects.hs	71;"	f
 resequence_	src/Game/Map.hs	13;"	f
 reshapeCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	837;"	f
 reshapeCallback	src/ABFA/Event.hs	72;"	f
-resizeScene	src/GLUtil/ABFA.hs	86;"	f
+resizeScene	src/GLUtil/ABFA.hs	93;"	f
 resizeScene	src/Game/Util.hs	34;"	f
 rightward	src/GLUtil/Camera3D.hs	27;"	f
 roll	src/GLUtil/Camera2D.hs	31;"	f
@@ -930,7 +935,7 @@ rollRad	src/GLUtil/Camera3D.hs	86;"	f
 rosCamera	src/GLUtil/Camera3D.hs	121;"	f
 roundTo	src/Game/Map.hs	204;"	f
 run	/home/hoest/temp/abridgefaraway/src/Main.hs	134;"	f
-run	src/Main.hs	94;"	f
+run	src/Main.hs	95;"	f
 runOnAllCores	/home/hoest/temp/abridgefaraway/src/Main.hs	464;"	f
 sFitScore	src/Game/Zone.hs	573;"	f
 sal	src/ABFA/Data.hs	85;"	f
@@ -1147,7 +1152,7 @@ tiltRad	src/GLUtil/Camera3D.hs	60;"	f
 time	src/ABFA/Data.hs	117;"	f
 time	src/Game/Data.hs	58;"	f
 timedLoop	/home/hoest/temp/abridgefaraway/src/Main.hs	468;"	f
-timedLoop	src/Main.hs	138;"	f
+timedLoop	src/Main.hs	139;"	f
 timerCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	843;"	f
 timerCallback	src/ABFA/Event.hs	78;"	f
 track	src/GLUtil/Camera2D.hs	20;"	f
@@ -1200,7 +1205,7 @@ wgSealevel	src/ABFA/Data.hs	40;"	f
 wgSugar	src/ABFA/Data.hs	32;"	f
 wgVigor	src/ABFA/Data.hs	33;"	f
 whileM_	/home/hoest/temp/abridgefaraway/src/Main.hs	476;"	f
-whileM_	src/Main.hs	146;"	f
+whileM_	src/Main.hs	147;"	f
 windowShouldClose	src/GLUtil/ABFA.hs	44;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
@@ -1211,7 +1216,7 @@ withTexturesAt	src/GLUtil/Textures.hs	160;"	f
 withVAO	src/GLUtil/VertexArrayObjects.hs	24;"	f
 withViewport	src/GLUtil/Viewport.hs	10;"	f
 withWindow	/home/hoest/temp/abridgefaraway/src/Main.hs	811;"	f
-withWindow	src/GLUtil/ABFA.hs	56;"	f
+withWindow	src/GLUtil/ABFA.hs	63;"	f
 workRows	src/Game/Map.hs	219;"	f
 workZoneRows	src/Game/Map.hs	212;"	f
 worldTime	src/ABFA/Time.hs	14;"	f

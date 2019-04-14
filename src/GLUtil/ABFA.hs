@@ -52,6 +52,13 @@ keyPressed ks          = ks == GLFW.KeyState'Pressed
 keyEscape              :: GLFW.Key -> Bool
 keyEscape k            = k == GLFW.Key'Escape
 
+-- translates keys to GLFW keys for abfa.input
+getGLFWKey :: String -> GLFW.Key
+getGLFWKey "ESC" = GLFW.Key'Escape
+getGLFWKey "C"   = GLFW.Key'C
+getGLFWKey "R"   = GLFW.Key'R
+getGLFWKey _     = GLFW.Key'Unknown
+
 -- this will use GLFW to create a window and destroy it when closed
 withWindow :: Bool -> Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()
 withWindow True ww wh title f = GLFW.terminate
