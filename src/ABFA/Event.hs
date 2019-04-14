@@ -30,7 +30,7 @@ data Event =
   | EventWindowResize    !GLFW.Window !Int !Int
   | EventLoaded          !GameState
   | EventUpdateState     !State
-  | EventUpdateAnimState !State
+  | EventAnimState       !State
 
 -- function synonym
 newQueue     :: IO (STM.TQueue Event)
@@ -79,5 +79,4 @@ timerCallback :: Queue Event -> State -> IO ()
 timerCallback tc state = atomically $ writeQueue tc $ EventUpdateState state
 -- changes parts of the state with the animation timer
 animCallback :: Queue Event -> State -> IO ()
-animCallback tc state = atomically $ writeQueue tc $ EventUpdateAnimState state
-
+animCallback tc state = atomically $ writeQueue tc $ EventAnimState state

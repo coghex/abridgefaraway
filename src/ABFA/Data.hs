@@ -10,6 +10,7 @@ data TimerState = TStart | TStop | TPause
 data Settings = Settings
   { settingScreenW    :: Int
   , settingScreenH    :: Int
+  , settingKeyLayout  :: KeyLayout
   , settingRefSW      :: Int
   , settingRefSH      :: Int
   , settingFullscreen :: Bool
@@ -38,6 +39,13 @@ data WorldGenSettings = WorldGenSettings
   , wgMaxNSpots :: Int
   , wgSealevel  :: Int
   , wgPeaklevel :: Int
+  } deriving (Eq, Show)
+
+-- the layout of the keyboard
+data KeyLayout = KeyLayout
+  { keyC   :: String
+  , keyR   :: String
+  , keyESC :: String
   } deriving (Eq, Show)
 
 -- worldparameters for the generator

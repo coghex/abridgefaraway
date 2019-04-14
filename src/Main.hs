@@ -23,6 +23,7 @@ import ABFA.State
 import ABFA.Time
 import ABFA.UI
 import ABFA.Rand
+import ABFA.Draw
 
 main :: IO ()
 main = do
@@ -106,9 +107,30 @@ run = do
     processEvents
     liftIO $ not <$> GLFW.windowShouldClose window
 
+-- this pattern match on the game mode will chose which screen to draw
 draw :: GameState -> State -> Env -> IO ()
-draw SMenu state env = do
+draw SMenu      state env = do
   drawMenu state env
+draw SLoadWorld state env = do
+  drawLoadScreen state env "Creating World..."
+  -- change to world mode using fifo
+  atomically $ writeChan (envATimerChan env) TStart
+  atomically $ writeChan (envWTimerChan env) TStart
+  newstate1 <- atomically $ readChan (envStateChan1 env)
+  newstate2 <- atomically $ readChan (envStateChan3 env)
+  liftIO $ loadedCallback (envEventsChan env) SLoadTime
+draw SLoadTime  state env = do
+  drawLoadScreen state env "simulating history"
+  -- start the timer once the chan has emptied
+  newstate1 <- atomically $ readChan (envStateChan1 env)
+  newstate2 <- atomically $ readChan (envStateChan3 env)
+  -- set the monad state to timer's state
+  let unftime = stateTime state
+  liftIO $ timerCallback (envEventsChan env) newstate1
+  liftIO $ animCallback  (envEventsChan env) newstate2
+draw SWorld     state env = do
+  drawWorld   state env
+  drawWorldUI state env
 draw _ _ _ = do
   print "fuck"
 
@@ -149,7 +171,7 @@ processEvent ev =
       window <- asks envWindow
       liftIO $ do
         putStrLn $ "error " ++ show e ++ " " ++ show s
-        liftIO $ GLFW.closeGLFW window--GLFW.setWindowShouldClose window True
+        liftIO $ GLFW.closeGLFW window
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
       --when (ks == GLFW.KeyState'Pressed) $ do
@@ -157,4 +179,14 @@ processEvent ev =
         env   <- ask
         -- exits game
         when (((stateGame state) == SMenu) && (GLFW.keyEscape k)) $ do
-          liftIO $ GLFW.closeGLFW window--liftIO $ GLFW.setWindowShouldClose window True
+          liftIO $ GLFW.closeGLFW window
+    -- changes the gamestate when we have loaded
+    (EventLoaded gamestate) -> do
+      modify $ \s -> s { stateGame = gamestate }
+    -- changes the state from the event queue
+    (EventUpdateState state) -> do
+      modify $ \s -> s { stateGrid = (stateGrid state) }
+    -- changes the state to reflect animation
+    (EventAnimState state) -> do
+      modify $ \s -> s { stateGrid = (stateGrid state) }
+      

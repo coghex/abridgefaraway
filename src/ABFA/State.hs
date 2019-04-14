@@ -23,7 +23,7 @@ data State = State
   }
 
 -- the gamestate controls which screen we are currently drawing
-data GameState = SMenu | SLoadWorld | SLoadElev | SWorld | SElev | SPause | SFucked deriving (Eq, Show)
+data GameState = SMenu | SLoadWorld | SLoadTime | SLoadElev | SWorld | SElev | SPause | SFucked deriving (Eq, Show)
 
 -- initializes the state
 initState :: GameState -> [StdGen] -> Settings -> State

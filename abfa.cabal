@@ -23,6 +23,7 @@ executable abfa
         ABFA.UI
         ABFA.Rand
         ABFA.Time
+        ABFA.Draw
         GLUtil.ABFA
         GLUtil.Util
         GLUtil.Font
