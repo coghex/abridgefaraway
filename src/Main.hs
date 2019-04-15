@@ -15,6 +15,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import GLUtil.ABFA
 import GLUtil.Font
 import GLUtil.Util
+import GLUtil.Draw
 import ABFA.Game
 import ABFA.Data
 import ABFA.Event
@@ -24,7 +25,7 @@ import ABFA.State
 import ABFA.Time
 import ABFA.UI
 import ABFA.Rand
-import ABFA.Draw
+import ABFA.World
 
 main :: IO ()
 main = do
@@ -32,7 +33,7 @@ main = do
   seeds <- newSeeds
   -- this will import screen width and height from lua script
   settings <- importSettings
-  let state   = initState SMenu seeds settings
+  let state   = genParams $ initState SMenu seeds settings
       fs      = settingFullscreen settings
       sw      = settingScreenW settings
       sh      = settingScreenH settings
@@ -130,8 +131,9 @@ draw SLoadTime  state env = do
   liftIO $ timerCallback (envEventsChan env) newstate1
   liftIO $ animCallback  (envEventsChan env) newstate2
 draw SWorld     state env = do
-  drawWorld   state env
-  drawWorldUI state env
+  print "shit"
+  --drawWorld   state env
+  --drawWorldUI state env
 draw _ _ _ = do
   print "fuck"
 
@@ -176,12 +178,6 @@ processEvent ev =
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
         evalKey window k
-      --when (ks == GLFW.KeyState'Pressed) $ do
-      --  state <- get
-      --  env   <- ask
-      --  -- exits game
-      --  when (((stateGame state) == SMenu) && (GLFW.keyEscape k)) $ do
-       --   liftIO $ GLFW.closeGLFW window
     -- changes the gamestate when we have loaded
     (EventLoaded gamestate) -> do
       modify $ \s -> s { stateGame = gamestate }

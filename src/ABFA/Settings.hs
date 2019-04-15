@@ -72,7 +72,8 @@ makeKeyLayout ckey rkey esckey = KeyLayout { keyC   = ckey
                                            , keyESC = esckey }
 
 makeWGSettings :: Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> WorldGenSettings
-makeWGSettings f sal sug vig minnc maxnc mins maxs minns maxns sl pl = WorldGenSettings { wgFudge     = f
+makeWGSettings f sal sug vig minnc maxnc mins maxs minns maxns sl pl = WorldGenSettings { wgCurrMap   = 0
+                                                                                        , wgFudge     = f
                                                                                         , wgSalt      = sal
                                                                                         , wgSugar     = sug
                                                                                         , wgVigor     = vig

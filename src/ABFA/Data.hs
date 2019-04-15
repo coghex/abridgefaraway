@@ -4,7 +4,10 @@ module ABFA.Data where
 import qualified Graphics.Rendering.OpenGL as GL
 
 -- starts stops and pauses the timers
-data TimerState = TStart | TStop | TPause
+data TimerState = TStart | TStop | TPause | TNULL
+
+-- the various types of possible biomes
+data Biome      = BSea | BShallows | BDeeps | BValley | BCrags | BPlains | BFields | BWastes | BSteeps | BPeaks | BNULL deriving (Eq, Show)
 
 -- settings datatype
 data Settings = Settings
@@ -27,7 +30,8 @@ data Settings = Settings
 
 -- world settings for the generator, these get manipulated into the world parameters
 data WorldGenSettings = WorldGenSettings
-  { wgFudge     :: Int
+  { wgCurrMap   :: Int
+  , wgFudge     :: Int
   , wgSalt      :: Int
   , wgSugar     :: Float
   , wgVigor     :: Int
@@ -49,15 +53,15 @@ data KeyLayout = KeyLayout
   } deriving (Eq, Show)
 
 -- worldparameters for the generator
-data WorldParams = NULLPARAMS | WorldParams { wpNConts :: Int
-                                            , wpConts  :: ![(Int, Int)]
-                                            , wpSeeds  :: ![[(Int, Int)]]
-                                            , wpRands  :: ![[(Int, Int)]]
-                                            , wpSizes  :: ![Int]
-                                            , wpTypes  :: ![Int]
-                                            , wpRandI  :: !Int
-                                            , wpRRands :: ![Int]
-                                            } deriving (Show, Eq)
+data WorldParams = WorldParams { wpNConts :: Int
+                               , wpConts  :: ![(Int, Int)]
+                               , wpSeeds  :: ![[(Int, Int)]]
+                               , wpRands  :: ![[(Int, Int)]]
+                               , wpSizes  :: ![Int]
+                               , wpTypes  :: ![Biome]
+                               , wpRandI  :: !Int
+                               , wpRRands :: ![Int]
+                               } deriving (Show, Eq)
 
 
 

@@ -55,6 +55,15 @@ threadDelay  :: Int -> IO ()
 threadDelay  = CC.threadDelay
 
 
+-- empties a channel
+emptyChan :: STM.TChan a -> IO ()
+emptyChan chan = do
+  test <- atomically $ STM.isEmptyTChan chan
+  if test then return ()
+  else do
+    s <- atomically $ STM.readTChan chan
+    emptyChan chan
+
 -- these event callbacks allow me to do things to GLFW or mine own program
 -- registers errors
 errorCallback :: Queue Event -> GLFW.Error -> String -> IO ()

@@ -23,9 +23,11 @@ executable abfa
         ABFA.UI
         ABFA.Rand
         ABFA.Time
-        ABFA.Draw
         ABFA.Input
+        ABFA.Map
+        ABFA.Noise
         GLUtil.ABFA
+        GLUtil.Draw
         GLUtil.Util
         GLUtil.Font
         GLUtil.Textures

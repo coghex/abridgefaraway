@@ -29,11 +29,23 @@ data GameState = SMenu | SLoadWorld | SLoadTime | SLoadElev | SWorld | SElev | S
 initState :: GameState -> [StdGen] -> Settings -> State
 initState gs seeds settings = State { stateGame     = gs
                                     , stateSettings = settings
-                                    , stateWParams  = NULLPARAMS
-                                    , stateStdGens  = []
+                                    , stateWParams  = emptyParams
+                                    , stateStdGens  = seeds
                                     , stateZoom     = 1
                                     , stateGrid     = []
                                     , stateOG       = []
                                     , stateElev     = []
                                     , stateCursor   = (5, 5)
                                     , stateTime     = 0 }
+
+
+emptyParams :: WorldParams
+emptyParams = WorldParams { wpNConts = 0
+                          , wpConts  = []
+                          , wpSeeds  = []
+                          , wpRands  = []
+                          , wpSizes  = []
+                          , wpTypes  = []
+                          , wpRandI  = 0
+                          , wpRRands = []
+                          }

@@ -28,7 +28,7 @@ newSeeds = do
 -- if the stdgen is the last arg, which is the convention with the library
 withStdGen :: [StdGen] -> Int -> (StdGen -> a) -> a
 withStdGen sgs n f = f s0
-  where s0 = sgs !! n
+  where s0 = sgs !! (n-1)
 
 -- gives a new set of random gens to help with recursive calls using the stdgens
 splitSGs :: [StdGen] -> [StdGen]

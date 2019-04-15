@@ -1,4 +1,5 @@
-module ABFA.Draw where
+module GLUtil.Draw where
+-- the drawing of various screens is defined
 
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
@@ -9,4 +10,4 @@ import ABFA.State
 
 drawWorld :: State -> Env -> IO ()
 drawWorld state env = do
-  return ()
+  glFlush
