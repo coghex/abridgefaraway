@@ -130,10 +130,14 @@ draw SLoadTime  state env = do
   let unftime = stateTime state
   liftIO $ timerCallback (envEventsChan env) newstate1
   liftIO $ animCallback  (envEventsChan env) newstate2
+  -- let history run a bit
+  let settings = stateSettings state
+      history  = settingHistory settings
+  if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
+  else liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SWorld     state env = do
-  print "shit"
-  --drawWorld   state env
-  --drawWorldUI state env
+  drawWorld   state env
+  drawWorldUI state env
 draw _ _ _ = do
   print "fuck"
 
@@ -183,7 +187,8 @@ processEvent ev =
       modify $ \s -> s { stateGame = gamestate }
     -- changes the state from the event queue
     (EventUpdateState state) -> do
-      modify $ \s -> s { stateGrid = (stateGrid state) }
+      modify $ \s -> s { stateGrid = (stateGrid state) 
+                       , stateTime = (stateTime state) }
     -- changes the state to reflect animation
     (EventAnimState state) -> do
       modify $ \s -> s { stateGrid = (stateGrid state) }

@@ -95,7 +95,7 @@ nextSimState state env n = State
   , stateOG         = stateOG       state
   , stateElev       = stateElev     state
   , stateCursor     = stateCursor   state
-  , stateTime       = stateTime     state
+  , stateTime       = (stateTime     state) + (fromIntegral n)
   }
 
 -- animates a single animation frame, returns a new state
@@ -106,7 +106,7 @@ animState state env = state
 goodWorld :: State -> Bool
 goodWorld state
   | (water > (quot (gridw*gridh) 6)) && (water < ((2*(quot (gridw*gridh) 3)))) = True
-  | otherwise                                                                  = False
+  | otherwise                                                                  = True--False
   where water      = length waterinmap
         waterinmap = filter (isWater) grid
         grid       = stateGrid state
@@ -128,7 +128,7 @@ initGoodWorld state env = initWorldWithCheck newstate env
 initWorldWithCheck :: State -> Env -> State
 initWorldWithCheck state env
   | (goodWorld newstate) = newstate
-  | otherwise             = initWorldWithCheck newstate env
+  | otherwise            = initWorldWithCheck newstate env
   where newstate = regenWorld state env
 
 -- inits a new world (ie state)
