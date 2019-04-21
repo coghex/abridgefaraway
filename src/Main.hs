@@ -16,6 +16,7 @@ import GLUtil.ABFA
 import GLUtil.Font
 import GLUtil.Util
 import GLUtil.Draw
+import GLUtil.UI
 import ABFA.Game
 import ABFA.Data
 import ABFA.Event
@@ -23,7 +24,6 @@ import ABFA.Settings
 import ABFA.Input
 import ABFA.State
 import ABFA.Time
-import ABFA.UI
 import ABFA.Rand
 import ABFA.World
 
@@ -51,7 +51,7 @@ main = do
     GLFW.swapInterval 0
 
     -- loads all textures into memory
-    ftex <- liftIO $ loadAllTextures window
+    (ftex, wtex) <- liftIO $ loadAllTextures window
     -- loads the default font
     let fonts = makeFonts(ftex)
 
@@ -69,7 +69,7 @@ main = do
     let env = Env { envEventsChan = eventsChan
                   , envWindow     = window
                   , envFonts      = fonts
-                  , envWTex       = []
+                  , envWTex       = wtex
                   , envZTex       = [[]]
                   , envUTex       = [[]]
                   , envZazzTex    = [[[]]]

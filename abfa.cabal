@@ -20,7 +20,6 @@ executable abfa
         ABFA.Settings
         ABFA.Data
         ABFA.World
-        ABFA.UI
         ABFA.Rand
         ABFA.Time
         ABFA.Input
@@ -30,6 +29,8 @@ executable abfa
         GLUtil.Draw
         GLUtil.Util
         GLUtil.Font
+        GLUtil.UI
+        GLUtil.TexLoad
         GLUtil.Textures
         GLUtil.TypeMapping
         GLUtil.JuicyTextures

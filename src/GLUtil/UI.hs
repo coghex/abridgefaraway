@@ -1,4 +1,4 @@
-module ABFA.UI where
+module GLUtil.UI where
 -- the ui elements and how they are drawn are defined
 
 import GLUtil.Font
@@ -48,6 +48,7 @@ drawLoadScreen state env string = do
 -- draws the UI for the world screen
 drawWorldUI :: State -> Env -> IO ()
 drawWorldUI state env = do
+--  drawTopLeftText state env "test"
   return ()
 
 -- this box will display world information
