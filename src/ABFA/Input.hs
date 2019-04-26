@@ -52,6 +52,12 @@ evalKey window k = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
+  -- opens a lua shell
+  when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
+    liftIO $ loadedCallback (envEventsChan env) SShell
+  -- closes the shell
+  when ((gs == SShell) && (keyCheck keylayout k "`")) $ do
+    liftIO $ loadedCallback (envEventsChan env) $ stateGamePrev state
 
 
 -- checks key with settings
@@ -64,5 +70,6 @@ getKey :: KeyLayout -> String -> String
 getKey keylayout "ESC" = keyESC keylayout
 getKey keylayout "C"   = keyC   keylayout
 getKey keylayout "R"   = keyR   keylayout
+getKey keylayout "`"   = keySh  keylayout
 getKey keylayout _     = "NULL"
 

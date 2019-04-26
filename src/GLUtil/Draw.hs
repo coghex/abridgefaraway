@@ -20,25 +20,32 @@ drawWorld state env = do
       settings = stateSettings state
       gridw    = settingGridW settings
       gridh    = settingGridH settings
-  resequence_ (map (drawWorldRow texs gridw gridh) gnew)
+      screenw  = settingScreenW settings
+      screenh  = settingScreenH settings
+  resequence_ (map (drawWorldRow texs screenw screenh gridw gridh) gnew)
   glFlush
 
 -- draws each spot
-drawWorldRow :: [GL.TextureObject] -> Int -> Int -> ([(Int, Int)], Int) -> IO ()
-drawWorldRow texs gridw gridh (a, b) = resequence_ (map (drawWorldSpot texs gridw gridw b) a)
+drawWorldRow :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> IO ()
+drawWorldRow texs screenw screenh gridw gridh (a, b) = resequence_ (map (drawWorldSpot texs screenw screenh gridw gridw b) a)
 
 -- using the texture library
-drawWorldSpot :: [GL.TextureObject] -> Int -> Int -> Int -> (Int, Int) -> IO ()
-drawWorldSpot texs gridw gridh y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTile texs gridw gridh x y t
+drawWorldSpot :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> IO ()
+drawWorldSpot texs screenw screenh gridw gridh y (t, x) = withTextures2D [(texs!!t)] $ drawSceneTile texs screenw screenh gridw gridh x y t
 
 -- glwork done to handle zoom and location of each tile
-drawSceneTile :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> IO ()
-drawSceneTile texs gridw gridh x y t = do
+drawSceneTile :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
+drawSceneTile texs screenw screenh gridw gridh x y t = do
   glLoadIdentity
-  glTranslatef (1.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (1.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef (10.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (10.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f 1.0 1.0 1.0
   drawSquare
   where
     thiszoom = fromIntegral $ 100
   
-
+-- calculates the glTraslatef input value
+worldZoom :: Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int)
+worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
+  where nx = 1
+        ny = 2
+        nz = 3

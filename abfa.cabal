@@ -26,6 +26,7 @@ executable abfa
         ABFA.Map
         ABFA.Noise
         ABFA.Elev
+        ABFA.Shell
         GLUtil.ABFA
         GLUtil.Draw
         GLUtil.Util

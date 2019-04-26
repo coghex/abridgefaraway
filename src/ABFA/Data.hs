@@ -50,6 +50,7 @@ data KeyLayout = KeyLayout
   { keyC   :: String
   , keyR   :: String
   , keyESC :: String
+  , keySh  :: String
   } deriving (Eq, Show)
 
 -- worldparameters for the generator

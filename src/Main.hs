@@ -26,6 +26,7 @@ import ABFA.State
 import ABFA.Time
 import ABFA.Rand
 import ABFA.World
+import ABFA.Shell
 
 main :: IO ()
 main = do
@@ -113,6 +114,8 @@ run = do
 draw :: GameState -> State -> Env -> IO ()
 draw SMenu      state env = do
   drawMenu state env
+draw SShell     state env = do
+  drawShell state env
 draw SLoadWorld state env = do
   drawLoadScreen state env "Creating World..."
   -- change to world mode using fifo
@@ -136,6 +139,7 @@ draw SLoadTime  state env = do
   if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
   else liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SWorld     state env = do
+  liftIO sceneSetup
   drawWorld   state env
   drawWorldUI state env
   where grid = stateGrid state
@@ -183,9 +187,12 @@ processEvent ev =
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
         evalKey window k
-    -- changes the gamestate when we have loaded
-    (EventLoaded gamestate) -> do
-      modify $ \s -> s { stateGame = gamestate }
+    -- changes the gamestate when we have loaded (sets previous
+    -- gamestate so that we can toggle certain screens like the shell)
+    (EventLoaded newstate) -> do
+      state <- get
+      modify $ \s -> s { stateGame     = newstate
+                       , stateGamePrev = (stateGame state) }
     -- changes the state from the event queue
     (EventUpdateState state) -> do
       modify $ \s -> s { stateTime = (stateTime state) }

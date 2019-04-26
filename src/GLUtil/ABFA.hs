@@ -58,6 +58,7 @@ getGLFWKey :: String -> GLFW.Key
 getGLFWKey "ESC" = GLFW.Key'Escape
 getGLFWKey "C"   = GLFW.Key'C
 getGLFWKey "R"   = GLFW.Key'R
+getGLFWKey "`"   = GLFW.Key'GraveAccent
 getGLFWKey _     = GLFW.Key'Unknown
 
 -- this will use GLFW to create a window and destroy it when closed

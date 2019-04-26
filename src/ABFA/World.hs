@@ -29,6 +29,7 @@ genParams state = do
 
   State
     { stateGame           = stateGame state
+    , stateGamePrev       = stateGamePrev state
     , stateSettings       = ogsettings
     , stateWParams        = genWParams stdgens ogsettings
     , stateStdGens        = stdgens
@@ -38,6 +39,7 @@ genParams state = do
     , stateElev           = (take (gw*gh) (repeat 1))
     , stateCursor         = (5, 5)
     , stateTime           = 0
+    , stateShellBuff      = [" > "]
     }
 
 -- this is used to generate the params data
@@ -87,16 +89,18 @@ makeSeeds ((x,y):xys) (nspot:nspots) sgs f = (buildList2 ((withStdGen sgs 1 (ran
 -- simulates n ticks at a time in history
 nextSimState :: State -> Env -> Int -> State
 nextSimState state env n = State
-  { stateGame       = stateGame state
-  , stateSettings   = stateSettings state
-  , stateWParams    = stateWParams  state
-  , stateStdGens    = stateStdGens  state
-  , stateZoom       = stateZoom     state
-  , stateGrid       = stateGrid     state
-  , stateOG         = stateOG       state
-  , stateElev       = stateElev     state
-  , stateCursor     = stateCursor   state
+  { stateGame       = stateGame      state
+  , stateGamePrev   = stateGamePrev  state
+  , stateSettings   = stateSettings  state
+  , stateWParams    = stateWParams   state
+  , stateStdGens    = stateStdGens   state
+  , stateZoom       = stateZoom      state
+  , stateGrid       = stateGrid      state
+  , stateOG         = stateOG        state
+  , stateElev       = stateElev      state
+  , stateCursor     = stateCursor    state
   , stateTime       = (stateTime     state) + (fromIntegral n)
+  , stateShellBuff  = stateShellBuff state
   }
 
 -- animates a single animation frame, returns a new state
@@ -135,36 +139,40 @@ initWorldWithCheck state
 -- inits a new world (ie state)
 initWorld :: State -> State
 initWorld state = do
-  let sg       = stateGame     state
-      settings = stateSettings state
-      wparams  = stateWParams  state
-      stdgens  = stateStdGens  state
-      zoom     = stateZoom     state
-      g0       = stateGrid     state
-      og       = stateOG       state
-      e0       = stateElev     state
-      cursor   = stateCursor   state
-      time     = stateTime     state
-      conts    = wpConts       wparams
-      seeds    = wpSeeds       wparams
-      rands    = wpRands       wparams
-      nconts   = wpNConts      wparams
+  let sg        = stateGame      state
+      sgp       = stateGamePrev  state
+      settings  = stateSettings  state
+      wparams   = stateWParams   state
+      stdgens   = stateStdGens   state
+      zoom      = stateZoom      state
+      g0        = stateGrid      state
+      og        = stateOG        state
+      e0        = stateElev      state
+      cursor    = stateCursor    state
+      time      = stateTime      state
+      conts     = wpConts        wparams
+      seeds     = wpSeeds        wparams
+      rands     = wpRands        wparams
+      nconts    = wpNConts       wparams
+      shellbuff = stateShellBuff state
 
   let g1 = seedConts   state g0 conts seeds rands nconts
       e1 = e0--elevBlurMap state g1 conts seeds rands nconts e0
       gr = g1--fixConts    state g1 env e1
       er = e1
   State
-    { stateGame     = sg
-    , stateSettings = settings
-    , stateWParams  = wparams
-    , stateStdGens  = stdgens
-    , stateZoom     = zoom
-    , stateGrid     = gr
-    , stateOG       = gr
-    , stateElev     = er
-    , stateCursor   = cursor
-    , stateTime     = time
+    { stateGame      = sg
+    , stateGamePrev  = sgp
+    , stateSettings  = settings
+    , stateWParams   = wparams
+    , stateStdGens   = stdgens
+    , stateZoom      = zoom
+    , stateGrid      = gr
+    , stateOG        = gr
+    , stateElev      = er
+    , stateCursor    = cursor
+    , stateTime      = time
+    , stateShellBuff = shellbuff
     }
 
 -- regenerates world

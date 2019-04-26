@@ -11,11 +11,20 @@ import Graphics.GL
 import Graphics.GLU
 import Graphics.UI.GLUT (($=))
 
+-- chains IO events together into a single IO event
+resequence_ :: [IO ()] -> IO ()
+resequence_ = foldr (>>) (return ())
+
 -- clears gl scene
 sceneSetup :: IO ()
 sceneSetup = do
   glClear $ fromIntegral  $  GL_COLOR_BUFFER_BIT
                          .|. GL_DEPTH_BUFFER_BIT
+
+-- flushs gl pipeline
+flushGLPipeline :: IO ()
+flushGLPipeline = do
+  glFlush
 
 -- a basic tile
 drawSquare :: IO ()

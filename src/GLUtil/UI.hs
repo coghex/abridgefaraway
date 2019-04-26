@@ -1,7 +1,11 @@
 module GLUtil.UI where
 -- the ui elements and how they are drawn are defined
 
+import Graphics.GL
+import qualified Graphics.Rendering.OpenGL as GL
+import qualified GLUtil.ABFA as GLFW
 import GLUtil.Font
+import GLUtil.Util
 import ABFA.State
 import ABFA.Settings
 import ABFA.Game
@@ -48,8 +52,14 @@ drawLoadScreen state env string = do
 -- draws the UI for the world screen
 drawWorldUI :: State -> Env -> IO ()
 drawWorldUI state env = do
---  drawTopLeftText state env "test"
+-- drawTopLeftText state env "test"
   return ()
+
+-- draws a box that text looks good in
+drawTextBox :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
+drawTextBox texs x y sx sy bx by = do
+  GL.loadIdentity
+  GL.translate $ GL.Vector3 ((2*((fromIntegral x) - (fromIntegral 60)))/50) ((2*((fromIntegral y)-(fromIntegral 32)))/50) (-10::GLfloat)
 
 -- this box will display world information
 drawTopLeftText :: State -> Env -> String -> IO ()

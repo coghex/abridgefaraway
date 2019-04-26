@@ -4,10 +4,6 @@ module ABFA.Map where
 import Data.List.Split ( chunksOf )
 import ABFA.Data 
 
--- chains IO events together into a single IO event
-resequence_ :: [IO ()] -> IO ()
-resequence_ = foldr (>>) (return ())
-
 -- the formula for an ellipse
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
 distance x1 y1 x2 y2 x3 y3 t = do

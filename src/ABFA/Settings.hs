@@ -15,7 +15,8 @@ importKeyLayout fn = Lua.run $ do
   ckey   <- Lua.getglobal "ckey"   *> Lua.peek (-1)
   rkey   <- Lua.getglobal "rkey"   *> Lua.peek (-1)
   esckey <- Lua.getglobal "esckey" *> Lua.peek (-1)
-  return $ makeKeyLayout ckey rkey esckey
+  shkey  <- Lua.getglobal "shkey"  *> Lua.peek (-1)
+  return $ makeKeyLayout ckey rkey esckey shkey
 
 -- imports other settings
 importSettings :: String -> IO (Settings)
@@ -66,10 +67,11 @@ makeSettings sw sh fs fsize fps ts as h p gw gh f salt sugar vigor minnc maxnc m
            , settingGridH      = gh
            , settingWGSettings = makeWGSettings f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl }
 
-makeKeyLayout :: String -> String -> String -> KeyLayout
-makeKeyLayout ckey rkey esckey = KeyLayout { keyC   = ckey
-                                           , keyR   = rkey
-                                           , keyESC = esckey }
+makeKeyLayout :: String -> String -> String -> String -> KeyLayout
+makeKeyLayout ckey rkey esckey shkey = KeyLayout { keyC   = ckey
+                                                 , keyR   = rkey
+                                                 , keyESC = esckey
+                                                 , keySh  = shkey }
 
 makeWGSettings :: Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> WorldGenSettings
 makeWGSettings f sal sug vig minnc maxnc mins maxs minns maxns sl pl = WorldGenSettings { wgCurrMap   = 0
