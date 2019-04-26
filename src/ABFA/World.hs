@@ -12,6 +12,7 @@ import ABFA.Rand
 import ABFA.Game
 import ABFA.Data
 import ABFA.Map
+import ABFA.Elev
 
 -- this will generate parameters for the world generator and place it in a new state
 genParams :: State -> State
@@ -120,20 +121,20 @@ isWater 1 = True
 isWater _ = False
 
 -- initWorld wrapper to rejectworlds
-initGoodWorld :: State -> Env -> State
-initGoodWorld state env = initWorldWithCheck newstate env
-  where newstate = initWorld state env
+initGoodWorld :: State -> State
+initGoodWorld state = initWorldWithCheck newstate
+  where newstate = initWorld state
 
 -- regenWorld wrapper to reject worlds
-initWorldWithCheck :: State -> Env -> State
-initWorldWithCheck state env
+initWorldWithCheck :: State -> State
+initWorldWithCheck state
   | (goodWorld newstate) = newstate
-  | otherwise            = initWorldWithCheck newstate env
-  where newstate = regenWorld state env
+  | otherwise            = initWorldWithCheck newstate
+  where newstate = regenWorld state
 
 -- inits a new world (ie state)
-initWorld :: State -> Env -> State
-initWorld state env = do
+initWorld :: State -> State
+initWorld state = do
   let sg       = stateGame     state
       settings = stateSettings state
       wparams  = stateWParams  state
@@ -167,8 +168,8 @@ initWorld state env = do
     }
 
 -- regenerates world
-regenWorld :: State -> Env -> State
-regenWorld state env = do
+regenWorld :: State -> State
+regenWorld state = do
   let i        = wpRandI            wparams
       wparams  = stateWParams       state
       settings = stateSettings      state
@@ -183,7 +184,7 @@ regenWorld state env = do
       currmap  = (wgCurrMap wgsetts) + 1
       newstate = initState SLoadWorld sgs settings
       stateful = genParams newstate
-  initWorld newstate env
+  initWorld stateful
 
 -- creates the continents
 seedConts :: State -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]

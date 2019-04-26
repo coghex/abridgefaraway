@@ -26,7 +26,7 @@ evalKey window k = do
   -- creates world from the menu
   when ((gs == SMenu) && (keyCheck keylayout k "C")) $ do
     liftIO $ loadedCallback (envEventsChan env) SLoadWorld
-    let newstate = initGoodWorld state env
+    let newstate = initGoodWorld state
     -- let the timers know that we have generated a new state
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
@@ -42,7 +42,7 @@ evalKey window k = do
     liftIO $ emptyChan (envStateChan3 env)
     liftIO $ emptyChan (envStateChan4 env)
     -- create new world
-    let newstate = initWorldWithCheck state env
+    let newstate = initWorldWithCheck state
     -- just to be sure, empty the channels again
     liftIO $ emptyChan (envStateChan1 env)
     liftIO $ emptyChan (envStateChan2 env)

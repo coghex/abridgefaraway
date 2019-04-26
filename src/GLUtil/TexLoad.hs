@@ -3,10 +3,10 @@ module GLUtil.TexLoad where
 -- lua to call these so mods can add new textures
 
 import Graphics.GL
-import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.GLU as GLU
 import qualified Graphics.UI.GLUT as GLUT
+import qualified Graphics.UI.GLFW as GLFW
 import GLUtil.Textures
 import GLUtil.JuicyTextures
 

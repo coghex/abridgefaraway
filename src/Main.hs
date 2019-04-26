@@ -32,7 +32,7 @@ main = do
   -- this will provide some seeds to have consistent randomness
   seeds <- newSeeds
   -- this will import screen width and height from lua script
-  settings <- importSettings
+  settings <- importSettings "mods/config/"
   let state   = genParams $ initState SMenu seeds settings
       fs      = settingFullscreen settings
       sw      = settingScreenW settings
@@ -138,6 +138,7 @@ draw SLoadTime  state env = do
 draw SWorld     state env = do
   drawWorld   state env
   drawWorldUI state env
+  where grid = stateGrid state
 draw _ _ _ = do
   print "fuck"
 
@@ -187,9 +188,8 @@ processEvent ev =
       modify $ \s -> s { stateGame = gamestate }
     -- changes the state from the event queue
     (EventUpdateState state) -> do
-      modify $ \s -> s { stateGrid = (stateGrid state) 
-                       , stateTime = (stateTime state) }
+      modify $ \s -> s { stateTime = (stateTime state) }
     -- changes the state to reflect animation
     (EventAnimState state) -> do
-      modify $ \s -> s { stateGrid = (stateGrid state) }
+      modify $ \s -> s { stateCursor = (stateCursor state) }
       
