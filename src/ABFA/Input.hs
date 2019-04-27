@@ -10,6 +10,7 @@ import ABFA.State
 import ABFA.Data
 import ABFA.Event
 import ABFA.World
+import ABFA.Shell
 
 -- case function for all of the keys
 evalKey :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
@@ -60,14 +61,19 @@ evalKey window k ks mk = do
   -- closes the shell
   when ((gs == SShell) && ((keyCheck keylayout k "`") || (keyCheck keylayout k "ESC"))) $ do
     liftIO $ loadedCallback (envEventsChan env) $ stateGamePrev state
-  -- reads the users keyboard
-  when ((gs == SShell)) $ do
-    let newbuff = (stateShellInput state) ++ inpkey
-    modify $ \s -> s { stateShellInput = newbuff }
+  -- deletes stuff
+  when ((gs == SShell) && (keyCheck keylayout k "DEL")) $ do
+    modify $ \s -> s { stateShellInput = inputDelete (stateShellInput state) }
+  -- runs a lua command
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
-    modify $ \s -> s { stateShellInput = "" }
-
-
+    let newbuff = (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
+    modify $ \s -> s { stateShellBuff  = " % " : newbuff
+                     , stateShellInput = "" }
+  -- reads the users keyboard
+  when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "RET")))) $ do
+    let newinp = (stateShellInput state) ++ inpkey
+    modify $ \s -> s { stateShellInput = newinp }
+  
 -- checks key with settings
 keyCheck :: KeyLayout -> GLFW.Key -> String -> Bool
 keyCheck keylayout k str = (k == (GLFW.getGLFWKey nk))
@@ -77,6 +83,7 @@ keyCheck keylayout k str = (k == (GLFW.getGLFWKey nk))
 getKey :: KeyLayout -> String -> String
 getKey keylayout "ESC" = keyESC keylayout
 getKey keylayout "RET" = keyRET keylayout
+getKey keylayout "DEL" = keyDEL keylayout
 getKey keylayout "C"   = keyC   keylayout
 getKey keylayout "R"   = keyR   keylayout
 getKey keylayout "`"   = keySh  keylayout

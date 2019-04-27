@@ -39,7 +39,7 @@ genParams state = do
     , stateElev           = (take (gw*gh) (repeat 1))
     , stateCursor         = (5, 5)
     , stateTime           = 0
-    , stateShellBuff      = ["welcome to the lua console...", " % "]
+    , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
     }
 

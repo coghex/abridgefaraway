@@ -26,9 +26,14 @@ drawShell state env = do
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
-drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-10, (fromIntegral (-6))) shellinp
+drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-10, (fromIntegral (-5))) shellinp
   where dfont    = fonts !! 1
 drawShellRow fonts fsize n shellinp (str:strs) = do
   drawFont dfont fsize FNULL (-12, (fromIntegral (n-6))) str
-  drawShellRow fonts fsize (n-1) shellinp strs
+  drawShellRow fonts fsize (n+1) shellinp strs
   where dfont    = fonts !! 1
+
+-- deletes the input when user types
+inputDelete :: String -> String
+inputDelete "" = ""
+inputDelete s  = init s
