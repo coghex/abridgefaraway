@@ -21,8 +21,8 @@ drawShell state env = do
         boxtex   = (envUTex env) !! 1
         screenw  = settingScreenW settings
         screenh  = settingScreenH settings
-        sizex    = 62
-        sizey    = round $ 62.0*((fromIntegral screenh) / (fromIntegral screenw))
+        sizex    = round $ 32.0*((fromIntegral screenw) / (fromIntegral screenh))
+        sizey    = round $ 42.0*((fromIntegral screenh) / (fromIntegral screenw))
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
