@@ -53,3 +53,18 @@ loadWorldTextures fn = do
   t21 <- loadTex (fn ++ "sea/seane.png")
 
   return ([t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21])
+
+-- loads utilily textures
+loadUtilTextures :: String -> IO ([[GL.TextureObject]])
+loadUtilTextures fn = do
+  t0  <- loadTex (fn ++ "box/box.png")
+  t1  <- loadTex (fn ++ "box/boxnw.png")
+  t2  <- loadTex (fn ++ "box/boxn.png")
+  t3  <- loadTex (fn ++ "box/boxne.png")
+  t4  <- loadTex (fn ++ "box/boxe.png")
+  t5  <- loadTex (fn ++ "box/boxse.png")
+  t6  <- loadTex (fn ++ "box/boxs.png")
+  t7  <- loadTex (fn ++ "box/boxsw.png")
+  t8  <- loadTex (fn ++ "box/boxw.png")
+
+  return ([[], [t0, t1, t2, t3, t4, t5, t6, t7, t8]])

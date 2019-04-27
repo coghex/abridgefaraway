@@ -58,6 +58,7 @@ modifierKeysShift mk   = GLFW.modifierKeysShift mk
 -- translates keys to GLFW keys for abfa.input
 getGLFWKey :: String -> GLFW.Key
 getGLFWKey "ESC" = GLFW.Key'Escape
+getGLFWKey "RET" = GLFW.Key'Enter
 getGLFWKey "C"   = GLFW.Key'C
 getGLFWKey "R"   = GLFW.Key'R
 getGLFWKey "`"   = GLFW.Key'GraveAccent
@@ -111,7 +112,7 @@ resizeScene _   width height = do
   glFlush
 
 -- this will load all of the games textures
-loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]], [GL.TextureObject])
+loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]], [GL.TextureObject], [[GL.TextureObject]])
 loadAllTextures win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -126,4 +127,5 @@ loadAllTextures win = do
   resizeScene win w h
   ftex <- loadFontTextures "data/fonts/"
   wtex <- loadWorldTextures "data/biome/"
-  return (ftex, wtex)
+  utex <- loadUtilTextures "data/util/"
+  return (ftex, wtex, utex)

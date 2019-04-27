@@ -50,6 +50,7 @@ data KeyLayout = KeyLayout
   { keyC   :: String
   , keyR   :: String
   , keyESC :: String
+  , keyRET :: String
   , keySh  :: String
   } deriving (Eq, Show)
 

@@ -64,6 +64,8 @@ evalKey window k ks mk = do
   when ((gs == SShell)) $ do
     let newbuff = (stateShellInput state) ++ inpkey
     modify $ \s -> s { stateShellInput = newbuff }
+  when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
+    modify $ \s -> s { stateShellInput = "" }
 
 
 -- checks key with settings
@@ -74,6 +76,7 @@ keyCheck keylayout k str = (k == (GLFW.getGLFWKey nk))
 -- retrieves user key setting
 getKey :: KeyLayout -> String -> String
 getKey keylayout "ESC" = keyESC keylayout
+getKey keylayout "RET" = keyRET keylayout
 getKey keylayout "C"   = keyC   keylayout
 getKey keylayout "R"   = keyR   keylayout
 getKey keylayout "`"   = keySh  keylayout

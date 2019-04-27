@@ -52,7 +52,7 @@ main = do
     GLFW.swapInterval 0
 
     -- loads all textures into memory
-    (ftex, wtex) <- liftIO $ loadAllTextures window
+    (ftex, wtex, utex) <- liftIO $ loadAllTextures window
     -- loads the default font
     let fonts = makeFonts(ftex)
 
@@ -72,7 +72,7 @@ main = do
                   , envFonts      = fonts
                   , envWTex       = wtex
                   , envZTex       = [[]]
-                  , envUTex       = [[]]
+                  , envUTex       = utex
                   , envZazzTex    = [[[]]]
                   , envStateChan1 = stateChan1
                   , envStateChan2 = stateChan2
