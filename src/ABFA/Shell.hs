@@ -2,6 +2,7 @@ module ABFA.Shell where
 -- the lua shell is defined
 
 import qualified Foreign.Lua as Lua
+import qualified Data.ByteString.Char8 as BL
 import GLUtil.Font
 import GLUtil.Util
 import GLUtil.UI
@@ -13,8 +14,8 @@ import ABFA.Data
 -- executes a string in the lua state
 execShell :: Lua.State -> String -> IO (String)
 execShell ls str = do
-  print str
-  return str
+  error <- Lua.runWith ls $ Lua.loadstring $ BL.pack str
+  return $ show error
 
 -- draws a shell 
 drawShell :: State -> Env -> IO ()
@@ -29,7 +30,7 @@ drawShell state env = do
         screenw  = settingScreenW settings
         screenh  = settingScreenH settings
         sizex    = round $ 32.0*((fromIntegral screenw) / (fromIntegral screenh))
-        sizey    = round $ 42.0*((fromIntegral screenh) / (fromIntegral screenw))
+        sizey    = round $ 62.0*((fromIntegral screenh) / (fromIntegral screenw))
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
