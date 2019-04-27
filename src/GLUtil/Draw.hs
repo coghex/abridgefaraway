@@ -37,15 +37,15 @@ drawWorldSpot texs screenw screenh gridw gridh y (t, x) = withTextures2D [(texs!
 drawSceneTile :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
 drawSceneTile texs screenw screenh gridw gridh x y t = do
   glLoadIdentity
-  glTranslatef (10.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (10.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
+  glTranslatef nx ny nz-- (10.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))) (10.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))) (-thiszoom)
   glColor3f 1.0 1.0 1.0
   drawSquare
   where
-    thiszoom = fromIntegral $ 100
+    (nx, ny, nz) = worldZoom x y screenw screenh gridw gridh
   
--- calculates the glTraslatef input value
-worldZoom :: Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int, Int)
+-- calculates the glTraslatef input value for world screen
+worldZoom :: Int -> Int -> Int -> Int -> Int -> Int -> (Float, Float, Float)
 worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
-  where nx = 1
-        ny = 2
-        nz = 3
+  where nx = 10.0 + 2*((fromIntegral x) - ((fromIntegral gridw)/2))
+        ny = 10.0 + 2*((fromIntegral y) - ((fromIntegral gridh)/2))
+        nz = fromIntegral $ -(100)

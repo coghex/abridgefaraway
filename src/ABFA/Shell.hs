@@ -10,13 +10,17 @@ import ABFA.Data
 
 -- draws a shell 
 drawShell :: State -> Env -> IO ()
-drawShell state env = resequence_ $ map (drawShellRow fonts fsize) $ stateShellBuff state
+drawShell state env = drawShellRow fonts fsize 1 shellinp $ stateShellBuff state
   where fonts    = envFonts env
         fsize    = settingFontSize settings
         settings = stateSettings state
+        shellinp = stateShellInput state
 
 -- draws a single row of the shell
-drawShellRow :: [Font] -> Int -> String -> IO ()
-drawShellRow fonts fsize str = do
-  drawFont dfont fsize FNULL    (-1, 1) str
-  where dfont    = fonts !! 2
+drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
+drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL    (-9, (fromIntegral (-6))) shellinp
+  where dfont    = fonts !! 1
+drawShellRow fonts fsize n shellinp (str:strs) = do
+  drawFont dfont fsize FNULL    (-10, (fromIntegral (n-6))) str
+  drawShellRow fonts fsize (n-1) shellinp strs
+  where dfont    = fonts !! 1

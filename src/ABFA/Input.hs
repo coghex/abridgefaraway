@@ -15,6 +15,7 @@ evalKey :: GLFW.Window -> GLFW.Key -> Game ()
 evalKey window k = do
   state <- get
   env   <- ask
+  inpkey <- liftIO $ calcInpKey k
   let keylayout = settingKeyLayout (stateSettings state)
   let gs        = stateGame state
   -- quits from the menu
@@ -56,8 +57,12 @@ evalKey window k = do
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
   -- closes the shell
-  when ((gs == SShell) && (keyCheck keylayout k "`")) $ do
+  when ((gs == SShell) && ((keyCheck keylayout k "`") || (keyCheck keylayout k "ESC"))) $ do
     liftIO $ loadedCallback (envEventsChan env) $ stateGamePrev state
+  -- reads the users keyboard
+  when ((gs == SShell)) $ do
+    let newbuff = (stateShellInput state) ++ inpkey
+    modify $ \s -> s { stateShellInput = newbuff }
 
 
 -- checks key with settings
@@ -73,3 +78,11 @@ getKey keylayout "R"   = keyR   keylayout
 getKey keylayout "`"   = keySh  keylayout
 getKey keylayout _     = "NULL"
 
+-- returns the char for a glkey
+calcInpKey :: GLFW.Key -> IO String
+calcInpKey k = do
+  inp <- GLFW.getKeyStr k
+  case (inp) of
+    Just str -> return str
+    Nothing  -> return ""
+  

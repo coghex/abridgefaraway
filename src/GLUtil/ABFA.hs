@@ -61,6 +61,10 @@ getGLFWKey "R"   = GLFW.Key'R
 getGLFWKey "`"   = GLFW.Key'GraveAccent
 getGLFWKey _     = GLFW.Key'Unknown
 
+-- the other direction
+getKeyStr :: GLFW.Key -> IO (Maybe String)
+getKeyStr k = GLFW.getKeyName k 0
+
 -- this will use GLFW to create a window and destroy it when closed
 withWindow :: Bool -> Int -> Int -> String -> (GLFW.Window -> IO ()) -> IO ()
 withWindow True ww wh title f = GLFW.terminate
