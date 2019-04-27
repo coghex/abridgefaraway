@@ -70,7 +70,7 @@ evalKey window k ks mk = do
   -- runs a lua command
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
     let newbuff = (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
-    let outbuff = 
+    let outbuff = ""
     modify $ \s -> s { stateShellBuff  = " % " : newbuff
                      , stateShellInput = "" }
   -- reads the users keyboard
