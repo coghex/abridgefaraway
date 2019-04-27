@@ -16,9 +16,10 @@ execShell :: Lua.State -> String -> IO (String)
 execShell ls str = do
   Lua.runWith ls $ Lua.openlibs
   error <- Lua.runWith ls $ Lua.loadstring $ BL.pack str
-  res <- Lua.runWith ls $ Lua.pcall 0 0 Nothing
-  ret <- Lua.runWith ls $ Lua.tostring' $ Lua.stackBottom
-  return $ BL.unpack $ ret
+  res <- Lua.runWith ls $ Lua.pcall 0 1 Nothing
+  ret <- Lua.runWith ls $ Lua.tostring' $ Lua.nthFromBottom (-1)
+  Lua.runWith ls $ Lua.pop $ Lua.nthFromBottom (-1)
+  return $ (show error) ++ ": " ++ (BL.unpack ret)
 
 -- draws a shell 
 drawShell :: State -> Env -> IO ()

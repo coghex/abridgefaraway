@@ -459,8 +459,8 @@ drawSceneRow	src/Game/Draw.hs	42;"	f
 drawSceneSpot	src/Game/Draw.hs	45;"	f
 drawSceneTile	src/GLUtil/Draw.hs	37;"	f
 drawSceneTile	src/Game/Draw.hs	48;"	f
-drawShell	src/ABFA/Shell.hs	24;"	f
-drawShellRow	src/ABFA/Shell.hs	39;"	f
+drawShell	src/ABFA/Shell.hs	25;"	f
+drawShellRow	src/ABFA/Shell.hs	40;"	f
 drawSky	src/Game/Sky.hs	36;"	f
 drawSkyRow	src/Game/Sky.hs	43;"	f
 drawSkySpot	src/Game/Sky.hs	46;"	f
@@ -794,7 +794,7 @@ initZoneBlurElev	src/Game/Zone.hs	253;"	f
 initZoneCont	src/Game/Zone.hs	668;"	f
 initZoneGrid	src/Game/Zone.hs	309;"	f
 initZoneGridZazz	src/Game/Zone.hs	334;"	f
-inputDelete	src/ABFA/Shell.hs	48;"	f
+inputDelete	src/ABFA/Shell.hs	49;"	f
 intToBiome	src/ABFA/World.hs	283;"	f
 isSpaceEmpty	src/Game/Zone.hs	460;"	f
 isSpaceRowEmpty	src/Game/Zone.hs	469;"	f
