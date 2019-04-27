@@ -60,6 +60,7 @@ getGLFWKey :: String -> GLFW.Key
 getGLFWKey "ESC" = GLFW.Key'Escape
 getGLFWKey "RET" = GLFW.Key'Enter
 getGLFWKey "DEL" = GLFW.Key'Backspace
+getGLFWKey "SPC" = GLFW.Key'Space
 getGLFWKey "C"   = GLFW.Key'C
 getGLFWKey "R"   = GLFW.Key'R
 getGLFWKey "`"   = GLFW.Key'GraveAccent

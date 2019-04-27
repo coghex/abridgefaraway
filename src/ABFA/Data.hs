@@ -49,6 +49,7 @@ data WorldGenSettings = WorldGenSettings
 data KeyLayout = KeyLayout
   { keyC   :: String
   , keyR   :: String
+  , keySPC :: String
   , keyESC :: String
   , keyRET :: String
   , keyDEL :: String

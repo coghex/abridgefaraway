@@ -64,13 +64,16 @@ evalKey window k ks mk = do
   -- deletes stuff
   when ((gs == SShell) && (keyCheck keylayout k "DEL")) $ do
     modify $ \s -> s { stateShellInput = inputDelete (stateShellInput state) }
+  -- types a space
+  when ((gs == SShell) && (keyCheck keylayout k "SPC")) $ do
+    modify $ \s -> s { stateShellInput = (stateShellInput state) ++ " " }
   -- runs a lua command
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
     let newbuff = (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
     modify $ \s -> s { stateShellBuff  = " % " : newbuff
                      , stateShellInput = "" }
   -- reads the users keyboard
-  when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "RET")))) $ do
+  when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "SPC") || (keyCheck keylayout k "RET")))) $ do
     let newinp = (stateShellInput state) ++ inpkey
     modify $ \s -> s { stateShellInput = newinp }
   
@@ -84,6 +87,7 @@ getKey :: KeyLayout -> String -> String
 getKey keylayout "ESC" = keyESC keylayout
 getKey keylayout "RET" = keyRET keylayout
 getKey keylayout "DEL" = keyDEL keylayout
+getKey keylayout "SPC" = keySPC keylayout
 getKey keylayout "C"   = keyC   keylayout
 getKey keylayout "R"   = keyR   keylayout
 getKey keylayout "`"   = keySh  keylayout
@@ -99,6 +103,29 @@ calcInpKey k mk = do
 
 -- makes letters capital when shift is held down
 applyMod :: GLFW.ModifierKeys -> String -> String
-applyMod mk str = if (GLFW.modifierKeysShift mk) then map toUpper str
+applyMod mk str = if (GLFW.modifierKeysShift mk) then map myUpper str
                   else str
   
+-- toUpper wrapper to add numeric keys
+myUpper :: Char -> Char
+myUpper '1'  = '!'
+myUpper '2'  = '@'
+myUpper '3'  = '#'
+myUpper '4'  = '$'
+myUpper '5'  = '%'
+myUpper '6'  = '^'
+myUpper '7'  = '&'
+myUpper '8'  = '*'
+myUpper '9'  = '('
+myUpper '0'  = ')'
+myUpper '-'  = '_'
+myUpper '='  = '+'
+myUpper '['  = '{'
+myUpper ']'  = '}'
+myUpper '\\' = '|'
+myUpper ';'  = ':'
+myUpper '\'' = '"'
+myUpper ','  = '<'
+myUpper '.'  = '>'
+myUpper '/'  = '?'
+myUpper c    = toUpper c
