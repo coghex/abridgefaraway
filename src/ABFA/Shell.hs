@@ -14,8 +14,11 @@ import ABFA.Data
 -- executes a string in the lua state
 execShell :: Lua.State -> String -> IO (String)
 execShell ls str = do
+  Lua.runWith ls $ Lua.openlibs
   error <- Lua.runWith ls $ Lua.loadstring $ BL.pack str
-  return $ show error
+  res <- Lua.runWith ls $ Lua.pcall 0 0 Nothing
+  ret <- Lua.runWith ls $ Lua.tostring' $ Lua.stackBottom
+  return $ BL.unpack $ ret
 
 -- draws a shell 
 drawShell :: State -> Env -> IO ()
