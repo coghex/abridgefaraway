@@ -328,6 +328,7 @@ animTime	src/ABFA/Time.hs	43;"	f
 animateJustUnits	src/Game/Unit.hs	177;"	f
 animateUnit	src/Game/Unit.hs	184;"	f
 animateUnits	src/Game/Unit.hs	180;"	f
+applyMod	src/ABFA/Input.hs	91;"	f
 applyZazz	src/Game/Zone.hs	339;"	f
 applyZazzSpots	src/Game/Zone.hs	343;"	f
 asUniform	src/GLUtil/Linear.hs	18;"	f
@@ -363,7 +364,7 @@ calcCurrentsV	src/Game/Ocean.hs	409;"	f
 calcDesireability	src/Game/Civ.hs	42;"	f
 calcEVolc	src/Game/Volc.hs	73;"	f
 calcGVolc	src/Game/Volc.hs	54;"	f
-calcInpKey	src/ABFA/Input.hs	82;"	f
+calcInpKey	src/ABFA/Input.hs	83;"	f
 calcLight	src/Game/Ocean.hs	301;"	f
 calcLight	src/Game/Sky.hs	445;"	f
 calcWindV	src/Game/Sky.hs	431;"	f
@@ -608,7 +609,7 @@ erosion	src/Game/Settings.hs	49;"	f
 errorCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	825;"	f
 errorCallback	src/ABFA/Event.hs	69;"	f
 evalAction	src/Game/Unit.hs	81;"	f
-evalKey	src/ABFA/Input.hs	14;"	f
+evalKey	src/ABFA/Input.hs	15;"	f
 evalUnit	src/Game/Unit.hs	65;"	f
 evalUnits	src/Game/Unit.hs	60;"	f
 expandGrid	src/ABFA/Map.hs	16;"	f
@@ -697,12 +698,12 @@ getElev	src/ABFA/Elev.hs	79;"	f
 getElev	src/Game/Elev.hs	161;"	f
 getExplicits	src/GLUtil/ShaderProgram.hs	159;"	f
 getGLErrors	src/GLUtil/Util.hs	44;"	f
-getGLFWKey	src/GLUtil/ABFA.hs	57;"	f
+getGLFWKey	src/GLUtil/ABFA.hs	59;"	f
 getHum	src/Game/Sky.hs	531;"	f
 getHumMaybe	src/Game/Sky.hs	527;"	f
 getHumidity	src/Game/Sky.hs	551;"	f
-getKey	src/ABFA/Input.hs	74;"	f
-getKeyStr	src/GLUtil/ABFA.hs	65;"	f
+getKey	src/ABFA/Input.hs	75;"	f
+getKeyStr	src/GLUtil/ABFA.hs	67;"	f
 getLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getLibexecDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getNoise	src/ABFA/Noise.hs	8;"	f
@@ -775,7 +776,7 @@ initSkyTemp	src/Game/Sky.hs	311;"	f
 initState	src/ABFA/State.hs	32;"	f
 initTexs	src/Game/Util.hs	46;"	f
 initWindow	/home/hoest/temp/abridgefaraway/src/Main.hs	795;"	f
-initWindow	src/GLUtil/ABFA.hs	85;"	f
+initWindow	src/GLUtil/ABFA.hs	87;"	f
 initWorld	/home/hoest/temp/abridgefaraway/src/Game/World.hs	90;"	f
 initWorld	src/ABFA/World.hs	142;"	f
 initWorld	src/Game/World.hs	90;"	f
@@ -797,7 +798,7 @@ iterateGridSolution	src/Game/Zone.hs	519;"	f
 keyC	src/ABFA/Data.hs	50;"	f
 keyCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	828;"	f
 keyCallback	src/ABFA/Event.hs	72;"	f
-keyCheck	src/ABFA/Input.hs	69;"	f
+keyCheck	src/ABFA/Input.hs	70;"	f
 keyESC	src/ABFA/Data.hs	52;"	f
 keyEscape	src/GLUtil/ABFA.hs	53;"	f
 keyPressed	src/GLUtil/ABFA.hs	51;"	f
@@ -810,7 +811,7 @@ libdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/
 libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
 linkShaderProgramWith	src/GLUtil/Shaders.hs	47;"	f
-loadAllTextures	src/GLUtil/ABFA.hs	112;"	f
+loadAllTextures	src/GLUtil/ABFA.hs	114;"	f
 loadETextures	src/Game/Util.hs	453;"	f
 loadFont	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	31;"	f
 loadFont	src/Game/Font.hs	31;"	f
@@ -883,6 +884,7 @@ midtroposphere	src/Game/Data.hs	6;"	f
 minnconts	src/Game/Settings.hs	55;"	f
 minnspots	src/Game/Settings.hs	58;"	f
 minsize	src/Game/Settings.hs	51;"	f
+modifierKeysShift	src/GLUtil/ABFA.hs	55;"	f
 momentumofair	src/Game/Settings.hs	77;"	f
 momentumofwater	src/Game/Settings.hs	75;"	f
 moonAllSpots	src/Game/Moon.hs	44;"	f
@@ -1007,7 +1009,7 @@ resequence_	src/GLUtil/Util.hs	15;"	f
 resequence_	src/Game/Map.hs	13;"	f
 reshapeCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	837;"	f
 reshapeCallback	src/ABFA/Event.hs	81;"	f
-resizeScene	src/GLUtil/ABFA.hs	99;"	f
+resizeScene	src/GLUtil/ABFA.hs	101;"	f
 resizeScene	src/Game/Util.hs	34;"	f
 rightward	src/GLUtil/Camera3D.hs	27;"	f
 roll	src/GLUtil/Camera2D.hs	31;"	f
@@ -1312,7 +1314,7 @@ withTexturesAt	src/GLUtil/Textures.hs	160;"	f
 withVAO	src/GLUtil/VertexArrayObjects.hs	24;"	f
 withViewport	src/GLUtil/Viewport.hs	10;"	f
 withWindow	/home/hoest/temp/abridgefaraway/src/Main.hs	811;"	f
-withWindow	src/GLUtil/ABFA.hs	69;"	f
+withWindow	src/GLUtil/ABFA.hs	71;"	f
 workRows	src/ABFA/Map.hs	19;"	f
 workRows	src/Game/Map.hs	219;"	f
 workZoneRows	src/Game/Map.hs	212;"	f

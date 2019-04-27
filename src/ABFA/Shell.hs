@@ -18,7 +18,7 @@ drawShell state env = drawShellRow fonts fsize 1 shellinp $ stateShellBuff state
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
-drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL    (-9, (fromIntegral (-6))) shellinp
+drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL    (-8, (fromIntegral (-6))) shellinp
   where dfont    = fonts !! 1
 drawShellRow fonts fsize n shellinp (str:strs) = do
   drawFont dfont fsize FNULL    (-10, (fromIntegral (n-6))) str

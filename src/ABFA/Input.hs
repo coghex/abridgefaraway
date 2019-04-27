@@ -3,6 +3,7 @@ module ABFA.Input where
 
 import Control.Monad.RWS.Strict (liftIO, asks, ask, gets, get, modify)
 import Control.Monad (when)
+import Data.Char (toUpper)
 import qualified GLUtil.ABFA as GLFW
 import ABFA.Game
 import ABFA.State
@@ -11,11 +12,11 @@ import ABFA.Event
 import ABFA.World
 
 -- case function for all of the keys
-evalKey :: GLFW.Window -> GLFW.Key -> Game ()
-evalKey window k = do
+evalKey :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
+evalKey window k ks mk = do
   state <- get
   env   <- ask
-  inpkey <- liftIO $ calcInpKey k
+  inpkey <- liftIO $ calcInpKey k mk
   let keylayout = settingKeyLayout (stateSettings state)
   let gs        = stateGame state
   -- quits from the menu
@@ -79,10 +80,15 @@ getKey keylayout "`"   = keySh  keylayout
 getKey keylayout _     = "NULL"
 
 -- returns the char for a glkey
-calcInpKey :: GLFW.Key -> IO String
-calcInpKey k = do
+calcInpKey :: GLFW.Key -> GLFW.ModifierKeys -> IO String
+calcInpKey k mk = do
   inp <- GLFW.getKeyStr k
   case (inp) of
-    Just str -> return str
-    Nothing  -> return ""
+    Just str -> return $ applyMod mk str
+    Nothing  -> return "" 
+
+-- makes letters capital when shift is held down
+applyMod :: GLFW.ModifierKeys -> String -> String
+applyMod mk str = if (GLFW.modifierKeysShift mk) then map toUpper str
+                  else str
   

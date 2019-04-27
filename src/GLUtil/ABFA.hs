@@ -52,6 +52,8 @@ keyPressed             :: GLFW.KeyState -> Bool
 keyPressed ks          = ks == GLFW.KeyState'Pressed
 keyEscape              :: GLFW.Key -> Bool
 keyEscape k            = k == GLFW.Key'Escape
+modifierKeysShift      :: GLFW.ModifierKeys -> Bool
+modifierKeysShift mk   = GLFW.modifierKeysShift mk
 
 -- translates keys to GLFW keys for abfa.input
 getGLFWKey :: String -> GLFW.Key

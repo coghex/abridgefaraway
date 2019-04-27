@@ -186,7 +186,7 @@ processEvent ev =
         liftIO $ GLFW.closeGLFW window
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
-        evalKey window k
+        evalKey window k ks mk
     -- changes the gamestate when we have loaded (sets previous
     -- gamestate so that we can toggle certain screens like the shell)
     (EventLoaded newstate) -> do
