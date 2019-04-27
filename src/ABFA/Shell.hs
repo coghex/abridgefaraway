@@ -1,6 +1,7 @@
 module ABFA.Shell where
--- the ui elements and how they are drawn are defined
+-- the lua shell is defined
 
+import qualified Foreign.Lua as Lua
 import GLUtil.Font
 import GLUtil.Util
 import GLUtil.UI
@@ -8,6 +9,12 @@ import ABFA.State
 import ABFA.Settings
 import ABFA.Game
 import ABFA.Data
+
+-- executes a string in the lua state
+execShell :: Lua.State -> String -> IO (String)
+execShell ls str = do
+  print str
+  return str
 
 -- draws a shell 
 drawShell :: State -> Env -> IO ()

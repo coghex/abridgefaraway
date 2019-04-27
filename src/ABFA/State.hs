@@ -2,6 +2,7 @@ module ABFA.State where
 -- the state is defined
 
 import System.Random
+import qualified Foreign.Lua as Lua
 import ABFA.Settings
 import ABFA.Data
 
@@ -21,6 +22,7 @@ data State = State
   , stateElev       :: ![Int]       -- the average elevation of each tile
   , stateCursor     :: !(Int, Int)  -- the cursor position
   , stateTime       :: !Integer     -- the time since 0
+  , stateLua        :: !Lua.State    -- the state of the lua interpreter
   , stateShellBuff  :: ![String]    -- a string containing the shell history and prompt
   , stateShellInput :: !String      -- the string the user is typing
   }
@@ -29,8 +31,8 @@ data State = State
 data GameState = SMenu | SShell | SLoadWorld | SLoadTime | SLoadElev | SWorld | SElev | SPause | SFucked deriving (Eq, Show)
 
 -- initializes the state
-initState :: GameState -> [StdGen] -> Settings -> State
-initState gs seeds settings = State { stateGame       = gs
+initState :: GameState -> Lua.State -> [StdGen] -> Settings -> State
+initState gs ls seeds settings = State { stateGame       = gs
                                     , stateGamePrev   = SFucked
                                     , stateSettings   = settings
                                     , stateWParams    = emptyParams
@@ -41,6 +43,7 @@ initState gs seeds settings = State { stateGame       = gs
                                     , stateElev       = []
                                     , stateCursor     = (5, 5)
                                     , stateTime       = 0
+                                    , stateLua        = ls
                                     , stateShellBuff  = []
                                     , stateShellInput = "" }
 

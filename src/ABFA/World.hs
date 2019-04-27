@@ -5,6 +5,7 @@ import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies (parMap, rpar)
 import Data.List.Split (chunksOf)
 import System.Random
+import qualified Foreign.Lua as Lua
 
 import ABFA.State
 import ABFA.Settings
@@ -17,8 +18,8 @@ import ABFA.Elev
 -- this will generate parameters for the world generator and place it in a new state
 genParams :: State -> State
 genParams state = do
-  let stdgens    = stateStdGens  state
-      ogsettings = stateSettings state
+  let stdgens    = stateStdGens          state
+      ogsettings = stateSettings         state
       wsettings  = settingWGSettings     ogsettings
       gw         = settingGridW          ogsettings
       gh         = settingGridH          ogsettings
@@ -26,6 +27,7 @@ genParams state = do
       maxns      = wgMaxNSpots           wsettings
       wparams    = stateWParams          state
       ncs        = wpNConts              wparams
+      ls         = stateLua              state
 
   State
     { stateGame           = stateGame state
@@ -39,6 +41,7 @@ genParams state = do
     , stateElev           = (take (gw*gh) (repeat 1))
     , stateCursor         = (5, 5)
     , stateTime           = 0
+    , stateLua            = ls
     , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
     }
@@ -101,6 +104,7 @@ nextSimState state env n = State
   , stateElev       = stateElev       state
   , stateCursor     = stateCursor     state
   , stateTime       = (stateTime      state) + (fromIntegral n)
+  , stateLua        = stateLua        state
   , stateShellBuff  = stateShellBuff  state
   , stateShellInput = stateShellInput state
   }
@@ -136,7 +140,8 @@ initWorldWithCheck :: State -> State
 initWorldWithCheck state
   | (goodWorld newstate) = newstate
   | otherwise            = initWorldWithCheck newstate
-  where newstate = regenWorld state
+  where newstate = regenWorld state ls
+        ls       = stateLua state
 
 -- inits a new world (ie state)
 initWorld :: State -> State
@@ -156,6 +161,7 @@ initWorld state = do
       seeds     = wpSeeds         wparams
       rands     = wpRands         wparams
       nconts    = wpNConts        wparams
+      ls        = stateLua        state
       shellbuff = stateShellBuff  state
       shellinp  = stateShellInput state
 
@@ -175,13 +181,14 @@ initWorld state = do
     , stateElev       = er
     , stateCursor     = cursor
     , stateTime       = time
+    , stateLua        = ls
     , stateShellBuff  = shellbuff
     , stateShellInput = shellinp
     }
 
 -- regenerates world
-regenWorld :: State -> State
-regenWorld state = do
+regenWorld :: State -> Lua.State -> State
+regenWorld state ls = do
   let i        = wpRandI            wparams
       wparams  = stateWParams       state
       settings = stateSettings      state
@@ -194,7 +201,7 @@ regenWorld state = do
       s6       = mkStdGen (i+6)
       sgs      = [s1, s2, s3, s4, s5, s6]
       currmap  = (wgCurrMap wgsetts) + 1
-      newstate = initState SLoadWorld sgs settings
+      newstate = initState SLoadWorld ls sgs settings
       stateful = genParams newstate
   initWorld stateful
 

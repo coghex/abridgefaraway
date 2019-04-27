@@ -9,6 +9,7 @@ import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, gets, evalRWST, m
 import Control.Concurrent (threadDelay, forkIO, forkOS)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
 import System.Random (newStdGen, mkStdGen)
+import qualified Foreign.Lua as Lua
 
 import qualified GLUtil.ABFA as GLFW
 import qualified Graphics.Rendering.OpenGL as GL
@@ -34,7 +35,9 @@ main = do
   seeds <- newSeeds
   -- this will import screen width and height from lua script
   settings <- importSettings "mods/config/"
-  let state   = genParams $ initState SMenu seeds settings
+  -- this will give us a lua state to execute the shell in
+  ls <- Lua.newstate
+  let state   = genParams $ initState SMenu ls seeds settings
       fs      = settingFullscreen settings
       sw      = settingScreenW settings
       sh      = settingScreenH settings
