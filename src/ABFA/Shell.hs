@@ -12,7 +12,7 @@ import ABFA.Data
 -- draws a shell 
 drawShell :: State -> Env -> IO ()
 drawShell state env = do
-  drawTextBox boxtex screenw screenh (-10) (28) fsize fsize sizex sizey
+  drawTextBox boxtex screenw screenh (-1) (28) fsize fsize sizex sizey
   drawShellRow fonts fsize 1 shellinp $ stateShellBuff state
   where fonts    = envFonts env
         fsize    = settingFontSize settings
@@ -26,10 +26,10 @@ drawShell state env = do
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
-drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-10, (fromIntegral (-5))) shellinp
+drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-6, (fromIntegral (-5))) shellinp
   where dfont    = fonts !! 1
 drawShellRow fonts fsize n shellinp (str:strs) = do
-  drawFont dfont fsize FNULL (-12, (fromIntegral (n-6))) str
+  drawFont dfont fsize FNULL (-8, (fromIntegral (n-6))) str
   drawShellRow fonts fsize (n+1) shellinp strs
   where dfont    = fonts !! 1
 
