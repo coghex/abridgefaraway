@@ -13,7 +13,6 @@ import ABFA.Settings
 import ABFA.Game
 import ABFA.Data
 
-
 -- draws the menu
 drawMenu :: State -> Env -> IO ()
 drawMenu state env = do

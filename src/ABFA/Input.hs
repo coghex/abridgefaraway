@@ -72,7 +72,11 @@ evalKey window k ks mk = do
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
     outbuff <- liftIO $ execShell (stateLua state) (stateShellInput state)
     newsets <- liftIO $ reimportSettings (stateLua state) "mods/config/"
-    let newbuff = (outbuff) : (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
+    let win     = envWindow env
+        w       = settingScreenW newsets
+        h       = settingScreenH newsets
+        newbuff = (outbuff) : (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
+    liftIO $ reshapeCallback (envEventsChan env) win w h
     modify $ \s -> s { stateSettings   = newsets
                      , stateShellBuff  = " % " : newbuff
                      , stateShellInput = "" }

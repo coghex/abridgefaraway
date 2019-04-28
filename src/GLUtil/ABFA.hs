@@ -13,6 +13,8 @@ import Graphics.UI.GLUT (($=))
 import GLUtil.Util
 import GLUtil.TexLoad
 import GLUtil.Font
+import ABFA.State
+import ABFA.Data
 
 -- these are just type synonyms
 type Window           = GLFW.Window
@@ -112,6 +114,23 @@ resizeScene _   width height = do
   glMatrixMode GL_MODELVIEW
   glLoadIdentity
   glFlush
+
+-- helps resize window
+adjustWindow :: State -> IO ()
+adjustWindow state = do
+  let settings = stateSettings state
+      width    = settingScreenW settings
+      height   = settingScreenH settings
+      pos      = GL.Position 0 0
+      size     = GL.Size (fromIntegral width) (fromIntegral height)
+      h        = fromIntegral height / fromIntegral width :: Double
+  GL.viewport GL.$= (pos, size)
+  GL.matrixMode GL.$= GL.Projection
+  GL.loadIdentity
+  GLU.perspective 45 (1/h) (0.1) 500
+  GL.matrixMode GL.$= GL.Modelview 0
+  GL.loadIdentity
+  GL.flush
 
 -- this will load all of the games textures
 loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]], [GL.TextureObject], [[GL.TextureObject]])

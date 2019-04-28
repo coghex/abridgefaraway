@@ -124,3 +124,25 @@ reimportSettings ls fn = do
     sealevel  <- Lua.getglobal "sealevel"   *> Lua.peek (-1)
     peaklevel <- Lua.getglobal "peaklevel"  *> Lua.peek (-1)
     return $ makeSettings (sw::Int) (sh::Int) (fs::Bool) (fsize::Int) (fps::Double) (timespeed::Int) (animspeed::Int) (history::Int) (precision::Int) (gridw::Int) (gridh::Int) (fudge::Int) (salt::Int) (sugar::Float) (vigor::Int) (minnconts::Int) (maxnconts::Int) (minsize::Int) (maxsize::Int) (minnspots::Int) (maxnspots::Int) (sealevel::Int) (peaklevel::Int) layout
+
+-- changes settings accordingly when window is resized
+
+resizeSettings :: Settings -> Int -> Int -> Settings
+resizeSettings settings w h =
+  Settings { settingScreenW    = w
+           , settingScreenH    = h
+           , settingKeyLayout  = settingKeyLayout settings
+           , settingRefSW      = settingRefSW settings
+           , settingRefSH      = settingRefSH settings
+           , settingFullscreen = settingFullscreen settings
+           , settingFontSize   = settingFontSize settings
+           , settingFPS        = settingFPS settings
+           , settingTimeSpeed  = settingTimeSpeed settings
+           , settingAnimSpeed  = settingAnimSpeed settings
+           , settingHistory    = settingHistory settings
+           , settingPrecision  = settingPrecision settings
+           , settingGridW      = settingGridW settings
+           , settingGridH      = settingGridH settings
+           , settingWGSettings = settingWGSettings settings }
+
+

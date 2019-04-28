@@ -203,4 +203,14 @@ processEvent ev =
     -- changes the state to reflect animation
     (EventAnimState state) -> do
       modify $ \s -> s { stateCursor = (stateCursor state) }
-      
+    -- these should reorganize the screen when the window is resized
+    (EventFrameBufferSize _ width height) -> do
+      state <- get
+      let newsetts = resizeSettings (stateSettings state) width height
+      modify $ \s -> s { stateSettings = newsetts }
+      liftIO $ adjustWindow state
+    (EventWindowResize win w h) -> do
+      state <- get
+      let newsetts = resizeSettings (stateSettings state) w h
+      modify $ \s -> s { stateSettings = newsetts }
+      liftIO $ adjustWindow state

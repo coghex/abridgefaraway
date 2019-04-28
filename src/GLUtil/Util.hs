@@ -10,6 +10,8 @@ import qualified Graphics.UI.GLFW as GLFW
 import Graphics.GL
 import Graphics.GLU
 import Graphics.UI.GLUT (($=))
+import ABFA.State
+import ABFA.Data
 
 -- chains IO events together into a single IO event
 resequence_ :: [IO ()] -> IO ()
@@ -45,3 +47,4 @@ getGLErrors :: IO ()
 getGLErrors = do
   err <- GL.get GL.errors
   mapM_ print err
+
