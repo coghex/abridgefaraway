@@ -27,7 +27,7 @@ drawMenu state env = do
       fsize    = settingFontSize settings
       x        = -8
       y        = 5
-  beginDrawFont
+  sceneSetup
   drawFont cfont fsize FNULL   (x, y) "A Bridge Far Away..."
   drawFont dfont fsize FYELLOW (x, (y-3)) "C"
   drawFont dfont fsize FNULL   ((x+(lengthOfString dfont "C")), (y-3)) "reate New World"
@@ -46,15 +46,15 @@ drawLoadScreen state env string = do
       fsize    = settingFontSize settings
       x        = -8
       y        = 5
-  beginDrawFont
+  sceneSetup
   drawFont cfont fsize FNULL   (x, y) "Loading..."
   drawFont dfont fsize FNULL   (x, (y-3)) string
 
 -- draws the UI for the world screen
 drawWorldUI :: State -> Env -> IO ()
 drawWorldUI state env = do
--- drawTopLeftText state env "test"
-  return ()
+  drawTopLeftText state env
+  drawBottomLeftText state env
 
 -- draws a box that text looks good in
 drawTextBox :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
@@ -133,8 +133,8 @@ drawBoxTile = do
   glEnd
 
 -- this element will display world information
-drawTopLeftText :: State -> Env -> String -> IO ()
-drawTopLeftText state env str = do
+drawTopLeftText :: State -> Env -> IO ()
+drawTopLeftText state env = do
   let settings = stateSettings state
       w  = settingScreenW settings
       h  = settingScreenH settings
@@ -143,5 +143,23 @@ drawTopLeftText state env str = do
       fonts = envFonts env
       dfont = fonts !! 1
       cfont = fonts !! 2
+      bfont = fonts !! 3
+      kfont = fonts !! 4
   beginDrawFont
-  drawFont dfont 40 FNULL (0, 0) str
+  drawFont kfont 40 FNULL (0, 0) "Top Left"
+
+-- this element displays zone information
+drawBottomLeftText :: State -> Env -> IO ()
+drawBottomLeftText state env = do
+  let settings = stateSettings state
+      w  = settingScreenW settings
+      h  = settingScreenH settings
+      rw = settingRefSW   settings
+      rh = settingRefSH   settings
+      fonts = envFonts env
+      dfont = fonts !! 1
+      cfont = fonts !! 2
+      bfont = fonts !! 3
+      kfont = fonts !! 4
+  beginDrawFont
+  drawFont kfont 40 FNULL (0, -2) "Bottom Left"

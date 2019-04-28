@@ -13,7 +13,7 @@ fullscreen = false
 fontsize = 40
 
 -- frames per second of display
-fps = 30.0
+fps = 60.0
 
 -- the speed of time, and animation
 timespeed = 1000

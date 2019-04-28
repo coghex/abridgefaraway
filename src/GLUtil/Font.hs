@@ -69,7 +69,7 @@ loadTex fp = do
 
 beginDrawFont :: IO ()
 beginDrawFont = do
-  sceneSetup
+  glClear $ fromIntegral $ GL_DEPTH_BUFFER_BIT
   GL.blend $= GL.Enabled
   GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
   
