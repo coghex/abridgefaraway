@@ -140,13 +140,16 @@ drawTopLeftText state env = do
       h  = settingScreenH settings
       rw = settingRefSW   settings
       rh = settingRefSH   settings
+      fsize = settingFontSize settings
       fonts = envFonts env
       dfont = fonts !! 1
       cfont = fonts !! 2
       bfont = fonts !! 3
       kfont = fonts !! 4
+      rx    = ((-7.0)*((fromIntegral w)/(fromIntegral h)))
+      ry    = 7
   beginDrawFont
-  drawFont kfont 40 FNULL (0, 0) "Top Left"
+  drawFont kfont fsize FNULL (rx, ry) "Top Left"
 
 -- this element displays zone information
 drawBottomLeftText :: State -> Env -> IO ()
@@ -156,10 +159,13 @@ drawBottomLeftText state env = do
       h  = settingScreenH settings
       rw = settingRefSW   settings
       rh = settingRefSH   settings
+      fsize = settingFontSize settings
       fonts = envFonts env
       dfont = fonts !! 1
       cfont = fonts !! 2
       bfont = fonts !! 3
       kfont = fonts !! 4
+      rx    = ((-7.0)*((fromIntegral w)/(fromIntegral h)))
+      ry    = -7
   beginDrawFont
-  drawFont kfont 40 FNULL (0, -2) "Bottom Left"
+  drawFont kfont fsize FNULL (rx, ry) "Bottom Left"

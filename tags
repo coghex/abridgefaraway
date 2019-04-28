@@ -418,7 +418,7 @@ distance	src/Game/Map.hs	156;"	f
 dolly	src/GLUtil/Camera3D.hs	110;"	f
 draw	/home/hoest/temp/abridgefaraway/src/Main.hs	153;"	f
 draw	src/Main.hs	118;"	f
-drawBottomLeftText	src/GLUtil/UI.hs	152;"	f
+drawBottomLeftText	src/GLUtil/UI.hs	155;"	f
 drawBoxTile	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	117;"	f
 drawBoxTile	src/GLUtil/UI.hs	122;"	f
 drawBoxTile	src/Game/Font.hs	117;"	f

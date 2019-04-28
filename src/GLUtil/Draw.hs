@@ -46,6 +46,6 @@ drawSceneTile texs screenw screenh gridw gridh x y t = do
 -- calculates the glTraslatef input value for world screen
 worldZoom :: Int -> Int -> Int -> Int -> Int -> Int -> (Float, Float, Float)
 worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
-  where nx = 2*((fromIntegral x) - ((fromIntegral gridw)/2))
-        ny = 2*((fromIntegral y) - ((fromIntegral gridh)/2))
-        nz = fromIntegral $ -(quot (min screenw screenh) 10)
+  where nx = (fromIntegral (2*x)) + (16.0) - (fromIntegral (gridw)) --2*((fromIntegral x) - ((fromIntegral gridw)/2))
+        ny = (fromIntegral (2*y)) + (12.0) - (fromIntegral (gridh)) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
+        nz = fromIntegral $ -100
