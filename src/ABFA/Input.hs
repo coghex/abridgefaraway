@@ -11,6 +11,7 @@ import ABFA.Data
 import ABFA.Event
 import ABFA.World
 import ABFA.Shell
+import ABFA.Settings
 
 -- case function for all of the keys
 evalKey :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
@@ -70,8 +71,10 @@ evalKey window k ks mk = do
   -- runs a lua command
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
     outbuff <- liftIO $ execShell (stateLua state) (stateShellInput state)
+    newsets <- liftIO $ reimportSettings (stateLua state) "mods/config/"
     let newbuff = (outbuff) : (" %  " ++ (stateShellInput state)) : (tail (stateShellBuff state))
-    modify $ \s -> s { stateShellBuff  = " % " : newbuff
+    modify $ \s -> s { stateSettings   = newsets
+                     , stateShellBuff  = " % " : newbuff
                      , stateShellInput = "" }
   -- reads the users keyboard
   when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "SPC") || (keyCheck keylayout k "RET")))) $ do

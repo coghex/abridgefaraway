@@ -328,7 +328,7 @@ animTime	src/ABFA/Time.hs	43;"	f
 animateJustUnits	src/Game/Unit.hs	177;"	f
 animateUnit	src/Game/Unit.hs	184;"	f
 animateUnits	src/Game/Unit.hs	180;"	f
-applyMod	src/ABFA/Input.hs	106;"	f
+applyMod	src/ABFA/Input.hs	109;"	f
 applyZazz	src/Game/Zone.hs	339;"	f
 applyZazzSpots	src/Game/Zone.hs	343;"	f
 asUniform	src/GLUtil/Linear.hs	18;"	f
@@ -364,7 +364,7 @@ calcCurrentsV	src/Game/Ocean.hs	409;"	f
 calcDesireability	src/Game/Civ.hs	42;"	f
 calcEVolc	src/Game/Volc.hs	73;"	f
 calcGVolc	src/Game/Volc.hs	54;"	f
-calcInpKey	src/ABFA/Input.hs	98;"	f
+calcInpKey	src/ABFA/Input.hs	101;"	f
 calcLight	src/Game/Ocean.hs	301;"	f
 calcLight	src/Game/Sky.hs	445;"	f
 calcWindV	src/Game/Sky.hs	431;"	f
@@ -614,7 +614,7 @@ erosion	src/Game/Settings.hs	49;"	f
 errorCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	825;"	f
 errorCallback	src/ABFA/Event.hs	69;"	f
 evalAction	src/Game/Unit.hs	81;"	f
-evalKey	src/ABFA/Input.hs	16;"	f
+evalKey	src/ABFA/Input.hs	17;"	f
 evalUnit	src/Game/Unit.hs	65;"	f
 evalUnits	src/Game/Unit.hs	60;"	f
 execShell	src/ABFA/Shell.hs	15;"	f
@@ -708,7 +708,7 @@ getGLFWKey	src/GLUtil/ABFA.hs	59;"	f
 getHum	src/Game/Sky.hs	531;"	f
 getHumMaybe	src/Game/Sky.hs	527;"	f
 getHumidity	src/Game/Sky.hs	551;"	f
-getKey	src/ABFA/Input.hs	87;"	f
+getKey	src/ABFA/Input.hs	90;"	f
 getKeyStr	src/GLUtil/ABFA.hs	70;"	f
 getLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getLibexecDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
@@ -805,7 +805,7 @@ iterateGridSolution	src/Game/Zone.hs	519;"	f
 keyC	src/ABFA/Data.hs	50;"	f
 keyCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	828;"	f
 keyCallback	src/ABFA/Event.hs	72;"	f
-keyCheck	src/ABFA/Input.hs	82;"	f
+keyCheck	src/ABFA/Input.hs	85;"	f
 keyDEL	src/ABFA/Data.hs	55;"	f
 keyESC	src/ABFA/Data.hs	53;"	f
 keyEscape	src/GLUtil/ABFA.hs	53;"	f
@@ -915,7 +915,7 @@ moveOne	src/Game/Unit.hs	128;"	f
 moveSun	src/Game/Sun.hs	22;"	f
 moveZoneCam	src/Game/Zone.hs	114;"	f
 moveZoneCursor	src/Game/Zone.hs	153;"	f
-myUpper	src/ABFA/Input.hs	111;"	f
+myUpper	src/ABFA/Input.hs	114;"	f
 nFitScore	src/Game/Zone.hs	571;"	f
 namedUniform	src/GLUtil/Shaders.hs	58;"	f
 namedUniformMat	src/GLUtil/Shaders.hs	96;"	f
@@ -1006,6 +1006,7 @@ refscreenw	src/ABFA/Settings.hs	7;"	f
 regenWorld	/home/hoest/temp/abridgefaraway/src/Game/World.hs	300;"	f
 regenWorld	src/ABFA/World.hs	190;"	f
 regenWorld	src/Game/World.hs	300;"	f
+reimportSettings	src/ABFA/Settings.hs	99;"	f
 reloadTexture	src/GLUtil/Textures.hs	93;"	f
 renderFontMap	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	53;"	f
 renderFontMap	src/Game/Font.hs	53;"	f
