@@ -124,6 +124,7 @@ adjustWindow state = do
       pos      = GL.Position 0 0
       size     = GL.Size (fromIntegral width) (fromIntegral height)
       h        = fromIntegral height / fromIntegral width :: Double
+  sceneSetup
   GL.viewport GL.$= (pos, size)
   GL.matrixMode GL.$= GL.Projection
   GL.loadIdentity

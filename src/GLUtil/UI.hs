@@ -59,10 +59,9 @@ drawWorldUI state env = do
 -- draws a box that text looks good in
 drawTextBox :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
 drawTextBox texs screenw screenh x y sx sy bx by = do
-  let (nx, ny, nz) = worldZoom x y screenw screenh 60 30
   GL.loadIdentity
   glClear $ fromIntegral $ GL_DEPTH_BUFFER_BIT
-  GL.translate $ GL.Vector3 nx ny nz
+  GL.translate $ GL.Vector3 (fromIntegral (2*x)) (fromIntegral (2*y)) (-64::GL.GLfloat)
   -- first render top left corner
   withTextures2D [texs!!7] $ drawBoxTile
   -- render the top row

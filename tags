@@ -1,4 +1,5 @@
 !_TAG_FILE_SORTED	1	//
+$	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	62;"	o
 ABFA	src/GLUtil/ABFA.hs	1;"	m
 Action	src/ABFA/Data.hs	123;"	t
 Action	src/Game/Data.hs	56;"	t
@@ -416,7 +417,7 @@ dolly	src/GLUtil/Camera3D.hs	110;"	f
 draw	/home/hoest/temp/abridgefaraway/src/Main.hs	153;"	f
 draw	src/Main.hs	118;"	f
 drawBoxTile	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	117;"	f
-drawBoxTile	src/GLUtil/UI.hs	123;"	f
+drawBoxTile	src/GLUtil/UI.hs	122;"	f
 drawBoxTile	src/Game/Font.hs	117;"	f
 drawCiv	src/Game/Civ.hs	17;"	f
 drawCivRow	src/Game/Civ.hs	24;"	f
@@ -461,7 +462,7 @@ drawSceneSpot	src/Game/Draw.hs	45;"	f
 drawSceneTile	src/GLUtil/Draw.hs	37;"	f
 drawSceneTile	src/Game/Draw.hs	48;"	f
 drawShell	src/ABFA/Shell.hs	25;"	f
-drawShellRow	src/ABFA/Shell.hs	40;"	f
+drawShellRow	src/ABFA/Shell.hs	41;"	f
 drawSky	src/Game/Sky.hs	36;"	f
 drawSkyRow	src/Game/Sky.hs	43;"	f
 drawSkySpot	src/Game/Sky.hs	46;"	f
@@ -475,19 +476,19 @@ drawTextBox	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	59;"	f
 drawTextBox	src/GLUtil/UI.hs	60;"	f
 drawTextBox	src/Game/Font.hs	59;"	f
 drawTextBoxBottomRow	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	110;"	f
-drawTextBoxBottomRow	src/GLUtil/UI.hs	115;"	f
+drawTextBoxBottomRow	src/GLUtil/UI.hs	114;"	f
 drawTextBoxBottomRow	src/Game/Font.hs	110;"	f
 drawTextBoxMiddleBit	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	96;"	f
-drawTextBoxMiddleBit	src/GLUtil/UI.hs	107;"	f
+drawTextBoxMiddleBit	src/GLUtil/UI.hs	106;"	f
 drawTextBoxMiddleBit	src/Game/Font.hs	96;"	f
 drawTextBoxMiddleRows	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	83;"	f
-drawTextBoxMiddleRows	src/GLUtil/UI.hs	93;"	f
+drawTextBoxMiddleRows	src/GLUtil/UI.hs	92;"	f
 drawTextBoxMiddleRows	src/Game/Font.hs	83;"	f
 drawTextBoxTopRow	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	103;"	f
-drawTextBoxTopRow	src/GLUtil/UI.hs	85;"	f
+drawTextBoxTopRow	src/GLUtil/UI.hs	84;"	f
 drawTextBoxTopRow	src/Game/Font.hs	103;"	f
 drawTopLeftText	src/ABFA/UI.hs	55;"	f
-drawTopLeftText	src/GLUtil/UI.hs	137;"	f
+drawTopLeftText	src/GLUtil/UI.hs	136;"	f
 drawUnit	src/Game/Unit.hs	170;"	f
 drawUnitTile	src/Game/Unit.hs	211;"	f
 drawUnits	src/Game/Unit.hs	166;"	f
@@ -795,7 +796,7 @@ initZoneBlurElev	src/Game/Zone.hs	253;"	f
 initZoneCont	src/Game/Zone.hs	668;"	f
 initZoneGrid	src/Game/Zone.hs	309;"	f
 initZoneGridZazz	src/Game/Zone.hs	334;"	f
-inputDelete	src/ABFA/Shell.hs	49;"	f
+inputDelete	src/ABFA/Shell.hs	50;"	f
 intToBiome	src/ABFA/World.hs	283;"	f
 isSpaceEmpty	src/Game/Zone.hs	460;"	f
 isSpaceRowEmpty	src/Game/Zone.hs	469;"	f
@@ -822,7 +823,7 @@ libdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/
 libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
 linkShaderProgramWith	src/GLUtil/Shaders.hs	47;"	f
-loadAllTextures	src/GLUtil/ABFA.hs	136;"	f
+loadAllTextures	src/GLUtil/ABFA.hs	137;"	f
 loadETextures	src/Game/Util.hs	453;"	f
 loadFont	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	31;"	f
 loadFont	src/Game/Font.hs	31;"	f

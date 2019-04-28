@@ -24,7 +24,7 @@ execShell ls str = do
 -- draws a shell 
 drawShell :: State -> Env -> IO ()
 drawShell state env = do
-  drawTextBox boxtex screenw screenh (-1) (28) fsize fsize sizex sizey
+  drawTextBox boxtex screenw screenh (-(quot boxwidth 2)) (0) fsize fsize sizex sizey
   drawShellRow fonts fsize 1 shellinp $ stateShellBuff state
   where fonts    = envFonts env
         fsize    = settingFontSize settings
@@ -33,8 +33,9 @@ drawShell state env = do
         boxtex   = (envUTex env) !! 1
         screenw  = settingScreenW settings
         screenh  = settingScreenH settings
-        sizex    = round $ 32.0*((fromIntegral screenw) / (fromIntegral screenh))
-        sizey    = round $ 62.0*((fromIntegral screenh) / (fromIntegral screenw))
+        sizex    = 40 --round $ 16.0*(fromIntegral (quot screenw refscreenw))
+        sizey    = 10 --round $ 4.0*(fromIntegral (quot screenh refscreenh))
+        boxwidth = sizex
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
