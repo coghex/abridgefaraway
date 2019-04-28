@@ -8,8 +8,8 @@ refscreenw = 640::Int
 refscreenh = 480::Int
 
 -- imports the key layout
-importKeyLayout :: String -> IO (KeyLayout)
-importKeyLayout fn = Lua.run $ do
+importKeyLayout :: Lua.State -> String -> IO (KeyLayout)
+importKeyLayout ls fn = Lua.runWith ls $ do
   Lua.openlibs
   Lua.dofile $ fn ++ "keylayout.lua"
   ckey   <- Lua.getglobal "ckey"   *> Lua.peek (-1)
@@ -22,10 +22,10 @@ importKeyLayout fn = Lua.run $ do
   return $ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey
 
 -- imports other settings
-importSettings :: String -> IO (Settings)
-importSettings fn = do
-  layout    <- importKeyLayout fn
-  Lua.run $ do
+importSettings :: Lua.State -> String -> IO (Settings)
+importSettings ls fn = do
+  layout    <- importKeyLayout ls fn
+  Lua.runWith ls $ do
     Lua.openlibs
     Lua.dofile $ fn ++ "config.lua"
     (sw, sh)  <- Lua.callFunc "getscreensize" refscreenw refscreenh

@@ -33,10 +33,11 @@ main :: IO ()
 main = do
   -- this will provide some seeds to have consistent randomness
   seeds <- newSeeds
-  -- this will import screen width and height from lua script
-  settings <- importSettings "mods/config/"
   -- this will give us a lua state to execute the shell in
   ls <- Lua.newstate
+  -- this will import screen width and height from lua script
+  settings <- importSettings ls "mods/config/"
+  -- an initial state
   let state   = genParams $ initState SMenu ls seeds settings
       fs      = settingFullscreen settings
       sw      = settingScreenW settings
