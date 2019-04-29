@@ -27,7 +27,7 @@ drawWorld state env = do
 
 -- draws each spot
 drawWorldRow :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> IO ()
-drawWorldRow texs screenw screenh gridw gridh (a, b) = resequence_ (map (drawWorldSpot texs screenw screenh gridw gridw b) a)
+drawWorldRow texs screenw screenh gridw gridh (a, b) = resequence_ (map (drawWorldSpot texs screenw screenh gridw gridh b) a)
 
 -- using the texture library
 drawWorldSpot :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> IO ()
@@ -46,6 +46,7 @@ drawSceneTile texs screenw screenh gridw gridh x y t = do
 -- calculates the glTraslatef input value for world screen
 worldZoom :: Int -> Int -> Int -> Int -> Int -> Int -> (Float, Float, Float)
 worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
-  where nx = (fromIntegral (2*x)) + (16.0) - (fromIntegral (gridw)) --2*((fromIntegral x) - ((fromIntegral gridw)/2))
-        ny = (fromIntegral (2*y)) + (12.0) - (fromIntegral (gridh)) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
-        nz = fromIntegral $ -100
+  where nx = (fromIntegral (2*x)) - (0.6*(fromIntegral (gridw))) --2*((fromIntegral x) - ((fromIntegral gridw)/2))
+        ny = (fromIntegral (2*y)) - ((fromIntegral (gridh))) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
+        nz = -2.0*(fromIntegral (max gridw gridh))
+        gridratio = (fromIntegral gridh) / (fromIntegral gridw)

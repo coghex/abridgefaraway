@@ -32,13 +32,13 @@ import ABFA.Shell
 main :: IO ()
 main = do
   -- this will provide some seeds to have consistent randomness
-  seeds <- newSeeds
+  let seeds = newSeeds
   -- this will give us a lua state to execute the shell in
   ls <- Lua.newstate
   -- this will import screen width and height from lua script
   settings <- importSettings ls "mods/config/"
   -- an initial state
-  let state   = genParams $ initState SMenu ls seeds settings
+  let state   = genParams 0 $ initState SMenu ls seeds settings
       fs      = settingFullscreen settings
       sw      = settingScreenW settings
       sh      = settingScreenH settings

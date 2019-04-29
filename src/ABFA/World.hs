@@ -16,8 +16,8 @@ import ABFA.Map
 import ABFA.Elev
 
 -- this will generate parameters for the world generator and place it in a new state
-genParams :: State -> State
-genParams state = do
+genParams :: Int -> State -> State
+genParams mseed state = do
   let stdgens    = stateStdGens          state
       ogsettings = stateSettings         state
       wsettings  = settingWGSettings     ogsettings
@@ -33,7 +33,7 @@ genParams state = do
     { stateGame           = stateGame state
     , stateGamePrev       = stateGamePrev state
     , stateSettings       = ogsettings
-    , stateWParams        = genWParams stdgens ogsettings
+    , stateWParams        = genWParams mseed stdgens ogsettings
     , stateStdGens        = stdgens
     , stateZoom           = 120.0
     , stateGrid           = (take (gw*gh) (repeat 1))
@@ -47,8 +47,8 @@ genParams state = do
     }
 
 -- this is used to generate the params data
-genWParams :: [StdGen] -> Settings -> WorldParams
-genWParams sgs settings = WorldParams { wpNConts = nconts0
+genWParams :: Int -> [StdGen] -> Settings -> WorldParams
+genWParams mseed sgs settings = WorldParams { wpNConts = nconts0
                                       , wpConts  = conts0
                                       , wpSeeds  = seeds0
                                       , wpRands  = rands0
@@ -65,7 +65,7 @@ genWParams sgs settings = WorldParams { wpNConts = nconts0
         randsseed = buildList2 ((withStdGen sgs 5 (randomList (f, (gw-f)) nconts0)), (withStdGen sgs 6 (randomList (1, (gh-1)) nconts0)))
         sizes0    = withStdGen sgs 1 $ randomList (mins, maxs) nconts0
         types0    = withStdGen sgs 2 $ randomBiomeList nconts0
-        randi0    = 0
+        randi0    = mseed
         rrands0   = withStdGen sgs 3 $ randomRs (minnc, maxnc)
         wsettings  = settingWGSettings    settings
         gw         = settingGridW         settings
@@ -202,7 +202,7 @@ regenWorld state ls = do
       sgs      = [s1, s2, s3, s4, s5, s6]
       currmap  = (wgCurrMap wgsetts) + 1
       newstate = initState SLoadWorld ls sgs settings
-      stateful = genParams newstate
+      stateful = genParams (i+1) newstate
   initWorld stateful
 
 -- creates the continents

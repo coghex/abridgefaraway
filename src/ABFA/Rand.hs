@@ -14,15 +14,14 @@ buildList2 :: ([a], [a]) -> [(a, a)]
 buildList2 ([], [])     = []
 buildList2 (a:as, b:bs) = [(a, b)] ++ buildList2 (as, bs)
 
-newSeeds :: IO ([StdGen])
-newSeeds = do 
-  s1 <- newStdGen
-  s2 <- newStdGen
-  s3 <- newStdGen
-  s4 <- newStdGen
-  s5 <- newStdGen
-  s6 <- newStdGen
-  return ([s1, s2, s3, s4, s5, s6])
+newSeeds :: ([StdGen])
+newSeeds = [s1, s2, s3, s4, s5, s6]
+  where s1 = mkStdGen 1
+        s2 = mkStdGen 2
+        s3 = mkStdGen 3
+        s4 = mkStdGen 4
+        s5 = mkStdGen 5
+        s6 = mkStdGen 6
 
 -- evaluates a given function with a stdgen from a set list
 -- if the stdgen is the last arg, which is the convention with the library

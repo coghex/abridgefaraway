@@ -1123,8 +1123,8 @@ specificheatofterra	src/Game/Settings.hs	71;"	f
 specificheatofwater	src/Game/Settings.hs	69;"	f
 speed	src/ABFA/Data.hs	127;"	f
 speed	src/Game/Data.hs	60;"	f
-splitSG	src/ABFA/Rand.hs	37;"	f
-splitSGs	src/ABFA/Rand.hs	34;"	f
+splitSG	src/ABFA/Rand.hs	36;"	f
+splitSGs	src/ABFA/Rand.hs	33;"	f
 spotMoon	src/Game/Moon.hs	47;"	f
 spotSun	src/Game/Sun.hs	46;"	f
 stateConts	/home/hoest/temp/abridgefaraway/src/Game/State.hs	51;"	f
@@ -1327,7 +1327,7 @@ whileM_	src/Main.hs	162;"	f
 windowShouldClose	src/GLUtil/ABFA.hs	47;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
-withStdGen	src/ABFA/Rand.hs	29;"	f
+withStdGen	src/ABFA/Rand.hs	28;"	f
 withTextures	src/GLUtil/Textures.hs	138;"	f
 withTextures2D	src/GLUtil/Textures.hs	153;"	f
 withTexturesAt	src/GLUtil/Textures.hs	160;"	f

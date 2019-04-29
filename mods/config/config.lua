@@ -3,8 +3,8 @@
 -- imports all the settings
 
 -- this is the screen width and height in pixels
-screenw = 800
-screenh = 600
+screenw = 2560
+screenh = 1440
 
 -- weather or not the game is fullscreen
 fullscreen = false
@@ -27,8 +27,8 @@ precision = 2
 
 -- these constants help the world generation
 -- size of the world
-gridw = 40
-gridh = 30
+gridw = 60
+gridh = 40
 -- fudges lists when they need to be slightly altered
 fudge = 4
 -- all arcane ingredients in the worldgen pie
