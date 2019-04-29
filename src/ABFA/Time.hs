@@ -68,6 +68,21 @@ animTime env state n TStart = do
   animTime env newstate n tsnew
 
 
+-- will turn the time integer into a printable format
+formatTime :: Integer -> String
+formatTime time = do
+  let dq = quot time 720
+      dr = mod  time 720
+      h  = quot dr   60
+      m  = mod  dr   60
+  "day " ++ (show dq) ++ ": " ++ (show h) ++ ":" ++ (showSec m)
+
+-- adds a zero to the seconds less than 10
+showSec :: Integer -> String
+showSec t
+  | t < 10    = "0" ++ (show t)
+  | otherwise = (show t)
+
 -- simTime will simulate time occuring before the world is displayed
 -- wont be the same if you were to play through it, since the simulation
 -- takes so much longer it skips many steps

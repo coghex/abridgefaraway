@@ -169,11 +169,13 @@ timedLoop f = loop 0.0
       quit <- f lastTick tick
       when quit $ loop tick
 
+-- loop for the monad
 whileM_ :: (Monad m) => m Bool -> m () -> m ()
 whileM_ p f = do
   x <- p
   when x $ do f >> whileM_ p f
 
+-- gets time in ms
 getCurTick :: IO Double
 getCurTick = do
   tickUCT <- getCurrentTime
@@ -190,6 +192,7 @@ processEvents = do
       processEvents
     Nothing -> return ()
 
+-- takes a single event and case statements it out
 processEvent :: Event -> Game ()
 processEvent ev =
   case ev of

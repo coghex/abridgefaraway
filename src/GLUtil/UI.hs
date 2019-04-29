@@ -12,6 +12,7 @@ import ABFA.State
 import ABFA.Settings
 import ABFA.Game
 import ABFA.Data
+import ABFA.Time
 
 -- draws the menu
 drawMenu :: State -> Env -> IO ()
@@ -168,4 +169,4 @@ drawBottomLeftText state env = do
       rx    = ((-7.0)*((fromIntegral w)/(fromIntegral h)))
       ry    = -7
   beginDrawFont
-  drawFont kfont fsize FNULL (rx, ry) $ "Time: " ++ (show (stateTime state))
+  drawFont kfont fsize FNULL (rx, ry) $ formatTime $ stateTime state
