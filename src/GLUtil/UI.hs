@@ -149,7 +149,7 @@ drawTopLeftText state env = do
       rx    = ((-7.0)*((fromIntegral w)/(fromIntegral h)))
       ry    = 7
   beginDrawFont
-  drawFont kfont fsize FNULL (rx, ry) "Top Left"
+  drawFont kfont fsize FNULL (rx, ry) "World Name"
 
 -- this element displays zone information
 drawBottomLeftText :: State -> Env -> IO ()
@@ -168,4 +168,4 @@ drawBottomLeftText state env = do
       rx    = ((-7.0)*((fromIntegral w)/(fromIntegral h)))
       ry    = -7
   beginDrawFont
-  drawFont kfont fsize FNULL (rx, ry) "Bottom Left"
+  drawFont kfont fsize FNULL (rx, ry) $ "Time: " ++ (show (stateTime state))

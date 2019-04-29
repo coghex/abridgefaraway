@@ -27,8 +27,8 @@ precision = 2
 
 -- these constants help the world generation
 -- size of the world
-gridw = 60
-gridh = 40
+gridw = 40
+gridh = 30
 -- fudges lists when they need to be slightly altered
 fudge = 4
 -- all arcane ingredients in the worldgen pie

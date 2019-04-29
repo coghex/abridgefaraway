@@ -127,6 +127,7 @@ draw SLoadWorld state env = do
   atomically $ writeChan (envWTimerChan env) TStart
   newstate1 <- atomically $ readChan (envStateChan1 env)
   newstate2 <- atomically $ readChan (envStateChan3 env)
+
   liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SLoadTime  state env = do
   drawLoadScreen state env "simulating history"
@@ -143,10 +144,19 @@ draw SLoadTime  state env = do
   if unftime > (1+toInteger(history)) then liftIO $ loadedCallback (envEventsChan env) SWorld
   else liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SWorld     state env = do
+  worldbuff <- atomically $ tryReadChan (envStateChan1 env)
+  animbuff  <- atomically $ tryReadChan (envStateChan3 env)
+  newwstate <- case (worldbuff) of
+    Nothing -> return state
+    Just n  -> return n
+  newastate <- case (animbuff) of
+    Nothing -> return state
+    Just n  -> return n
   liftIO sceneSetup
   drawWorld   state env
   drawWorldUI state env
-  where grid = stateGrid state
+  liftIO $ timerCallback (envEventsChan env) newwstate
+  --liftIO $ animCallback  (envEventsChan env) newastate
 draw _ _ _ = do
   print "fuck"
 

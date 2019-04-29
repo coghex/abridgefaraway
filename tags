@@ -700,7 +700,7 @@ getAirTemps	src/Game/Sky.hs	558;"	f
 getAttrib	src/GLUtil/ShaderProgram.hs	202;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getCurTick	/home/hoest/temp/abridgefaraway/src/Main.hs	481;"	f
-getCurTick	src/Main.hs	167;"	f
+getCurTick	src/Main.hs	177;"	f
 getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	47;"	f
 getDes	src/Game/Civ.hs	101;"	f
@@ -985,9 +985,9 @@ printError	src/GLUtil/GLError.hs	13;"	f
 printErrorMsg	src/GLUtil/GLError.hs	18;"	f
 printGLErrors	src/GLUtil/GLError.hs	31;"	f
 processEvent	/home/hoest/temp/abridgefaraway/src/Main.hs	498;"	f
-processEvent	src/Main.hs	183;"	f
+processEvent	src/Main.hs	193;"	f
 processEvents	/home/hoest/temp/abridgefaraway/src/Main.hs	487;"	f
-processEvents	src/Main.hs	173;"	f
+processEvents	src/Main.hs	183;"	f
 program	src/GLUtil/ShaderProgram.hs	38;"	f
 projectionMatrix	src/GLUtil/Camera3D.hs	133;"	f
 pvnrt	src/Game/Ocean.hs	304;"	f
@@ -1269,7 +1269,7 @@ tiltRad	src/GLUtil/Camera3D.hs	60;"	f
 time	src/ABFA/Data.hs	125;"	f
 time	src/Game/Data.hs	58;"	f
 timedLoop	/home/hoest/temp/abridgefaraway/src/Main.hs	468;"	f
-timedLoop	src/Main.hs	154;"	f
+timedLoop	src/Main.hs	164;"	f
 timerCallback	/home/hoest/temp/abridgefaraway/src/Main.hs	843;"	f
 timerCallback	src/ABFA/Event.hs	87;"	f
 track	src/GLUtil/Camera2D.hs	20;"	f
@@ -1323,7 +1323,7 @@ wgSealevel	src/ABFA/Data.hs	44;"	f
 wgSugar	src/ABFA/Data.hs	36;"	f
 wgVigor	src/ABFA/Data.hs	37;"	f
 whileM_	/home/hoest/temp/abridgefaraway/src/Main.hs	476;"	f
-whileM_	src/Main.hs	162;"	f
+whileM_	src/Main.hs	172;"	f
 windowShouldClose	src/GLUtil/ABFA.hs	47;"	f
 withHMatrix	src/GLUtil/Shaders.hs	67;"	f
 withPixels	src/GLUtil/Textures.hs	35;"	f
