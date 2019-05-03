@@ -11,24 +11,26 @@ import ABFA.Data
 -- that happens, such as window state, random seeds, screen
 -- width and height, grids and zones.
 data State = State
-  { stateGame       :: !GameState   -- the current screen
-  , stateGamePrev   :: !GameState   -- the previous screen
-  , stateSettings   :: !Settings    -- the currents settings
-  , stateWParams    :: !WorldParams -- parameters for the world generator
-  , stateStdGens    :: ![StdGen]    -- a set of rngs
-  , stateZoom       :: !Float       -- the zoom when in the zone screen
-  , stateGrid       :: ![Int]       -- the world grid
-  , stateOG         :: ![Int]       -- the original world grid
-  , stateElev       :: ![Int]       -- the average elevation of each tile
-  , stateCursor     :: !(Int, Int)  -- the cursor position
-  , stateTime       :: !Integer     -- the time since 0
-  , stateLua        :: !Lua.State    -- the state of the lua interpreter
-  , stateShellBuff  :: ![String]    -- a string containing the shell history and prompt
-  , stateShellInput :: !String      -- the string the user is typing
+  { stateGame       :: !GameState     -- the current screen
+  , stateGamePrev   :: !GameState     -- the previous screen
+  , stateSettings   :: !Settings      -- the currents settings
+  , stateWParams    :: !WorldParams   -- parameters for the world generator
+  , stateStdGens    :: ![StdGen]      -- a set of rngs
+  , stateZoom       :: !Float         -- the zoom when in the zone screen
+  , stateGrid       :: ![Int]         -- the world grid
+  , stateOG         :: ![Int]         -- the original world grid
+  , stateElev       :: ![Int]         -- the average elevation of each tile
+  , stateCursor     :: !(Int, Int)    -- the cursor position
+  , stateTime       :: !Integer       -- the time since 0
+  , stateLua        :: !Lua.State     -- the state of the lua interpreter
+  , stateShellBuff  :: ![String]      -- a string containing the shell history and prompt
+  , stateShellInput :: !String        -- the string the user is typing
+  , stateZoneGrid   :: ![ZoneChunk]   -- the zone data, packed in bytestring
+  , stateZoneCont   :: ![ZoneChunk]
   }
 
 -- the gamestate controls which screen we are currently drawing
-data GameState = SMenu | SShell | SLoadWorld | SLoadTime | SLoadElev | SWorld | SElev | SPause | SFucked deriving (Eq, Show)
+data GameState = SMenu | SShell | SLoadWorld | SLoadTime | SLoadElev | SLoadZone | SWorld | SZone | SWElev | SPause | SFucked deriving (Eq, Show)
 
 -- initializes the state
 initState :: GameState -> Lua.State -> [StdGen] -> Settings -> State
@@ -45,8 +47,9 @@ initState gs ls seeds settings = State { stateGame       = gs
                                     , stateTime       = 0
                                     , stateLua        = ls
                                     , stateShellBuff  = []
-                                    , stateShellInput = "" }
-
+                                    , stateShellInput = ""
+                                    , stateZoneGrid   = []
+                                    , stateZoneCont   = [] }
 
 emptyParams :: WorldParams
 emptyParams = WorldParams { wpNConts = 0

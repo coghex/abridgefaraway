@@ -50,3 +50,7 @@ worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
         ny = (fromIntegral (2*y)) - ((fromIntegral (gridh))) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
         nz = -2.0*(fromIntegral (max gridw gridh))
         gridratio = (fromIntegral gridh) / (fromIntegral gridw)
+
+-- draws the zone screen
+drawZone :: State -> Env -> IO ()
+drawZone state env = print "drawzone"

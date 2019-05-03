@@ -57,6 +57,10 @@ drawWorldUI state env = do
   drawTopLeftText state env
   drawBottomLeftText state env
 
+-- draws the UI for the zone screen
+drawZoneUI :: State -> Env -> IO ()
+drawZoneUI state env = print "drawzoneui"
+
 -- draws a box that text looks good in
 drawTextBox :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> IO ()
 drawTextBox texs screenw screenh x y sx sy bx by = do

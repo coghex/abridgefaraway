@@ -38,6 +38,8 @@ importSettings ls fn = do
     precision <- Lua.getglobal "precision"  *> Lua.peek (-1)
     gridw     <- Lua.getglobal "gridw"      *> Lua.peek (-1)
     gridh     <- Lua.getglobal "gridh"      *> Lua.peek (-1)
+    zonew     <- Lua.getglobal "zonew"      *> Lua.peek (-1)
+    zoneh     <- Lua.getglobal "zoneh"      *> Lua.peek (-1)
     fudge     <- Lua.getglobal "fudge"      *> Lua.peek (-1)
     salt      <- Lua.getglobal "salt"       *> Lua.peek (-1)
     sugar     <- Lua.getglobal "sugar"      *> Lua.peek (-1)
@@ -50,10 +52,10 @@ importSettings ls fn = do
     maxnspots <- Lua.getglobal "maxnspots"  *> Lua.peek (-1)
     sealevel  <- Lua.getglobal "sealevel"   *> Lua.peek (-1)
     peaklevel <- Lua.getglobal "peaklevel"  *> Lua.peek (-1)
-    return $ makeSettings (sw::Int) (sh::Int) (fs::Bool) (fsize::Int) (fps::Double) (timespeed::Int) (animspeed::Int) (history::Int) (precision::Int) (gridw::Int) (gridh::Int) (fudge::Int) (salt::Int) (sugar::Float) (vigor::Int) (minnconts::Int) (maxnconts::Int) (minsize::Int) (maxsize::Int) (minnspots::Int) (maxnspots::Int) (sealevel::Int) (peaklevel::Int) layout
+    return $ makeSettings (sw::Int) (sh::Int) (fs::Bool) (fsize::Int) (fps::Double) (timespeed::Int) (animspeed::Int) (history::Int) (precision::Int) (gridw::Int) (gridh::Int) (zonew::Int) (zoneh::Int) (fudge::Int) (salt::Int) (sugar::Float) (vigor::Int) (minnconts::Int) (maxnconts::Int) (minsize::Int) (maxsize::Int) (minnspots::Int) (maxnspots::Int) (sealevel::Int) (peaklevel::Int) layout
 
-makeSettings :: Int -> Int -> Bool -> Int -> Double -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> KeyLayout -> Settings
-makeSettings sw sh fs fsize fps ts as h p gw gh f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl layout =
+makeSettings :: Int -> Int -> Bool -> Int -> Double -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> KeyLayout -> Settings
+makeSettings sw sh fs fsize fps ts as h p gw gh zw zh f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl layout =
   Settings { settingScreenW    = sw
            , settingScreenH    = sh
            , settingKeyLayout  = layout
@@ -68,6 +70,8 @@ makeSettings sw sh fs fsize fps ts as h p gw gh f salt sugar vigor minnc maxnc m
            , settingPrecision  = p
            , settingGridW      = gw
            , settingGridH      = gh
+           , settingZoneW      = zw
+           , settingZoneH      = zh
            , settingWGSettings = makeWGSettings f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl }
 
 makeKeyLayout :: String -> String -> String -> String -> String -> String -> String -> KeyLayout
@@ -111,6 +115,8 @@ reimportSettings ls fn = do
     precision <- Lua.getglobal "precision"  *> Lua.peek (-1)
     gridw     <- Lua.getglobal "gridw"      *> Lua.peek (-1)
     gridh     <- Lua.getglobal "gridh"      *> Lua.peek (-1)
+    zonew     <- Lua.getglobal "zonew"      *> Lua.peek (-1)
+    zoneh     <- Lua.getglobal "zoneh"      *> Lua.peek (-1)
     fudge     <- Lua.getglobal "fudge"      *> Lua.peek (-1)
     salt      <- Lua.getglobal "salt"       *> Lua.peek (-1)
     sugar     <- Lua.getglobal "sugar"      *> Lua.peek (-1)
@@ -123,7 +129,7 @@ reimportSettings ls fn = do
     maxnspots <- Lua.getglobal "maxnspots"  *> Lua.peek (-1)
     sealevel  <- Lua.getglobal "sealevel"   *> Lua.peek (-1)
     peaklevel <- Lua.getglobal "peaklevel"  *> Lua.peek (-1)
-    return $ makeSettings (sw::Int) (sh::Int) (fs::Bool) (fsize::Int) (fps::Double) (timespeed::Int) (animspeed::Int) (history::Int) (precision::Int) (gridw::Int) (gridh::Int) (fudge::Int) (salt::Int) (sugar::Float) (vigor::Int) (minnconts::Int) (maxnconts::Int) (minsize::Int) (maxsize::Int) (minnspots::Int) (maxnspots::Int) (sealevel::Int) (peaklevel::Int) layout
+    return $ makeSettings (sw::Int) (sh::Int) (fs::Bool) (fsize::Int) (fps::Double) (timespeed::Int) (animspeed::Int) (history::Int) (precision::Int) (gridw::Int) (gridh::Int) (zonew::Int) (zoneh::Int) (fudge::Int) (salt::Int) (sugar::Float) (vigor::Int) (minnconts::Int) (maxnconts::Int) (minsize::Int) (maxsize::Int) (minnspots::Int) (maxnspots::Int) (sealevel::Int) (peaklevel::Int) layout
 
 -- changes settings accordingly when window is resized
 
@@ -143,6 +149,8 @@ resizeSettings settings w h =
            , settingPrecision  = settingPrecision settings
            , settingGridW      = settingGridW settings
            , settingGridH      = settingGridH settings
+           , settingZoneW      = settingZoneW settings
+           , settingZoneH      = settingZoneH settings
            , settingWGSettings = settingWGSettings settings }
 
 

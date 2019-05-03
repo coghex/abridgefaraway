@@ -51,6 +51,10 @@ sealevel = 2000.0
 -- level before tiles become impassable mountains
 peaklevel = 10000.0
 
+-- these constants are for the zones
+zonew = 30
+zoneh = 20
+
 -- will return a hard coded default screen size of 1024x768
 -- if one is not set
 function getscreensize (dscreenw, dscreenh)

@@ -127,10 +127,9 @@ draw SLoadWorld state env = do
   atomically $ writeChan (envWTimerChan env) TStart
   newstate1 <- atomically $ readChan (envStateChan1 env)
   newstate2 <- atomically $ readChan (envStateChan3 env)
-
   liftIO $ loadedCallback (envEventsChan env) SLoadTime
 draw SLoadTime  state env = do
-  drawLoadScreen state env "simulating history"
+  drawLoadScreen state env "simulating history..."
   -- start the timer once the chan has emptied
   newstate1 <- atomically $ readChan (envStateChan1 env)
   newstate2 <- atomically $ readChan (envStateChan3 env)
@@ -157,6 +156,22 @@ draw SWorld     state env = do
   drawWorldUI state env
   liftIO $ timerCallback (envEventsChan env) newwstate
   --liftIO $ animCallback  (envEventsChan env) newastate
+draw SLoadZone state env = do
+  drawLoadScreen state env "Loading Zone..."
+  liftIO $ loadedCallback (envEventsChan env) SZone
+draw SZone state env = do
+  worldbuff <- atomically $ tryReadChan (envStateChan1 env)
+  animbuff  <- atomically $ tryReadChan (envStateChan3 env)
+  newwstate <- case (worldbuff) of
+    Nothing -> return state
+    Just n  -> return n
+  newastate <- case (animbuff) of
+    Nothing -> return state
+    Just n  -> return n
+  liftIO sceneSetup
+  drawZone   state env
+  drawZoneUI state env
+  liftIO $ timerCallback (envEventsChan env) newwstate
 draw _ _ _ = do
   print "fuck"
 

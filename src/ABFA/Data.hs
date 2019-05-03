@@ -2,6 +2,7 @@ module ABFA.Data where
 -- datatypes are defined for various things
 
 import qualified Graphics.Rendering.OpenGL as GL
+import qualified Data.ByteString.Lazy.Char8 as BS
 
 -- starts stops and pauses the timers
 data TimerState = TStart | TStop | TPause | TNULL
@@ -25,6 +26,8 @@ data Settings = Settings
   , settingPrecision  :: Int
   , settingGridW      :: Int
   , settingGridH      :: Int
+  , settingZoneW      :: Int
+  , settingZoneH      :: Int
   , settingWGSettings :: WorldGenSettings
   } deriving (Eq, Show)
 
@@ -67,7 +70,8 @@ data WorldParams = WorldParams { wpNConts :: Int
                                , wpRRands :: ![Int]
                                } deriving (Show, Eq)
 
-
+-- zone data
+data ZoneChunk = ZoneChunk { bs :: BS.ByteString }
 
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
@@ -96,22 +100,22 @@ data OceanZone = Solid Float | Ice Float | OceanZone { temp :: Float
                                                      , vz   :: Float
                                                      } deriving (Show, Eq)
 
-data Zone = Zone { grid :: [Int]
-                 , cont :: [Int]
-                 , elev :: [Float]
-                 , zazz :: [Zazz]
-                 , zgrd :: [Int]
-                 , emax :: Float
-                 , emin :: Float
-                 , nois :: Int
-                 , mapx :: Int
-                 , mapy :: Int
-                 , camx :: Float
-                 , camy :: Float
-                 , camz :: Int
-                 , curx :: Int
-                 , cury :: Int
-                 } deriving (Show, Eq)
+--data Zone = Zone { grid :: [Int]
+--                 , cont :: [Int]
+--                 , elev :: [Float]
+--                 , zazz :: [Zazz]
+--                 , zgrd :: [Int]
+--                 , emax :: Float
+--                 , emin :: Float
+--                 , nois :: Int
+--                 , mapx :: Int
+--                 , mapy :: Int
+--                 , camx :: Float
+--                 , camy :: Float
+--                 , camz :: Int
+--                 , curx :: Int
+--                 , cury :: Int
+--                 } deriving (Show, Eq)
 
 
 data Zazz = Zazz { zazzx :: Int

@@ -14,6 +14,7 @@ import ABFA.Game
 import ABFA.Data
 import ABFA.Map
 import ABFA.Elev
+import ABFA.Zone
 
 -- this will generate parameters for the world generator and place it in a new state
 genParams :: Int -> State -> State
@@ -44,6 +45,8 @@ genParams mseed state = do
     , stateLua            = ls
     , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
+    , stateZoneGrid       = []
+    , stateZoneCont       = []
     }
 
 -- this is used to generate the params data
@@ -107,6 +110,8 @@ nextSimState state env n = State
   , stateLua        = stateLua        state
   , stateShellBuff  = stateShellBuff  state
   , stateShellInput = stateShellInput state
+  , stateZoneGrid   = stateZoneGrid   state
+  , stateZoneCont   = stateZoneCont   state
   }
 
 -- animates a single animation frame, returns a new state
@@ -164,8 +169,12 @@ initWorld state = do
       ls        = stateLua        state
       shellbuff = stateShellBuff  state
       shellinp  = stateShellInput state
+      zoneg     = stateZoneGrid   state
+      zonec     = stateZoneCont   state
 
-  let g1 = seedConts   state g0 conts seeds rands nconts
+  let g1  = seedConts   state g0 conts seeds rands nconts
+      zgr = convertToZoneChunks $ initAllZoneGrids state
+      zcr = convertToZoneChunks $ initAllZoneConts state
       e1 = e0--elevBlurMap state g1 conts seeds rands nconts e0
       gr = g1--fixConts    state g1 env e1
       er = e1
@@ -184,6 +193,8 @@ initWorld state = do
     , stateLua        = ls
     , stateShellBuff  = shellbuff
     , stateShellInput = shellinp
+    , stateZoneGrid   = zgr
+    , stateZoneCont   = zcr
     }
 
 -- regenerates world
@@ -248,11 +259,11 @@ seedTile state it c j w x y z (t, i)
   | (randstate == BCrags)  && (distance i j w x         (y+gridh) z t < maxdist-cfudge)     = (t, i)
   | (randstate == BCrags)  && (distance i j w (x-gridw) y         z t < maxdist-cfudge)     = (t, i)
   | (randstate == BCrags)  && (distance i j w x         (y-gridh) z t < maxdist-cfudge)     = (t, i)
-  |                     (distance i j w x         y         z t <= maxdist)                 = (r, i)
-  |                     (distance i j w (x+gridw) y         z t <= maxdist)                 = (r, i)
-  |                     (distance i j w x         (y+gridh) z t <= maxdist)                 = (r, i)
-  |                     (distance i j w (x-gridw) y         z t <= maxdist)                 = (r, i)
-  |                     (distance i j w x         (y-gridh) z t <= maxdist)                 = (r, i)
+  |                           (distance i j w x         y         z t <= maxdist)           = (r, i)
+  |                           (distance i j w (x+gridw) y         z t <= maxdist)           = (r, i)
+  |                           (distance i j w x         (y+gridh) z t <= maxdist)           = (r, i)
+  |                           (distance i j w (x-gridw) y         z t <= maxdist)           = (r, i)
+  |                           (distance i j w x         (y-gridh) z t <= maxdist)           = (r, i)
   | otherwise                                                                               = (t, i)
   where randstate = (wpTypes           wparams) !! c
         r         = calcBiome randstate
@@ -264,20 +275,6 @@ seedTile state it c j w x y z (t, i)
         minnconts = wgMinNConts        wgsetting
         gridw     = settingGridW       settings
         gridh     = settingGridH       settings
-
--- calculates the index of each biome
-calcBiome :: Biome -> Int
-calcBIome BNULL     = 0
-calcBiome BSea      = 1
-calcBiome BShallows = 2
-calcBiome BDeeps    = 3
-calcBiome BValley   = 4
-calcBiome BCrags    = 5
-calcBiome BPlains   = 6
-calcBiome BFields   = 7
-calcBiome BWastes   = 8
-calcBiome BSteeps   = 9
-calcBiome BPeaks    = 10
 
 -- goes the other way
 intToBiome :: Int -> Biome

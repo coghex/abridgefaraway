@@ -56,6 +56,9 @@ evalKey window k ks mk = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
+  -- enters zone state
+  when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
+    liftIO $ print $ "hello"
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell

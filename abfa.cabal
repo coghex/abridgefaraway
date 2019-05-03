@@ -27,6 +27,7 @@ executable abfa
         ABFA.Noise
         ABFA.Elev
         ABFA.Shell
+        ABFA.Zone
         GLUtil.ABFA
         GLUtil.Draw
         GLUtil.Util
@@ -61,5 +62,6 @@ executable abfa
         vector >=0.12.0.1 && <0.12.1.0,
         array >=0.5.2.0 && <0.5.4.0,
         hsnoise >= 0.0.2 && <0.0.3,
-        hslua >= 1.0.2 && <1.1.0
+        hslua >= 1.0.2 && <1.1.0,
+        base64-bytestring >= 1.0.0.0 && <1.1.0.0
 
