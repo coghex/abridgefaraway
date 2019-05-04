@@ -25,8 +25,7 @@ data State = State
   , stateLua        :: !Lua.State     -- the state of the lua interpreter
   , stateShellBuff  :: ![String]      -- a string containing the shell history and prompt
   , stateShellInput :: !String        -- the string the user is typing
-  , stateZoneGrid   :: ![ZoneChunk]   -- the zone data, packed in bytestring
-  , stateZoneCont   :: ![ZoneChunk]
+  , stateZone       :: ![ZoneChunk]   -- the zone data, packed in bytestring
   }
 
 -- the gamestate controls which screen we are currently drawing
@@ -48,8 +47,7 @@ initState gs ls seeds settings = State { stateGame       = gs
                                     , stateLua        = ls
                                     , stateShellBuff  = []
                                     , stateShellInput = ""
-                                    , stateZoneGrid   = []
-                                    , stateZoneCont   = [] }
+                                    , stateZone       = [] }
 
 emptyParams :: WorldParams
 emptyParams = WorldParams { wpNConts = 0

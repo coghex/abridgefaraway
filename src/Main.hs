@@ -43,7 +43,7 @@ main = do
       sw      = settingScreenW settings
       sh      = settingScreenH settings
   -- event channel handles user input, state changes, and loading screens
-  eventsChan <- newQueue --newTQueueIO :: IO (TQueue Event)
+  eventsChan <- newQueue
 
 
   -- opens the GLFW and sets the callbacks to handle errors and user input

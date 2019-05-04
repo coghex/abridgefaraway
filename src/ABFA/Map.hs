@@ -1,6 +1,8 @@
 module ABFA.Map where
 -- various list operations are defined to abstract away a 2D world
 
+import qualified Data.ByteString.Lazy as BS
+import Data.Binary.Put
 import Data.List.Split ( chunksOf )
 import ABFA.Data 
 
@@ -65,3 +67,13 @@ expandZone zonew zoneh m = zip (map (workZoneRows zonew) (chunksOf zonew m)) [0.
 workZoneRows :: Int -> [a] -> [(a, Int)]
 workZoneRows zonew l = do
   zip l [0..zonew]
+
+-- converts bytestring to zone grid
+bsToList :: BS.ByteString -> Int -> [Int]
+bsToList bs n = map (fromInteger . toInteger) (BS.unpack bs)
+
+-- converts zone grid to bytestring
+listToBS :: [Int] -> Int -> BS.ByteString
+listToBS l n = runPut $ sequence_ $ do
+  map (putWord8 . fromIntegral) l
+

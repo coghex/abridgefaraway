@@ -71,7 +71,10 @@ data WorldParams = WorldParams { wpNConts :: Int
                                } deriving (Show, Eq)
 
 -- zone data
-data ZoneChunk = ZoneChunk { bs :: BS.ByteString }
+data ZoneChunk = ZoneChunk { gbs :: BS.ByteString
+                           , cbs :: BS.ByteString
+                           , pbs :: BS.ByteString
+                           }
 
 data Sky = Sky { lowtroposphere   :: SkyZone
                , midtroposphere   :: SkyZone
