@@ -270,17 +270,3 @@ seedTile state it c j w x y z (t, i)
         minnconts = wgMinNConts        wgsetting
         gridw     = settingGridW       settings
         gridh     = settingGridH       settings
-
--- goes the other way
-intToBiome :: Int -> Biome
-intToBiome 0        = BNULL
-intToBiome 1        = BSea
-intToBiome 2        = BShallows
-intToBiome 3        = BDeeps
-intToBiome 4        = BValley
-intToBiome 5        = BCrags
-intToBiome 6        = BPlains
-intToBiome 7        = BFields
-intToBiome 8        = BWastes
-intToBiome 9        = BSteeps
-intToBiome 10       = BPeaks

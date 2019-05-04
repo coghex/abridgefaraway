@@ -68,6 +68,10 @@ workZoneRows :: Int -> [a] -> [(a, Int)]
 workZoneRows zonew l = do
   zip l [0..zonew]
 
+-- returns the zone element from a 1-D list
+tapZoneGridM :: Int -> Int -> Int -> [a] -> a
+tapZoneGridM zonew x y zg = zg !! (x + (y*zonew))
+
 -- converts bytestring to zone grid
 bsToList :: BS.ByteString -> Int -> [Int]
 bsToList bs n = map (fromInteger . toInteger) (BS.unpack bs)
