@@ -28,6 +28,7 @@ Civ	src/ABFA/Data.hs	146;"	t
 Civ	src/Game/Data.hs	72;"	t
 Civ	src/Game/Civ.hs	1;"	m
 CursorState	src/GLUtil/ABFA.hs	25;"	t
+DCFONT	src/GLUtil/Font.hs	17;"	C
 Data	src/ABFA/Data.hs	1;"	m
 Data	src/Game/Data.hs	1;"	m
 Draw	src/ABFA/Draw.hs	1;"	m
@@ -351,7 +352,7 @@ bar	src/ABFA/Data.hs	86;"	f
 bar	src/Game/Data.hs	12;"	f
 bathypelagic	src/ABFA/Data.hs	94;"	f
 bathypelagic	src/Game/Data.hs	20;"	f
-beginDrawFont	src/GLUtil/Font.hs	70;"	f
+beginDrawFont	src/GLUtil/Font.hs	72;"	f
 beginDrawText	/home/hoest/temp/abridgefaraway/src/Game/Font.hs	25;"	f
 beginDrawText	src/Game/Font.hs	25;"	f
 bestMove	/home/hoest/temp/abridgefaraway/src/Game/Zone.hs	538;"	f
@@ -440,9 +441,9 @@ drawElevRow	src/Game/Elev.hs	23;"	f
 drawElevSpot	src/Game/Elev.hs	26;"	f
 drawElevSquare	src/Game/Elev.hs	43;"	f
 drawElevTile	src/Game/Elev.hs	29;"	f
-drawFont	src/GLUtil/Font.hs	76;"	f
-drawFontLoop	src/GLUtil/Font.hs	79;"	f
-drawFontSquare	src/GLUtil/Font.hs	89;"	f
+drawFont	src/GLUtil/Font.hs	78;"	f
+drawFontLoop	src/GLUtil/Font.hs	81;"	f
+drawFontSquare	src/GLUtil/Font.hs	91;"	f
 drawIndexedTris	src/GLUtil/Drawing.hs	10;"	f
 drawLoadScreen	src/ABFA/UI.hs	35;"	f
 drawLoadScreen	src/GLUtil/UI.hs	41;"	f
@@ -658,7 +659,7 @@ findBestScores	/home/hoest/temp/abridgefaraway/src/Game/Zone.hs	565;"	f
 findBestScores	src/Game/Zone.hs	565;"	f
 findElev	src/ABFA/Elev.hs	35;"	f
 findElev	src/Game/Elev.hs	116;"	f
-findLetter	src/GLUtil/Font.hs	102;"	f
+findLetter	src/GLUtil/Font.hs	104;"	f
 findMove	src/Game/Unit.hs	134;"	f
 findOpenSpace	/home/hoest/temp/abridgefaraway/src/Game/Zone.hs	483;"	f
 findOpenSpace	src/Game/Zone.hs	483;"	f
@@ -881,7 +882,7 @@ keySPC	src/ABFA/Data.hs	55;"	f
 keySh	src/ABFA/Data.hs	59;"	f
 l	src/Game/Moon.hs	13;"	f
 l	src/Game/Sun.hs	13;"	f
-lengthOfString	src/GLUtil/Font.hs	449;"	f
+lengthOfString	src/GLUtil/Font.hs	546;"	f
 libdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.6.3/abfa-2.0.0.0/x/abfa/opt/build/abfa/autogen/Paths_abfa.hs	30;"	f
 linkShaderProgram	src/GLUtil/Shaders.hs	40;"	f
@@ -903,7 +904,7 @@ loadShaderProgramBS	src/GLUtil/ShaderProgram.hs	123;"	f
 loadShaderProgramWith	src/GLUtil/ShaderProgram.hs	96;"	f
 loadShaderProgramWith'	src/GLUtil/ShaderProgram.hs	105;"	f
 loadShaderProgramWithBS	src/GLUtil/ShaderProgram.hs	100;"	f
-loadTex	src/GLUtil/Font.hs	63;"	f
+loadTex	src/GLUtil/Font.hs	65;"	f
 loadTex	src/GLUtil/TexLoad.hs	14;"	f
 loadTex	src/Game/Util.hs	461;"	f
 loadTexture	src/GLUtil/Textures.hs	87;"	f

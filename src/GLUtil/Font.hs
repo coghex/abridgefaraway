@@ -14,7 +14,7 @@ import GLUtil.Util
 import GLUtil.Textures
 import GLUtil.JuicyTextures
 
-data FontType = NULLFONT | SMFONT | CQFONT | BPFONT | KFFONT deriving (Show, Eq)
+data FontType = NULLFONT | SMFONT | CQFONT | BPFONT | KFFONT | DCFONT deriving (Show, Eq)
 data FontAttribute = FBOLD | FRED | FYELLOW | FBLUE | FITALIC | FNULL deriving (Show, Eq)
 data Font = Font { fontfilepath :: String
                  , fonttype     :: FontType
@@ -32,7 +32,7 @@ nullFont        = Font { fontfilepath = ""
                        , texs         = [] }
 
 makeFonts :: [[GL.TextureObject]] -> [Font]
-makeFonts texs = [nullFont, (newFont "data/fonts/sm/smalph" SMFONT (texs!!1)), (newFont "data/fonts/cq/smalph" CQFONT (texs!!2)), (newFont "data/fonts/bp/bpalph" BPFONT (texs!!3)), (newFont "data/fonts/kf/kfalph" KFFONT (texs!!4))]
+makeFonts texs = [nullFont, (newFont "data/fonts/sm/smalph" SMFONT (texs!!1)), (newFont "data/fonts/cq/smalph" CQFONT (texs!!2)), (newFont "data/fonts/bp/bpalph" BPFONT (texs!!3)), (newFont "data/fonts/kf/kfalph" KFFONT (texs!!4)), (newFont "data/fonts/dc/dcalph" DCFONT (texs!!5))]
 
 --loadFont :: String -> IO (Font)
 --loadFont fp = do
@@ -54,11 +54,13 @@ loadFontTextures str = do
   cqfont <- loadNTexs 80 cqfp []
   bpfont <- loadNTexs 96 bpfp []
   kffont <- loadNTexs 96 kffp []
-  return $ [[], smfont, cqfont, bpfont, kffont]
+  dcfont <- loadNTexs 96 dcfp []
+  return $ [[], smfont, cqfont, bpfont, kffont, dcfont]
   where smfp = str ++ "sm/smalph"
         cqfp = str ++ "cq/smalph"
         bpfp = str ++ "bp/bpalph"
         kffp = str ++ "kf/kfalph"
+        dcfp = str ++ "dc/dcalph"
 
 loadTex :: String -> IO (GL.TextureObject)
 loadTex fp = do
@@ -349,6 +351,7 @@ findLetter BPFONT '\\' = (87, 14)
 findLetter BPFONT '|'  = (88,  8)
 findLetter BPFONT '<'  = (89, 14)
 findLetter BPFONT '>'  = (90, 14)
+
 findLetter KFFONT 'a'  = ( 0, 14)
 findLetter KFFONT 'b'  = ( 1, 14)
 findLetter KFFONT 'c'  = ( 2, 14)
@@ -440,10 +443,104 @@ findLetter KFFONT '\\' = (87, 16)
 findLetter KFFONT '|'  = (88, 10)
 findLetter KFFONT '<'  = (89, 14)
 findLetter KFFONT '>'  = (90, 14)
+
+findLetter DCFONT 'a'  = ( 0,  6)
+findLetter DCFONT 'b'  = ( 1,  6)
+findLetter DCFONT 'c'  = ( 2,  6)
+findLetter DCFONT 'd'  = ( 3,  6)
+findLetter DCFONT 'e'  = ( 4,  6)
+findLetter DCFONT 'f'  = ( 5,  6)
+findLetter DCFONT 'g'  = ( 6,  6)
+findLetter DCFONT 'h'  = ( 7,  6)
+findLetter DCFONT 'i'  = ( 8,  4)
+findLetter DCFONT 'j'  = ( 9,  4)
+findLetter DCFONT 'k'  = (10,  6)
+findLetter DCFONT 'l'  = (11,  4)
+findLetter DCFONT 'm'  = (12, 10)
+findLetter DCFONT 'n'  = (13,  6)
+findLetter DCFONT 'o'  = (14,  6)
+findLetter DCFONT 'p'  = (15,  6)
+findLetter DCFONT 'q'  = (16,  6)
+findLetter DCFONT 'r'  = (17,  6)
+findLetter DCFONT 's'  = (18,  6)
+findLetter DCFONT 't'  = (19,  6)
+findLetter DCFONT 'u'  = (20,  6)
+findLetter DCFONT 'v'  = (21,  6)
+findLetter DCFONT 'w'  = (22, 10)
+findLetter DCFONT 'x'  = (23,  6)
+findLetter DCFONT 'y'  = (24,  6)
+findLetter DCFONT 'z'  = (25,  6)
+findLetter DCFONT '?'  = (26, 10)
+findLetter DCFONT '!'  = (27,  4)
+findLetter DCFONT '('  = (28,  6)
+findLetter DCFONT ')'  = (29,  6)
+findLetter DCFONT '\'' = (30,  4)
+findLetter DCFONT '"'  = (31,  6)
+findLetter DCFONT 'A'  = (32,  8)
+findLetter DCFONT 'B'  = (33,  8)
+findLetter DCFONT 'C'  = (34,  8)
+findLetter DCFONT 'D'  = (35,  8)
+findLetter DCFONT 'E'  = (36,  8)
+findLetter DCFONT 'F'  = (37,  8)
+findLetter DCFONT 'G'  = (38,  8)
+findLetter DCFONT 'H'  = (39,  8)
+findLetter DCFONT 'I'  = (40,  4)
+findLetter DCFONT 'J'  = (41,  8)
+findLetter DCFONT 'K'  = (42,  8)
+findLetter DCFONT 'L'  = (43,  8)
+findLetter DCFONT 'M'  = (44, 12)
+findLetter DCFONT 'N'  = (45,  8)
+findLetter DCFONT 'O'  = (46,  8)
+findLetter DCFONT 'P'  = (47,  8)
+findLetter DCFONT 'Q'  = (48,  8)
+findLetter DCFONT 'R'  = (49,  8)
+findLetter DCFONT 'S'  = (50,  8)
+findLetter DCFONT 'T'  = (51,  8)
+findLetter DCFONT 'U'  = (52,  8)
+findLetter DCFONT 'V'  = (53,  8)
+findLetter DCFONT 'W'  = (54, 12)
+findLetter DCFONT 'X'  = (55,  8)
+findLetter DCFONT 'Y'  = (56,  8)
+findLetter DCFONT 'Z'  = (57,  8)
+findLetter DCFONT '.'  = (58,  4)
+findLetter DCFONT ':'  = (59,  4)
+findLetter DCFONT ','  = (60,  4)
+findLetter DCFONT ';'  = (61,  4)
+findLetter DCFONT '+'  = (62, 10)
+findLetter DCFONT '-'  = (63, 10)
+findLetter DCFONT '*'  = (64, 10)
+findLetter DCFONT '/'  = (65,  8)
+findLetter DCFONT '='  = (66,  8)
+findLetter DCFONT '1'  = (67,  6)
+findLetter DCFONT '2'  = (68,  8)
+findLetter DCFONT '3'  = (69,  8)
+findLetter DCFONT '4'  = (70,  8)
+findLetter DCFONT '5'  = (71,  8)
+findLetter DCFONT '6'  = (72,  8)
+findLetter DCFONT '7'  = (73,  8)
+findLetter DCFONT '8'  = (74,  8)
+findLetter DCFONT '9'  = (75,  8)
+findLetter DCFONT '0'  = (76,  8)
+findLetter DCFONT '%'  = (77,  8)
+findLetter DCFONT '&'  = (78,  8)
+-- tile 80 is the null tile
+findLetter DCFONT '`'  = (80,  6)
+findLetter DCFONT '~'  = (81, 12)
+findLetter DCFONT '@'  = (82, 10)
+findLetter DCFONT '#'  = (83, 12)
+findLetter DCFONT '$'  = (84,  8)
+findLetter DCFONT '^'  = (85,  8)
+findLetter DCFONT '_'  = (86, 10)
+findLetter DCFONT '\\' = (87,  8)
+findLetter DCFONT '|'  = (88,  4)
+findLetter DCFONT '<'  = (89,  6)
+findLetter DCFONT '>'  = (90,  6)
+
 findLetter SMFONT c    = (79, 12)
 findLetter CQFONT c    = (79, 24)
 findLetter BPFONT c    = (79, 16)
 findLetter KFFONT c    = (79, 16)
+findLetter DCFONT c    = (79,  8)
 
 -- returns the length of a string in a certain font
 lengthOfString :: Font -> String -> Float
