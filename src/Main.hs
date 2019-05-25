@@ -29,6 +29,7 @@ import ABFA.Rand
 import ABFA.World
 import ABFA.Shell
 
+-- starts a default enviornment, game in the lua files
 main :: IO ()
 main = do
   -- this will provide some seeds to have consistent randomness
@@ -216,9 +217,16 @@ processEvent ev =
       liftIO $ do
         putStrLn $ "error " ++ show e ++ " " ++ show s
         liftIO $ GLFW.closeGLFW window
+    -- evaluates keyboard input
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
         evalKey window k ks mk
+    -- evaluates mouse input
+    (EventMouseButton win mb mbs mk) -> do
+      evalMouse win mb mbs mk
+    -- evaluates mouse scrolling
+    (EventScroll win x y) -> do
+      evalScroll win x y
     -- changes the gamestate when we have loaded (sets previous
     -- gamestate so that we can toggle certain screens like the shell)
     (EventLoaded newstate) -> do

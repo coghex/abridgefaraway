@@ -140,3 +140,19 @@ myUpper ','  = '<'
 myUpper '.'  = '>'
 myUpper '/'  = '?'
 myUpper c    = toUpper c
+
+
+-- evaluates mouse input
+evalMouse :: GLFW.Window -> GLFW.MouseButton -> GLFW.MouseButtonState -> GLFW.ModifierKeys -> Game ()
+evalMouse win mb mbs mk = do
+  state <- get
+  when (((stateGame state) == SWorld) && (mb == GLFW.mousebutt1)) $ do
+    (x, y) <- liftIO $ GLFW.getCursorPos win
+    liftIO . print $ "x: " ++ (show x) ++ " y: " ++ (show y)
+
+-- evaluates mouse scrolling
+evalScroll :: GLFW.Window -> Double -> Double -> Game ()
+evalScroll win x y = do
+  state <- get
+  when (((stateGame state) == SZone)) $ do
+    liftIO . print $ "scrolling..."

@@ -37,13 +37,21 @@ generateZone state x y = genZone state x y zc0 conts seeds rands nconts
 genZone :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> ZoneChunk
 genZone state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
                                                            , cbs = zcs
-                                                           , pbs = BS.empty
+                                                           , ebs = BS.empty
+                                                           , nzc = nullzone
+                                                           , szc = nullzone
+                                                           , ezc = nullzone
+                                                           , wzc = nullzone
                                                            }
   where zgs = initZoneGrid state zcs
         zcs = initZoneCont state x y
 
 initZoneGrid :: State -> BS.ByteString -> BS.ByteString
-initZoneGrid state str = str
+initZoneGrid state str = listToBS zonelist 2
+  where zonelist = take (zonew*zoneh) (repeat 1)
+        zonew    = settingZoneW     settings
+        zoneh    = settingZoneH     settings
+        settings = stateSettings    state
 
 initZoneCont :: State -> Int -> Int -> BS.ByteString
 initZoneCont state x y = genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y conts seeds rands nconts BS.empty

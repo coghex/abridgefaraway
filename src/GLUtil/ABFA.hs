@@ -4,6 +4,9 @@ module GLUtil.ABFA where
 -- in the future.
 
 import Data.Bits ((.|.))
+import Data.Data
+import Data.Typeable
+import GHC.Generics
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.Rendering.OpenGL.GLU as GLU
 import qualified Graphics.UI.GLFW as GLFW
@@ -26,6 +29,8 @@ type CursorState      = GLFW.CursorState
 type Key              = GLFW.Key
 type KeyState         = GLFW.KeyState
 
+-- mousebutton synonyms
+mousebutt1 = GLFW.MouseButton'1
 
 -- function synonyms
 setErrorCallback       :: Maybe GLFW.ErrorCallback -> IO ()
@@ -48,6 +53,8 @@ windowShouldClose      :: Window -> IO Bool
 windowShouldClose      = GLFW.windowShouldClose
 closeGLFW              :: Window -> IO ()
 closeGLFW window       = GLFW.setWindowShouldClose window True
+getCursorPos           :: Window -> IO (Double, Double)
+getCursorPos           = GLFW.getCursorPos
 
 -- boolean synonyms
 keyPressed             :: GLFW.KeyState -> Bool

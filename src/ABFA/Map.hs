@@ -78,6 +78,7 @@ bsToList bs n = map (fromInteger . toInteger) (BS.unpack bs)
 
 -- converts zone grid to bytestring
 listToBS :: [Int] -> Int -> BS.ByteString
+listToBS l 2 = runPut $ sequence_ $ do
+  map (putWord16le . fromIntegral) l
 listToBS l n = runPut $ sequence_ $ do
   map (putWord8 . fromIntegral) l
-
