@@ -71,24 +71,15 @@ data WorldParams = WorldParams { wpNConts :: Int
                                } deriving (Show, Eq)
 
 -- zone data: grid number (2 bytes), cont number (2 bytes), elev number (1 byte)
--- then, the four surrounding zones, these will be stored lazily
 data ZoneChunk = ZoneChunk { gbs :: BS.ByteString
                            , cbs :: BS.ByteString
                            , ebs :: BS.ByteString
-                           , nzc :: ZoneChunk
-                           , szc :: ZoneChunk
-                           , ezc :: ZoneChunk
-                           , wzc :: ZoneChunk
                            }
 
 -- a null zone
 nullzone = ZoneChunk { gbs = nullbs
                      , cbs = nullbs
                      , ebs = nullbs
-                     , nzc = nullzone
-                     , szc = nullzone
-                     , ezc = nullzone
-                     , wzc = nullzone
                      }
 
 -- a null byte string

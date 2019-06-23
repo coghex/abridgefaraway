@@ -1,18 +1,14 @@
 module Main where
 -- all the magic happens...
 
-import System.Exit
-import System.IO
-import Control.Monad (unless, when, void)
+import Control.Monad (when, void)
 import Control.Monad.Trans (MonadIO)
-import Control.Monad.RWS.Strict (RWST, liftIO, asks, ask, get, gets, evalRWST, modify, local)
-import Control.Concurrent (threadDelay, forkIO, forkOS)
+import Control.Monad.RWS.Strict (liftIO, asks, ask, get, evalRWST, modify)
+import Control.Concurrent (forkIO)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
-import System.Random (newStdGen, mkStdGen)
 import qualified Foreign.Lua as Lua
 
 import qualified GLUtil.ABFA as GLFW
-import qualified Graphics.Rendering.OpenGL as GL
 import GLUtil.ABFA
 import GLUtil.Font
 import GLUtil.Util
@@ -91,9 +87,9 @@ main = do
     -- the timer states are not guaranteed to be correct, since they do different things, only the main
     -- GL state is correct
     -- timer handles the world events, weather, time, etc. since its slow, its safe to do lots of math here
-    forkIO $ (worldTime env state 1000 TStop)
+    _ <- forkIO $ (worldTime env state 1000 TStop)
     -- timer handles animation of the units
-    forkIO $ (animTime env state 100 TStop)
+    _ <- forkIO $ (animTime env state 100 TStop)
 
     -- runs the whole game monad
     void $ evalRWST run env state
@@ -250,3 +246,5 @@ processEvent ev =
       let newsetts = resizeSettings (stateSettings state) w h
       modify $ \s -> s { stateSettings = newsetts }
       liftIO $ adjustWindow state
+    _ -> do
+      return ()

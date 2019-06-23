@@ -38,7 +38,7 @@ executable abfa
         GLUtil.TypeMapping
         GLUtil.JuicyTextures
     default-language: Haskell2010
-    ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
+    ghc-options: -O2 -Wall -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
     build-depends:
         base >=4.11.0 && <5.0.0,
         OpenGL >=3.0.2 && <3.1,

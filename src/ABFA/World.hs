@@ -45,7 +45,7 @@ genParams mseed state = do
     , stateLua            = ls
     , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
-    , stateZone           = nullzone
+    , stateZone           = [nullzone]
     }
 
 -- this is used to generate the params data

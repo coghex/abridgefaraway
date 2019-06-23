@@ -31,6 +31,13 @@ type KeyState         = GLFW.KeyState
 
 -- mousebutton synonyms
 mousebutt1 = GLFW.MouseButton'1
+mousebutt2 = GLFW.MouseButton'2
+mousebutt3 = GLFW.MouseButton'3
+mousebutt4 = GLFW.MouseButton'4
+mousebutt5 = GLFW.MouseButton'5
+mousebutt6 = GLFW.MouseButton'6
+mousebutt7 = GLFW.MouseButton'7
+mousebutt8 = GLFW.MouseButton'8
 
 -- function synonyms
 setErrorCallback       :: Maybe GLFW.ErrorCallback -> IO ()

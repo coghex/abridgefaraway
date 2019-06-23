@@ -38,10 +38,6 @@ genZone :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]
 genZone state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
                                                            , cbs = zcs
                                                            , ebs = BS.empty
-                                                           , nzc = nullzone
-                                                           , szc = nullzone
-                                                           , ezc = nullzone
-                                                           , wzc = nullzone
                                                            }
   where zgs = initZoneGrid state zcs
         zcs = initZoneCont state x y
