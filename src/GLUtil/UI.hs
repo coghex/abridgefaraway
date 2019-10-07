@@ -54,8 +54,14 @@ drawLoadScreen state env string = do
 -- draws the UI for the world screen
 drawWorldUI :: State -> Env -> IO ()
 drawWorldUI state env = do
+  let settings = stateSettings state
+  drawWorldCursor (stateCursor state) (settingScreenW settings) (settingScreenH settings) (settingGridW settings) (settingGridH settings) (envWTex env)
   drawTopLeftText state env
   drawBottomLeftText state env
+
+-- draws a cursor for the world screen
+drawWorldCursor :: (Int, Int) -> Int -> Int -> Int -> Int -> [GL.TextureObject] -> IO ()
+drawWorldCursor (x, y) screenw screenh gridw gridh texs = withTextures2D [(head texs)] $ drawSceneTile [(head texs)] screenw screenh gridw gridh x y 0
 
 -- draws the UI for the zone screen
 drawZoneUI :: State -> Env -> IO ()
