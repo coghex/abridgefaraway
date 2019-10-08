@@ -66,6 +66,8 @@ getCursorPos           = GLFW.getCursorPos
 -- boolean synonyms
 keyPressed             :: GLFW.KeyState -> Bool
 keyPressed ks          = ks == GLFW.KeyState'Pressed
+keyHeld                :: GLFW.KeyState -> Bool
+keyHeld ks             = ks == GLFW.KeyState'Repeating
 keyEscape              :: GLFW.Key -> Bool
 keyEscape k            = k == GLFW.Key'Escape
 modifierKeysShift      :: GLFW.ModifierKeys -> Bool

@@ -12,6 +12,7 @@ import ABFA.Event
 import ABFA.World
 import ABFA.Shell
 import ABFA.Settings
+import ABFA.Zone
 
 -- case function for all of the keys
 evalKey :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
@@ -57,18 +58,26 @@ evalKey window k ks mk = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
-  -- moves the cursor with hjkl
+  -- moves the cursor orthographically, shift will move 5...
   when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
-    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
   when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
-    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
   when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
-    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
   when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
-    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
-    liftIO $ print $ "hello"
+    let (x, y) = stateCursor state
+        z      = generateZone state x y
+        oldzs  = stateZone state
+    liftIO $ loadedCallback (envEventsChan env) SLoadZone
+    modify $ \s -> s { stateZone = (z:oldzs) }
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
@@ -97,7 +106,30 @@ evalKey window k ks mk = do
   when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "SPC") || (keyCheck keylayout k "RET")))) $ do
     let newinp = (stateShellInput state) ++ inpkey
     modify $ \s -> s { stateShellInput = newinp }
-  
+
+-- case function for when a key repeats
+evalKeyHeld :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
+evalKeyHeld window k ks mk = do
+  state <- get
+  env   <- ask
+  inpkey <- liftIO $ calcInpKey k mk
+  let settings  = stateSettings state
+  let keylayout = settingKeyLayout settings
+  let gs        = stateGame state
+  -- moves orthographically when the movement keys are held
+  when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+  when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+  when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+  when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
+    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
+
 -- checks key with settings
 keyCheck :: KeyLayout -> GLFW.Key -> String -> Bool
 keyCheck keylayout k str = (k == (GLFW.getGLFWKey nk))

@@ -217,6 +217,8 @@ processEvent ev =
     (EventKey window k _ ks mk) -> do
       when (GLFW.keyPressed ks) $ do
         evalKey window k ks mk
+      when (GLFW.keyHeld ks) $ do
+        evalKeyHeld window k ks mk
     -- evaluates mouse input
     (EventMouseButton win mb mbs mk) -> do
       evalMouse win mb mbs mk
