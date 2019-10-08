@@ -57,6 +57,10 @@ data KeyLayout = KeyLayout
   , keyRET :: String
   , keyDEL :: String
   , keySh  :: String
+  , keyLFT :: String
+  , keyRGT :: String
+  , keyUPP :: String
+  , keyDWN :: String
   } deriving (Eq, Show)
 
 -- worldparameters for the generator

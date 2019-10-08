@@ -33,13 +33,13 @@ drawShell state env = do
         boxtex   = (envUTex env) !! 1
         screenw  = settingScreenW settings
         screenh  = settingScreenH settings
-        sizex    = round $ (fromIntegral screenw)/(fromIntegral screenh)*22.0 --round $ 16.0*(fromIntegral (quot screenw refscreenw))
+        sizex    = round $ ((fromIntegral screenw)/(fromIntegral screenh))*22.0 --round $ 16.0*(fromIntegral (quot screenw refscreenw))
         sizey    = 10 --round $ 4.0*(fromIntegral (quot screenh refscreenh))
         boxwidth = sizex
 
 -- draws a single row of the shell
 drawShellRow :: [Font] -> Int -> Int -> String -> [String] -> IO ()
-drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-6, (fromIntegral (-5))) shellinp
+drawShellRow fonts fsize _ shellinp []         = drawFont dfont fsize FNULL (-6, (-5)) shellinp
   where dfont    = fonts !! 5
 drawShellRow fonts fsize n shellinp (str:strs) = do
   drawFont dfont fsize FNULL (-8, (fromIntegral (n-6))) str

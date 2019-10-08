@@ -12,14 +12,18 @@ importKeyLayout :: Lua.State -> String -> IO (KeyLayout)
 importKeyLayout ls fn = Lua.runWith ls $ do
   Lua.openlibs
   Lua.dofile $ fn ++ "keylayout.lua"
-  ckey   <- Lua.getglobal "ckey"   *> Lua.peek (-1)
-  rkey   <- Lua.getglobal "rkey"   *> Lua.peek (-1)
-  spckey <- Lua.getglobal "spckey" *> Lua.peek (-1)
-  esckey <- Lua.getglobal "esckey" *> Lua.peek (-1)
-  retkey <- Lua.getglobal "retkey" *> Lua.peek (-1)
-  delkey <- Lua.getglobal "delkey" *> Lua.peek (-1)
-  shkey  <- Lua.getglobal "shkey"  *> Lua.peek (-1)
-  return $ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey
+  ckey   <- Lua.getglobal "ckey"      *> Lua.peek (-1)
+  rkey   <- Lua.getglobal "rkey"      *> Lua.peek (-1)
+  spckey <- Lua.getglobal "spckey"    *> Lua.peek (-1)
+  esckey <- Lua.getglobal "esckey"    *> Lua.peek (-1)
+  retkey <- Lua.getglobal "retkey"    *> Lua.peek (-1)
+  delkey <- Lua.getglobal "delkey"    *> Lua.peek (-1)
+  shkey  <- Lua.getglobal "shkey"     *> Lua.peek (-1)
+  lftkey <- Lua.getglobal "leftkey"   *> Lua.peek (-1)
+  rgtkey <- Lua.getglobal "rightkey"  *> Lua.peek (-1)
+  uppkey <- Lua.getglobal "upkey"     *> Lua.peek (-1)
+  dwnkey <- Lua.getglobal "downkey"   *> Lua.peek (-1)
+  return $ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey
 
 -- imports other settings
 importSettings :: Lua.State -> String -> IO (Settings)
@@ -74,15 +78,19 @@ makeSettings sw sh fs fsize fps ts as h p gw gh zw zh f salt sugar vigor minnc m
            , settingZoneH      = zh
            , settingWGSettings = makeWGSettings f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl }
 
-makeKeyLayout :: String -> String -> String -> String -> String -> String -> String -> KeyLayout
-makeKeyLayout ckey rkey spckey esckey retkey delkey shkey =
+makeKeyLayout :: String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> KeyLayout
+makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey =
   KeyLayout { keyC   = ckey
             , keyR   = rkey
             , keySPC = spckey
             , keyESC = esckey
             , keyRET = retkey
             , keyDEL = delkey
-            , keySh  = shkey }
+            , keySh  = shkey
+            , keyLFT = lftkey
+            , keyRGT = rgtkey
+            , keyUPP = uppkey
+            , keyDWN = dwnkey }
 
 makeWGSettings :: Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> WorldGenSettings
 makeWGSettings f sal sug vig minnc maxnc mins maxs minns maxns sl pl = WorldGenSettings { wgCurrMap   = 0

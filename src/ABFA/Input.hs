@@ -19,7 +19,8 @@ evalKey window k ks mk = do
   state <- get
   env   <- ask
   inpkey <- liftIO $ calcInpKey k mk
-  let keylayout = settingKeyLayout (stateSettings state)
+  let settings  = stateSettings state
+  let keylayout = settingKeyLayout settings
   let gs        = stateGame state
   -- quits from the menu
   when ((gs == SMenu) && (keyCheck keylayout k "ESC")) $ do
@@ -56,6 +57,15 @@ evalKey window k ks mk = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
+  -- moves the cursor with hjkl
+  when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
+    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+  when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
+    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+  when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
+    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+  when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
+    modify $ \s -> s { stateCursor = (moveCursor 1 (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
     liftIO $ print $ "hello"
@@ -102,6 +112,10 @@ getKey keylayout "SPC" = keySPC keylayout
 getKey keylayout "C"   = keyC   keylayout
 getKey keylayout "R"   = keyR   keylayout
 getKey keylayout "`"   = keySh  keylayout
+getKey keylayout "LFT" = keyLFT keylayout
+getKey keylayout "RGT" = keyRGT keylayout
+getKey keylayout "UPP" = keyUPP keylayout
+getKey keylayout "DWN" = keyDWN keylayout
 getKey keylayout _     = "NULL"
 
 -- returns the char for a glkey

@@ -16,6 +16,8 @@ import ABFA.Map
 import ABFA.Elev
 import ABFA.Zone
 
+data Card = North | South | West | East
+
 -- this will generate parameters for the world generator and place it in a new state
 genParams :: Int -> State -> State
 genParams mseed state = do
@@ -79,6 +81,21 @@ genWParams mseed sgs settings = WorldParams { wpNConts = nconts0
         f          = wgFudge         wsettings
         mins       = wgMinSize       wsettings
         maxs       = wgMaxSize       wsettings
+
+-- moves the game cursor
+moveCursor :: Int -> (Int, Int) -> Int -> Int -> Card -> (Int, Int)
+moveCursor n (x, y) _     gridh North
+  | (y < gridh-n) = (x, y+n)
+  | otherwise     = (x, y)
+moveCursor n (x, y) _     _     South
+  | (y > n-1)     = (x, y-n)
+  | otherwise     = (x, y)
+moveCursor n (x, y) _     _     West
+  | (x > n-1)     = (x-n, y)
+  | otherwise     = (x,   y)
+moveCursor n (x, y) gridw _     East
+  | (x < gridw-n) = (x+n, y)
+  | otherwise     = (x,   y)
 
 -- generates a random list of biomes (only the natural ones)
 randomBiomeList :: Int -> StdGen -> [Biome]

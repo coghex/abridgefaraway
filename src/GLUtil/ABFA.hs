@@ -80,6 +80,14 @@ getGLFWKey "SPC" = GLFW.Key'Space
 getGLFWKey "C"   = GLFW.Key'C
 getGLFWKey "R"   = GLFW.Key'R
 getGLFWKey "`"   = GLFW.Key'GraveAccent
+getGLFWKey "LFT" = GLFW.Key'Left
+getGLFWKey "RGT" = GLFW.Key'Right
+getGLFWKey "UPP" = GLFW.Key'Up
+getGLFWKey "DWN" = GLFW.Key'Down
+getGLFWKey "H"   = GLFW.Key'H
+getGLFWKey "J"   = GLFW.Key'J
+getGLFWKey "K"   = GLFW.Key'K
+getGLFWKey "L"   = GLFW.Key'L
 getGLFWKey _     = GLFW.Key'Unknown
 
 -- the other direction
