@@ -3,6 +3,7 @@ module GLUtil.Draw where
 
 import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
+import qualified Data.ByteString.Lazy as BS
 import qualified GLUtil.ABFA as GLFW
 import GLUtil.Textures
 import GLUtil.ABFA
@@ -53,11 +54,20 @@ worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
 
 -- draws the zone screen
 drawZone :: State -> Env -> IO ()
-drawZone state env = drawZones z
-  where z = stateZone state
+drawZone state env = drawZones texs zonew zoneh cam z
+  where z        = stateZone state
+        cam      = stateZoneCam state
+        texs     = envZTex env
+        zonew    = settingZoneW settings
+        zoneh    = settingZoneH settings
+        settings = stateSettings state
 
-drawZones :: [Zone] -> IO ()
-drawZones zs = resequence_ $ map drawZoneChunk zs
+drawZones :: [[GL.TextureObject]] -> Int -> Int -> (Int, Int, Int) -> [Zone] -> IO ()
+drawZones texs zonew zoneh cam zs = resequence_ $ map (drawZoneChunk texs zonew zoneh cam) zs
 
-drawZoneChunk :: Zone -> IO ()
-drawZoneChunk z = print "hello"
+drawZoneChunk :: [[GL.TextureObject]] -> Int -> Int -> (Int, Int, Int) -> Zone -> IO ()
+drawZoneChunk texs zonew zoneh cam z = do
+  let (camx, camy, camz) = cam
+      zgbs               = gbs $ zonechunk z
+      zg                 = expandZone zonew zoneh $ (BS.toChunks zgbs)
+  print $ length $ bsToList zgbs 0

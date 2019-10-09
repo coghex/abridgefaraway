@@ -48,6 +48,7 @@ genParams mseed state = do
     , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
     , stateZone           = [nullzone]
+    , stateZoneCam        = (0, 0, 0)
     }
 
 -- this is used to generate the params data
@@ -127,6 +128,7 @@ nextSimState state env n = State
   , stateShellBuff  = stateShellBuff  state
   , stateShellInput = stateShellInput state
   , stateZone       = stateZone       state
+  , stateZoneCam    = stateZoneCam    state
   }
 
 -- animates a single animation frame, returns a new state
@@ -185,6 +187,7 @@ initWorld state = do
       shellbuff = stateShellBuff  state
       shellinp  = stateShellInput state
       zone      = stateZone       state
+      zonecam   = stateZoneCam    state
 
   let g1 = seedConts   state g0 conts seeds rands nconts
       zr = []
@@ -207,6 +210,7 @@ initWorld state = do
     , stateShellBuff  = shellbuff
     , stateShellInput = shellinp
     , stateZone       = zone
+    , stateZoneCam    = zonecam
     }
 
 -- regenerates world

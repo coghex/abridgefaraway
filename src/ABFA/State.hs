@@ -11,21 +11,22 @@ import ABFA.Data
 -- that happens, such as window state, random seeds, screen
 -- width and height, grids and zones.
 data State = State
-  { stateGame       :: !GameState     -- the current screen
-  , stateGamePrev   :: !GameState     -- the previous screen
-  , stateSettings   :: !Settings      -- the currents settings
-  , stateWParams    :: !WorldParams   -- parameters for the world generator
-  , stateStdGens    :: ![StdGen]      -- a set of rngs
-  , stateZoom       :: !Float         -- the zoom when in the zone screen
-  , stateGrid       :: ![Int]         -- the world grid
-  , stateOG         :: ![Int]         -- the original world grid
-  , stateElev       :: ![Int]         -- the average elevation of each tile
-  , stateCursor     :: !(Int, Int)    -- the cursor position
-  , stateTime       :: !Integer       -- the time since 0
-  , stateLua        :: !Lua.State     -- the state of the lua interpreter
-  , stateShellBuff  :: ![String]      -- a string containing the shell history and prompt
-  , stateShellInput :: !String        -- the string the user is typing
-  , stateZone       :: ![Zone]   -- the zone data, packed in bytestring, the whole array at once but lazy
+  { stateGame       :: !GameState      -- the current screen
+  , stateGamePrev   :: !GameState      -- the previous screen
+  , stateSettings   :: !Settings       -- the currents settings
+  , stateWParams    :: !WorldParams    -- parameters for the world generator
+  , stateStdGens    :: ![StdGen]       -- a set of rngs
+  , stateZoom       :: !Float          -- the zoom when in the zone screen
+  , stateGrid       :: ![Int]          -- the world grid
+  , stateOG         :: ![Int]          -- the original world grid
+  , stateElev       :: ![Int]          -- the average elevation of each tile
+  , stateCursor     :: !(Int, Int)     -- the cursor position
+  , stateTime       :: !Integer        -- the time since 0
+  , stateLua        :: !Lua.State      -- the state of the lua interpreter
+  , stateShellBuff  :: ![String]       -- a string containing the shell history and prompt
+  , stateShellInput :: !String         -- the string the user is typing
+  , stateZone       :: ![Zone]         -- the zone data, packed in bytestring, the whole array at once but lazy
+  , stateZoneCam    :: (Int, Int, Int) -- the location of the camera when in the zone screen
   }
 
 -- the gamestate controls which screen we are currently drawing
@@ -47,7 +48,9 @@ initState gs ls seeds settings = State { stateGame       = gs
                                     , stateLua        = ls
                                     , stateShellBuff  = []
                                     , stateShellInput = ""
-                                    , stateZone       = [nullzone] }
+                                    , stateZone       = [nullzone]
+                                    , stateZoneCam    = (0, 0, 0)
+                                    }
 
 emptyParams :: WorldParams
 emptyParams = WorldParams { wpNConts = 0
