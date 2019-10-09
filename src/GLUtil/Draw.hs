@@ -53,4 +53,11 @@ worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
 
 -- draws the zone screen
 drawZone :: State -> Env -> IO ()
-drawZone state env = print "drawzone"
+drawZone state env = drawZones z
+  where z = stateZone state
+
+drawZones :: [Zone] -> IO ()
+drawZones zs = resequence_ $ map drawZoneChunk zs
+
+drawZoneChunk :: Zone -> IO ()
+drawZoneChunk z = print "hello"

@@ -5,6 +5,7 @@ import Control.Monad.RWS.Strict (liftIO, asks, ask, gets, get, modify)
 import Control.Monad (when)
 import Data.Char (toUpper)
 import qualified GLUtil.ABFA as GLFW
+import qualified Data.ByteString.Lazy as BS
 import ABFA.Game
 import ABFA.State
 import ABFA.Data

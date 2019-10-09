@@ -74,6 +74,11 @@ data WorldParams = WorldParams { wpNConts :: Int
                                , wpRRands :: ![Int]
                                } deriving (Show, Eq)
 
+-- the data about each zone
+data Zone = Zone { latlong   :: (Int, Int)
+                 , zonechunk :: ZoneChunk
+                 }
+
 -- zone data: grid number (2 bytes), cont number (2 bytes), elev number (1 byte)
 data ZoneChunk = ZoneChunk { gbs :: BS.ByteString
                            , cbs :: BS.ByteString
@@ -81,10 +86,13 @@ data ZoneChunk = ZoneChunk { gbs :: BS.ByteString
                            }
 
 -- a null zone
-nullzone = ZoneChunk { gbs = nullbs
-                     , cbs = nullbs
-                     , ebs = nullbs
-                     }
+nullzone = Zone { latlong   = (0,0)
+                , zonechunk = nullzonechunk
+                }
+nullzonechunk = ZoneChunk { gbs = nullbs
+                          , cbs = nullbs
+                          , ebs = nullbs
+                          }
 
 -- a null byte string
 nullbs = BS.empty

@@ -25,7 +25,7 @@ data State = State
   , stateLua        :: !Lua.State     -- the state of the lua interpreter
   , stateShellBuff  :: ![String]      -- a string containing the shell history and prompt
   , stateShellInput :: !String        -- the string the user is typing
-  , stateZone       :: ![ZoneChunk]   -- the zone data, packed in bytestring, the whole array at once but lazy
+  , stateZone       :: ![Zone]   -- the zone data, packed in bytestring, the whole array at once but lazy
   }
 
 -- the gamestate controls which screen we are currently drawing

@@ -22,7 +22,7 @@ blankZoneGrid state x y = BS.replicate (fromIntegral (zonew*zoneh)) nulltile
         zoneh    = settingZoneH  settings
 
 -- generates the zone at a xy pos
-generateZone :: State -> Int -> Int -> ZoneChunk 
+generateZone :: State -> Int -> Int -> Zone
 generateZone state x y = genZone state x y zc0 conts seeds rands nconts
   where zc0      = blankZoneGrid state x y
         wparams  = stateWParams  state
@@ -34,17 +34,22 @@ generateZone state x y = genZone state x y zc0 conts seeds rands nconts
         zoneh    = settingZoneH  settings
         settings = stateSettings state
 
-genZone :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> ZoneChunk
-genZone state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
-                                                           , cbs = zcs
-                                                           , ebs = BS.empty
-                                                           }
+genZone :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> Zone
+genZone state x y zc0 conts seeds rands nconts = Zone { latlong   = (x, y)
+                                                      , zonechunk = genZoneChunk state x y zc0 conts seeds rands nconts
+                                                      }
+
+genZoneChunk :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> ZoneChunk
+genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
+                                                                , cbs = zcs
+                                                                , ebs = BS.empty
+                                                                }
   where zgs = initZoneGrid state zcs
         zcs = initZoneCont state x y
 
 initZoneGrid :: State -> BS.ByteString -> BS.ByteString
 initZoneGrid state str = listToBS zonelist 2
-  where zonelist = take (zonew*zoneh) (repeat 1)
+  where zonelist = take (zonew*zoneh) (repeat 2)
         zonew    = settingZoneW     settings
         zoneh    = settingZoneH     settings
         settings = stateSettings    state
