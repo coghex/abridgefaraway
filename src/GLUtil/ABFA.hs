@@ -158,7 +158,7 @@ adjustWindow state = do
   GL.flush
 
 -- this will load all of the games textures
-loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]], [GL.TextureObject], [[GL.TextureObject]])
+loadAllTextures :: GLFW.Window -> IO ([[GL.TextureObject]], [GL.TextureObject], [[GL.TextureObject]], [[GL.TextureObject]])
 loadAllTextures win = do
   glEnable GL_TEXTURE_2D
   glShadeModel GL_SMOOTH
@@ -174,4 +174,5 @@ loadAllTextures win = do
   ftex <- loadFontTextures "data/fonts/"
   wtex <- loadWorldTextures "data/biome/"
   utex <- loadUtilTextures "data/util/"
-  return (ftex, wtex, utex)
+  ztex <- loadZoneTextures "data/zone/"
+  return (ftex, wtex, utex, ztex)

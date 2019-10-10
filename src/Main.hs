@@ -53,7 +53,7 @@ main = do
     GLFW.swapInterval 0
 
     -- loads all textures into memory
-    (ftex, wtex, utex) <- liftIO $ loadAllTextures window
+    (ftex, wtex, utex, ztex) <- liftIO $ loadAllTextures window
     -- loads the default font
     let fonts = makeFonts(ftex)
 
@@ -72,7 +72,7 @@ main = do
                   , envWindow     = window
                   , envFonts      = fonts
                   , envWTex       = wtex
-                  , envZTex       = [[]]
+                  , envZTex       = ztex
                   , envUTex       = utex
                   , envZazzTex    = [[[]]]
                   , envStateChan1 = stateChan1
@@ -167,7 +167,7 @@ draw SZone state env = do
     Just n  -> return n
   liftIO sceneSetup
   drawZone   state env
-  drawZoneUI state env
+  --drawZoneUI state env
   liftIO $ timerCallback (envEventsChan env) newwstate
 draw _ _ _ = do
   print "fuck"

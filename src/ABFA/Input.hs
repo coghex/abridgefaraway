@@ -30,6 +30,9 @@ evalKey window k ks mk = do
   -- exits when in world view, in future should save game
   when ((gs == SWorld) && (keyCheck keylayout k "ESC")) $ do
     liftIO $ GLFW.closeGLFW window
+  -- returns to menu from zone view
+  when ((gs == SZone) && (keyCheck keylayout k "ESC")) $ do
+    liftIO $ loadedCallback (envEventsChan env) SMenu
   -- creates world from the menu
   when ((gs == SMenu) && (keyCheck keylayout k "C")) $ do
     liftIO $ loadedCallback (envEventsChan env) SLoadWorld

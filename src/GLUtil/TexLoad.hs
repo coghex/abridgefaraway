@@ -68,3 +68,22 @@ loadUtilTextures fn = do
   t8  <- loadTex (fn ++ "box/boxw.png")
 
   return ([[], [t0, t1, t2, t3, t4, t5, t6, t7, t8]])
+
+-- loats zone textures
+loadZoneTextures :: String -> IO ([[GL.TextureObject]])
+loadZoneTextures fn = do
+  t0 <- loadTex (fn ++ "util/zcursor.png")
+  t1 <- loadTex (fn ++ "sea/sea1.png")
+  t2 <- loadTex (fn ++ "shallows/shallows0.png")
+  t3 <- loadTex (fn ++ "deeps/deeps0.png")
+  t4 <- loadTex (fn ++ "valley/valley0.png")
+  t5 <- loadNTexs 26 (fn ++ "crags/crags") []
+  t6 <- loadNTexs 26 (fn ++ "plains/plains") []
+  t7 <- loadNTexs 26 (fn ++ "fields/fields") []
+  t8 <- loadNTexs 26 (fn ++ "wastes/wastes") []
+  t9 <- loadTex (fn ++ "steeps/steeps0.png")
+  t10 <- loadTex (fn ++ "peaks/peaks0.png")
+  t11 <- loadTex (fn ++ "util/null0.png")
+  t12 <- loadTex (fn ++ "ice/ice0.png")
+
+  return ([[t0], [t1], [t2], [t3], [t4], t5, t6, t7, t8, [t9], [t10], [t11], [t12]])
