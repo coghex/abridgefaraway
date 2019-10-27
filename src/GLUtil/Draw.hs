@@ -51,46 +51,46 @@ worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
         ny = (fromIntegral (2*y)) - ((fromIntegral (gridh))) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
         nz = -2.0*(fromIntegral (max gridw gridh))
         gridratio = (fromIntegral gridh) / (fromIntegral gridw)
+--
+-- calculates the glTraslatef input value for zone screen
+zoneZoom :: Int -> Int -> Int -> Int -> (Float, Float, Float)
+zoneZoom x y zonew zoneh = (nx, ny, nz)
+  where nx = (fromIntegral (2*x)) - (0.6*(fromIntegral (zonew))) --2*((fromIntegral x) - ((fromIntegral gridw)/2))
+        ny = (fromIntegral (2*y)) - ((fromIntegral (zoneh))) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
+        nz = -2.0*(fromIntegral (max zonew zoneh))
+        gridratio = (fromIntegral zoneh) / (fromIntegral zonew)
+
+
 
 -- draws the zone screen
 drawZone :: State -> Env -> IO ()
-drawZone state env = drawZones texs zonew zoneh cam zoom z
-  where z        = stateZone state
-        cam      = stateZoneCam state
+drawZone state env = drawSingleZone x y zonew zoneh texs (stateZoneCam state)
+  where (x, y)   = stateCursor state
         texs     = envZTex env
         zonew    = settingZoneW settings
         zoneh    = settingZoneH settings
         settings = stateSettings state
-        zoom     = stateZoom state
 
-drawZones :: [[GL.TextureObject]] -> Int -> Int -> (Float, Float, Int) -> Float -> [Zone] -> IO ()
-drawZones texs zonew zoneh cam zoom zs = resequence_ $ map (drawZoneChunk texs zonew zoneh cam zoom) zs
-
-drawZoneChunk :: [[GL.TextureObject]] -> Int -> Int -> (Float, Float, Int) -> Float -> Zone -> IO ()
-drawZoneChunk texs zonew zoneh cam zoom z = do
-  let (camx, camy, camz) = cam
-      zgbs               = gbs $ zonechunk z
-      zcbs               = cbs $ zonechunk z
-      zg                 = expandZone zonew zoneh $ (bsToList zgbs 2)
-      zc                 = expandZone zonew zoneh $ (bsToList zcbs 1)
-      zgzip              = zip zg zc
-  resequence_ (map (drawZoneRow texs zonew zoneh camx camy camz zoom) zgzip)
+-- draws a single zone
+drawSingleZone :: Int -> Int -> Int -> Int -> [[GL.TextureObject]] -> (Float, Float, Int) -> IO ()
+drawSingleZone x y zonew zoneh texs (camx, camy, camz) = do
+  let zg0 = [1..(zonew*zoneh)]
+      zg1 = expandZone zonew zoneh $ zg0
+  resequence_ (map (drawZoneRow texs zonew zoneh camx camy camz) zg1)
   glFlush
 
-drawZoneRow :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> Float -> (([(Int, Int)], Int), ([(Int, Int)], Int)) -> IO ()
-drawZoneRow texs zonew zoneh camx camy camz zoom ((a, y), (b, _)) = do
-  resequence_ (map (drawZoneSpot texs zonew zoneh camx camy camz zoom y) newzgzip)
-  where newzgzip = zip a b
+drawZoneRow :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> ([(Int, Int)], Int) -> IO ()
+drawZoneRow texs zonew zoneh camx camy camz (zgr, y) = resequence_ (map (drawZoneSpot texs y zonew zoneh camx camy camz) zgr)
 
-drawZoneSpot :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> Float -> Int -> ((Int, Int), (Int, Int)) -> IO ()
-drawZoneSpot texs zonew zoneh camx camy camz zoom y ((g, x), (c, _)) = withTextures2D tex $ drawZoneTile tex zonew zoneh camx camy camz zoom x y
-  where tex = [((texs !! c) !! g)]
+drawZoneSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> Float -> Float -> Int -> (Int, Int) -> IO ()
+drawZoneSpot texs y zonew zoneh camx camy camz (zgs, x) = withTextures2D tex $ drawZoneTile tex x y zonew zoneh camx camy camz
+  where tex  = [((texs !! cont) !! g)]
+        cont = 1
+        g    = 0
 
-drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Float -> Float -> Int -> Float -> Int -> Int -> IO ()
-drawZoneTile texs zonew zoneh camx camy camz zoom x y = do
+drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Float -> Float -> Int -> IO ()
+drawZoneTile tex x y zonew zoneh camx camy camz = do
   glLoadIdentity
-  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
-  glColor3f 1.0 1.0 1.0
+  glTranslatef nx ny nz
   drawSquare
-  where nx = fromIntegral(x) + camx
-        ny = fromIntegral(y) + camy
+  where (nx, ny, nz) = zoneZoom x y zonew zoneh

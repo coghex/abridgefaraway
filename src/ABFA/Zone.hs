@@ -48,14 +48,14 @@ genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
         zcs = initZoneCont state x y
 
 initZoneGrid :: State -> BS.ByteString -> BS.ByteString
-initZoneGrid state str = listToBS zonelist 2
+initZoneGrid state str = listToBS zonelist 1
   where zonelist = take (zonew*zoneh) (repeat 0)
         zonew    = settingZoneW     settings
         zoneh    = settingZoneH     settings
         settings = stateSettings    state
 
 initZoneCont :: State -> Int -> Int -> BS.ByteString
-initZoneCont state x y =listToBS zonelist 1--genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y conts seeds rands nconts BS.empty
+initZoneCont state x y = genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y conts seeds rands nconts BS.empty
   where conts    = wpConts           wparams
         seeds    = wpSeeds           wparams
         rands    = wpRands           wparams

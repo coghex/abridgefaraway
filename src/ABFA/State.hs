@@ -25,7 +25,7 @@ data State = State
   , stateLua        :: !Lua.State          -- the state of the lua interpreter
   , stateShellBuff  :: ![String]           -- a string containing the shell history and prompt
   , stateShellInput :: !String             -- the string the user is typing
-  , stateZone       :: ![Zone]             -- the zone data, packed in bytestring, the whole array at once but lazy
+  --, stateZone       :: ![Zone]             -- the zone data, packed in bytestring, the whole array at once but lazy
   , stateZoneCam    :: (Float, Float, Int) -- the location of the camera when in the zone screen
   }
 
@@ -48,7 +48,7 @@ initState gs ls seeds settings = State { stateGame       = gs
                                     , stateLua        = ls
                                     , stateShellBuff  = []
                                     , stateShellInput = ""
-                                    , stateZone       = [nullzone]
+                                    --, stateZone       = [nullzone]
                                     , stateZoneCam    = (0, 0, 0)
                                     }
 

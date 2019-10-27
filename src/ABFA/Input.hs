@@ -77,11 +77,7 @@ evalKey window k ks mk = do
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
-    let (x, y) = stateCursor state
-        z      = generateZone state x y
-        oldzs  = stateZone state
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
-    modify $ \s -> s { stateZone = (z:oldzs) }
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
