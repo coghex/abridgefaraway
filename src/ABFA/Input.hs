@@ -14,6 +14,7 @@ import ABFA.World
 import ABFA.Shell
 import ABFA.Settings
 import ABFA.Zone
+import ABFA.Map
 
 -- case function for all of the keys
 evalKey :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
@@ -77,7 +78,12 @@ evalKey window k ks mk = do
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
+    let oldzs    = stateZone state
+        z        = generateZone state cx cy
+        (cx, cy) = stateCursor state
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
+    liftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
+    modify $ \s -> s {stateZone = z:oldzs}
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell

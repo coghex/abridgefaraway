@@ -80,7 +80,7 @@ loadZoneTextures fn = do
   t5 <- loadNTexs 26 (fn ++ "crags/crags") []
   t6 <- loadNTexs 26 (fn ++ "plains/plains") []
   t7 <- loadNTexs 26 (fn ++ "fields/fields") []
-  t8 <- loadNTexs 26 (fn ++ "wastes/wastes") []
+  t8 <- loadNTexs 26 (fn ++ "waste/waste") []
   t9 <- loadTex (fn ++ "steeps/steeps0.png")
   t10 <- loadTex (fn ++ "peaks/peaks0.png")
   t11 <- loadTex (fn ++ "util/null0.png")

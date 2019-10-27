@@ -64,33 +64,40 @@ zoneZoom x y zonew zoneh = (nx, ny, nz)
 
 -- draws the zone screen
 drawZone :: State -> Env -> IO ()
-drawZone state env = drawSingleZone x y zonew zoneh texs (stateZoneCam state)
+drawZone state env = drawSingleZone x y zonew zoneh zone texs (stateZoneCam state)
   where (x, y)   = stateCursor state
         texs     = envZTex env
         zonew    = settingZoneW settings
         zoneh    = settingZoneH settings
         settings = stateSettings state
+        zone     = head (stateZone state)
 
--- draws a single zone
-drawSingleZone :: Int -> Int -> Int -> Int -> [[GL.TextureObject]] -> (Float, Float, Int) -> IO ()
-drawSingleZone x y zonew zoneh texs (camx, camy, camz) = do
-  let zg0 = [1..(zonew*zoneh)]
-      zg1 = expandZone zonew zoneh $ zg0
-  resequence_ (map (drawZoneRow texs zonew zoneh camx camy camz) zg1)
+drawSingleZone :: Int -> Int -> Int -> Int -> Zone -> [[GL.TextureObject]] -> (Float, Float, Int) -> IO ()
+drawSingleZone x y zonew zoneh zone texs (camx, camy, camz)  = do
+  let z     = zonechunk zone
+      zgbs  = gbs z
+      zg    = expandZone zonew zoneh $ bsToList zgbs 1
+      zcbs  = cbs z
+      zc    = expandZone zonew zoneh $ bsToList zcbs 1
+      zgzip = zip zg zc
+  resequence_ (map (drawZoneRow texs zonew zoneh camx camy camz) zgzip)
   glFlush
 
-drawZoneRow :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> ([(Int, Int)], Int) -> IO ()
-drawZoneRow texs zonew zoneh camx camy camz (zgr, y) = resequence_ (map (drawZoneSpot texs y zonew zoneh camx camy camz) zgr)
+drawZoneRow :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> (([(Int, Int)], Int), ([(Int, Int)], Int)) -> IO ()
+drawZoneRow texs zonew zoneh camx camy camz ((a, y), (b, _)) = resequence_ (map (drawZoneSpot texs zonew zoneh camx camy camz y) newzg)
+  where newzg = zip a b
 
-drawZoneSpot :: [[GL.TextureObject]] -> Int -> Int -> Int -> Float -> Float -> Int -> (Int, Int) -> IO ()
-drawZoneSpot texs y zonew zoneh camx camy camz (zgs, x) = withTextures2D tex $ drawZoneTile tex x y zonew zoneh camx camy camz
-  where tex  = [((texs !! cont) !! g)]
-        cont = 1
-        g    = 0
+drawZoneSpot :: [[GL.TextureObject]] -> Int -> Int -> Float -> Float -> Int -> Int -> ((Int, Int), (Int, Int)) -> IO ()
+drawZoneSpot texs zonew zoneh camx camy camz y ((g, x), (c, _)) = withTextures2D tex $ drawZoneTile tex zonew zoneh camx camy camz x y
+  where tex = [((texs !! c) !! g)]
 
-drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Int -> Int -> Float -> Float -> Int -> IO ()
-drawZoneTile tex x y zonew zoneh camx camy camz = do
+drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Float -> Float -> Int -> Int -> Int -> IO ()
+drawZoneTile tex zonew zoneh camx camy camz x y = do
   glLoadIdentity
-  glTranslatef nx ny nz
+  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
+  glColor3f 1.0 1.0 1.0
   drawSquare
-  where (nx, ny, nz) = zoneZoom x y zonew zoneh
+  where
+    nx = fromIntegral(x)+camx
+    ny = fromIntegral(y)+camy
+    zoom = -120.0

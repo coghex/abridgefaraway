@@ -55,15 +55,14 @@ initZoneGrid state str = listToBS zonelist 1
         settings = stateSettings    state
 
 initZoneCont :: State -> Int -> Int -> BS.ByteString
-initZoneCont state x y = genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y conts seeds rands nconts BS.empty
+initZoneCont state x y = listToBS (genZoneCont gridw gridh zonew zoneh x y zc0 types sizes rrands conts seeds rands nconts) 1
   where conts    = wpConts           wparams
         seeds    = wpSeeds           wparams
         rands    = wpRands           wparams
+        rrands   = wpRRands          wparams
         nconts   = wpNConts          wparams
         types    = wpTypes           wparams
         sizes    = wpSizes           wparams
-        rrands   = wpRRands          wparams
-        minncs   = wgMinNConts       worldgen
         worldgen = settingWGSettings settings
         wparams  = stateWParams      state
         settings = stateSettings     state
@@ -71,60 +70,58 @@ initZoneCont state x y = genZoneCont gridw gridh zonew zoneh types sizes rrands 
         zoneh    = settingZoneH      settings
         gridw    = settingGridW      settings
         gridh    = settingGridH      settings
-        zonelist = take (zonew*zoneh) (repeat 1)
+        zc0      = take (zonew*zoneh) (repeat 1)
 
 -- generates the continent list for a single zone
-genZoneCont :: Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> Int -> Int -> Int -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> BS.ByteString -> BS.ByteString
-genZoneCont _     _     _     _     _     _     _      _      _ _ []     []     []     _ bs0 = bs0
-genZoneCont _     _     _     _     _     _     _      _      _ _ _      _      _      0 bs0 = bs0
-genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y (l:ls) (k:ks) (j:js) i bs0 = genZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y ls ks js (i-1) zg
-  where zg = seedZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y 0 i (fst l) (snd l) k j bs0
+genZoneCont :: Int -> Int -> Int -> Int -> Int -> Int -> [Int] -> [Biome] -> [Int] -> [Int] -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> [Int]
+genZoneCont _     _     _     _     _ _ zg0 _     _     _      []     []     []     _ = zg0
+genZoneCont _     _     _     _     _ _ zg0 _     _     _      _      _      _      0 = zg0
+genZoneCont gridw gridh zonew zoneh x y zg0 types sizes rrands (l:ls) (k:ks) (j:js) n = do
+  let zg = genZoneContChunk gridw gridh zonew zoneh x y 0 n (fst l) (snd l) zg0 types sizes rrands k j
+  genZoneCont gridw gridh zonew zoneh x y zg types sizes rrands ls ks js (n-1)
 
--- expands the zone a more manageable data type before doing work
-seedZoneCont :: Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [(Int, Int)] -> [(Int, Int)] -> BS.ByteString -> BS.ByteString
-seedZoneCont _     _     _     _     _     _     _      _      _ _ _ _ _  _  []     []     zc = zc
-seedZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y i c x0 y0 (k:ks) (j:js) zc = seedZoneCont gridw gridh zonew zoneh types sizes rrands minncs x y (i+1) c x0 y0 ks js zr
-  where zr     = listToBS zg2 1
-        zclist = bsToList zc  1
-        nzg    = expandZone zonew zoneh zclist
-        zg0    = parMap rpar (seedZoneContRow gridw gridh zonew zoneh types sizes rrands minncs x y i c (fst k) (snd k) (fst j) (snd j)) nzg
-        zg1    = stripGrid zg0
-        zg2    = flattenGrid zg1
+-- generates a single continent
+genZoneContChunk :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [Int] -> [Biome] -> [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
+genZoneContChunk _     _     _     _     _ _ _ _ _  _  zg _     _     _      []     []     = zg
+genZoneContChunk gridw gridh zonew zoneh x y i c x0 y0 zg types sizes rrands (k:ks) (j:js) = do
+  let nzg = expandZone zonew zoneh zg
+      zg0 = map (genZoneContChunkRow gridw gridh zonew zoneh x y c i (fst k) (snd k) (fst j) (snd j) types sizes rrands) nzg
+      zg1 = stripGrid zg0
+      zg2 = flattenGrid zg1
+  genZoneContChunk gridw gridh zonew zoneh x y (i+1) c x0 y0 zg2 types sizes rrands ks js
 
--- seeds each row individually
-seedZoneContRow :: Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
-seedZoneContRow gridw gridh zonew zoneh types sizes rrands minncs x y i c w x0 y0 z0 (t1, t2) = (map (seedZoneContTile gridw gridh zonew zoneh types sizes rrands minncs x y i c t2 w x0 y0 z0) t1, t2)
+genZoneContChunkRow :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> ([(Int, Int)], Int) -> ([(Int, Int)], Int)
+genZoneContChunkRow gridw gridh zonew zoneh x y i c w x0 y0 z0 types sizes rrands (t1, t2) = (map (genZoneContChunkTile gridw gridh zonew zoneh x y i c t2 w x0 y0 z0 types sizes rrands) t1, t2)
 
--- seeds each tile
-seedZoneContTile :: Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> (Int, Int) -> (Int, Int)
-seedZoneContTile gridw gridh zonew zoneh types sizes rrands minncs x y it c j w x0 y0 z0 (t, i)
-  | ((randstate == BShallows) || (randstate == BDeeps) || (randstate == BPeaks))                        = (t, i)
-  | (randstate == BSea)    && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' <= maxdist)           = (r, i)
-  | (randstate == BSea)    && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' <= maxdist)           = (r, i)
-  | (randstate == BSea)    && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' <= maxdist)           = (r, i)
-  | (randstate == BSea)    && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' <= maxdist)           = (r, i)
-  | (randstate == BSea)    && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' <= maxdist)           = (r, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' < 8*(maxdist-cfudge)) = (t, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' <= (4*maxdist))       = (r, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' <= (4*maxdist))       = (r, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' <= (4*maxdist))       = (r, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' <= (4*maxdist))       = (r, i)
-  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' <= (4*maxdist))       = (r, i) 
-  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' < maxdist-cfudge)     = (t, i)
-  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' < maxdist-cfudge)     = (t, i)
-  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' < maxdist-cfudge)     = (t, i)
-  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' < maxdist-cfudge)     = (t, i)
-  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' < maxdist-cfudge)     = (t, i)
-  | otherwise                                                                                           = (t, i)
+-- this is basically the same as the worldcode
+genZoneContChunkTile :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> [Biome] -> [Int] -> [Int] -> (Int, Int) -> (Int, Int)
+genZoneContChunkTile gridw gridh zonew zoneh x y it c j w x0 y0 z0 types sizes rrands (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' < fromIntegral(8*(maxdist-cfudge))) = (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' < fromIntegral(8*(maxdist-cfudge))) = (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' < fromIntegral(8*(maxdist-cfudge))) = (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' < fromIntegral(8*(maxdist-cfudge))) = (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' < fromIntegral(8*(maxdist-cfudge))) = (t, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' <= fromIntegral((maxdist)*4))       = (r, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' <= fromIntegral((maxdist)*4))       = (r, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' <= fromIntegral((maxdist)*4))       = (r, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' <= fromIntegral((maxdist)*4))       = (r, i)
+  | (randstate == BValley) && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' <= fromIntegral((maxdist)*4))       = (r, i)
+  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         y0         z0 t' < fromIntegral((maxdist-cfudge)))   = (t, i)
+  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' < fromIntegral((maxdist-cfudge)))   = (t, i)
+  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' < fromIntegral((maxdist-cfudge)))   = (t, i)
+  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' < fromIntegral((maxdist-cfudge)))   = (t, i)
+  | (randstate == BCrags)  && (zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' < fromIntegral((maxdist-cfudge)))   = (t, i)
+  |                            zoneDistance zonew zoneh x y i j w x0         y0         z0 t' <= fromIntegral(maxdist)            = (r, i)
+  |                            zoneDistance zonew zoneh x y i j w (x0+gridw) y0         z0 t' <= fromIntegral(maxdist)            = (r, i)
+  |                            zoneDistance zonew zoneh x y i j w x0         (y0+gridh) z0 t' <= fromIntegral(maxdist)            = (r, i)
+  |                            zoneDistance zonew zoneh x y i j w (x0-gridw) y0         z0 t' <= fromIntegral(maxdist)            = (r, i)
+  |                            zoneDistance zonew zoneh x y i j w x0         (y0-gridh) z0 t' <= fromIntegral(maxdist)            = (r, i)
+  | otherwise                                                                                                       = (t, i)
   where
     randstate = types !! c
     r         = biomeToInt randstate
-    maxdist   = 1000.0 * fromIntegral(((sizes) !! c))
-    cfudge    = 2.0 * fromIntegral(((rrands) !! (c)) - minncs)
+    maxdist   = 1000 * ((sizes) !! c)
+    cfudge    = 2      * ((rrands !! c) - 1)
     t'        = fromIntegral t
 
 -- a simple conversion function to abstract biome numbers

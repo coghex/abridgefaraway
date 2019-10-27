@@ -47,7 +47,7 @@ genParams mseed state = do
     , stateLua            = ls
     , stateShellBuff      = [" % ", "welcome to the lua console..."]
     , stateShellInput     = ""
-    --, stateZone           = [nullzone]
+    , stateZone           = [nullzone]
     , stateZoneCam        = (0.0, 0.0, 0)
     }
 
@@ -127,7 +127,7 @@ nextSimState state env n = State
   , stateLua        = stateLua        state
   , stateShellBuff  = stateShellBuff  state
   , stateShellInput = stateShellInput state
-  --, stateZone       = stateZone       state
+  , stateZone       = stateZone       state
   , stateZoneCam    = stateZoneCam    state
   }
 
@@ -186,7 +186,7 @@ initWorld state = do
       ls        = stateLua        state
       shellbuff = stateShellBuff  state
       shellinp  = stateShellInput state
-      --zone      = stateZone       state
+      zone      = stateZone       state
       zonecam   = stateZoneCam    state
 
   let g1 = seedConts   state g0 conts seeds rands nconts
@@ -209,7 +209,7 @@ initWorld state = do
     , stateLua        = ls
     , stateShellBuff  = shellbuff
     , stateShellInput = shellinp
-    --, stateZone       = zone
+    , stateZone       = zone
     , stateZoneCam    = zonecam
     }
 
