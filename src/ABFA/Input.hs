@@ -82,7 +82,7 @@ evalKey window k ks mk = do
         z        = generateZone state cx cy
         (cx, cy) = stateCursor state
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
-    liftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
+    --iftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
     modify $ \s -> s {stateZone = z:oldzs}
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do

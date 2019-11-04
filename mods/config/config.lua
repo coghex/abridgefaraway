@@ -52,8 +52,8 @@ sealevel = 2000.0
 peaklevel = 10000.0
 
 -- these constants are for the zones
-zonew = 30
-zoneh = 20
+zonew = 60
+zoneh = 40
 
 -- will return a hard coded default screen size of 1024x768
 -- if one is not set

@@ -94,10 +94,8 @@ drawZoneSpot texs zonew zoneh camx camy camz y ((g, x), (c, _)) = withTextures2D
 drawZoneTile :: [GL.TextureObject] -> Int -> Int -> Float -> Float -> Int -> Int -> Int -> IO ()
 drawZoneTile tex zonew zoneh camx camy camz x y = do
   glLoadIdentity
-  glTranslatef (2*((nx) - ((fromIntegral zonew)/2))) (2*((ny) - ((fromIntegral zoneh)/2))) (-zoom/4)
+  glTranslatef nx ny nz
   glColor3f 1.0 1.0 1.0
   drawSquare
   where
-    nx = fromIntegral(x)+camx
-    ny = fromIntegral(y)+camy
-    zoom = -120.0
+    (nx, ny, nz) = zoneZoom x y zonew zoneh
