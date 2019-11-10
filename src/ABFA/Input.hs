@@ -83,7 +83,8 @@ evalKey window k ks mk = do
         (cx, cy) = stateCursor state
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
     --iftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
-    modify $ \s -> s {stateZone = z:oldzs}
+    modify $ \s -> s { stateZone   = z:oldzs
+                     , stateEmbark = (cx, cy) }
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
@@ -207,4 +208,6 @@ evalScroll :: GLFW.Window -> Double -> Double -> Game ()
 evalScroll win x y = do
   state <- get
   when (((stateGame state) == SZone)) $ do
-    liftIO . print $ "scrolling..."
+    let zoom = (stateZoom state) + (10*(realToFrac y))
+    modify $ \s -> s { stateZoom = zoom }
+

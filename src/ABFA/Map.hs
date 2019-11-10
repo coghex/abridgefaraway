@@ -82,3 +82,7 @@ listToBS l 2 = runPut $ sequence_ $ do
   map (putWord16le . fromIntegral) l
 listToBS l n = runPut $ sequence_ $ do
   map (putWord8 . fromIntegral) l
+
+-- does some basic subtraction for tuples
+tupleSub :: (Num a) => (a, a) -> (a, a) -> (a, a)
+tupleSub (ax, ay) (bx, by) = ((ax-bx), (ay-by))

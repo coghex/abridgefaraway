@@ -21,6 +21,7 @@ data State = State
   , stateOG         :: ![Int]              -- the original world grid
   , stateElev       :: ![Int]              -- the average elevation of each tile
   , stateCursor     :: !(Int, Int)         -- the cursor position
+  , stateEmbark     :: !(Int, Int)         -- position of player home embark point
   , stateTime       :: !Integer            -- the time since 0
   , stateLua        :: !Lua.State          -- the state of the lua interpreter
   , stateShellBuff  :: ![String]           -- a string containing the shell history and prompt
@@ -39,11 +40,12 @@ initState gs ls seeds settings = State { stateGame       = gs
                                     , stateSettings   = settings
                                     , stateWParams    = emptyParams
                                     , stateStdGens    = seeds
-                                    , stateZoom       = 1
+                                    , stateZoom       = 0
                                     , stateGrid       = []
                                     , stateOG         = []
                                     , stateElev       = []
                                     , stateCursor     = (5, 5)
+                                    , stateEmbark     = (5, 5)
                                     , stateTime       = 0
                                     , stateLua        = ls
                                     , stateShellBuff  = []
