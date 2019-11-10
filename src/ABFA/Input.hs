@@ -92,6 +92,7 @@ evalKey window k ks mk = do
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
     --iftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
     modify $ \s -> s { stateZone   = znw:zn:zne:zw:z:ze:zsw:zs:zse:oldzs
+    --modify $ \s -> s { stateZone   = z:oldzs
                      , stateEmbark = (cx, cy) }
   -- moves the zone camera orthographically around the screen
   when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do

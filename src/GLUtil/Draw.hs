@@ -5,6 +5,7 @@ import Graphics.GL
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Data.ByteString.Lazy as BS
 import qualified GLUtil.ABFA as GLFW
+import Control.Parallel.Strategies (parMap, rpar)
 import GLUtil.Textures
 import GLUtil.ABFA
 import GLUtil.Util
