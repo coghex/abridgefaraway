@@ -53,24 +53,30 @@ worldZoom x y screenw screenh gridw gridh = (nx, ny, nz)
         gridratio = (fromIntegral gridh) / (fromIntegral gridw)
 --
 -- calculates the glTraslatef input value for zone screen
-zoneZoom :: Int -> Int -> Int -> Int -> Float -> (Float, Float, Float)
-zoneZoom x y zonew zoneh zoom = (nx, ny, nz)
-  where nx = (fromIntegral (2*x)) - (0.6*(fromIntegral (zonew))) --2*((fromIntegral x) - ((fromIntegral gridw)/2))
-        ny = (fromIntegral (2*y)) - ((fromIntegral (zoneh))) --2*((fromIntegral y) - ((fromIntegral gridh)/2))
+zoneZoom :: Int -> Int -> Int -> Int -> Int -> Int -> Float -> (Float, Float, Float)
+zoneZoom mapx mapy x y zonew zoneh zoom = (nx, ny, nz)
+  -- first term is position in zone, second is the offset to fit the UI,
+  -- third is where the zone is relative to the home zone
+  where nx = (fromIntegral (2*x)) - (0.6*(fromIntegral (zonew))) + (fromIntegral(mapx*zonew))
+        ny = (fromIntegral (2*y)) - ((fromIntegral (zoneh)))     + (fromIntegral(mapy*zoneh))
         nz = -2.0*(fromIntegral (max zonew zoneh)) + (zoom)
         gridratio = (fromIntegral zoneh) / (fromIntegral zonew)
 
-
-
 -- draws the zone screen
 drawZone :: State -> Env -> IO ()
-drawZone state env = drawSingleZone x y zonew zoneh zone texs (stateZoneCam state) (stateZoom state)
+drawZone state env = resequence_ $ map (drawCachedZones zonew zoneh (stateEmbark state) texs (stateZoneCam state) (stateZoom state)) (stateZone state)
+  --drawSingleZone x y zonew zoneh zone texs (stateZoneCam state) (stateZoom state)
   where (x, y)   = (stateCursor state) `tupleSub` (stateEmbark state)
         texs     = envZTex env
         zonew    = settingZoneW settings
         zoneh    = settingZoneH settings
         settings = stateSettings state
         zone     = head (stateZone state)
+
+drawCachedZones :: Int -> Int -> (Int, Int) -> [[GL.TextureObject]] -> (Float, Float, Int) -> Float -> Zone -> IO ()
+drawCachedZones zonew zoneh embark texs zonecam zoom z = do
+  drawSingleZone x y zonew zoneh z texs zonecam zoom
+  where (x, y) = (latlong z) `tupleSub` embark
 
 drawSingleZone :: Int -> Int -> Int -> Int -> Zone -> [[GL.TextureObject]] -> (Float, Float, Int) -> Float -> IO ()
 drawSingleZone x y zonew zoneh zone texs (camx, camy, camz) zoom = do
@@ -98,4 +104,4 @@ drawZoneTile tex mapx mapy zonew zoneh camx camy camz zoom x y = do
   glColor3f 1.0 1.0 1.0
   drawSquare
   where
-    (nx, ny, nz) = zoneZoom x y zonew zoneh zoom
+    (nx, ny, nz) = zoneZoom mapx mapy x y zonew zoneh zoom

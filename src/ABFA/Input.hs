@@ -79,11 +79,19 @@ evalKey window k ks mk = do
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
     let oldzs    = stateZone state
-        z        = generateZone state cx cy
+        z        = generateZone state cx     cy
+        ze       = generateZone state (cx+1) cy
+        zw       = generateZone state (cx-1) cy
+        zn       = generateZone state cx     (cy+1)
+        zs       = generateZone state cx     (cy-1)
+        znw      = generateZone state (cx-1) (cy+1)
+        zne      = generateZone state (cx+1) (cy+1)
+        zsw      = generateZone state (cx-1) (cy-1)
+        zse      = generateZone state (cx+1) (cy-1)
         (cx, cy) = stateCursor state
     liftIO $ loadedCallback (envEventsChan env) SLoadZone
     --iftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
-    modify $ \s -> s { stateZone   = z:oldzs
+    modify $ \s -> s { stateZone   = znw:zn:zne:zw:z:ze:zsw:zs:zse:oldzs
                      , stateEmbark = (cx, cy) }
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
