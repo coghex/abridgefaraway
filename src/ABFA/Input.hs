@@ -93,6 +93,19 @@ evalKey window k ks mk = do
     --iftIO $ print $ "gbs: " ++ (show ((bsToList (cbs (zonechunk z)) 1)))
     modify $ \s -> s { stateZone   = znw:zn:zne:zw:z:ze:zsw:zs:zse:oldzs
                      , stateEmbark = (cx, cy) }
+  -- moves the zone camera orthographically around the screen
+  when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
+    let newcam = moveCam DLeft  (stateZoneCam state)
+    modify $ \s -> s { stateZoneCam = newcam }
+  when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
+    let newcam = moveCam DRight (stateZoneCam state)
+    modify $ \s -> s { stateZoneCam = newcam }
+  when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
+    let newcam = moveCam DUp    (stateZoneCam state)
+    modify $ \s -> s { stateZoneCam = newcam }
+  when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
+    let newcam = moveCam DDown  (stateZoneCam state)
+    modify $ \s -> s { stateZoneCam = newcam }
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
@@ -163,6 +176,10 @@ getKey keylayout "LFT" = keyLFT keylayout
 getKey keylayout "RGT" = keyRGT keylayout
 getKey keylayout "UPP" = keyUPP keylayout
 getKey keylayout "DWN" = keyDWN keylayout
+getKey keylayout "CL"  = keyCL  keylayout
+getKey keylayout "CR"  = keyCR  keylayout
+getKey keylayout "CU"  = keyCU  keylayout
+getKey keylayout "CD"  = keyCD  keylayout
 getKey keylayout _     = "NULL"
 
 -- returns the char for a glkey

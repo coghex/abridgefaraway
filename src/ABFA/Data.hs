@@ -7,6 +7,9 @@ import qualified Data.ByteString.Lazy.Char8 as BS
 -- starts stops and pauses the timers
 data TimerState = TStart | TStop | TPause | TNULL
 
+-- some directions to make certain code easier to read
+data Direction = DLeft | DRight | DUp | DDown | DNULL
+
 -- the various types of possible biomes
 data Biome      = BSea | BShallows | BDeeps | BValley | BCrags | BPlains | BFields | BWastes | BSteeps | BPeaks | BNULL deriving (Eq, Show)
 
@@ -61,6 +64,10 @@ data KeyLayout = KeyLayout
   , keyRGT :: String
   , keyUPP :: String
   , keyDWN :: String
+  , keyCL  :: String
+  , keyCR  :: String
+  , keyCU  :: String
+  , keyCD  :: String
   } deriving (Eq, Show)
 
 -- worldparameters for the generator

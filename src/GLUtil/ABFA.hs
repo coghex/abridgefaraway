@@ -90,6 +90,10 @@ getGLFWKey "H"   = GLFW.Key'H
 getGLFWKey "J"   = GLFW.Key'J
 getGLFWKey "K"   = GLFW.Key'K
 getGLFWKey "L"   = GLFW.Key'L
+getGLFWKey "A"   = GLFW.Key'A
+getGLFWKey "D"   = GLFW.Key'D
+getGLFWKey "W"   = GLFW.Key'W
+getGLFWKey "S"   = GLFW.Key'S
 getGLFWKey _     = GLFW.Key'Unknown
 
 -- the other direction

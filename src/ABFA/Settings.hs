@@ -23,7 +23,11 @@ importKeyLayout ls fn = Lua.runWith ls $ do
   rgtkey <- Lua.getglobal "rightkey"  *> Lua.peek (-1)
   uppkey <- Lua.getglobal "upkey"     *> Lua.peek (-1)
   dwnkey <- Lua.getglobal "downkey"   *> Lua.peek (-1)
-  return $ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey
+  cukey  <- Lua.getglobal "camukey"   *> Lua.peek (-1)
+  cdkey  <- Lua.getglobal "camdkey"   *> Lua.peek (-1)
+  clkey  <- Lua.getglobal "camlkey"   *> Lua.peek (-1)
+  crkey  <- Lua.getglobal "camrkey"   *> Lua.peek (-1)
+  return $ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey clkey crkey cukey cdkey
 
 -- imports other settings
 importSettings :: Lua.State -> String -> IO (Settings)
@@ -78,8 +82,8 @@ makeSettings sw sh fs fsize fps ts as h p gw gh zw zh f salt sugar vigor minnc m
            , settingZoneH      = zh
            , settingWGSettings = makeWGSettings f salt sugar vigor minnc maxnc mins maxs minns maxns sl pl }
 
-makeKeyLayout :: String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> KeyLayout
-makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey =
+makeKeyLayout :: String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> String -> KeyLayout
+makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey dwnkey clkey crkey cukey cdkey =
   KeyLayout { keyC   = ckey
             , keyR   = rkey
             , keySPC = spckey
@@ -90,7 +94,11 @@ makeKeyLayout ckey rkey spckey esckey retkey delkey shkey lftkey rgtkey uppkey d
             , keyLFT = lftkey
             , keyRGT = rgtkey
             , keyUPP = uppkey
-            , keyDWN = dwnkey }
+            , keyDWN = dwnkey
+            , keyCL  = clkey
+            , keyCR  = crkey
+            , keyCU  = cukey
+            , keyCD  = cdkey }
 
 makeWGSettings :: Int -> Int -> Float -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> WorldGenSettings
 makeWGSettings f sal sug vig minnc maxnc mins maxs minns maxns sl pl = WorldGenSettings { wgCurrMap   = 0

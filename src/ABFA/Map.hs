@@ -86,3 +86,11 @@ listToBS l n = runPut $ sequence_ $ do
 -- does some basic subtraction for tuples
 tupleSub :: (Num a) => (a, a) -> (a, a) -> (a, a)
 tupleSub (ax, ay) (bx, by) = ((ax-bx), (ay-by))
+
+-- adds the right movement in the right direction for the zone camera
+moveCam :: Direction -> (Float, Float, Int) -> (Float, Float, Int)
+moveCam DLeft  (cx, cy, cz) = ((cx-1.0),       cy, cz)
+moveCam DRight (cx, cy, cz) = ((cx+1.0),       cy, cz)
+moveCam DUp    (cx, cy, cz) = (      cx, (cy+1.0), cz)
+moveCam DDown  (cx, cy, cz) = (      cx, (cy-1.0), cz)
+moveCam DNULL  (cx, cy, cz) = (      cx,       cy, cz)
