@@ -28,12 +28,15 @@ evalKey window k ks mk = do
   -- quits from the menu
   when ((gs == SMenu) && (keyCheck keylayout k "ESC")) $ do
     liftIO $ GLFW.closeGLFW window
+    return ()
   -- exits when in world view, in future should save game
   when ((gs == SWorld) && (keyCheck keylayout k "ESC")) $ do
     liftIO $ GLFW.closeGLFW window
+    return ()
   -- returns to menu from zone view
   when ((gs == SZone) && (keyCheck keylayout k "ESC")) $ do
     liftIO $ loadedCallback (envEventsChan env) SMenu
+    return ()
   -- creates world from the menu
   when ((gs == SMenu) && (keyCheck keylayout k "C")) $ do
     liftIO $ loadedCallback (envEventsChan env) SLoadWorld
@@ -42,6 +45,7 @@ evalKey window k ks mk = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
+    return ()
   -- regenerates the world from the world screen
   when ((gs == SWorld) && (keyCheck keylayout k "R")) $ do
     -- stop the timers
@@ -63,19 +67,24 @@ evalKey window k ks mk = do
     liftIO $ atomically $ writeChan (envStateChan2 env) newstate
     liftIO $ atomically $ writeChan (envStateChan4 env) newstate
     modify $ \s -> newstate
+    return ()
   -- moves the cursor orthographically, shift will move 5...
   when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
     let step = if (GLFW.modifierKeysShift mk) then 5 else 1
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+    return ()
   when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
     let step = if (GLFW.modifierKeysShift mk) then 5 else 1
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+    return ()
   when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
     let step = if (GLFW.modifierKeysShift mk) then 5 else 1
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+    return ()
   when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
     let step = if (GLFW.modifierKeysShift mk) then 5 else 1
     modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
+    return ()
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
     let oldzs    = stateZone state
@@ -94,31 +103,40 @@ evalKey window k ks mk = do
     modify $ \s -> s { stateZone   = znw:zn:zne:zw:z:ze:zsw:zs:zse:oldzs
     --modify $ \s -> s { stateZone   = z:oldzs
                      , stateEmbark = (cx, cy) }
+    return ()
   -- moves the zone camera orthographically around the screen
   when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
     let newcam = moveCam DLeft  (stateZoneCam state)
     modify $ \s -> s { stateZoneCam = newcam }
+    return ()
   when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
     let newcam = moveCam DRight (stateZoneCam state)
     modify $ \s -> s { stateZoneCam = newcam }
+    return ()
   when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
     let newcam = moveCam DUp    (stateZoneCam state)
     modify $ \s -> s { stateZoneCam = newcam }
+    return ()
   when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
     let newcam = moveCam DDown  (stateZoneCam state)
     modify $ \s -> s { stateZoneCam = newcam }
+    return ()
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
+    return ()
   -- closes the shell
   when ((gs == SShell) && ((keyCheck keylayout k "`") || (keyCheck keylayout k "ESC"))) $ do
     liftIO $ loadedCallback (envEventsChan env) $ stateGamePrev state
+    return ()
   -- deletes stuff
   when ((gs == SShell) && (keyCheck keylayout k "DEL")) $ do
     modify $ \s -> s { stateShellInput = inputDelete (stateShellInput state) }
+    return ()
   -- types a space
   when ((gs == SShell) && (keyCheck keylayout k "SPC")) $ do
     modify $ \s -> s { stateShellInput = (stateShellInput state) ++ " " }
+    return ()
   -- runs a lua command
   when ((gs == SShell) && (keyCheck keylayout k "RET")) $ do
     outbuff <- liftIO $ execShell (stateLua state) (stateShellInput state)
@@ -131,10 +149,12 @@ evalKey window k ks mk = do
     modify $ \s -> s { stateSettings   = newsets
                      , stateShellBuff  = " % " : newbuff
                      , stateShellInput = "" }
+    return ()
   -- reads the users keyboard
   when ((gs == SShell) && (not ((keyCheck keylayout k "`") || (keyCheck keylayout k "DEL") || (keyCheck keylayout k "ESC") || (keyCheck keylayout k "SPC") || (keyCheck keylayout k "RET")))) $ do
     let newinp = (stateShellInput state) ++ inpkey
     modify $ \s -> s { stateShellInput = newinp }
+    return ()
 
 -- case function for when a key repeats
 evalKeyHeld :: GLFW.Window -> GLFW.Key -> GLFW.KeyState -> GLFW.ModifierKeys -> Game ()
