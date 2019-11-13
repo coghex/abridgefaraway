@@ -3,7 +3,7 @@
 -- imports all the settings
 
 -- this is the screen width and height in pixels
-screenw = 900
+screenw = 800
 screenh = 600
 
 -- weather or not the game is fullscreen

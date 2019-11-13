@@ -69,24 +69,20 @@ evalKey window k ks mk = do
     modify $ \s -> newstate
     return ()
   -- moves the cursor orthographically, shift will move 5...
-  let moveflag = 0
-  when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
-  when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
-  when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
-  when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
-  when (moveflag == 1) $ return ()
+  when ((gs == SWorld) && ((keyCheck keylayout k "LFT") || (keyCheck keylayout k "RGT") || (keyCheck keylayout k "UPP") || (keyCheck keylayout k "DWN"))) $ do
+    when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+    when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+    when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+    when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
+  return ()
   -- enters zone state
   when ((gs == SWorld) && (keyCheck keylayout k "RET")) $ do
     let oldzs    = stateZone state
@@ -107,28 +103,24 @@ evalKey window k ks mk = do
                      , stateEmbark = (cx, cy) }
     return ()
   -- moves the zone camera orthographically around the screen
-  let moveflag = 0
-  when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam   = moveCam DLeft  step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam   = moveCam DRight step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam   = moveCam DUp    step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
-    let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam   = moveCam DDown  step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when (moveflag == 1) $ return ()
+  when ((gs == SZone) && ((keyCheck keylayout k "CL") || (keyCheck keylayout k "CR") || (keyCheck keylayout k "CU") || (keyCheck keylayout k "CD"))) $ do
+    when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam   = moveCam DLeft  step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam   = moveCam DRight step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam   = moveCam DUp    step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
+      let step     = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam   = moveCam DDown  step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    return ()
   -- opens a lua shell
   when ((gs /= SShell) && (keyCheck keylayout k "`")) $ do
     liftIO $ loadedCallback (envEventsChan env) SShell
@@ -174,47 +166,39 @@ evalKeyHeld window k ks mk = do
   let keylayout = settingKeyLayout settings
   let gs        = stateGame state
   -- moves orthographically when the movement keys are held
-  let moveflag = 0
-  when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
-    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
-  when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
-    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
-  when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
-    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
-  when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
-    let step = if (GLFW.modifierKeysShift mk) then 5 else 1
-    let moveflag = 1
-    modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
-  when (moveflag == 1) $ return ()
+  when ((gs == SWorld) && ((keyCheck keylayout k "LFT") || (keyCheck keylayout k "RGT") || (keyCheck keylayout k "UPP") || (keyCheck keylayout k "DWN"))) $ do
+    when ((gs == SWorld) && (keyCheck keylayout k "LFT")) $ do
+      let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) West) }
+    when ((gs == SWorld) && (keyCheck keylayout k "RGT")) $ do
+      let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) East) }
+    when ((gs == SWorld) && (keyCheck keylayout k "UPP")) $ do
+      let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) North) }
+    when ((gs == SWorld) && (keyCheck keylayout k "DWN")) $ do
+      let step = if (GLFW.modifierKeysShift mk) then 5 else 1
+      modify $ \s -> s { stateCursor = (moveCursor step (stateCursor state) (settingGridW settings) (settingGridH settings) South) }
+    return ()
   -- moves orthographically when the camera keys are held
-  let moveflag = 0
-  when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
-    let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam = moveCam DLeft  step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
-    let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam = moveCam DRight step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
-    let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam = moveCam DUp    step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
-    let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
-    let newcam = moveCam DDown  step (stateZoneCam state)
-    let moveflag = 1
-    modify $ \s -> s { stateZoneCam = newcam }
-  when (moveflag == 1) $ return ()
+  when ((gs == SZone) && ((keyCheck keylayout k "CL") || (keyCheck keylayout k "CR") || (keyCheck keylayout k "CU") || (keyCheck keylayout k "CD"))) $ do
+    when ((gs == SZone) && (keyCheck keylayout k "CL")) $ do
+      let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam = moveCam DLeft  step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CR")) $ do
+      let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam = moveCam DRight step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CU")) $ do
+      let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam = moveCam DUp    step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    when ((gs == SZone) && (keyCheck keylayout k "CD")) $ do
+      let step   = if (GLFW.modifierKeysShift mk) then 5.0 else 1.0
+      let newcam = moveCam DDown  step (stateZoneCam state)
+      modify $ \s -> s { stateZoneCam = newcam }
+    return ()
 
 -- checks key with settings
 keyCheck :: KeyLayout -> GLFW.Key -> String -> Bool

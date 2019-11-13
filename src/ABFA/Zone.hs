@@ -7,6 +7,7 @@ import qualified Data.ByteString.Lazy as BS
 import Data.Binary.Put
 import Data.ByteString.Base64 (encode, decode)
 import Control.Parallel.Strategies (parMap, rpar)
+import Control.Monad.RWS.Strict (modify)
 import ABFA.Data
 import ABFA.Game
 import ABFA.State
@@ -150,4 +151,5 @@ biomeToInt BWastes   = 8
 biomeToInt BSteeps   = 9
 biomeToInt BPeaks    = 10
 biomeToInt _         = 0
+
 
