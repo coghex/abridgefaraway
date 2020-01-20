@@ -45,8 +45,8 @@ genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgsr
                                                                 , cbs = zcsr
                                                                 , ebs = BS.empty
                                                                 }
-  where zgs0     = initZoneGrid zonew zoneh zcsr
-        zgsr     = edgeZoneGrid zonew zoneh zgs0
+  where zgsr     = edgeZoneGrid zonew zoneh zcsr
+        zgs0     = initZoneGrid zonew zoneh zcsr
         zcsr     = initZoneCont state x y
         zonew    = settingZoneW settings 
         zoneh    = settingZoneH settings
@@ -54,13 +54,13 @@ genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgsr
 
 initZoneGrid :: Int -> Int -> BS.ByteString -> BS.ByteString
 initZoneGrid zonew zoneh str = listToBS zonelist 1
-  where zonelist = take (zonew*zoneh) (repeat 0)
+  where zonelist = take (zonew*zoneh) (repeat 13)
         newzg    = edgeZoneGrid zonew zoneh str
 
 -- generates edges bordering tiles for the zone
 edgeZoneGrid :: Int -> Int -> BS.ByteString -> BS.ByteString
 edgeZoneGrid zonew zoneh str = listToBS (map edgeTile (L.zip5 tn tw te ts strlist)) 1
-  where (tn, tw, te, ts) = zoneCardinals zonew zoneh strlist
+  where (tn, ts, te, tw) = zoneCardinals zonew zoneh strlist
         strlist          = bsToList str 1
 
 edgeTile :: (Int, Int, Int, Int, Int) -> Int
