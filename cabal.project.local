@@ -1,2 +1,6 @@
-flags: +threaded
-optimization: 2
+
+package *
+  ghc-options: -dynamic
+
+program-options
+  ghc-options: -dynamic

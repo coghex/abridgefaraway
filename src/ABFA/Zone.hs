@@ -55,6 +55,10 @@ initZoneGrid state str = listToBS zonelist 1
         zoneh    = settingZoneH     settings
         settings = stateSettings    state
 
+-- generates edges bordering tiles for the zone
+edgeZoneGrid :: State -> [Int]
+edgeZoneGrid state = []
+
 initZoneCont :: State -> Int -> Int -> BS.ByteString
 initZoneCont state x y = listToBS (genZoneCont gridw gridh zonew zoneh x y zc0 types sizes rrands conts seeds rands nconts) 1
   where conts    = wpConts           wparams
