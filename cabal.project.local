@@ -1,3 +1,5 @@
+flags: +threaded
+optimization: 2
 
 package *
   ghc-options: -dynamic
