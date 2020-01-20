@@ -20,7 +20,7 @@ timespeed = 1000
 animspeed = 100
 
 -- the amount of history that passes before the world is presented
-history = 12
+history = 14
 
 -- the precision of floating point numbers
 precision = 2
