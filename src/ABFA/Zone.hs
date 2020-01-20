@@ -41,23 +41,46 @@ genZone state x y zc0 conts seeds rands nconts = Zone { latlong   = (x, y)
                                                       }
 
 genZoneChunk :: State -> Int -> Int -> BS.ByteString -> [(Int, Int)] -> [[(Int, Int)]] -> [[(Int, Int)]] -> Int -> ZoneChunk
-genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgs
-                                                                , cbs = zcs
+genZoneChunk state x y zc0 conts seeds rands nconts = ZoneChunk { gbs = zgsr
+                                                                , cbs = zcsr
                                                                 , ebs = BS.empty
                                                                 }
-  where zgs = initZoneGrid state zcs
-        zcs = initZoneCont state x y
+  where zgs0     = initZoneGrid zonew zoneh zcsr
+        zgsr     = edgeZoneGrid zonew zoneh zgs0
+        zcsr     = initZoneCont state x y
+        zonew    = settingZoneW settings 
+        zoneh    = settingZoneH settings
+        settings = stateSettings state
 
-initZoneGrid :: State -> BS.ByteString -> BS.ByteString
-initZoneGrid state str = listToBS zonelist 1
+initZoneGrid :: Int -> Int -> BS.ByteString -> BS.ByteString
+initZoneGrid zonew zoneh str = listToBS zonelist 1
   where zonelist = take (zonew*zoneh) (repeat 0)
-        zonew    = settingZoneW     settings
-        zoneh    = settingZoneH     settings
-        settings = stateSettings    state
+        newzg    = edgeZoneGrid zonew zoneh str
 
 -- generates edges bordering tiles for the zone
-edgeZoneGrid :: State -> [Int]
-edgeZoneGrid state = []
+edgeZoneGrid :: Int -> Int -> BS.ByteString -> BS.ByteString
+edgeZoneGrid zonew zoneh str = listToBS (map edgeTile (L.zip5 tn tw te ts strlist)) 1
+  where (tn, tw, te, ts) = zoneCardinals zonew zoneh strlist
+        strlist          = bsToList str 1
+
+edgeTile :: (Int, Int, Int, Int, Int) -> Int
+edgeTile (tn, tw, te, ts, t)
+  | (tn /= t) && (tw /= t) && (te /= t) && (ts /= t) = 19
+  | (tn /= t) && (tw /= t) && (te /= t)              = 16
+  | (tn /= t) && (tw /= t) &&              (ts /= t) = 18
+  | (tn /= t) &&              (te /= t) && (ts /= t) = 20
+  |              (tw /= t) && (te /= t) && (ts /= t) = 22
+  | (tn /= t) && (tw /= t)                           = 6
+  | (tn /= t) &&              (te /= t)              = 8
+  | (tn /= t) &&                           (ts /= t) = 21
+  |              (tw /= t) && (te /= t)              = 15
+  |              (tw /= t) &&              (ts /= t) = 12
+  |                           (te /= t) && (ts /= t) = 14
+  | (tn /= t)                                        = 7
+  |              (tw /= t)                           = 9
+  |                           (te /= t)              = 11
+  |                                        (ts /= t) = 13
+  | otherwise                                        = 0
 
 initZoneCont :: State -> Int -> Int -> BS.ByteString
 initZoneCont state x y = listToBS (genZoneCont gridw gridh zonew zoneh x y zc0 types sizes rrands conts seeds rands nconts) 1

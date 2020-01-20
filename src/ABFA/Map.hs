@@ -20,6 +20,23 @@ calcBiome BWastes   = 8
 calcBiome BSteeps   = 9
 calcBiome BPeaks    = 10
 
+-- finds cardinal tiles of a specified tile
+zoneCardinals :: Int -> Int -> [a] -> ([a], [a], [a], [a])
+zoneCardinals zonew zoneh x = (nx, sx, ex, wx)
+  where nx  = (drop zonew x) ++ (take zonew x)
+        sx  = (drop ((zoneh-1)*zonew) x) ++ (take ((zoneh-1)*zonew) x)
+        ext = (tail x)
+        ex  = replaceEveryE zonew ext x
+        wx  = replaceEveryW zonew x
+
+-- these helper functions are for the cardinal functions
+replaceEveryE :: Int -> [a] -> [a] -> [a]
+replaceEveryE n [] b = []
+replaceEveryE n s  b = (take (n-1) s) ++ [(head b)] ++ (replaceEveryE (n) (drop n s) (drop n b))
+
+replaceEveryW :: Int -> [a] -> [a]
+replaceEveryW n [] = []
+replaceEveryW n s  = (s !! (n-1)) : (take (n-1) s) ++ (replaceEveryW (n) (drop n s))
 
 -- the formula for an ellipse
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
