@@ -60,7 +60,7 @@ initZoneGrid zonew zoneh str = listToBS zonelist 1
 -- generates edges bordering tiles for the zone
 edgeZoneGrid :: Int -> Int -> BS.ByteString -> BS.ByteString
 edgeZoneGrid zonew zoneh str = listToBS (map edgeTile (L.zip5 tn tw te ts strlist)) 1
-  where (tn, ts, te, tw) = zoneCardinals zonew zoneh strlist
+  where (tn, ts, te, tw) = cardinals zonew zoneh strlist
         strlist          = bsToList str 1
 
 edgeTile :: (Int, Int, Int, Int, Int) -> Int

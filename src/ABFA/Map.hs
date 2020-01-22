@@ -21,13 +21,21 @@ calcBiome BSteeps   = 9
 calcBiome BPeaks    = 10
 
 -- finds cardinal tiles of a specified tile
-zoneCardinals :: Int -> Int -> [a] -> ([a], [a], [a], [a])
-zoneCardinals zonew zoneh x = (nx, sx, ex, wx)
+cardinals :: Int -> Int -> [a] -> ([a], [a], [a], [a])
+cardinals zonew zoneh x = (nx, sx, ex, wx)
   where nx  = (drop zonew x) ++ (take zonew x)
         sx  = (drop ((zoneh-1)*zonew) x) ++ (take ((zoneh-1)*zonew) x)
         ext = (tail x)
         ex  = replaceEveryE zonew ext x
         wx  = replaceEveryW zonew x
+
+-- finds cardinal tiles in a zone
+zoneCardinals :: Int -> Int -> [a] -> [a] -> [a] -> [a] -> [a] -> ([a], [a], [a], [a])
+zoneCardinals zonew zoneh nb sb eb wb x = (nx, sx, ex, wx)
+  where nx  = nb ++ (drop zonew x)
+        sx  = (take ((zoneh-1)*zonew) x) ++ sb
+        ex  = replaceEveryE  zonew eb x
+        wx  = replaceEveryWG zonew wb x
 
 -- these helper functions are for the cardinal functions
 replaceEveryE :: Int -> [a] -> [a] -> [a]
@@ -37,6 +45,15 @@ replaceEveryE n s  b = (take (n-1) s) ++ [(head b)] ++ (replaceEveryE (n) (drop 
 replaceEveryW :: Int -> [a] -> [a]
 replaceEveryW n [] = []
 replaceEveryW n s  = (s !! (n-1)) : (take (n-1) s) ++ (replaceEveryW (n) (drop n s))
+
+replaceEveryWG :: Int -> [a] -> [a] -> [a]
+replaceEveryWG n [] b = []
+replaceEveryWG n s  b = [(head b)] ++ (take (n-1) s) ++ (replaceEveryWG (n) (drop n s) (tail b))
+
+-- takes every nth element of a list
+takeEvery :: Int -> Int -> [a] -> [a]
+takeEvery _ _      [] = []
+takeEvery n offset x  = (head (drop offset x)):(takeEvery n offset (drop n x))
 
 -- the formula for an ellipse
 distance :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int
