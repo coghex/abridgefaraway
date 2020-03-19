@@ -50,6 +50,22 @@ replaceEveryWG :: Int -> [a] -> [a] -> [a]
 replaceEveryWG n [] b = []
 replaceEveryWG n s  b = [(head b)] ++ (take (n-1) s) ++ (replaceEveryWG (n) (drop n s) (tail b))
 
+-- removes the border around a zone list
+removeZoneBorder :: Int -> Int -> BS.ByteString -> BS.ByteString
+removeZoneBorder zonew zoneh bs = bsr
+  where bsr = listToBS ret 1
+        inp = bsToList bs  1
+        r0  = drop zonew inp -- remove top row
+        r1  = take ((zoneh-1)*(zonew-1)) r0 -- bottom row
+        r2  = dropEvery (zonew-1) 0 r1 -- left row
+        r3  = dropEvery (zonew-1) (-(zonew-1)) r2 -- right row
+        ret = r3
+
+-- drops every nth element of a list
+dropEvery :: Int -> Int -> [a] -> [a]
+dropEvery _ _      [] = []
+dropEvery n offset x  = (take (offset+n) x) ++ (tail (dropEvery n 0 x))
+
 -- takes every nth element of a list
 takeEvery :: Int -> Int -> [a] -> [a]
 takeEvery _ _      [] = []
