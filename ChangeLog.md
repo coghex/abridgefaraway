@@ -7,3 +7,7 @@
 ## 3.0.0.0 -- YYYY-mm-dd
 
 * Redone with homemade font lib and better threading.
+
+## 4.0.0.0 -- YYY-mm-dd
+
+* Redone agnostic to graphics library
