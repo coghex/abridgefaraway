@@ -1,4 +1,4 @@
-cabal-version: >=2.0
+cabal-version: >=1.10
 name: abfa
 version: 4.0.0.0
 license: BSD3
@@ -10,12 +10,69 @@ build-type: Simple
 extra-source-files:
     ChangeLog.md
 
+flag dev
+    default: True
+
 executable abfa
     main-is: Main.hs
     hs-source-dirs: src
-    -- other-modules:
+    other-modules: UPrelude
+                   Artos
+                   Artos.Except
+                   Artos.Log
+                   Artos.Queue
+                   Artos.Var
+                   Anamnesis
+                   Anamnesis.Data
+                   Anamnesis.Init
+                   Paracletus
+                   Paracletus.Data
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
-    build-depends: base >=4.9 && <5
-                 , vulkan-api >= 1.1.3 && <1.3.0
-                 , GLFW-b >= 3.2.1
+    build-depends: base
+                 , mtl
+                 , stm
+                 , monad-logger
+                 , containers
+                 , process
+                 , filepath
+                 , directory
+                 , template-haskell
+                 , base-unicode-symbols
+                 , containers-unicode-symbols
+    default-extensions: ExplicitForAll
+                        FlexibleInstances
+                        LambdaCase
+                        MagicHash
+                        MultiWayIf
+                        NegativeLiterals
+                        RecordWildCards
+                        ScopedTypeVariables
+                        TypeSynonymInstances
+                        UnicodeSyntax
+    other-extensions:   BangPatterns
+                        CPP
+                        DataKinds
+                        DeriveGeneric
+                        ExistentialQuantification
+                        FlexibleContexts
+                        GADTs
+                        KindSignatures
+                        LiberalTypeSynonyms
+                        NamedFieldPuns
+                        PatternSynonyms
+                        PolyKinds
+                        RankNTypes
+                        Strict
+                        StrictData
+                        TemplateHaskell
+                        TypeApplications
+                        TypeOperators
+                        UnboxedTuples
+                        UndecidableInstances
+                        ViewPatterns
+    if flag (dev)
+        cpp-options: -DDEVELOPMENT
+        ghc-options: -O0 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -threaded -eventlog -rtsopts
+    else
+        ghc-options: -O2 -fexcess-precision -threaded -rtsopts -feager-blackholing
