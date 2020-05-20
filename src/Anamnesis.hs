@@ -1,7 +1,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 module Anamnesis
-  (Anamnesis(..)
+  ( Anamnesis(..), Anamnesis'
   , MonadIO(..), MonadError(..)
+  , MonadReader(..), MonadState(..)
   ) where
 -- the application monad is defined
 import Control.Monad.IO.Class
@@ -17,6 +18,9 @@ import Anamnesis.Data
 -- monadic typeclass instances
 -- inlined for exporting
 newtype Anamnesis ret env state a = Anamnesis { unAnamnate ∷ IORef (AExcept) → TVar Env → TVar State → (Either (AExcept) a → IO ret) → IO ret }
+-- common case where the input
+-- is an exception tuple
+type Anamnesis' e s a = Anamnesis (Either AExcept a) a
 instance Functor (Anamnesis ret env state) where
   fmap f p = Anamnesis $ \r e s c → unAnamnate p r e s (c . fmap f)
   {-# INLINE fmap #-}

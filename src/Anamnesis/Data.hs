@@ -1,4 +1,7 @@
-module Anamnesis.Data where
+module Anamnesis.Data
+  ( AnamnExcept(..), AnamnResult(..)
+  , Env(..), State(..)
+  ) where
 -- data for the application monad
 import qualified Control.Monad.Logger as Logger
 import Artos.Queue
