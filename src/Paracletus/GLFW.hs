@@ -4,9 +4,10 @@ module Paracletus.GLFW where
 -- GLFW interfaces with paracletus
 import Prelude()
 import UPrelude
-import Control.Monad (unless)
+import Control.Monad (unless, forever)
 import qualified Graphics.UI.GLFW as GLFW
 import Anamnesis
+import Anamnesis.Init
 import Anamnesis.Foreign
 import Artos.Log
 import Artos.Queue
@@ -32,6 +33,9 @@ initGLFWWindow Vulkan w h n inputChan = do
           return window
 initGLFWWindow OpenGL _ _ _ _ = logExcept GLFWError "OpenGL not yet implemented"
 initGLFWWindow OpenGLES _ _ _ _ = logExcept GLFWError "OpenGLES not yet implemented"
+
+glfwWaitEventsMeanwhile ∷ Anamnesis' e s () → Anamnesis r e s ()
+glfwWaitEventsMeanwhile action = occupyThreadAndFork (liftIO $ forever $ GLFW.waitEventsTimeout 1.0) (action)
 
 keyCallback ∷ Queue Event → GLFW.Window → GLFW.Key → Int → GLFW.KeyState → GLFW.ModifierKeys → IO ()
 keyCallback tc win k sc ka mk = atomically $ writeQueue tc $ EventKey win k sc ka mk

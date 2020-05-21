@@ -1,10 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Anamnesis.Init where
 -- Anamnesis is initialized
+import Control.Concurrent
 import Control.Monad.Logger as Logger
-import Data.IORef (IORef, newIORef)
+import Data.IORef (IORef, newIORef, readIORef)
+import System.Exit
 import Anamnesis
 import Anamnesis.Data
+import Artos
 import Artos.Except
 import Artos.Queue
 import Artos.Var
@@ -25,3 +28,12 @@ initState = do
   atomically $ newTVar State { logFunc = lf }
 initRes ∷ IO (IORef AExcept)
 initRes = newIORef $ AExcept (Just AnamnSuccess) "" ""
+-- forks a new instance 
+occupyThreadAndFork ∷ Anamnesis r e s () → Anamnesis' e s () → Anamnesis r e s ()
+occupyThreadAndFork mainProg deputyProg = Anamnesis $ \ref env st c → do
+  mainThreadId ← myThreadId
+  threadRef ← newIORef =<< readIORef ref
+  _ ← Control.Concurrent.forkFinally (unAnamnate deputyProg threadRef env st pure >>= checkStatus) $ \case
+    Left exception → throwTo mainThreadId exception
+    Right ()       → throwTo mainThreadId ExitSuccess
+  unAnamnate mainProg ref env st c

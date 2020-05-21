@@ -22,4 +22,7 @@ runParacletus Vulkan = do
   vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
   vulkanSurface ← createSurface vulkanInstance window
   logDebug $ "createdSurface: " ⧺ show vulkanSurface
+  -- fork thread for GLFW
+  glfwWaitEventsMeanwhile $ do
+    logDebug $ "glfw thread begun..."
 runParacletus _ = logExcept ParacError $ "unsupported graphics layer..."
