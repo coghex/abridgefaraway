@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Anamnesis.Init where
 -- Anamnesis is initialized
 import Control.Monad.Logger as Logger

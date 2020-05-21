@@ -5,6 +5,23 @@ import qualified Control.Monad.Logger.CallStack as LoggerCS
 import Data.String (fromString)
 import GHC.Stack
 import Anamnesis
+-- debugging flags
+isDev ∷ Bool
+#ifdef DEVELOPMENT
+isDev = True
+#else
+isDev = False
+#endif
+{-# INLINE isDev #-}
+-- forces strict monadic application
+inDev ∷ Applicative m ⇒ m () → m ()
+#ifdef DEVELOPMENT
+inDev = id
+#else
+inDev = const (pure ())
+#endif
+{-# INLINE inDev #-}
+-- *** functions
 logDebug ∷ HasCallStack ⇒ String → Anamnesis r e s ()
 #ifdef DEVELOPMENT
 logDebug = LoggerCS.logDebug . fromString

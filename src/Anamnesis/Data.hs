@@ -8,8 +8,8 @@ import Artos.Queue
 data AnamnExcept = AnamnExcept
        { code ∷ Maybe AnamnResult
        , msg  ∷ String
-       } deriving (Show)
-data AnamnResult = AnamnSuccess | AnamnError deriving (Show)
+       } deriving (Show, Eq)
+data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
 -- the env holds pointers to shared
 -- memory, system specific static
 -- data, and any configuration that

@@ -11,7 +11,7 @@ import UPrelude
 -- msg contains a possible error
 -- message. exTy is the name of the
 -- module throwing the exception
-data AExcept = ∀ r. Show r ⇒ AExcept
+data AExcept = ∀ r. (Show r, Eq r) ⇒ AExcept
        { code ∷ Maybe r
        , msg  ∷ String
        , exTy ∷ String }

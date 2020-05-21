@@ -3,9 +3,9 @@ module Paracletus.Data
   , GraphicsLayer(..)
   ) where
 -- supported graphics layers
-data GraphicsLayer = Vulkan | OpenGL | OpenGLES deriving (Show)
+data GraphicsLayer = Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacExcept = ParacExcept
        { code ∷ Maybe ParacResult
        , msg  ∷ String
-       } deriving (Show)
-data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError deriving (Show)
+       } deriving (Show, Eq)
+data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError deriving (Show, Eq)
