@@ -8,4 +8,4 @@ data ParacExcept = ParacExcept
        { code ∷ Maybe ParacResult
        , msg  ∷ String
        } deriving (Show, Eq)
-data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError deriving (Show, Eq)
+data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)

@@ -11,6 +11,7 @@ import Paracletus.Data
 import Paracletus.Util
 import Paracletus.GLFW
 import Paracletus.Vulkan
+import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Surface
 -- a generic action is run in a
 -- MProg context, returning ()
@@ -25,4 +26,6 @@ runParacletus Vulkan = do
   -- fork thread for GLFW
   glfwWaitEventsMeanwhile $ do
     logDebug $ "glfw thread begun..."
+    (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
+    logDebug $ "selected physical device: " ⧺ show pdev
 runParacletus _ = logExcept ParacError $ "unsupported graphics layer..."
