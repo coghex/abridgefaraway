@@ -26,13 +26,15 @@ executable abfa
                    Anamnesis.Data
                    Anamnesis.Init
                    Anamnesis.Foreign
-                   Paracletus
                    Paracletus.Data
+                   Paracletus
                    Paracletus.GLFW
+                   Paracletus.TH
                    Paracletus.Util
                    Paracletus.Vulkan
                    Paracletus.Vulkan.Device
                    Paracletus.Vulkan.Foreign
+                   Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Surface
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing

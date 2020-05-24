@@ -13,6 +13,7 @@ import Paracletus.GLFW
 import Paracletus.Vulkan
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Surface
+import Paracletus.Vulkan.Shader
 -- a generic action is run in a
 -- MProg context, returning ()
 runParacletus ∷ GraphicsLayer → Anamnesis ret env state ()
@@ -28,4 +29,10 @@ runParacletus Vulkan = do
     logDebug $ "glfw thread begun..."
     (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
     logDebug $ "selected physical device: " ⧺ show pdev
+    (dev, queues) ← createGraphicsDevice pdev vulkanSurface
+    logDebug $ "created device: " ⧺ show dev
+    logDebug $ "created queues: " ⧺ show queues
+    (shaderVert, shaderFrag) ← makeShader dev
+    logDebug $ "created vertex shader module: " ⧺ show shaderVert
+    logDebug $ "created fragment shader module: " ⧺ show shaderFrag
 runParacletus _ = logExcept ParacError $ "unsupported graphics layer..."
