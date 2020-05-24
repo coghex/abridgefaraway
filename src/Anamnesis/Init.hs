@@ -1,6 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Anamnesis.Init where
 -- Anamnesis is initialized
+import Prelude()
+import UPrelude
 import Control.Concurrent
 import Control.Monad.Logger as Logger
 import Data.IORef (IORef, newIORef, readIORef)
@@ -32,8 +34,8 @@ initRes = newIORef $ AExcept (Just AnamnSuccess) "" ""
 occupyThreadAndFork ∷ Anamnesis r e s () → Anamnesis' e s () → Anamnesis r e s ()
 occupyThreadAndFork mainProg deputyProg = Anamnesis $ \ref env st c → do
   mainThreadId ← myThreadId
-  threadRef ← newIORef =<< readIORef ref
-  _ ← Control.Concurrent.forkFinally (unAnamnate deputyProg threadRef env st pure >>= checkStatus) $ \case
+  threadRef ← newIORef ⌫ readIORef ref
+  _ ← Control.Concurrent.forkFinally (unAnamnate deputyProg threadRef env st pure ⌦ checkStatus) $ \case
     Left exception → throwTo mainThreadId exception
     Right ()       → throwTo mainThreadId ExitSuccess
   unAnamnate mainProg ref env st c

@@ -43,6 +43,6 @@ createVulkanInstance progName engineName extensions layers' = allocResource dest
           &* set @"enabledExtensionCount" (fromIntegral $ length extensions)
           &* setListRef @"ppEnabledExtensionNames" extensions
 destroyVulkanInstance ∷ VkInstance → Anamnesis r e s ()
-destroyVulkanInstance vkInstance = liftIO (vkDestroyInstance vkInstance VK_NULL) >> inDev (logDebug "destroyed vkInstance")
+destroyVulkanInstance vkInstance = liftIO (vkDestroyInstance vkInstance VK_NULL) ≫ inDev (logDebug "destroyed vkInstance")
 defaultLayers ∷ [String]
 defaultLayers = ["VK_LAYER_LUNARG_standard_validation" | isDev]

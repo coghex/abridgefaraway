@@ -5,7 +5,6 @@ import Prelude ()
 import UPrelude
 import qualified Control.Concurrent.STM as STM
 import Data.Function ((&))
-import Data.Functor (($>))
 -- type synonyms for ease of use
 type MVar = STM.TMVar
 type TVar = STM.TVar
@@ -20,6 +19,6 @@ writeTVar = STM.writeTVar
 -- module i saw. strict,
 -- requires bangpatterns
 modifyTVar ∷ TVar a → (a → (a, b)) → STM.STM b
-modifyTVar ref f = STM.readTVar ref ⌦ \a → f a & \(!a', !b) → STM.writeTVar ref a' $> b
+modifyTVar ref f = STM.readTVar ref ⌦ \a → f a & \(!a', !b) → STM.writeTVar ref a' ⚞ b
 atomically ∷ STM.STM a → IO a
 atomically = STM.atomically

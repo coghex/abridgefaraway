@@ -36,7 +36,7 @@ data SwapchainSupportDetails = SwapchainSupportDetails
   } deriving (Eq, Show)
 selectGraphicsFamily ∷ [(Word32, VkQueueFamilyProperties)] → Anamnesis r e s (Word32, VkQueueFamilyProperties)
 selectGraphicsFamily [] = logExcept VulkanError "no graphics family found"
-selectGraphicsFamily (x@(_,qfp):xs) = if getField @"queueCount" qfp > 0 && getField @"queueFlags" qfp .&. VK_QUEUE_GRAPHICS_BIT /= zeroBits then pure x else selectGraphicsFamily xs
+selectGraphicsFamily (x@(_,qfp):xs) = if getField @"queueCount" qfp > 0 ∧ getField @"queueFlags" qfp ⌃ VK_QUEUE_GRAPHICS_BIT ≠ zeroBits then pure x else selectGraphicsFamily xs
 selectPresentationFamily ∷ VkPhysicalDevice → VkSurfaceKHR → [(Word32, VkQueueFamilyProperties)] → Anamnesis r e s (Word32, VkQueueFamilyProperties)
 selectPresentationFamily _ _ [] = logExcept VulkanError "no presentation family found"
 selectPresentationFamily dev surf (x@(i,qfp):xs)

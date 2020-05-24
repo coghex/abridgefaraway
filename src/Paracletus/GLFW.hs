@@ -18,9 +18,9 @@ import Paracletus.Util
 initGLFWWindow ∷ GraphicsLayer → Int → Int → String → Queue Event → Anamnesis r e s GLFW.Window
 initGLFWWindow Vulkan w h n inputChan = do
   allocResource
-    (\() → liftIO GLFW.terminate >> logInfo "terminated GLFW")
+    (\() → liftIO GLFW.terminate ≫ logInfo "terminated GLFW")
     (liftIO GLFW.init ⌦ flip unless (logExcept GLFWError "failed to init glfw"))
-  liftIO GLFW.getVersionString ⌦ mapM_ (logInfo . ("glfw version: " ⧺))
+  liftIO GLFW.getVersionString ⌦ mapM_ (logInfo ∘ ("glfw version: " ⧺))
   allocResource (\window → do
     liftIO (GLFW.destroyWindow window)
     logDebug "closed glfw window") $ do
