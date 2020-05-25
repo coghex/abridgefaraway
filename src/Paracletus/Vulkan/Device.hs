@@ -36,14 +36,14 @@ data SwapchainSupportDetails = SwapchainSupportDetails
   } deriving (Eq, Show)
 selectGraphicsFamily ∷ [(Word32, VkQueueFamilyProperties)] → Anamnesis r e s (Word32, VkQueueFamilyProperties)
 selectGraphicsFamily [] = logExcept VulkanError "no graphics family found"
-selectGraphicsFamily (x@(_,qfp):xs) = if getField @"queueCount" qfp > 0 ∧ getField @"queueFlags" qfp ⌃ VK_QUEUE_GRAPHICS_BIT ≠ zeroBits then pure x else selectGraphicsFamily xs
+selectGraphicsFamily (x@(_,qfp):xs) = if getField @"queueCount" qfp > 0 ∧ getField @"queueFlags" qfp ⌃ VK_QUEUE_GRAPHICS_BIT ≠ VK_ZERO_FLAGS then pure x else selectGraphicsFamily xs
 selectPresentationFamily ∷ VkPhysicalDevice → VkSurfaceKHR → [(Word32, VkQueueFamilyProperties)] → Anamnesis r e s (Word32, VkQueueFamilyProperties)
 selectPresentationFamily _ _ [] = logExcept VulkanError "no presentation family found"
 selectPresentationFamily dev surf (x@(i,qfp):xs)
   | getField @"queueCount" qfp <= 0 = selectGraphicsFamily xs
   | otherwise = do
     supported ← allocaPeek $ runVk . vkGetPhysicalDeviceSurfaceSupportKHR dev i surf
-    if (supported == VK_TRUE) then pure x else selectPresentationFamily dev surf xs
+    if (supported ≡ VK_TRUE) then pure x else selectPresentationFamily dev surf xs
 pickPhysicalDevice ∷ VkInstance → Maybe VkSurfaceKHR → Anamnesis r e s (Maybe SwapchainSupportDetails, VkPhysicalDevice)
 pickPhysicalDevice vkInstance mVkSurf = do
   devs ← asListVk $ \x → runVk . vkEnumeratePhysicalDevices vkInstance x
@@ -63,10 +63,10 @@ isDeviceSuitable mVkSurf pdev = do
       | not extsGood → pure (Nothing, True)
       | otherwise → do
       scsd@SwapchainSupportDetails {..} ← querySwapchainSupport pdev vkSurf
-      return (Just scsd, not (null formats) && not (null presentModes))
+      return (Just scsd, not (null formats) ∧ not (null presentModes))
   supportedFeatures ← allocaPeek $ liftIO . vkGetPhysicalDeviceFeatures pdev
   let supportsAnisotropy = getField @"samplerAnisotropy" supportedFeatures ≡ VK_TRUE
-  pure (mscsd, extsGood && surfGood && supportsAnisotropy)
+  pure (mscsd, extsGood ∧ surfGood ∧ supportsAnisotropy)
 checkDeviceExtensionSupport ∷ VkPhysicalDevice → [CString] → Anamnesis r e s Bool
 checkDeviceExtensionSupport pdev extensions = do
   reqExts ← liftIO $ mapM peekCString extensions
@@ -87,7 +87,7 @@ getMaxUsableSampleCount pdev = do
       depthSampleCounts = getField @"framebufferDepthSampleCounts" limits
       counts = min colorSampleCounts depthSampleCounts
       splitCounts = filter ((≠ VK_ZERO_FLAGS) . (counts .&.)) [ VK_SAMPLE_COUNT_64_BIT, VK_SAMPLE_COUNT_32_BIT, VK_SAMPLE_COUNT_16_BIT, VK_SAMPLE_COUNT_8_BIT, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_2_BIT, VK_SAMPLE_COUNT_1_BIT ]
-      highestCount = head $ splitCounts >>= maskToBits
+      highestCount = head $ splitCounts ⌦ maskToBits
   return highestCount
 getQueueFamilies ∷ VkPhysicalDevice → Anamnesis r e s [(Word32, VkQueueFamilyProperties)]
 getQueueFamilies pdev = do
@@ -106,7 +106,7 @@ createGraphicsDevice pdev surf
   let qcInfoMap = flip fmap qFamIndices $ \qFamIdx → createVk @VkDeviceQueueCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
         &* set @"pNext" VK_NULL
-        &* set @"flags" VK_ZERO_FLAGS
+        &* set @"flags" zeroBits
         &* set @"queueFamilyIndex" qFamIdx
         &* set @"queueCount" 1
         &* setListRef @"pQueuePriorities" [1.0]
@@ -115,7 +115,7 @@ createGraphicsDevice pdev surf
       devCreateInfo = createVk @VkDeviceCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
         &* set @"pNext" VK_NULL
-        &* set @"flags" VK_ZERO_FLAGS
+        &* set @"flags" zeroBits
         &* setListRef @"pQueueCreateInfos" (Map.elems qcInfoMap)
         &* set @"queueCreateInfoCount" (fromIntegral $ Map.size qcInfoMap)
         &* set @"enabledLayerCount" (fromIntegral $ length layers)
@@ -133,4 +133,13 @@ createGraphicsDevice pdev surf
               <*> Just gFamIdx
               <*> Just pFamIdx
   return (dev, mdevQueues)
-
+-- helper
+--maskToBits ∷ (Bits (x FlagMask), Coercible (x FlagBit) (x FlagMask)) ⇒ x FlagMask → [x FlagBit]
+--maskToBits x = go (popCount x) (bit 0)
+--  where zero   = zeroBits
+--        go 0 _ = []
+--        go n i = let b = i ⌃ x
+--                     i' = unsafeShiftL i 1
+--                 in if b ≡ zero
+--                    then go n i'
+--                    else coerce b : go (n-1) i'

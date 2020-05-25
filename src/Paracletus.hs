@@ -11,6 +11,7 @@ import Paracletus.Data
 import Paracletus.Util
 import Paracletus.GLFW
 import Paracletus.Vulkan
+import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Surface
 import Paracletus.Vulkan.Shader
@@ -29,10 +30,60 @@ runParacletus Vulkan = do
     logDebug $ "glfw thread begun..."
     (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
     logDebug $ "selected physical device: " ⧺ show pdev
+    msaaSamples ← getMaxUsableSampleCount pdev
     (dev, queues) ← createGraphicsDevice pdev vulkanSurface
     logDebug $ "created device: " ⧺ show dev
     logDebug $ "created queues: " ⧺ show queues
     (shaderVert, shaderFrag) ← makeShader dev
     logDebug $ "created vertex shader module: " ⧺ show shaderVert
     logDebug $ "created fragment shader module: " ⧺ show shaderFrag
-runParacletus _ = logExcept ParacError $ "unsupported graphics layer..."
+    commandPool ← createCommandPool dev queues
+    logDebug $ "created command pool: " ⧺ show commandPool
+--    vertexBuffer ← pdev dev commandPool (graphicsQueue queues) vertices
+--    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
+--    descriptorSetLayout ← createDescriptorSetLayout dev
+--    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
+--    texturePath = "dat/tex/texture.jpg"
+--    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
+--    textureSampler ← createTextureSampler dev mipLevels
+--    descriptorTextureInfo ← textureImageInfo textureView textureSampler
+--    depthFormat ← findDepthFormat
+--    loop $ do
+--      logDebug $ "creating new swapchain..."
+--      scsd ← querySwapchainSupport pdev vulkanSurface
+--      swapInfo ← createSwapchain dev scsd queues vulkanSurface
+--      let swapchainLen = length $ swapImgs swapInfo
+--      (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
+--      descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+--      descriptorPool ← createDescriptorPool dev swapchainLen
+--      descriptorSetLayout ← newArrayRes $ replicate swapchainLen descriptorSetLayout
+--      descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
+--      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
+--      transObjMemories ← newArrayRes transObjMems
+--      imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
+--      logDebug $ "created image views " ⧺ show imgViews
+--
+--      renderPass ← createRenderPass dev swapInfo depthFormat msaaSamples
+--      logDebug $ "created renderpass: " ⧺ show renderPass
+--      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass pipelineLayout msaaSamples
+--      logDebug $ "created pipeline: " ⧺ show graphicsPipeline
+--      colorAttImgView ← createColorAttImgView pdev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
+--      depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
+--      framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
+--      logDebug $ "created framebuffers: " ⧺ show framebuffers
+--      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout commandPool vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
+--      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
+--      logDebug $ " created commandBuffers: " ⧺ show cmdBuffers
+--      shouldExit ← glfwMainLoop window $ do
+--        --logic
+--        needRecreation ← drawFrame rdata `catchError` ( \err@(VulkanException ecode _) → case ecode of
+--          Just VK_ERROR_OUT_OF_DATE_KHR → do
+--            logError $ "vulkan khr out of date"
+--            return True
+--          _ → throwError err
+--        )
+--        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
+--      runVk $ vkDeviceWaitIdle dev
+--      return $ if shouldExit then AbortLoop else ContinueLoop
+  return ()
+runParacletus _ = logExcept ParacError $ "unsuzzpported graphics layer..."

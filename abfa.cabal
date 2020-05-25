@@ -32,22 +32,28 @@ executable abfa
                    Paracletus.TH
                    Paracletus.Util
                    Paracletus.Vulkan
+                   Paracletus.Vulkan.Command
                    Paracletus.Vulkan.Device
                    Paracletus.Vulkan.Foreign
                    Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Surface
+                   Paracletus.Vulkan.Sync
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
     build-depends: base
                  , mtl
                  , stm
                  , monad-logger
+                 , time
                  , containers
                  , process
                  , filepath
                  , directory
                  , GLFW-b
-                 , vulkan-api
+                 , vulkan-api >= 1.3
+                 , easytensor
+                 , easytensor-vulkan
+                 , JuicyPixels
                  , template-haskell
                  , base-unicode-symbols
                  , containers-unicode-symbols
