@@ -11,6 +11,7 @@ import Foreign.Storable (Storable)
 import qualified Foreign.Storable as Storable
 import GHC.Stack
 import Graphics.Vulkan.Core_1_0
+import Graphics.Vulkan.Marshal
 import Anamnesis
 import Anamnesis.Foreign
 import Artos.Except
@@ -29,7 +30,7 @@ allocaPeekVk ∷ VulkanMarshal a ⇒ (Ptr a → Anamnesis () e s ()) → Anamnes
 allocaPeekVk pf = Anamnesis $ \ref env st c → do
   locVar ← liftIO newEmptyMVar
   a ← newVkData (\ptr → unAnamnate (pf ptr) ref env st (putMVar locVar))
-  takeMVar locVar ⌦ c . (a <$)
+  takeMVar locVar ⌦ c ∘ (a ⚟)
 asListVk ∷ Storable x ⇒ (Ptr Word32 → Ptr x → Anamnesis (Either AExcept [x]) e s ()) → Anamnesis r e s [x]
 asListVk action = alloca $ \counterPtr → do
   action counterPtr VK_NULL_HANDLE
@@ -37,3 +38,10 @@ asListVk action = alloca $ \counterPtr → do
   if counter <= 0 then pure [] else allocaArray counter $ \valPtr → do
     action counterPtr valPtr
     liftIO $ Foreign.peekArray counter valPtr
+withVkArrayLen ∷ (Storable a, VulkanMarshal a) ⇒ [a] → (Word32 → Ptr a → Anamnesis' e s b) → Anamnesis r e s b
+withVkArrayLen xs pf = liftIOWith (withArrayLen xs ∘ curry) (uncurry pf)
+withArrayLen ∷ (Storable a, VulkanMarshal a) ⇒ [a] → (Word32 → Ptr a → IO b) → IO b
+withArrayLen xs pf = do
+  ret ← Foreign.withArrayLen xs (pf ∘ fromIntegral)
+  touch xs
+  return ret

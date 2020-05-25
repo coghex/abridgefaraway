@@ -32,7 +32,9 @@ executable abfa
                    Paracletus.TH
                    Paracletus.Util
                    Paracletus.Vulkan
+                   Paracletus.Vulkan.Buffer
                    Paracletus.Vulkan.Command
+                   Paracletus.Vulkan.Desc
                    Paracletus.Vulkan.Device
                    Paracletus.Vulkan.Foreign
                    Paracletus.Vulkan.Shader
@@ -81,6 +83,7 @@ executable abfa
                         KindSignatures
                         LiberalTypeSynonyms
                         MonoLocalBinds
+                        MultiParamTypeClasses
                         NamedFieldPuns
                         PatternSynonyms
                         PolyKinds

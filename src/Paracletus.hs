@@ -4,15 +4,18 @@ module Paracletus where
 import Prelude()
 import UPrelude
 import Control.Monad.Reader.Class (asks)
+import GHC.Word (Word32)
+import Numeric.DataFrame
 import Artos.Log
 import Anamnesis
 import Anamnesis.Data
-import Numeric.DataFrame
 import Paracletus.Data
 import Paracletus.Util
 import Paracletus.GLFW
 import Paracletus.Vulkan
+import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
+import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Surface
 import Paracletus.Vulkan.Shader
@@ -41,9 +44,10 @@ runParacletus Vulkan = do
     logDebug $ "created fragment shader module: " ⧺ show shaderFrag
     commandPool ← createCommandPool dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
---    vertexBuffer ← pdev dev commandPool (graphicsQueue queues) vertices
---    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
---    descriptorSetLayout ← createDescriptorSetLayout dev
+    vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
+    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
+    descriptorSetLayout ← createDescriptorSetLayout dev
+    logDebug $ "blop blop"
 --    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
 --    texturePath = "dat/tex/texture.jpg"
 --    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
@@ -100,3 +104,6 @@ vertices = XFrame $ square `appendDF` withPos (+ vec4 0 0 0.5 0) square `appendD
           , Vertex (vec3 (-0.5)   0.4  0) (vec3 1 1 1) (vec2 0 1) ]
         withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
+indices ∷ DataFrame Word32 '[XN 3]
+indices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
+  where oneRectIndices = [0,3,2,2,1,0]
