@@ -7,6 +7,7 @@ import Control.Monad.Reader.Class (asks)
 import Artos.Log
 import Anamnesis
 import Anamnesis.Data
+import Numeric.DataFrame
 import Paracletus.Data
 import Paracletus.Util
 import Paracletus.GLFW
@@ -15,6 +16,7 @@ import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Surface
 import Paracletus.Vulkan.Shader
+import Paracletus.Vulkan.Vertex
 -- a generic action is run in a
 -- MProg context, returning ()
 runParacletus ∷ GraphicsLayer → Anamnesis ret env state ()
@@ -87,3 +89,14 @@ runParacletus Vulkan = do
 --      return $ if shouldExit then AbortLoop else ContinueLoop
   return ()
 runParacletus _ = logExcept ParacError $ "unsuzzpported graphics layer..."
+-- placeholder helper functions
+vertices ∷ DataFrame Vertex '[XN 3]
+vertices = XFrame $ square `appendDF` withPos (+ vec4 0 0 0.5 0) square `appendDF` withPos (\p → p %* rotateX (π/2) + vec4 0 0 (-0.5) 0) square
+  where square ∷ Vector Vertex 4
+        square = fromFlatList (D4 :* U) (Vertex 0 0 0)
+          [ Vertex (vec3 (-0.5) (-0.5) 0) (vec3 1 0 0) (vec2 0 0)
+          , Vertex (vec3   0.4  (-0.5) 0) (vec3 0 1 0) (vec2 1 0)
+          , Vertex (vec3   0.4    0.4  0) (vec3 0 0 1) (vec2 1 1)
+          , Vertex (vec3 (-0.5)   0.4  0) (vec3 1 1 1) (vec2 0 1) ]
+        withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
+        withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })

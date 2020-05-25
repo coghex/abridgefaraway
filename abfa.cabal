@@ -38,6 +38,7 @@ executable abfa
                    Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Surface
                    Paracletus.Vulkan.Sync
+                   Paracletus.Vulkan.Vertex
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
     build-depends: base
@@ -46,6 +47,7 @@ executable abfa
                  , monad-logger
                  , time
                  , containers
+                 , dimensions
                  , process
                  , filepath
                  , directory
@@ -54,10 +56,12 @@ executable abfa
                  , easytensor
                  , easytensor-vulkan
                  , JuicyPixels
+                 , wavefront
                  , template-haskell
                  , base-unicode-symbols
                  , containers-unicode-symbols
-    default-extensions: ExplicitForAll
+    default-extensions: DataKinds
+                        ExplicitForAll
                         FlexibleInstances
                         LambdaCase
                         MagicHash
@@ -70,13 +74,13 @@ executable abfa
     other-extensions:   AllowAmbiguousTypes
                         BangPatterns
                         CPP
-                        DataKinds
                         DeriveGeneric
                         ExistentialQuantification
                         FlexibleContexts
                         GADTs
                         KindSignatures
                         LiberalTypeSynonyms
+                        MonoLocalBinds
                         NamedFieldPuns
                         PatternSynonyms
                         PolyKinds
