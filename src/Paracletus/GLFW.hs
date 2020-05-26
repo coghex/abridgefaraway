@@ -7,6 +7,7 @@ import UPrelude
 import Control.Monad (unless, forever)
 import qualified Graphics.UI.GLFW as GLFW
 import Anamnesis
+import Anamnesis.Data
 import Anamnesis.Init
 import Anamnesis.Foreign
 import Artos.Log
@@ -14,6 +15,16 @@ import Artos.Queue
 import Artos.Var
 import Paracletus.Data
 import Paracletus.Util
+
+-- glfw loop remembers to close window
+glfwMainLoop ∷ GLFW.Window → Anamnesis' e s LoopControl → Anamnesis r e s Bool
+glfwMainLoop w action = go
+  where go = do
+          should ← liftIO $ GLFW.windowShouldClose w
+          if not should then do
+            status ← locally action
+            if status ≡ ContinueLoop then go else return False
+          else return True
 
 initGLFWWindow ∷ GraphicsLayer → Int → Int → String → Queue Event → Anamnesis r e s GLFW.Window
 initGLFWWindow Vulkan w h n inputChan = do

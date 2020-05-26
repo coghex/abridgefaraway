@@ -48,8 +48,14 @@ allocaPeek ∷ Storable a ⇒ (Ptr a → Anamnesis (Either AExcept a) e s ()) �
 allocaPeek f = alloca $ \ptr → f ptr ≫ liftIO (Storable.peek ptr)
 allocaArray ∷ Storable a ⇒ Int → (Ptr a → Anamnesis' e s b) → Anamnesis r e s b
 allocaArray = liftIOWith . Foreign.allocaArray
+mallocRes ∷ Storable a ⇒ Anamnesis r e s (Ptr a)
+mallocRes = Anamnesis $ \_ _ _ c → Foreign.alloca (c ∘ Right)
 newArrayRes ∷ Storable a ⇒ [a] → Anamnesis r e s (Ptr a)
 newArrayRes xs = Anamnesis $ \_ _ _ c → Foreign.withArray xs (c . Right)
+mallocArrayRes ∷ Storable a ⇒ Int → Anamnesis r e s (Ptr a)
+mallocArrayRes n = Anamnesis $ \_ _ _ c → Foreign.allocaArray n (c ∘ Right)
+ptrAtIndex ∷ ∀ a. Storable a ⇒ Ptr a → Int → Ptr a
+ptrAtIndex ptr i = ptr `plusPtr` (i * Storable.sizeOf @a undefined)
 -- functions to help with pointers
 allocResource ∷ (a → Anamnesis' e s ()) → Anamnesis r e s a → Anamnesis r e s a
 allocResource free alloc = Anamnesis $ \ret env st c →

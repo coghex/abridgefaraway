@@ -3,12 +3,19 @@ module Paracletus where
 -- a GLFW instance is begun
 import Prelude()
 import UPrelude
+import Control.Monad (forM_)
 import Control.Monad.Reader.Class (asks)
+import Data.IORef (newIORef)
+import qualified Graphics.Vulkan.Core_1_0 as VK
+import qualified Graphics.Vulkan.Ext.VK_KHR_swapchain as VK
 import GHC.Word (Word32)
 import Numeric.DataFrame
+import Artos.Except
 import Artos.Log
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Foreign
+import Anamnesis.Init
 import Paracletus.Data
 import Paracletus.Util
 import Paracletus.GLFW
@@ -17,10 +24,13 @@ import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Device
+import Paracletus.Vulkan.Draw
+import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Pipeline
-import Paracletus.Vulkan.Surface
+import Paracletus.Vulkan.Pres
 import Paracletus.Vulkan.Shader
 import Paracletus.Vulkan.Texture
+import Paracletus.Vulkan.Trans
 import Paracletus.Vulkan.Vertex
 -- a generic action is run in a
 -- MProg context, returning ()
@@ -44,55 +54,71 @@ runParacletus Vulkan = do
     (shaderVert, shaderFrag) ← makeShader dev
     logDebug $ "created vertex shader module: " ⧺ show shaderVert
     logDebug $ "created fragment shader module: " ⧺ show shaderFrag
+    frameIndexRef ← liftIO $ newIORef 0
+    renderFinishedSems ← createFrameSemaphores dev
+    imageAvailableSems ← createFrameSemaphores dev
+    inFlightFences ← createFrameFences dev
     commandPool ← createCommandPool dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
+    imgIndexPtr ← mallocRes
     vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     let texturePath = "dat/tex/texture.jpg"
     (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
---    textureSampler ← createTextureSampler dev mipLevels
---    descriptorTextureInfo ← textureImageInfo textureView textureSampler
---    depthFormat ← findDepthFormat
---    loop $ do
---      logDebug $ "creating new swapchain..."
---      scsd ← querySwapchainSupport pdev vulkanSurface
---      swapInfo ← createSwapchain dev scsd queues vulkanSurface
---      let swapchainLen = length $ swapImgs swapInfo
---      (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
---      descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
---      descriptorPool ← createDescriptorPool dev swapchainLen
---      descriptorSetLayout ← newArrayRes $ replicate swapchainLen descriptorSetLayout
---      descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
---      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
---      transObjMemories ← newArrayRes transObjMems
---      imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
---      logDebug $ "created image views " ⧺ show imgViews
---
---      renderPass ← createRenderPass dev swapInfo depthFormat msaaSamples
---      logDebug $ "created renderpass: " ⧺ show renderPass
---      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass pipelineLayout msaaSamples
---      logDebug $ "created pipeline: " ⧺ show graphicsPipeline
---      colorAttImgView ← createColorAttImgView pdev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
---      depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
---      framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
---      logDebug $ "created framebuffers: " ⧺ show framebuffers
---      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout commandPool vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
---      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
---      logDebug $ " created commandBuffers: " ⧺ show cmdBuffers
---      shouldExit ← glfwMainLoop window $ do
---        --logic
---        needRecreation ← drawFrame rdata `catchError` ( \err@(VulkanException ecode _) → case ecode of
---          Just VK_ERROR_OUT_OF_DATE_KHR → do
---            logError $ "vulkan khr out of date"
---            return True
---          _ → throwError err
---        )
---        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
---      runVk $ vkDeviceWaitIdle dev
---      return $ if shouldExit then AbortLoop else ContinueLoop
-    logDebug $ "blop blop"
+    textureSampler ← createTextureSampler dev mipLevels
+    descriptorTextureInfo ← textureImageInfo textureView textureSampler
+    depthFormat ← findDepthFormat pdev
+    loop $ do
+      logDebug $ "creating new swapchain..."
+      scsd ← querySwapchainSupport pdev vulkanSurface
+      swapInfo ← createSwapchain dev scsd queues vulkanSurface
+      let swapchainLen = length $ swapImgs swapInfo
+      (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
+      descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+      descriptorPool ← createDescriptorPool dev swapchainLen
+      descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
+      descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
+      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
+      transObjMemories ← newArrayRes transObjMems
+      imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK.VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
+      logDebug $ "created image views " ⧺ show imgViews
+
+      renderPass ← createRenderPass dev swapInfo depthFormat msaaSamples
+      logDebug $ "created renderpass: " ⧺ show renderPass
+      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass pipelineLayout msaaSamples
+      logDebug $ "created pipeline: " ⧺ show graphicsPipeline
+      colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
+      depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
+      framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
+      logDebug $ "created framebuffers: " ⧺ show framebuffers
+      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
+      let rdata = RenderData { dev
+                             , swapInfo
+                             , queues
+                             , imgIndexPtr
+                             , frameIndexRef
+                             , renderFinishedSems
+                             , imageAvailableSems
+                             , inFlightFences
+                             , cmdBuffersPtr
+                             , memories = transObjMemories
+                             , memoryMutator = updateTransObj dev $ swapExtent swapInfo }
+
+      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
+      logDebug $ " created commandBuffers: " ⧺ show cmdBuffers
+      shouldExit ← glfwMainLoop window $ do
+        --logic
+        needRecreation ← drawFrame rdata `catchError` ( \err → case (testEx err VK.VK_ERROR_OUT_OF_DATE_KHR) of
+          True → do
+            _ <- logExcept VulkanError "vulkan khr out of date"
+            return True
+          _    → logExcept VulkanError "unknown drawFrame error"
+          )
+        return $ if needRecreation then AbortLoop else ContinueLoop
+      runVk $ VK.vkDeviceWaitIdle dev
+      return $ if shouldExit then AbortLoop else ContinueLoop
   return ()
 runParacletus _ = logExcept ParacError $ "unsuzzpported graphics layer..."
 -- placeholder helper functions

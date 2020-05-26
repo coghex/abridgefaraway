@@ -9,6 +9,7 @@ import Data.IORef (IORef, newIORef, readIORef)
 import System.Exit
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Foreign
 import Artos
 import Artos.Except
 import Artos.Queue
@@ -27,7 +28,8 @@ initEnv = do
 initState ∷ IO (TVar State)
 initState = do
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
-  atomically $ newTVar State { logFunc = lf }
+  atomically $ newTVar State { currentStatus = AExcept (Just AnamnSuccess) "" ""
+                             , logFunc       = lf }
 initRes ∷ IO (IORef AExcept)
 initRes = newIORef $ AExcept (Just AnamnSuccess) "" ""
 -- forks a new instance 
@@ -39,3 +41,8 @@ occupyThreadAndFork mainProg deputyProg = Anamnesis $ \ref env st c → do
     Left exception → throwTo mainThreadId exception
     Right ()       → throwTo mainThreadId ExitSuccess
   unAnamnate mainProg ref env st c
+-- loops an action locally
+loop ∷ Anamnesis' e s LoopControl → Anamnesis r e s ()
+loop action = do
+  status ← locally action
+  if status ≡ ContinueLoop then loop action else return ()

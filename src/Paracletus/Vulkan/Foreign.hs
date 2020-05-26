@@ -11,7 +11,6 @@ import Foreign.Storable (Storable)
 import qualified Foreign.Storable as Storable
 import GHC.Stack
 import Graphics.Vulkan.Core_1_0
-import Graphics.Vulkan.Marshal
 import Anamnesis
 import Anamnesis.Foreign
 import Artos.Except

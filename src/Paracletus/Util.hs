@@ -8,5 +8,5 @@ import Artos.Except
 import Anamnesis
 -- this will kill everything as it
 -- prints, use logError to just print
-logExcept ∷ (Show res, Eq res) ⇒ HasCallStack ⇒ res → String → Anamnesis r e s a
+logExcept ∷ (Exceptable res) ⇒ HasCallStack ⇒ res → String → Anamnesis r e s a
 logExcept res msg = throwError $ AExcept (Just res) (msg ⧺ "\n" ⧺ prettyCallStack callStack) "paracletus"

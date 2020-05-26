@@ -59,7 +59,7 @@ chooseSwapExtent SwapchainSupportDetails {..} = createVk @VkExtent2D
         eh = getField @"height"
 
 data SwapchainInfo = SwapchainInfo
-  { swapChain     ∷ VkSwapchainKHR
+  { swapchain     ∷ VkSwapchainKHR
   , swapImgs      ∷ [VkImage]
   , swapImgFormat ∷ VkFormat
   , swapExtent    ∷ VkExtent2D
@@ -103,7 +103,7 @@ createSwapchain dev scsd queues surf = do
     (\swapchain → liftIO $ vkDestroySwapchainKHR dev swapchain VK_NULL) $
     withVkPtr swCreateInfo $ \swciPtr → allocaPeek $ runVk ∘ vkCreateSwapchainKHR dev swciPtr VK_NULL
   swapImgs ← asListVk $ \x → runVk ∘ vkGetSwapchainImagesKHR dev swapchain x
-  return SwapchainInfo { swapChain     = swapchain
+  return SwapchainInfo { swapchain     = swapchain
                        , swapImgs      = swapImgs
                        , swapImgFormat = getField @"format" surfFmt
                        , swapExtent    = sExtent }

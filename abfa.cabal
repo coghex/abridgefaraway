@@ -36,13 +36,14 @@ executable abfa
                    Paracletus.Vulkan.Command
                    Paracletus.Vulkan.Desc
                    Paracletus.Vulkan.Device
+                   Paracletus.Vulkan.Draw
                    Paracletus.Vulkan.Foreign
                    Paracletus.Vulkan.Pipeline
                    Paracletus.Vulkan.Pres
                    Paracletus.Vulkan.Shader
-                   Paracletus.Vulkan.Surface
                    Paracletus.Vulkan.Sync
                    Paracletus.Vulkan.Texture
+                   Paracletus.Vulkan.Trans
                    Paracletus.Vulkan.Vertex
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
@@ -71,6 +72,7 @@ executable abfa
                         LambdaCase
                         MagicHash
                         MultiWayIf
+                        NamedFieldPuns
                         NegativeLiterals
                         RecordWildCards
                         ScopedTypeVariables
@@ -78,16 +80,17 @@ executable abfa
                         UnicodeSyntax
     other-extensions:   AllowAmbiguousTypes
                         BangPatterns
+                        ConstraintKinds
                         CPP
                         DeriveGeneric
                         ExistentialQuantification
                         FlexibleContexts
                         GADTs
+                        InstanceSigs
                         KindSignatures
                         LiberalTypeSynonyms
                         MonoLocalBinds
                         MultiParamTypeClasses
-                        NamedFieldPuns
                         PatternSynonyms
                         PolyKinds
                         RankNTypes
