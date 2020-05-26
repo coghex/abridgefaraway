@@ -10,7 +10,6 @@ module Artos.Except
 import Prelude()
 import UPrelude
 import Control.Exception (Exception, displayException)
-import Data.Typeable (Typeable)
 import Type.Reflection
 -- exceptions contain possibly a
 -- code, and two strings. the
