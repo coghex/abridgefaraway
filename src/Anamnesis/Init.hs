@@ -19,16 +19,19 @@ runAnamnesis ∷ (Either AExcept a → IO r) → Anamnesis r e s a → IO r
 runAnamnesis c p = do
   res ← initRes
   env ← initEnv
-  st  ← initState
+  st  ← initState res
   unAnamnate p res env st c
 initEnv ∷ IO (TVar Env)
 initEnv = do
   newQ ← newQueue
   atomically $ newTVar Env { envEventsChan = newQ }
-initState ∷ IO (TVar State)
-initState = do
+-- this keeps a copy of the result,
+-- a waste, but it is better than a
+-- whole new state monad just for ret
+initState ∷ (IORef AExcept) → IO (TVar State)
+initState ref = do
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
-  atomically $ newTVar State { currentStatus = AExcept (Just AnamnSuccess) "" ""
+  atomically $ newTVar State { currentStatus = ref
                              , logFunc       = lf }
 initRes ∷ IO (IORef AExcept)
 initRes = newIORef $ AExcept (Just AnamnSuccess) "" ""

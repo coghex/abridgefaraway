@@ -145,5 +145,6 @@ drawFrame RenderData{..} = do
   liftIO $ writeIORef frameIndexRef $ (frameIndex + 1) `mod` _MAX_FRAMES_IN_FLIGHT
   withVkPtr presentInfo $ runVk ∘ vkQueuePresentKHR presentQueue
   st ← get
-  return $ testEx (currentStatus st) VK_SUBOPTIMAL_KHR
+  status ← liftIO $ readIORef $ currentStatus st
+  return $ testEx status VK_SUBOPTIMAL_KHR
   --(≡ VK_SUBOPTIMAL_KHR) ∘ currentStatus ⊚ get
