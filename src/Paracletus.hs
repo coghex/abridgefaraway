@@ -20,6 +20,7 @@ import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Pipeline
 import Paracletus.Vulkan.Surface
 import Paracletus.Vulkan.Shader
+import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Vertex
 -- a generic action is run in a
 -- MProg context, returning ()
@@ -49,8 +50,8 @@ runParacletus Vulkan = do
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
---    texturePath = "dat/tex/texture.jpg"
---    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
+    let texturePath = "dat/tex/texture.jpg"
+    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
 --    textureSampler ← createTextureSampler dev mipLevels
 --    descriptorTextureInfo ← textureImageInfo textureView textureSampler
 --    depthFormat ← findDepthFormat

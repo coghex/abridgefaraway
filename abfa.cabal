@@ -42,6 +42,7 @@ executable abfa
                    Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Surface
                    Paracletus.Vulkan.Sync
+                   Paracletus.Vulkan.Texture
                    Paracletus.Vulkan.Vertex
     default-language: Haskell2010
     ghc-options: -O2 -fexcess-precision -threaded -eventlog -rtsopts -feager-blackholing
@@ -57,10 +58,10 @@ executable abfa
                  , directory
                  , GLFW-b
                  , vulkan-api >= 1.3
+                 , vector
                  , easytensor
                  , easytensor-vulkan
                  , JuicyPixels
-                 , wavefront
                  , template-haskell
                  , base-unicode-symbols
                  , containers-unicode-symbols
