@@ -17,6 +17,7 @@ import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Device
+import Paracletus.Vulkan.Pipeline
 import Paracletus.Vulkan.Surface
 import Paracletus.Vulkan.Shader
 import Paracletus.Vulkan.Vertex
@@ -47,8 +48,7 @@ runParacletus Vulkan = do
     vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
-    logDebug $ "blop blop"
---    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
+    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
 --    texturePath = "dat/tex/texture.jpg"
 --    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
 --    textureSampler ← createTextureSampler dev mipLevels
@@ -91,6 +91,7 @@ runParacletus Vulkan = do
 --        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
 --      runVk $ vkDeviceWaitIdle dev
 --      return $ if shouldExit then AbortLoop else ContinueLoop
+    logDebug $ "blop blop"
   return ()
 runParacletus _ = logExcept ParacError $ "unsuzzpported graphics layer..."
 -- placeholder helper functions
