@@ -5,7 +5,8 @@ module Anamnesis
   , MonadIO(..), MonadError(..)
   , MonadReader(..), MonadState(..)
   ) where
--- the application monad is defined
+-- the application is defined
+-- as a continuation monad
 import UPrelude
 import Control.Monad.IO.Class
 import Control.Monad.Error.Class

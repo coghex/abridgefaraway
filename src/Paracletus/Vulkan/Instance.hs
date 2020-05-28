@@ -4,7 +4,6 @@ module Paracletus.Vulkan.Instance where
 import Prelude()
 import UPrelude
 import Foreign.C.String (peekCString)
-import qualified Graphics.UI.GLFW as GLFW
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Marshal.Create
@@ -12,6 +11,7 @@ import Anamnesis
 import Anamnesis.Foreign
 import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
+import qualified Paracletus.Oblatum.GLFW as GLFW
 -- vulkan gets instantiated from GLFW
 createVulkanInstance ∷ String → String → [CString] → [String] → Anamnesis ε σ VkInstance
 createVulkanInstance progName engineName extensions layers' = allocResource destroyVulkanInstance $ do

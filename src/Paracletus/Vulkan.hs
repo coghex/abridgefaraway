@@ -9,12 +9,14 @@ import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Event
 import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
 import Paracletus.Data
-import Paracletus.GLFW
+import Paracletus.Oblatum
+import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
@@ -106,6 +108,7 @@ runParacVulkan = do
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
         -- logic
+        liftIO $ GLFW.pollEvents
         needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
           -- when khr out of date,
           -- recreate swapchain
@@ -116,6 +119,8 @@ runParacVulkan = do
           -- _    → logExcept err ExParacletus "unknown drawFrame error" )
         sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
         when sizeChanged $ logDebug "glfw window size callback"
+        -- this is for key input
+        processEvents
         return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
       -- loop ends, now deallocate
       runVk $ vkDeviceWaitIdle dev

@@ -35,7 +35,8 @@ initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   atomically $ newTVar State { status  = ref
-                             , logFunc = lf }
+                             , logFunc = lf
+                             , window  = Nothing }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

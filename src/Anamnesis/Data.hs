@@ -4,6 +4,7 @@ module Anamnesis.Data where
 import qualified Control.Monad.Logger as Logger
 import Artos.Except
 import Artos.Queue
+import qualified Paracletus.Oblatum.GLFW as GLFW
 -- possible results of anamnesis
 -- specific utility actions
 data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
@@ -14,4 +15,5 @@ data Env = Env { envEventsChan ∷ Queue Event }
 -- state holds mutable data, and the
 -- current status of the whole App
 data State = State { status  ∷ AExcept
-                   , logFunc ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO () }
+                   , logFunc ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
+                   , window  ∷ Maybe GLFW.Window }

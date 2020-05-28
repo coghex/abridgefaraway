@@ -1,24 +1,31 @@
 {-# LANGUAGE Strict #-}
-module Paracletus.GLFW where
+module Paracletus.Oblatum where
+-- the input side of GLFW is handled
 import Prelude()
 import UPrelude
 import Control.Monad (when, unless, forever)
-import Graphics.UI.GLFW (ClientAPI(..), WindowHint(..))
-import qualified Graphics.UI.GLFW as GLFW
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
 import Paracletus.Data
+import Paracletus.Oblatum.Callback
+import Paracletus.Oblatum.Data
+import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..))
+import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initGLFWWindow ∷ Int → Int → String → TVar Bool → Anamnesis ε σ GLFW.Window
 initGLFWWindow w h n windowSizeChanged = do
+  env ← ask
+  let eventsChan = envEventsChan env
   allocResource
     (\() → liftIO GLFW.terminate ≫ logInfo "terminated glfw")
     (liftIO GLFW.init ⌦ flip unless
       (logExcept GLFWError ExParacletus "failed to init glfw")
     )
+  -- this one we can set before create window
+  liftIO $ GLFW.setErrorCallback $ Just $ errorCallback eventsChan
   liftIO GLFW.getVersionString ⌦ mapM_ (logInfo ∘ ("glfw version: " ⧺))
   liftIO GLFW.vulkanSupported ⌦ flip unless
     (logExcept GLFWError ExParacletus "glfw does not support vulkan")
@@ -34,6 +41,7 @@ initGLFWWindow w h n windowSizeChanged = do
       Nothing → logExcept GLFWError ExParacletus "failed to init GLFW"
       Just window → do
         logDebug "initialized glfw window"
+        liftIO $ GLFW.setKeyCallback window $ Just $ keyCallback eventsChan
         liftIO $ GLFW.setWindowSizeCallback window $
           Just (\_ _ _ → atomically $ writeTVar windowSizeChanged True)
         --liftIO $ GLFW.setKeyCallback window $
@@ -61,3 +69,18 @@ glfwWaitMinimized win = liftIO go where
     (x,y) ← GLFW.getFramebufferSize win
     GLFW.waitEvents
     when (x ≡ 0 ∧ y ≡ 0) go
+
+-- this is a placeholder
+importKeyLayout ∷ Anamnesis ε σ (KeyLayout)
+importKeyLayout = return $ KeyLayout
+  { keyC   = "C"
+  , keyR   = "R"
+  , keySPC = "SPC"
+  , keyESC = "ESC"
+  , keyRET = "RET"
+  , keyDEL = "DEL"
+  , keySH  = "`"
+  , keyLFT = "LFT"
+  , keyRGT = "RGT"
+  , keyUPP = "UPP"
+  , keyDWN = "DWN" }

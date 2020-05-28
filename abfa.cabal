@@ -23,11 +23,15 @@ executable abfa
                    Artos.Var
                    Anamnesis
                    Anamnesis.Data
+                   Anamnesis.Event
                    Anamnesis.Foreign
                    Anamnesis.Util
                    Paracletus
                    Paracletus.Data
-                   Paracletus.GLFW
+                   Paracletus.Oblatum
+                   Paracletus.Oblatum.Callback
+                   Paracletus.Oblatum.Data
+                   Paracletus.Oblatum.GLFW
                    Paracletus.TH
                    Paracletus.Vulkan
                    Paracletus.Vulkan.Buffer
