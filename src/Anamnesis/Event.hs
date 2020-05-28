@@ -12,6 +12,7 @@ import Artos.Queue
 import Artos.Var
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Data
+import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
 -- executes events in order
@@ -37,8 +38,3 @@ processEvent event = case event of
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
-    -- user key strings from getKey function
-evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → KeyLayout → Anamnesis ε σ ()
-evalKey window k _  _  keyLayout = do
-  when (GLFW.keyCheck keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
-  when (GLFW.keyCheck keyLayout k "DWN") $ logInfo $ "hello"

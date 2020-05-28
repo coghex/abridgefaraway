@@ -6,6 +6,9 @@
 module Anamnesis.Util where
 -- utility functions for the
 -- anamnesis monad are defined
+-- including init functions,
+-- debug and logging functions,
+-- and some threading functions
 import Prelude()
 import UPrelude
 import Control.Concurrent
@@ -36,7 +39,8 @@ initState = do
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   atomically $ newTVar State { status  = ref
                              , logFunc = lf
-                             , window  = Nothing }
+                             , window  = Nothing
+                             , cursor = (0,0) }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

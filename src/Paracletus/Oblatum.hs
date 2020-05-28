@@ -44,8 +44,6 @@ initGLFWWindow w h n windowSizeChanged = do
         liftIO $ GLFW.setKeyCallback window $ Just $ keyCallback eventsChan
         liftIO $ GLFW.setWindowSizeCallback window $
           Just (\_ _ _ → atomically $ writeTVar windowSizeChanged True)
-        --liftIO $ GLFW.setKeyCallback window $
-        --  Just (\tc win k sc ka mk → atomically $ writeQueue tc $ EventKey win k sc ka mk)
         return window
 
 glfwMainLoop ∷ GLFW.Window → Anamnesis' ε LoopControl → Anamnesis ε σ Bool
