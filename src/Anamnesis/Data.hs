@@ -1,29 +1,17 @@
-module Anamnesis.Data
-  --( AnamnExcept(..), AnamnResult(..)
-  ( AnamnResult(..)
-  , Env(..), State(..), LoopControl(..)
-  ) where
--- data for the application monad
+{-# LANGUAGE Strict #-}
+module Anamnesis.Data where
+-- data for continuation monad
 import qualified Control.Monad.Logger as Logger
-import Data.IORef (IORef)
 import Artos.Except
 import Artos.Queue
--- exceptions are expicitly
--- for anamnesis code
---data AnamnExcept = AnamnExcept
---       { code ∷ Maybe AnamnResult
---       , msg  ∷ String
---       } deriving (Show, Eq)
----- possible action results
+-- possible results of anamnesis
+-- specific utility actions
 data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
--- loop status
+-- glfw loop status
 data LoopControl = ContinueLoop | AbortLoop deriving Eq
--- the env holds pointers to shared
--- memory, system specific static
--- data, and any configuration that
--- must not change for any reason
+-- env should only hold pointers/references
 data Env = Env { envEventsChan ∷ Queue Event }
--- the state holds any mutable data
--- the app may require or aquire.
-data State = State { currentStatus ∷ IORef AExcept
-                   , logFunc       ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO () }
+-- state holds mutable data, and the
+-- current status of the whole App
+data State = State { status  ∷ AExcept
+                   , logFunc ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO () }

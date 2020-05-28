@@ -15,18 +15,18 @@ import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Graphics.Vulkan.Marshal.Create
 import Anamnesis
 import Anamnesis.Foreign
-import Artos.Log
+import Anamnesis.Util
+import Artos.Except
 import Paracletus.Data
-import Paracletus.Util
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Device
 
-createSurface ∷ VkInstance → GLFW.Window → Anamnesis r e s VkSurfaceKHR
+createSurface ∷ VkInstance → GLFW.Window → Anamnesis ε σ VkSurfaceKHR
 createSurface vkInstance window = allocResource
   (\s → liftIO $ vkDestroySurfaceKHR vkInstance s VK_NULL) $ allocaPeek $ runVk ∘ GLFW.createWindowSurface vkInstance window VK_NULL
 
-chooseSwapSurfaceFormat ∷ SwapchainSupportDetails → Anamnesis r e s VkSurfaceFormatKHR
-chooseSwapSurfaceFormat SwapchainSupportDetails {..} = maybe (logExcept VulkanError "No available surface formats!") (pure ∘ argVal ∘ getMin) ∘ getOption $ foldMap (Option ∘ Just ∘ Min ∘ fmtCost) formats
+chooseSwapSurfaceFormat ∷ SwapchainSupportDetails → Anamnesis ε σ VkSurfaceFormatKHR
+chooseSwapSurfaceFormat SwapchainSupportDetails {..} = maybe (logExcept VulkanError ExParacletus "No available surface formats!") (pure ∘ argVal ∘ getMin) ∘ getOption $ foldMap (Option ∘ Just ∘ Min ∘ fmtCost) formats
   where argVal (Arg _ b) = b
         bestFmt ∷ VkSurfaceFormatKHR
         bestFmt = createVk @VkSurfaceFormatKHR
@@ -65,7 +65,7 @@ data SwapchainInfo = SwapchainInfo
   , swapExtent    ∷ VkExtent2D
   } deriving (Eq, Show)
 
-createSwapchain ∷ VkDevice → SwapchainSupportDetails → DevQueues → VkSurfaceKHR → Anamnesis r e s SwapchainInfo
+createSwapchain ∷ VkDevice → SwapchainSupportDetails → DevQueues → VkSurfaceKHR → Anamnesis ε σ SwapchainInfo
 createSwapchain dev scsd queues surf = do
   surfFmt ← chooseSwapSurfaceFormat scsd
   let maxIC = getField @"maxImageCount" $ capabilities scsd

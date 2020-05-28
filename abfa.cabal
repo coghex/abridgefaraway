@@ -19,18 +19,16 @@ executable abfa
     other-modules: UPrelude
                    Artos
                    Artos.Except
-                   Artos.Log
                    Artos.Queue
                    Artos.Var
                    Anamnesis
                    Anamnesis.Data
-                   Anamnesis.Init
                    Anamnesis.Foreign
-                   Paracletus.Data
+                   Anamnesis.Util
                    Paracletus
+                   Paracletus.Data
                    Paracletus.GLFW
                    Paracletus.TH
-                   Paracletus.Util
                    Paracletus.Vulkan
                    Paracletus.Vulkan.Buffer
                    Paracletus.Vulkan.Command
@@ -38,6 +36,7 @@ executable abfa
                    Paracletus.Vulkan.Device
                    Paracletus.Vulkan.Draw
                    Paracletus.Vulkan.Foreign
+                   Paracletus.Vulkan.Instance
                    Paracletus.Vulkan.Pipeline
                    Paracletus.Vulkan.Pres
                    Paracletus.Vulkan.Shader
@@ -75,7 +74,6 @@ executable abfa
                         NamedFieldPuns
                         NegativeLiterals
                         RecordWildCards
-                        ScopedTypeVariables
                         TypeSynonymInstances
                         UnicodeSyntax
     other-extensions:   AllowAmbiguousTypes
@@ -94,6 +92,7 @@ executable abfa
                         PatternSynonyms
                         PolyKinds
                         RankNTypes
+                        ScopedTypeVariables
                         StandaloneDeriving
                         Strict
                         StrictData

@@ -14,13 +14,14 @@ import Graphics.Vulkan.Marshal.Create.DataFrame
 import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Foreign
-import Paracletus.Util
+import Anamnesis.Util
+import Artos.Except
 import Paracletus.Data
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Vertex
 
-createBuffer ∷ VkPhysicalDevice → VkDevice → VkDeviceSize → VkBufferUsageFlags → VkMemoryPropertyFlags → Anamnesis r e s (VkDeviceMemory, VkBuffer)
+createBuffer ∷ VkPhysicalDevice → VkDevice → VkDeviceSize → VkBufferUsageFlags → VkMemoryPropertyFlags → Anamnesis ε σ (VkDeviceMemory, VkBuffer)
 createBuffer pdev dev bSize bUsage bMemPropFlags = do
   let bufferInfo = createVk @VkBufferCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
@@ -47,7 +48,7 @@ createBuffer pdev dev bSize bUsage bMemPropFlags = do
   runVk $ vkBindBufferMemory dev buf bufferMemory 0
   return (bufferMemory, buf)
 
-copyBuffer ∷ VkDevice → VkCommandPool → VkQueue → VkBuffer → VkBuffer → VkDeviceSize → Anamnesis r e s ()
+copyBuffer ∷ VkDevice → VkCommandPool → VkQueue → VkBuffer → VkBuffer → VkDeviceSize → Anamnesis ε σ ()
 copyBuffer dev commandPool cmdQueue srcBuffer dstBuffer bSize = runCommandsOnce dev commandPool cmdQueue $ \cmdBuf → do
   let copyRegion = createVk @VkBufferCopy
         $  set @"srcOffset" 0
@@ -55,16 +56,16 @@ copyBuffer dev commandPool cmdQueue srcBuffer dstBuffer bSize = runCommandsOnce 
         &* set @"size"      bSize
   withVkPtr copyRegion $ liftIO ∘ vkCmdCopyBuffer cmdBuf srcBuffer dstBuffer 1
 
-findMemoryType ∷ VkPhysicalDevice → Word32 → VkMemoryPropertyFlags → Anamnesis r e s Word32
+findMemoryType ∷ VkPhysicalDevice → Word32 → VkMemoryPropertyFlags → Anamnesis ε σ Word32
 findMemoryType pdev typeFilter properties = do
   memProps ← allocaPeek $ liftIO ∘ vkGetPhysicalDeviceMemoryProperties pdev
   let mtCount = getField @"memoryTypeCount" memProps
       memTypes = getVec @"memoryTypes" memProps
-      go i | i ≡ mtCount = logExcept VulkanError $ "failed to find suitable memory type"
+      go i | i ≡ mtCount = logExcept VulkanError ExParacletus $ "failed to find suitable memory type"
            | otherwise = if testBit typeFilter (fromIntegral i) ∧ (getField @"propertyFlags" (ixOff (fromIntegral i) memTypes) ⌃ properties) ≡ properties then return i else go (i+1)
   go 0
 
-createVertexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Vertex '[XN 3] → Anamnesis r e s VkBuffer
+createVertexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Vertex '[XN 3] → Anamnesis ε σ VkBuffer
 createVertexBuffer pdev dev cmdPool cmdQueue (XFrame vertices) = do
   let bSize = bSizeOf vertices
   (_, vertexBuf) ← createBuffer pdev dev bSize (VK_BUFFER_USAGE_TRANSFER_DST_BIT ⌄ VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
@@ -76,7 +77,7 @@ createVertexBuffer pdev dev cmdPool cmdQueue (XFrame vertices) = do
     copyBuffer dev cmdPool cmdQueue stagingBuf vertexBuf bSize
   return vertexBuf
 
-createIndexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Word32 '[XN 3] → Anamnesis r e s VkBuffer
+createIndexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Word32 '[XN 3] → Anamnesis ε σ VkBuffer
 createIndexBuffer pdev dev cmdPool cmdQueue (XFrame indices) = do
   let bSize = bSizeOf indices
   (_, vertexBuf) ← createBuffer pdev dev bSize (VK_BUFFER_USAGE_TRANSFER_DST_BIT ⌄ VK_BUFFER_USAGE_INDEX_BUFFER_BIT) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT

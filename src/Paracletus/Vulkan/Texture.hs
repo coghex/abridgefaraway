@@ -1,5 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Texture where
 import Prelude()
@@ -14,16 +15,17 @@ import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Marshal.Create
 import Anamnesis
 import Anamnesis.Foreign
+import Anamnesis.Util
+import Artos.Except
 import Paracletus.Data
-import Paracletus.Util
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Foreign
 
-createTextureImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis r e s (VkImageView, Word32)
+createTextureImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ (VkImageView, Word32)
 createTextureImageView pdev dev cmdPool cmdQueue path = do
   Image { imageWidth, imageHeight, imageData } ← liftIO (readImage path) ⌦ \case
-    Left err → logExcept err "cannot create texture image view"
+    Left err → logExcept err ExParacletus "cannot create texture image view"
     Right dynImg → pure $ convertRGBA8 dynImg
   let (imageDataForeignPtr, imageDataLen) = Vec.unsafeToForeignPtr0 imageData
       bufSize ∷ VkDeviceSize = fromIntegral imageDataLen
@@ -41,11 +43,11 @@ createTextureImageView pdev dev cmdPool cmdQueue path = do
   imageView ← createImageView dev image VK_FORMAT_R8G8B8A8_UNORM VK_IMAGE_ASPECT_COLOR_BIT mipLevels
   return (imageView, mipLevels)
 
-generateMipmaps ∷ VkPhysicalDevice → VkImage → VkFormat → Word32 → Word32 → Word32 → VkCommandBuffer → Anamnesis r e s ()
+generateMipmaps ∷ VkPhysicalDevice → VkImage → VkFormat → Word32 → Word32 → Word32 → VkCommandBuffer → Anamnesis ε σ ()
 generateMipmaps pdev image format width height mipLevels cmdBuf = do
   formatProps ← allocaPeek $ \propsPtr → liftIO $ vkGetPhysicalDeviceFormatProperties pdev format propsPtr
   let supported = (getField @"optimalTilingFeatures" formatProps) ⌃ VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT
-   in when (supported ≡ VK_ZERO_FLAGS) $ logExcept VulkanError "texture image format does not support linear blitting"
+   in when (supported ≡ VK_ZERO_FLAGS) $ logExcept VulkanError ExParacletus "texture image format does not support linear blitting"
   mapM_ createLvl
     (zip3
       [1 .. mipLevels - 1]
@@ -105,7 +107,7 @@ generateMipmaps pdev image format width height mipLevels cmdBuf = do
     let barrier = barrierStruct (mipLevel - 1) VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL VK_ACCESS_TRANSFER_READ_BIT VK_ACCESS_SHADER_READ_BIT
      in withVkPtr barrier $ \barrPtr → liftIO $ vkCmdPipelineBarrier cmdBuf VK_PIPELINE_STAGE_TRANSFER_BIT VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT VK_ZERO_FLAGS 0 VK_NULL 0 VK_NULL 1 barrPtr
 
-createTextureSampler ∷ VkDevice → Word32 → Anamnesis r e s VkSampler
+createTextureSampler ∷ VkDevice → Word32 → Anamnesis e s VkSampler
 createTextureSampler dev mipLevels = do
   let samplerCreateInfo = createVk @VkSamplerCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO
@@ -127,13 +129,13 @@ createTextureSampler dev mipLevels = do
         &* set @"maxLod" (fromIntegral mipLevels)
   allocResource (liftIO ∘ flip (vkDestroySampler dev) VK_NULL) $ withVkPtr samplerCreateInfo $ \sciPtr → allocaPeek $ runVk ∘ vkCreateSampler dev sciPtr VK_NULL
 
-textureImageInfo ∷ VkImageView → VkSampler → Anamnesis r e s VkDescriptorImageInfo
+textureImageInfo ∷ VkImageView → VkSampler → Anamnesis ε σ VkDescriptorImageInfo
 textureImageInfo view sampler = return $ createVk @VkDescriptorImageInfo
   $  set @"imageLayout" VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
   &* set @"imageView" view
   &* set @"sampler" sampler
 
-createImageView ∷ VkDevice → VkImage → VkFormat → VkImageAspectFlags → Word32 → Anamnesis r e s VkImageView
+createImageView ∷ VkDevice → VkImage → VkFormat → VkImageAspectFlags → Word32 → Anamnesis ε σ VkImageView
 createImageView dev image format aspectFlags mipLevels = allocResource (liftIO ∘ flip (vkDestroyImageView dev) VK_NULL) $ withVkPtr imgvCreateInfo $ \imgvciPtr → allocaPeek $ runVk ∘ vkCreateImageView dev imgvciPtr VK_NULL
   where cmapping = createVk
           $  set @"r" VK_COMPONENT_SWIZZLE_IDENTITY
@@ -196,7 +198,7 @@ dependents Undef_ColorAtt = TransitionDependent
   , srcStageMask  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
   , dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }
 
-transitionImageLayout ∷ VkImage → VkFormat → ImageLayoutTransition → Word32 → VkCommandBuffer → Anamnesis r e s ()
+transitionImageLayout ∷ VkImage → VkFormat → ImageLayoutTransition → Word32 → VkCommandBuffer → Anamnesis ε σ ()
 transitionImageLayout image format transition mipLevels cmdBuf = withVkPtr barrier $ \barrPtr → liftIO $ vkCmdPipelineBarrier cmdBuf srcStageMask dstStageMask VK_ZERO_FLAGS 0 VK_NULL 0 VK_NULL 1 barrPtr
   where TransitionDependent{..} = dependents transition
         aspectMask = case newLayout of
@@ -221,7 +223,7 @@ transitionImageLayout image format transition mipLevels cmdBuf = withVkPtr barri
           &* set @"srcAccessMask" srcAccessMask
           &* set @"dstAccessMask" dstAccessMask
 
-createImage ∷ VkPhysicalDevice → VkDevice → Word32 → Word32 → Word32 → VkSampleCountFlagBits → VkFormat → VkImageTiling → VkImageUsageFlags → VkMemoryPropertyFlags → Anamnesis r e s (VkDeviceMemory, VkImage)
+createImage ∷ VkPhysicalDevice → VkDevice → Word32 → Word32 → Word32 → VkSampleCountFlagBits → VkFormat → VkImageTiling → VkImageUsageFlags → VkMemoryPropertyFlags → Anamnesis ε σ (VkDeviceMemory, VkImage)
 createImage pdev dev width height mipLevels samples format tiling usage propFlags = do
   let ici = createVk @VkImageCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO
@@ -259,7 +261,7 @@ createImage pdev dev width height mipLevels samples format tiling usage propFlag
   runVk $ vkBindImageMemory dev image imageMemory 0
   return (imageMemory, image)
 
-copyBufferToImage ∷ VkDevice → VkCommandPool → VkQueue → VkBuffer → VkImage → Word32 → Word32 → Anamnesis r e s ()
+copyBufferToImage ∷ VkDevice → VkCommandPool → VkQueue → VkBuffer → VkImage → Word32 → Word32 → Anamnesis ε σ ()
 copyBufferToImage dev cmdPool cmdQueue buffer image width height = runCommandsOnce dev cmdPool cmdQueue $ \cmdBuf → withVkPtr region $ \regPtr → liftIO $ vkCmdCopyBufferToImage cmdBuf buffer image VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL 1 regPtr
   where region = createVk @VkBufferImageCopy
          $  set @"bufferOffset" 0
@@ -279,7 +281,7 @@ copyBufferToImage dev cmdPool cmdQueue buffer image width height = runCommandsOn
              &* set @"height" height
              &* set @"depth" 1 )
 
-findSupportedFormat ∷ VkPhysicalDevice → [VkFormat] → VkImageTiling → VkFormatFeatureFlags → Anamnesis r e s VkFormat
+findSupportedFormat ∷ VkPhysicalDevice → [VkFormat] → VkImageTiling → VkFormatFeatureFlags → Anamnesis ε σ VkFormat
 findSupportedFormat pdev candidates tiling features = do
   goodCands ← flip filterM candidates $ \format → do
     props ← allocaPeek $ \propsPtr → liftIO $ vkGetPhysicalDeviceFormatProperties pdev format propsPtr
@@ -289,15 +291,15 @@ findSupportedFormat pdev candidates tiling features = do
       _ → False
   case goodCands of
     x:_ → return x
-    []  → logExcept VulkanError "failed to find supported format"
+    []  → logExcept VulkanError ExParacletus "failed to find supported format"
 
-findDepthFormat ∷ VkPhysicalDevice → Anamnesis r e s VkFormat
+findDepthFormat ∷ VkPhysicalDevice → Anamnesis ε σ VkFormat
 findDepthFormat pdev = findSupportedFormat pdev [VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT] VK_IMAGE_TILING_OPTIMAL VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 
 hasStencilComponent ∷ VkFormat → Bool
 hasStencilComponent format = format `elem` [VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT]
 
-createDepthAttImgView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → VkExtent2D → VkSampleCountFlagBits → Anamnesis r e s VkImageView
+createDepthAttImgView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → VkExtent2D → VkSampleCountFlagBits → Anamnesis ε σ VkImageView
 createDepthAttImgView pdev dev cmdPool queue extent samples = do
   depthFormat ← findDepthFormat pdev
   (_, depthImage) ← createImage pdev dev
@@ -307,7 +309,7 @@ createDepthAttImgView pdev dev cmdPool queue extent samples = do
   runCommandsOnce dev cmdPool queue $ transitionImageLayout depthImage depthFormat Undef_DepthStencilAtt 1
   return depthImageView
 
-createColorAttImgView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → VkFormat → VkExtent2D → VkSampleCountFlagBits → Anamnesis r e s VkImageView
+createColorAttImgView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → VkFormat → VkExtent2D → VkSampleCountFlagBits → Anamnesis ε σ VkImageView
 createColorAttImgView pdev dev cmdPool queue format extent samples = do
   (_, colorImage) ← createImage pdev dev
     (getField @"width" extent) (getField @"height" extent) 1 samples format

@@ -1,4 +1,3 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE Strict #-}
@@ -13,11 +12,12 @@ import Graphics.Vulkan.Marshal.Create.DataFrame
 import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Foreign
+import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Sync
 
-createCommandPool ∷ VkDevice → DevQueues → Anamnesis r e s VkCommandPool
+createCommandPool ∷ VkDevice → DevQueues → Anamnesis ε σ VkCommandPool
 createCommandPool dev DevQueues{..} =
   allocResource (liftIO ∘ flip (vkDestroyCommandPool dev) VK_NULL) $ allocaPeek $ \pPtr → withVkPtr
     ( createVk
@@ -27,7 +27,7 @@ createCommandPool dev DevQueues{..} =
       &* set @"queueFamilyIndex" graphicsFamIdx
     ) $ \ciPtr → runVk $ vkCreateCommandPool dev ciPtr VK_NULL pPtr
 
-runCommandsOnce ∷ VkDevice → VkCommandPool → VkQueue → (VkCommandBuffer → Anamnesis r e s a) → Anamnesis r e s a
+runCommandsOnce ∷ VkDevice → VkCommandPool → VkQueue → (VkCommandBuffer → Anamnesis ε σ α) → Anamnesis ε σ α
 runCommandsOnce dev commandPool cmdQueue action = do
   let allocInfo = createVk @VkCommandBufferAllocateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO

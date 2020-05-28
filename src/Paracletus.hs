@@ -1,137 +1,17 @@
+{-# LANGUAGE Strict #-}
 module Paracletus where
--- a graphics layer is chosen,
--- a GLFW instance is begun
+-- a graphics layer is chosen
+-- and glfw instance is begun
 import Prelude()
 import UPrelude
-import Control.Monad (forM_)
-import Control.Monad.Reader.Class (asks)
-import Data.IORef (newIORef)
-import qualified Graphics.Vulkan.Core_1_0 as VK
-import qualified Graphics.Vulkan.Ext.VK_KHR_swapchain as VK
-import GHC.Word (Word32)
-import Numeric.DataFrame
-import Artos.Except
-import Artos.Log
 import Anamnesis
-import Anamnesis.Data
-import Anamnesis.Foreign
-import Anamnesis.Init
+import Anamnesis.Util
+import Artos.Except
 import Paracletus.Data
-import Paracletus.Util
-import Paracletus.GLFW
 import Paracletus.Vulkan
-import Paracletus.Vulkan.Buffer
-import Paracletus.Vulkan.Command
-import Paracletus.Vulkan.Desc
-import Paracletus.Vulkan.Device
-import Paracletus.Vulkan.Draw
-import Paracletus.Vulkan.Foreign
-import Paracletus.Vulkan.Pipeline
-import Paracletus.Vulkan.Pres
-import Paracletus.Vulkan.Shader
-import Paracletus.Vulkan.Texture
-import Paracletus.Vulkan.Trans
-import Paracletus.Vulkan.Vertex
--- a generic action is run in a
--- MProg context, returning ()
-runParacletus ∷ GraphicsLayer → Anamnesis ret env state ()
-runParacletus Vulkan = do
-  inputQueue ← asks envEventsChan
-  logInfo $ "beginning paracletus..."
-  window ← initGLFWWindow Vulkan 1280 720 "paracletus" inputQueue
-  vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
-  vulkanSurface ← createSurface vulkanInstance window
-  logDebug $ "createdSurface: " ⧺ show vulkanSurface
-  -- fork thread for GLFW
-  glfwWaitEventsMeanwhile $ do
-    logDebug $ "glfw thread begun..."
-    (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
-    logDebug $ "selected physical device: " ⧺ show pdev
-    msaaSamples ← getMaxUsableSampleCount pdev
-    (dev, queues) ← createGraphicsDevice pdev vulkanSurface
-    logDebug $ "created device: " ⧺ show dev
-    logDebug $ "created queues: " ⧺ show queues
-    (shaderVert, shaderFrag) ← makeShader dev
-    logDebug $ "created vertex shader module: " ⧺ show shaderVert
-    logDebug $ "created fragment shader module: " ⧺ show shaderFrag
-    frameIndexRef ← liftIO $ newIORef 0
-    renderFinishedSems ← createFrameSemaphores dev
-    imageAvailableSems ← createFrameSemaphores dev
-    inFlightFences ← createFrameFences dev
-    commandPool ← createCommandPool dev queues
-    logDebug $ "created command pool: " ⧺ show commandPool
-    imgIndexPtr ← mallocRes
-    vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
-    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
-    descriptorSetLayout ← createDescriptorSetLayout dev
-    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-    let texturePath = "dat/tex/texture.jpg"
-    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texturePath
-    textureSampler ← createTextureSampler dev mipLevels
-    descriptorTextureInfo ← textureImageInfo textureView textureSampler
-    depthFormat ← findDepthFormat pdev
-    loop $ do
-      logDebug $ "creating new swapchain..."
-      scsd ← querySwapchainSupport pdev vulkanSurface
-      swapInfo ← createSwapchain dev scsd queues vulkanSurface
-      let swapchainLen = length $ swapImgs swapInfo
-      (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-      descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-      descriptorPool ← createDescriptorPool dev swapchainLen
-      descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
-      descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
-      transObjMemories ← newArrayRes transObjMems
-      imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK.VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
-      logDebug $ "created image views " ⧺ show imgViews
 
-      renderPass ← createRenderPass dev swapInfo depthFormat msaaSamples
-      logDebug $ "created renderpass: " ⧺ show renderPass
-      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass pipelineLayout msaaSamples
-      logDebug $ "created pipeline: " ⧺ show graphicsPipeline
-      colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
-      depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
-      framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
-      logDebug $ "created framebuffers: " ⧺ show framebuffers
-      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
-      let rdata = RenderData { dev
-                             , swapInfo
-                             , queues
-                             , imgIndexPtr
-                             , frameIndexRef
-                             , renderFinishedSems
-                             , imageAvailableSems
-                             , inFlightFences
-                             , cmdBuffersPtr
-                             , memories = transObjMemories
-                             , memoryMutator = updateTransObj dev $ swapExtent swapInfo }
-
-      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
-      logDebug $ " created commandBuffers: " ⧺ show cmdBuffers
-      shouldExit ← glfwMainLoop window $ do
-        --logic
-        needRecreation ← drawFrame rdata `catchError` ( \err → case (testEx err VK.VK_ERROR_OUT_OF_DATE_KHR) of
-          True → do
-            _ <- logExcept VulkanError "vulkan khr out of date"
-            return True
-          _    → logExcept VulkanError "unknown drawFrame error"
-          )
-        return $ if needRecreation then AbortLoop else ContinueLoop
-      runVk $ VK.vkDeviceWaitIdle dev
-      return $ if shouldExit then AbortLoop else ContinueLoop
-  return ()
-runParacletus _ = logExcept ParacError $ "unsuzzpported graphics layer..."
--- placeholder helper functions
-vertices ∷ DataFrame Vertex '[XN 3]
-vertices = XFrame $ square `appendDF` withPos (+ vec4 0 0 0.5 0) square `appendDF` withPos (\p → p %* rotateX (π/2) + vec4 0 0 (-0.5) 0) square
-  where square ∷ Vector Vertex 4
-        square = fromFlatList (D4 :* U) (Vertex 0 0 0)
-          [ Vertex (vec3 (-0.5) (-0.5) 0) (vec3 1 0 0) (vec2 0 0)
-          , Vertex (vec3   0.4  (-0.5) 0) (vec3 0 1 0) (vec2 1 0)
-          , Vertex (vec3   0.4    0.4  0) (vec3 0 0 1) (vec2 1 1)
-          , Vertex (vec3 (-0.5)   0.4  0) (vec3 1 1 1) (vec2 0 1) ]
-        withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
-        withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
-indices ∷ DataFrame Word32 '[XN 3]
-indices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
-  where oneRectIndices = [0,3,2,2,1,0]
+runParacletus ∷ GraphicsLayer → Anamnesis ε σ ()
+runParacletus Vulkan   = runParacVulkan
+runParacletus OpenGL   = logExcept ParacError ExParacletus $ "OpenGL not yet implimented"
+runParacletus OpenGLES = logExcept ParacError ExParacletus $ "OpenGLES not yet implimented"
+runParacletus _        = logExcept ParacError ExParacletus $ "unsupported graphics layer..."

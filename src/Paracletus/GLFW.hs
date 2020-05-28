@@ -1,23 +1,46 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE Strict #-}
 module Paracletus.GLFW where
--- GLFW interfaces with paracletus
 import Prelude()
 import UPrelude
-import Control.Monad (unless, forever)
+import Control.Monad (when, unless, forever)
+import Graphics.UI.GLFW (ClientAPI(..), WindowHint(..))
 import qualified Graphics.UI.GLFW as GLFW
 import Anamnesis
 import Anamnesis.Data
-import Anamnesis.Init
-import Anamnesis.Foreign
-import Artos.Log
-import Artos.Queue
+import Anamnesis.Util
+import Artos.Except
 import Artos.Var
 import Paracletus.Data
-import Paracletus.Util
 
--- glfw loop remembers to close window
-glfwMainLoop ∷ GLFW.Window → Anamnesis' e s LoopControl → Anamnesis r e s Bool
+initGLFWWindow ∷ Int → Int → String → TVar Bool → Anamnesis ε σ GLFW.Window
+initGLFWWindow w h n windowSizeChanged = do
+  allocResource
+    (\() → liftIO GLFW.terminate ≫ logInfo "terminated glfw")
+    (liftIO GLFW.init ⌦ flip unless
+      (logExcept GLFWError ExParacletus "failed to init glfw")
+    )
+  liftIO GLFW.getVersionString ⌦ mapM_ (logInfo ∘ ("glfw version: " ⧺))
+  liftIO GLFW.vulkanSupported ⌦ flip unless
+    (logExcept GLFWError ExParacletus "glfw does not support vulkan")
+  liftIO ∘ GLFW.windowHint $ WindowHint'ClientAPI ClientAPI'NoAPI
+  liftIO ∘ GLFW.windowHint $ WindowHint'Resizable True
+  allocResource
+    ( \window → do
+        liftIO (GLFW.destroyWindow window)
+        logDebug "closed glfw window"
+    ) $ do
+    mw ← liftIO $ GLFW.createWindow w h n Nothing Nothing
+    case mw of
+      Nothing → logExcept GLFWError ExParacletus "failed to init GLFW"
+      Just window → do
+        logDebug "initialized glfw window"
+        liftIO $ GLFW.setWindowSizeCallback window $
+          Just (\_ _ _ → atomically $ writeTVar windowSizeChanged True)
+        --liftIO $ GLFW.setKeyCallback window $
+        --  Just (\tc win k sc ka mk → atomically $ writeQueue tc $ EventKey win k sc ka mk)
+        return window
+
+glfwMainLoop ∷ GLFW.Window → Anamnesis' ε LoopControl → Anamnesis ε σ Bool
 glfwMainLoop w action = go
   where go = do
           should ← liftIO $ GLFW.windowShouldClose w
@@ -25,28 +48,16 @@ glfwMainLoop w action = go
             status ← locally action
             if status ≡ ContinueLoop then go else return False
           else return True
+-- runs glfw in the main thread
+-- waiting for events every second
+glfwWaitEventsMeanwhile ∷ Anamnesis' ε () → Anamnesis ε σ ()
+glfwWaitEventsMeanwhile action = occupyThreadAndFork (liftIO $ forever $ GLFW.waitEventsTimeout 1.0) action
 
-initGLFWWindow ∷ GraphicsLayer → Int → Int → String → Queue Event → Anamnesis r e s GLFW.Window
-initGLFWWindow Vulkan w h n inputChan = do
-  allocResource
-    (\() → liftIO GLFW.terminate ≫ logInfo "terminated GLFW")
-    (liftIO GLFW.init ⌦ flip unless (logExcept GLFWError "failed to init glfw"))
-  liftIO GLFW.getVersionString ⌦ mapM_ (logInfo ∘ ("glfw version: " ⧺))
-  allocResource (\window → do
-    liftIO (GLFW.destroyWindow window)
-    logDebug "closed glfw window") $ do
-      mw ← liftIO $ GLFW.createWindow w h n Nothing Nothing
-      case mw of
-        Nothing → logExcept GLFWError "failed to init glfw"
-        Just window → do
-          logDebug "initialized glfw window"
-          liftIO $ GLFW.setKeyCallback window $ Just $ keyCallback inputChan
-          return window
-initGLFWWindow OpenGL _ _ _ _ = logExcept GLFWError "OpenGL not yet implemented"
-initGLFWWindow OpenGLES _ _ _ _ = logExcept GLFWError "OpenGLES not yet implemented"
-
-glfwWaitEventsMeanwhile ∷ Anamnesis' e s () → Anamnesis r e s ()
-glfwWaitEventsMeanwhile action = occupyThreadAndFork (liftIO $ forever $ GLFW.waitEventsTimeout 1.0) (action)
-
-keyCallback ∷ Queue Event → GLFW.Window → GLFW.Key → Int → GLFW.KeyState → GLFW.ModifierKeys → IO ()
-keyCallback tc win k sc ka mk = atomically $ writeQueue tc $ EventKey win k sc ka mk
+-- glfw will wait when minimized
+-- so as not to steal input
+glfwWaitMinimized ∷ GLFW.Window → Anamnesis ε σ ()
+glfwWaitMinimized win = liftIO go where
+  go = do
+    (x,y) ← GLFW.getFramebufferSize win
+    GLFW.waitEvents
+    when (x ≡ 0 ∧ y ≡ 0) go

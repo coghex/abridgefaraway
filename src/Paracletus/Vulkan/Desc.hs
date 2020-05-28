@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Desc where
@@ -10,9 +11,10 @@ import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Marshal.Create
 import Anamnesis
 import Anamnesis.Foreign
+import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 
-createDescriptorPool ∷ VkDevice → Int → Anamnesis r e s VkDescriptorPool
+createDescriptorPool ∷ VkDevice → Int → Anamnesis ε σ VkDescriptorPool
 createDescriptorPool dev n = allocResource (liftIO ∘ flip (vkDestroyDescriptorPool dev) VK_NULL) $ allocaPeek $ \pPtr → withVkPtr (createVk
     $  set @"sType" VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO
     &* set @"pNext" VK_NULL
@@ -27,7 +29,7 @@ createDescriptorPool dev n = allocResource (liftIO ∘ flip (vkDestroyDescriptor
     &* set @"maxSets" (fromIntegral n)
   ) $ \ciPtr → runVk $ vkCreateDescriptorPool dev ciPtr VK_NULL pPtr
 
-createDescriptorSetLayout ∷ VkDevice → Anamnesis r e s VkDescriptorSetLayout
+createDescriptorSetLayout ∷ VkDevice → Anamnesis ε σ VkDescriptorSetLayout
 createDescriptorSetLayout dev = allocResource
   (\dsl → liftIO $ vkDestroyDescriptorSetLayout dev dsl VK_NULL) $
   withVkPtr dslCreateInfo $ \dslciPtr → allocaPeek $ runVk ∘ vkCreateDescriptorSetLayout dev dslciPtr VK_NULL
@@ -49,7 +51,7 @@ createDescriptorSetLayout dev = allocResource
                 &* set @"stageFlags" VK_SHADER_STAGE_FRAGMENT_BIT
                 &* set @"pImmutableSamplers" VK_NULL ]
 
-createDescriptorSets ∷ VkDevice → VkDescriptorPool → Int → Ptr VkDescriptorSetLayout → Anamnesis r e s [VkDescriptorSet]
+createDescriptorSets ∷ VkDevice → VkDescriptorPool → Int → Ptr VkDescriptorSetLayout → Anamnesis ε σ [VkDescriptorSet]
 createDescriptorSets dev descriptorPool n layoutsPtr = allocaArray n $ \dsPtr → withVkPtr dsai $ \dsaiPtr → do
   runVk $ vkAllocateDescriptorSets dev dsaiPtr dsPtr
   peekArray n dsPtr
@@ -60,8 +62,8 @@ createDescriptorSets dev descriptorPool n layoutsPtr = allocaArray n $ \dsPtr �
           &* set @"descriptorSetCount" (fromIntegral n)
           &* set @"pSetLayouts" layoutsPtr
 
-prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → VkDescriptorImageInfo → VkDescriptorSet → Anamnesis r e s ()
-prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = withVkArrayLen descriptorWrites $ \dwLen dwPtr → liftIO $ vkUpdateDescriptorSets dev dwLen dwPtr 0 VK_NULL
+prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → VkDescriptorImageInfo → VkDescriptorSet → Anamnesis ε σ ()
+prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArrayLen descriptorWrites $ \dwLen dwPtr → liftIO $ vkUpdateDescriptorSets dev dwLen dwPtr 0 VK_NULL
   where descriptorWrites =
           [ createVk @VkWriteDescriptorSet
             $  set @"sType" VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET

@@ -12,5 +12,5 @@ data Event = EventError !String
 -- to the STM library
 newQueue ∷ IO (Queue Event)
 newQueue = STM.newTQueueIO
-writeQueue ∷ Queue a → a → STM.STM ()
+writeQueue ∷ Queue α → α → STM.STM ()
 writeQueue = STM.writeTQueue

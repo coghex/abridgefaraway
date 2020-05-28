@@ -1,72 +1,68 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StrictData #-}
 module Anamnesis
   ( Anamnesis(..), Anamnesis'
   , MonadIO(..), MonadError(..)
   , MonadReader(..), MonadState(..)
   ) where
 -- the application monad is defined
+import UPrelude
 import Control.Monad.IO.Class
 import Control.Monad.Error.Class
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import qualified Control.Monad.Logger as Logger
-import Data.IORef (IORef)
 import Data.Tuple (swap)
 import Artos.Except
 import Artos.Var
 import Anamnesis.Data
 -- monadic typeclass instances
 -- inlined for exporting
-newtype Anamnesis ret env state a = Anamnesis { unAnamnate ∷ IORef (AExcept) → TVar Env → TVar State → (Either (AExcept) a → IO ret) → IO ret }
--- common case where the input
--- is an exception tuple
-type Anamnesis' e s a = Anamnesis (Either AExcept a) e s a
-instance Functor (Anamnesis ret env state) where
-  fmap f p = Anamnesis $ \r e s c → unAnamnate p r e s (c . fmap f)
+-- ε = env, σ = state
+-- α = action, ς = result
+newtype Anamnesis ε σ α = Anamnesis {unAnamnate ∷ TVar Env → TVar State → (Either AExcept α → IO σ) → IO σ}
+-- common case where σ is either
+-- an action or and exception
+type Anamnesis' ε α = Anamnesis ε (Either AExcept α) α
+instance Functor (Anamnesis ε σ) where
+  fmap f p = Anamnesis $ \e s c → unAnamnate p e s (c ∘ fmap f)
   {-# INLINE fmap #-}
-instance Applicative (Anamnesis ret env state) where
-  pure x = Anamnesis $ const $ const $ const ($ Right x)
+instance Applicative (Anamnesis ε σ) where
+  pure x = Anamnesis $ \_ _ → ($ Right x)
   {-# INLINE pure #-}
-  pf <*> px = Anamnesis $ \r e s c → unAnamnate pf r e s $ \g → unAnamnate px r e s (c . (g <*>))
+  pf <*> px = Anamnesis $ \e s c → unAnamnate pf e s $ \g → unAnamnate px e s (c ∘ (g <*>))
   {-# INLINE (<*>) #-}
-instance Monad (Anamnesis ret env state) where
+instance Monad (Anamnesis ε σ) where
   return = pure
   {-# INLINE return #-}
-  px >>= k = Anamnesis $ \r e s c → unAnamnate px r e s $ \case
-    Right x → unAnamnate (k x) r e s c
+  px >>= k = Anamnesis $ \e s c → unAnamnate px e s $ \case
+    Right x → unAnamnate (k x) e s c
     Left ex → c (Left ex)
   {-# INLINE (>>=) #-}
--- other class instances
--- since we always run in IO, we
--- can add this to provide liftIO
-instance MonadIO (Anamnesis ret env state) where
-  liftIO m = Anamnesis $ const $ const $ const (Right <$> m >>=)
+instance MonadIO (Anamnesis ε σ) where
+  liftIO m = Anamnesis $ \_ _ → (Right ⊚ m ⌦)
   {-# INLINE liftIO #-}
--- throws errors into the result
-instance MonadError AExcept (Anamnesis ret env state) where
-  throwError e = Anamnesis $ const $ const $ const ($ Left e)
+instance MonadError AExcept (Anamnesis ε σ) where
+  throwError e = Anamnesis $ \_ _ → ($ Left e)
   {-# INLINE throwError #-}
-  catchError px catcher = Anamnesis $ \r e s c → unAnamnate px r e s $ \case
-    Left  ex  → unAnamnate (catcher ex) r e s c
-    Right res → c (Right res)
+  catchError px catcher = Anamnesis $ \e s c → unAnamnate px e s $ \case
+    Left ex → unAnamnate (catcher ex) e s c
+    Right r → c (Right r)
   {-# INLINE catchError #-}
--- here we define the monadic
--- references to the internal data
-instance MonadReader Env (Anamnesis ret env state) where
-  ask = Anamnesis $ \_ e _ → (Right <$> atomically (readTVar e) >>=)
+instance MonadReader Env (Anamnesis ε σ) where
+  ask = Anamnesis $ \e _ → (Right ⊚ atomically (readTVar e) ⌦)
   {-# INLINE ask #-}
-  -- this is a placeholder
-  local _ a = a
+  local _ a = a -- this is a placeholder
   {-# INLINE local #-}
-instance MonadState State (Anamnesis ret env state) where
-  get = Anamnesis $ \_ _ st → (Right <$> atomically (readTVar st) >>=)
+instance MonadState State (Anamnesis ε σ) where
+  get = Anamnesis $ \_ st → (Right ⊚ atomically (readTVar st) ⌦)
   {-# INLINE get #-}
-  put s = Anamnesis $ \_ _ st → (Right <$> atomically (writeTVar st s) >>=)
+  put s = Anamnesis $ \_ st → (Right ⊚ atomically (writeTVar st s) ⌦)
   {-# INLINE put #-}
-  state f = Anamnesis $ \_ _ st → (Right <$> atomically (modifyTVar st (swap . f)) >>=)
+  state f = Anamnesis $ \_ st → (Right ⊚ atomically (modifyTVar st (swap ∘ f)) ⌦)
   {-# INLINE state #-}
-instance Logger.MonadLogger (Anamnesis ret env state) where
+instance Logger.MonadLogger (Anamnesis ε σ) where
   monadLoggerLog loc ls ll msg = do
-    lf <- gets logFunc
+    lf ← gets logFunc
     liftIO $ lf loc ls ll (Logger.toLogStr msg)
   {-# INLINE monadLoggerLog #-}

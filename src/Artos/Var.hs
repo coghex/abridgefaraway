@@ -9,16 +9,16 @@ import Data.Function ((&))
 type MVar = STM.TMVar
 type TVar = STM.TVar
 -- function synonyms
-newTVar ∷ a → STM.STM (TVar a)
+newTVar ∷ α → STM.STM (TVar α)
 newTVar = STM.newTVar
-readTVar ∷ TVar a → STM.STM a
+readTVar ∷ TVar α → STM.STM α
 readTVar = STM.readTVar
-writeTVar ∷ TVar a → a → STM.STM ()
+writeTVar ∷ TVar α → α → STM.STM ()
 writeTVar = STM.writeTVar
 -- taken from a random hackage
 -- module i saw. strict,
 -- requires bangpatterns
-modifyTVar ∷ TVar a → (a → (a, b)) → STM.STM b
+modifyTVar ∷ TVar α → (α → (α, β)) → STM.STM β
 modifyTVar ref f = STM.readTVar ref ⌦ \a → f a & \(!a', !b) → STM.writeTVar ref a' ⚞ b
-atomically ∷ STM.STM a → IO a
+atomically ∷ STM.STM α → IO α
 atomically = STM.atomically

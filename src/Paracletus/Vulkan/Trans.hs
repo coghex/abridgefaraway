@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Trans where
@@ -16,6 +17,7 @@ import Anamnesis
 import Anamnesis.Foreign
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Buffer
+
 data TransformationObject = TransformationObject
   { model ∷ Mat44f
   , view  ∷ Mat44f
@@ -23,7 +25,7 @@ data TransformationObject = TransformationObject
   } deriving (Show, Generic)
 instance PrimBytes TransformationObject
 
-updateTransObj ∷ VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis r e s ()
+updateTransObj ∷ VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
 updateTransObj device extent uniBuf = do
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @TransformationObject undefined) VK_ZERO_FLAGS
   -- rotation is identity for now
@@ -46,10 +48,10 @@ updateTransObj device extent uniBuf = do
         height = getField @"height" extent
         aspectRatio = fromIntegral width / fromIntegral height
 
-createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis r e s [(VkDeviceMemory, VkBuffer)]
+createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransObjBuffers pdev dev n = replicateM n $ createBuffer pdev dev (bSizeOf @TransformationObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 
-transObjBufferInfo ∷ VkBuffer → Anamnesis r e s VkDescriptorBufferInfo
+transObjBufferInfo ∷ VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
 transObjBufferInfo uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0

@@ -15,10 +15,11 @@ import Numeric.DataFrame
 import Numeric.Dimensions
 import Anamnesis
 import Anamnesis.Foreign
+import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Pres
 
-createGraphicsPipeline ∷ KnownDim (n ∷ Nat) ⇒ VkDevice → SwapchainInfo → VkVertexInputBindingDescription → Vector VkVertexInputAttributeDescription n → [VkPipelineShaderStageCreateInfo] → VkRenderPass → VkPipelineLayout → VkSampleCountFlagBits → Anamnesis r e s VkPipeline
+createGraphicsPipeline ∷ KnownDim (n ∷ Nat) ⇒ VkDevice → SwapchainInfo → VkVertexInputBindingDescription → Vector VkVertexInputAttributeDescription n → [VkPipelineShaderStageCreateInfo] → VkRenderPass → VkPipelineLayout → VkSampleCountFlagBits → Anamnesis ε σ VkPipeline
 createGraphicsPipeline dev SwapchainInfo{swapExtent} bindDesc attrDescs shaderDescs renderPass pipelineLayout msaaSamples = allocResource
     (\gp → liftIO $ vkDestroyPipeline dev gp VK_NULL) $
     withVkPtr gpCreateInfo $ \gpciPtr → allocaPeek $ runVk ∘ vkCreateGraphicsPipelines dev VK_NULL 1 gpciPtr VK_NULL
@@ -147,7 +148,7 @@ createGraphicsPipeline dev SwapchainInfo{swapExtent} bindDesc attrDescs shaderDe
               &* set @"writeMask" 0
               &* set @"reference" 0 )
 
-createPipelineLayout ∷ VkDevice → VkDescriptorSetLayout → Anamnesis r e s VkPipelineLayout
+createPipelineLayout ∷ VkDevice → VkDescriptorSetLayout → Anamnesis ε σ VkPipelineLayout
 createPipelineLayout dev dsl = do
   let plCreateInfo = createVk @VkPipelineLayoutCreateInfo
         $  set @"sType" VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
@@ -161,7 +162,7 @@ createPipelineLayout dev dsl = do
     (\pl → liftIO $ vkDestroyPipelineLayout dev pl VK_NULL) $
     withVkPtr plCreateInfo $ \plciPtr → allocaPeek $ runVk ∘ vkCreatePipelineLayout dev plciPtr VK_NULL
 
-createRenderPass ∷ VkDevice → SwapchainInfo → VkFormat → VkSampleCountFlagBits → Anamnesis r e s VkRenderPass
+createRenderPass ∷ VkDevice → SwapchainInfo → VkFormat → VkSampleCountFlagBits → Anamnesis ε σ VkRenderPass
 createRenderPass dev SwapchainInfo{swapImgFormat} depthFormat samples = allocResource (\rp → liftIO $ vkDestroyRenderPass dev rp VK_NULL) $ withVkPtr rpCreateInfo $ \rpciPtr → allocaPeek $ runVk ∘ vkCreateRenderPass dev rpciPtr VK_NULL
   where colorAttachment = createVk @VkAttachmentDescription
           $  set @"flags" VK_ZERO_FLAGS

@@ -1,9 +1,10 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 module Artos.Except
-  ( AExcept(..), Exceptable
+  ( AExcept(..), ExType(..), Exceptable
   , displayException, testEx
   ) where
 -- exceptions are printed
@@ -16,29 +17,30 @@ import Type.Reflection
 -- msg contains a possible error
 -- message. exTy is the name of the
 -- module throwing the exception
-type Exceptable r = (Typeable r, Eq r, Show r)
-data AExcept = ∀ r. (Exceptable r) ⇒ AExcept
-       { code ∷ Maybe r
-       , msg  ∷ String
-       , exTy ∷ String }
+type Exceptable ς = (Typeable ς, Eq ς, Show ς)
+data ExType = ExNull | ExAnamnesis | ExParacletus deriving (Show, Eq)
+data AExcept = ∀ ς. (Exceptable ς) ⇒ AExcept
+       { code ∷ Maybe ς
+       , exTy ∷ ExType
+       , msg  ∷ String }
 instance Show AExcept where
-  show (AExcept (Just code) msg exTy) = show code ⧺ " " ⧺ msg ⧺ " " ⧺ exTy
-  show (AExcept Nothing msg exTy) = show msg ⧺ exTy
+  show (AExcept (Just code) exTy msg) = (show code) ⧺ " " ⧺ (show msg) ⧺ " " ⧺ (show exTy)
+  show (AExcept Nothing exTy msg) = (show msg) ⧺ (show exTy)
   
 instance Exception AExcept where
-  displayException (AExcept Nothing msg exTy) = unlines
+  displayException (AExcept Nothing exTy msg) = unlines
     [ ""
-    , exTy ⧺ " exception:"
+    , (show exTy) ⧺ " exception:"
     , "*** " ⧺ msg ]
-  displayException (AExcept (Just c) msg exTy) = unlines
+  displayException (AExcept (Just c) exTy msg) = unlines
     [ ""
-    , exTy ⧺ " error: " ⧺ show c
+    , (show exTy) ⧺ " error: " ⧺ show c
     , "*** " ⧺ msg ]
 
 -- provides equality for exceptions
 -- regardless of type
-testEx ∷ ∀ r. Exceptable r ⇒ AExcept → r → Bool
-testEx (AExcept (Just res) _ _) r = case eqTypeRep (typeRep @r) (typeOf res) of
-  Just HRefl → res == r
+testEx ∷ ∀ ς. Exceptable ς ⇒ AExcept → ς → Bool
+testEx (AExcept (Just r) _ _) ex = case eqTypeRep (typeRep @ς) (typeOf r) of
+  Just HRefl → r == ex
   Nothing → False
 testEx (AExcept Nothing _ _) _ = False

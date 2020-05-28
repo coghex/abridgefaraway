@@ -1,7 +1,7 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Sync where
@@ -12,9 +12,10 @@ import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Marshal.Create
 import Anamnesis
 import Anamnesis.Foreign
+import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 
-createSemaphore ∷ VkDevice → Anamnesis r e s VkSemaphore
+createSemaphore ∷ VkDevice → Anamnesis ε σ VkSemaphore
 createSemaphore dev = allocResource
   (liftIO ∘ flip (vkDestroySemaphore dev) VK_NULL) $ allocaPeek $ \sPtr → withVkPtr
     (createVk
@@ -22,7 +23,7 @@ createSemaphore dev = allocResource
       &* set @"pNext" VK_NULL
       &* set @"flags" VK_ZERO_FLAGS
     ) $ \ciPtr → runVk $ vkCreateSemaphore dev ciPtr VK_NULL sPtr
-createFence ∷ VkDevice → Bool → Anamnesis r e s VkFence
+createFence ∷ VkDevice → Bool → Anamnesis ε σ VkFence
 createFence dev signaled = allocResource
   (liftIO ∘ flip (vkDestroyFence dev) VK_NULL) $ allocaPeek $ \sPtr → withVkPtr
     (createVk
