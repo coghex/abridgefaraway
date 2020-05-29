@@ -40,7 +40,8 @@ initState = do
   atomically $ newTVar State { status  = ref
                              , logFunc = lf
                              , window  = Nothing
-                             , cursor = (0,0) }
+                             , cam3d   = (2.0, 2.0, 2.0)
+                             , cursor  = (0, 0, 2) }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

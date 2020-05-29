@@ -11,6 +11,7 @@ import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Event
 import Anamnesis.Foreign
+import Anamnesis.Map
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
@@ -108,8 +109,10 @@ runParacVulkan = do
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
         -- logic
+        st ← get
+        let rdata' = rdata { memoryMutator = updateTransObj dev (swapExtent swapInfo) }
         liftIO $ GLFW.pollEvents
-        needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+        needRecreation ← drawFrame rdata' `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
           -- when khr out of date,
           -- recreate swapchain
           True → do
@@ -129,13 +132,13 @@ runParacVulkan = do
 
 -- these is placeholder data
 vertices ∷ DataFrame Vertex '[XN 3]
-vertices = XFrame $ square `appendDF` withPos (+ vec4 0 0 0.5 0) square `appendDF` withPos (\p → p %* rotateX (π/2) + vec4 0 0 (-0.5) 0) square
+vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withPos (+ vec4 0 2 0 0) square
   where square ∷ Vector Vertex 4
         square = fromFlatList (D4 :* U) (Vertex 0 0 0)
-          [ Vertex (vec3 (-0.5) (-0.5) 0) (vec3 1 0 0) (vec2 0 0)
-          , Vertex (vec3   0.4  (-0.5) 0) (vec3 0 1 0) (vec2 1 0)
-          , Vertex (vec3   0.4    0.4  0) (vec3 0 0 1) (vec2 1 1)
-          , Vertex (vec3 (-0.5)   0.4  0) (vec3 1 1 1) (vec2 0 1) ]
+          [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec2 0 1)
+          , Vertex (vec3   1  (-1) 0) (vec3 0 1 0) (vec2 1 1)
+          , Vertex (vec3   1    1  0) (vec3 0 0 1) (vec2 1 0)
+          , Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec2 0 0) ]
         withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
 indices ∷ DataFrame Word32 '[XN 3]

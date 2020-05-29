@@ -8,6 +8,10 @@ data KeyLayout = KeyLayout
   , keyRET ∷ String
   , keyDEL ∷ String
   , keySH  ∷ String
+  , keyH   ∷ String
+  , keyJ   ∷ String
+  , keyK   ∷ String
+  , keyL   ∷ String
   , keyLFT ∷ String
   , keyRGT ∷ String
   , keyUPP ∷ String

@@ -28,17 +28,19 @@ instance PrimBytes TransformationObject
 updateTransObj ∷ VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
 updateTransObj device extent uniBuf = do
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @TransformationObject undefined) VK_ZERO_FLAGS
-  -- rotation is identity for now
+  -- rotation is scale identity for now
   let model = DF4
-                (DF4 1 0 0 0)
-                (DF4 0 1 0 0)
-                (DF4 0 0 1 0)
-                (DF4 0 0 0 1)
+                (DF4 32 0 0 0)
+                (DF4 0 32 0 0)
+                (DF4 0 0 32 0)
+                (DF4 0 0 0  1)
   poke (castPtr uboPtr) (scalar $ TransformationObject {..})
   liftIO $ vkUnmapMemory device uniBuf
-  where view  = lookAt (vec3 0 0 1) (vec3 2 2 2) (vec3 0 0 0)
+  -- these commands are all backwards
+  -- ortho near far w h
+  where view  = translate3 (vec3 0 0 (-1))
         proj  = proj' %* clip
-        proj' = perspective 0.1 20 (45/360*2*pi) aspectRatio
+        proj' = orthogonal (0.1) (500) (fromIntegral width) (fromIntegral height)
         clip = DF4
           (DF4 1   0   0   0)
           (DF4 0 (-1)  0   0)
@@ -46,7 +48,7 @@ updateTransObj device extent uniBuf = do
           (DF4 0   0  0.5  1)
         width = getField @"width" extent
         height = getField @"height" extent
-        aspectRatio = fromIntegral width / fromIntegral height
+        --aspectRatio = fromIntegral width / fromIntegral height
 
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransObjBuffers pdev dev n = replicateM n $ createBuffer pdev dev (bSizeOf @TransformationObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)

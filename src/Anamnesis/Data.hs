@@ -17,4 +17,5 @@ data Env = Env { envEventsChan ∷ Queue Event }
 data State = State { status  ∷ AExcept
                    , logFunc ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
                    , window  ∷ !(Maybe GLFW.Window)
-                   , cursor  ∷ !(Int, Int) }
+                   , cam3d   ∷ !(Float, Float, Float)
+                   , cursor  ∷ !(Int, Int, Int) }

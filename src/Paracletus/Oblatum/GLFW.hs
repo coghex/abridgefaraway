@@ -42,6 +42,10 @@ getGLFWKey "LFT" = Key'Left
 getGLFWKey "RGT" = Key'Right
 getGLFWKey "UPP" = Key'Up
 getGLFWKey "DWN" = Key'Down
+getGLFWKey "H"   = Key'H
+getGLFWKey "J"   = Key'J
+getGLFWKey "K"   = Key'K
+getGLFWKey "L"   = Key'L
 getGLFWKey _     = Key'Unknown
 
 keyCheck ∷ KeyLayout → Key → String → Bool
@@ -56,10 +60,15 @@ applyKeyLayout keyLayout "SPC" = keySPC keyLayout
 applyKeyLayout keyLayout "C"   = keyC   keyLayout
 applyKeyLayout keyLayout "R"   = keyR   keyLayout
 applyKeyLayout keyLayout "`"   = keySH  keyLayout
+applyKeyLayout keyLayout "H"   = keyH   keyLayout
+applyKeyLayout keyLayout "J"   = keyJ   keyLayout
+applyKeyLayout keyLayout "K"   = keyK   keyLayout
+applyKeyLayout keyLayout "L"   = keyL   keyLayout
 applyKeyLayout keyLayout "LFT" = keyLFT keyLayout
 applyKeyLayout keyLayout "RGT" = keyRGT keyLayout
 applyKeyLayout keyLayout "UPP" = keyUPP keyLayout
 applyKeyLayout keyLayout "DWN" = keyDWN keyLayout
+
 applyKeyLayout keyLayout _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)
