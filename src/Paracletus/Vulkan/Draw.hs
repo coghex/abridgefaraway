@@ -107,6 +107,7 @@ data RenderData = RenderData
   , imageAvailableSems ∷ Ptr VkSemaphore
   , inFlightFences     ∷ Ptr VkFence
   , cmdBuffersPtr      ∷ Ptr VkCommandBuffer
+  , fontcmdBuffersPtr  ∷ Ptr VkCommandBuffer
   , memories           ∷ Ptr VkDeviceMemory
   , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
 
@@ -122,22 +123,23 @@ drawFrame RenderData{..} = do
   inFlightFence ← peek inFlightFencePtr
   runVk $ vkAcquireNextImageKHR dev swapchain maxBound imageAvailable VK_NULL_HANDLE imgIndexPtr
   imgIndex ← fromIntegral ⊚ peek imgIndexPtr
-  let bufPtr = cmdBuffersPtr `ptrAtIndex` imgIndex
-      memPtr = memories `ptrAtIndex` imgIndex
+  let bufPtr  = cmdBuffersPtr `ptrAtIndex` imgIndex
+      fbufPtr = fontcmdBuffersPtr `ptrAtIndex` imgIndex
+      memPtr  = memories `ptrAtIndex` imgIndex
   mem ← peek memPtr
   memoryMutator mem
-  let submitInfo = createVk @VkSubmitInfo
-        $  set @"sType" VK_STRUCTURE_TYPE_SUBMIT_INFO
-        &* set @"pNext" VK_NULL
-        &* set @"waitSemaphoreCount" 1
-        &* setListRef @"pWaitSemaphores" [imageAvailable]
-        &* setListRef @"pWaitDstStageMask" [VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT]
-        &* set @"commandBufferCount" 1
-        &* set @"pCommandBuffers" bufPtr
-        &* set @"signalSemaphoreCount" 1
-        &* setListRef @"pSignalSemaphores" [renderFinished]
+  let submitInfo = [ createVk @VkSubmitInfo
+          $  set @"sType" VK_STRUCTURE_TYPE_SUBMIT_INFO
+          &* set @"pNext" VK_NULL
+          &* set @"waitSemaphoreCount" 1
+          &* setListRef @"pWaitSemaphores" [imageAvailable]
+          &* setListRef @"pWaitDstStageMask" [VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT]
+          &* set @"commandBufferCount" 1
+          &* set @"pCommandBuffers" bufPtr
+          &* set @"signalSemaphoreCount" 1
+          &* setListRef @"pSignalSemaphores" [renderFinished] ]
   runVk $ vkResetFences dev 1 inFlightFencePtr
-  withVkPtr submitInfo $ \siPtr → runVk $ vkQueueSubmit graphicsQueue 1 siPtr inFlightFence
+  runVk ∘ withVkArrayLen submitInfo $ \aLen siPtr → liftIO $ vkQueueSubmit graphicsQueue aLen siPtr inFlightFence
   let presentInfo = createVk @VkPresentInfoKHR
         $  set @"sType" VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
         &* set @"pNext" VK_NULL

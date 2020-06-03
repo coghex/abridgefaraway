@@ -62,6 +62,13 @@ runParacVulkan = do
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
+    let fontPath = "dat/tex/alph.png"
+    fontvertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) fontvertices
+    fontindexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) fontindices
+    fontdescriptorSetLayout ← createDescriptorSetLayout dev
+    (fontTexView, fontMipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) fontPath
+    fontSampler ← createTextureSampler dev fontMipLevels
+    fontDescTexInfo ← textureImageInfo fontTexView fontSampler
     let texPath = "dat/tex/texture.jpg"
     (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texPath
     textureSampler ← createTextureSampler dev mipLevels
@@ -78,10 +85,15 @@ runParacVulkan = do
       let swapchainLen = length (swapImgs swapInfo)
       (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
       descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+      fontdescriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
       descriptorPool ← createDescriptorPool dev swapchainLen
+      fontdescriptorPool ← createDescriptorPool dev swapchainLen
       descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
+      fontdescriptorSetLayouts ← newArrayRes $ replicate swapchainLen fontdescriptorSetLayout
       descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
+      fontdescriptorSets ← createDescriptorSets dev fontdescriptorPool swapchainLen fontdescriptorSetLayouts
       forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
+      forM_ (zip fontdescriptorBufferInfos fontdescriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo fontDescTexInfo dSet
       transObjMemories ← newArrayRes transObjMems
       imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
       logDebug $ "created image views: " ⧺ show imgViews
@@ -94,6 +106,7 @@ runParacVulkan = do
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
       cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
+      fontcmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo fontvertexBuffer (dfLen fontindices, fontindexBuffer) framebuffers fontdescriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -103,6 +116,7 @@ runParacVulkan = do
                              , imageAvailableSems
                              , inFlightFences
                              , cmdBuffersPtr
+                             , fontcmdBuffersPtr
                              , memories = transObjMemories
                              , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
@@ -143,4 +157,20 @@ vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF`
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
 indices ∷ DataFrame Word32 '[XN 3]
 indices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
+  where oneRectIndices = [0,3,2,2,1,0]
+
+fontvertices ∷ DataFrame Vertex '[XN 3]
+fontvertices = XFrame $ square `appendDF` withPos (+ vec4 4 0 0 0) square `appendDF` withPos (+ vec4 2 2 0 0) square
+  where square ∷ Vector Vertex 4
+        square = fromFlatList (D4 :* U) (Vertex 0 0 0)
+          [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec2 0 alphH)
+          , Vertex (vec3   1  (-1) 0) (vec3 0 1 0) (vec2 alphW alphH)
+          , Vertex (vec3   1    1  0) (vec3 0 0 1) (vec2 alphW 0)
+          , Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec2 0 0) ]
+        withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
+        withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
+        alphW = 1 / 16
+        alphH = 1 / 6
+fontindices ∷ DataFrame Word32 '[XN 3]
+fontindices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
   where oneRectIndices = [0,3,2,2,1,0]
