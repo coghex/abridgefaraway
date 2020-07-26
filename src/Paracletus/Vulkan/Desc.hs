@@ -62,7 +62,7 @@ createDescriptorSets dev descriptorPool n layoutsPtr = allocaArray n $ \dsPtr �
           &* set @"descriptorSetCount" (fromIntegral n)
           &* set @"pSetLayouts" layoutsPtr
 
-prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → VkDescriptorImageInfo → VkDescriptorSet → Anamnesis ε σ ()
+prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → [VkDescriptorImageInfo] → VkDescriptorSet → Anamnesis ε σ ()
 prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArrayLen descriptorWrites $ \dwLen dwPtr → liftIO $ vkUpdateDescriptorSets dev dwLen dwPtr 0 VK_NULL
   where descriptorWrites =
           [ createVk @VkWriteDescriptorSet
@@ -85,5 +85,5 @@ prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArr
             &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
             &* set @"descriptorCount" 1
             &* set @"pBufferInfo" VK_NULL
-            &* setVkRef @"pImageInfo" imageInfo
+            &* setListRef @"pImageInfo" imageInfo
             &* set @"pTexelBufferView" VK_NULL ]

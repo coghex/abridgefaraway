@@ -61,10 +61,12 @@ runParacVulkan = do
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-    let texPath = "dat/tex/texture.jpg"
-    (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texPath
+    let tex1Path = "dat/tex/texture1.png"
+        tex2Path = "dat/tex/texture2.png"
+    (textureView1, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
+    (textureView2, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path
     textureSampler ← createTextureSampler dev mipLevels
-    descriptorTextureInfo ← textureImageInfo textureView textureSampler
+    descriptorTextureInfo ← textureImageInfo textureView1 textureSampler
     depthFormat ← findDepthFormat pdev
     -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
