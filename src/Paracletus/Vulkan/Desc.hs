@@ -47,7 +47,7 @@ createDescriptorSetLayout dev = allocResource
               , createVk @VkDescriptorSetLayoutBinding
                 $  set @"binding" 1
                 &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-                &* set @"descriptorCount" 1
+                &* set @"descriptorCount" 2
                 &* set @"stageFlags" VK_SHADER_STAGE_FRAGMENT_BIT
                 &* set @"pImmutableSamplers" VK_NULL ]
 
@@ -83,7 +83,7 @@ prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArr
             &* set @"dstBinding" 1
             &* set @"dstArrayElement" 0
             &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-            &* set @"descriptorCount" 1
+            &* set @"descriptorCount" 2
             &* set @"pBufferInfo" VK_NULL
             &* setListRef @"pImageInfo" imageInfo
             &* set @"pTexelBufferView" VK_NULL ]
