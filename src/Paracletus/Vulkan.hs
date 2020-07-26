@@ -11,7 +11,6 @@ import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Event
 import Anamnesis.Foreign
-import Anamnesis.Map
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
@@ -62,13 +61,6 @@ runParacVulkan = do
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-    let fontPath = "dat/tex/alph.png"
-    fontvertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) fontvertices
-    fontindexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) fontindices
-    fontdescriptorSetLayout ← createDescriptorSetLayout dev
-    (fontTexView, fontMipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) fontPath
-    fontSampler ← createTextureSampler dev fontMipLevels
-    fontDescTexInfo ← textureImageInfo fontTexView fontSampler
     let texPath = "dat/tex/texture.jpg"
     (textureView, mipLevels) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texPath
     textureSampler ← createTextureSampler dev mipLevels
@@ -85,15 +77,10 @@ runParacVulkan = do
       let swapchainLen = length (swapImgs swapInfo)
       (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
       descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-      fontdescriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
       descriptorPool ← createDescriptorPool dev swapchainLen
-      fontdescriptorPool ← createDescriptorPool dev swapchainLen
       descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
-      fontdescriptorSetLayouts ← newArrayRes $ replicate swapchainLen fontdescriptorSetLayout
       descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-      fontdescriptorSets ← createDescriptorSets dev fontdescriptorPool swapchainLen fontdescriptorSetLayouts
       forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
-      forM_ (zip fontdescriptorBufferInfos fontdescriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo fontDescTexInfo dSet
       transObjMemories ← newArrayRes transObjMems
       imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
       logDebug $ "created image views: " ⧺ show imgViews
@@ -106,7 +93,6 @@ runParacVulkan = do
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
       cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
-      fontcmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo fontvertexBuffer (dfLen fontindices, fontindexBuffer) framebuffers fontdescriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -116,7 +102,6 @@ runParacVulkan = do
                              , imageAvailableSems
                              , inFlightFences
                              , cmdBuffersPtr
-                             , fontcmdBuffersPtr
                              , memories = transObjMemories
                              , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr

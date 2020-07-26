@@ -107,7 +107,6 @@ data RenderData = RenderData
   , imageAvailableSems ∷ Ptr VkSemaphore
   , inFlightFences     ∷ Ptr VkFence
   , cmdBuffersPtr      ∷ Ptr VkCommandBuffer
-  , fontcmdBuffersPtr  ∷ Ptr VkCommandBuffer
   , memories           ∷ Ptr VkDeviceMemory
   , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
 
@@ -124,7 +123,6 @@ drawFrame RenderData{..} = do
   runVk $ vkAcquireNextImageKHR dev swapchain maxBound imageAvailable VK_NULL_HANDLE imgIndexPtr
   imgIndex ← fromIntegral ⊚ peek imgIndexPtr
   let bufPtr  = cmdBuffersPtr `ptrAtIndex` imgIndex
-      fbufPtr = fontcmdBuffersPtr `ptrAtIndex` imgIndex
       memPtr  = memories `ptrAtIndex` imgIndex
   mem ← peek memPtr
   memoryMutator mem
