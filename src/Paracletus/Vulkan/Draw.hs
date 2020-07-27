@@ -7,6 +7,7 @@ module Paracletus.Vulkan.Draw where
 import Prelude()
 import UPrelude
 import Control.Monad (forM_, replicateM)
+import Foreign.Ptr (castPtr)
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
@@ -82,6 +83,9 @@ createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo
                    &* set @"stencil" 0 ]
      withVkPtr renderPassBeginInfo $ \rpibPtr → liftIO $ vkCmdBeginRenderPass cmdBuffer rpibPtr VK_SUBPASS_CONTENTS_INLINE
      liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline
+     let range = 1 ∷ Word32
+     voidPtr ← newArrayRes [range]
+     liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 32 $ castPtr voidPtr
      liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr vertexOffArr
      liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer 0 VK_INDEX_TYPE_UINT32
      dsPtr ← newArrayRes [descriptorSet]
