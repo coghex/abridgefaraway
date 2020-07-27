@@ -156,8 +156,11 @@ createPipelineLayout dev dsl = do
         &* set @"flags" VK_ZERO_FLAGS
         &* set @"setLayoutCount" 1
         &* setListRef @"pSetLayouts" [dsl]
-        &* set @"pushConstantRangeCount" 0
-        &* set @"pPushConstantRanges" VK_NULL
+        &* set @"pushConstantRangeCount" 1
+        &* setVkRef @"pPushConstantRanges" ( createVk @VkPushConstantRange
+                $  set @"stageFlags" VK_SHADER_STAGE_FRAGMENT_BIT
+                &* set @"offset" 0
+                &* set @"size" 32 )
   allocResource
     (\pl → liftIO $ vkDestroyPipelineLayout dev pl VK_NULL) $
     withVkPtr plCreateInfo $ \plciPtr → allocaPeek $ runVk ∘ vkCreatePipelineLayout dev plciPtr VK_NULL
