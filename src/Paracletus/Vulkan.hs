@@ -135,15 +135,17 @@ runParacVulkan = do
 
 -- these is placeholder data
 vertices ∷ DataFrame Vertex '[XN 3]
-vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withPos (+ vec4 0 2 0 0) square
+vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withTC (+ vec3 0 0 1) (withPos (+ vec4 0 2 0 0) square)
   where square ∷ Vector Vertex 4
         square = fromFlatList (D4 :* U) (Vertex 0 0 0)
-          [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec2 0 1)
-          , Vertex (vec3   1  (-1) 0) (vec3 0 1 0) (vec2 1 1)
-          , Vertex (vec3   1    1  0) (vec3 0 0 1) (vec2 1 0)
-          , Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec2 0 0) ]
+          [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec3 0 1 0.1)
+          , Vertex (vec3   1  (-1) 0) (vec3 0 1 0) (vec3 1 1 0.1)
+          , Vertex (vec3   1    1  0) (vec3 0 0 1) (vec3 1 0 0.1)
+          , Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec3 0 0 0.1) ]
         withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
+        withTC ∷ (Vec3f → Vec3f) → Vector Vertex 4 → Vector Vertex 4
+        withTC f = ewmap (\(S v) → S v { texCoord = f $ texCoord v })
 indices ∷ DataFrame Word32 '[XN 3]
 indices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
   where oneRectIndices = [0,3,2,2,1,0]
