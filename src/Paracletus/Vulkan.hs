@@ -59,6 +59,7 @@ runParacVulkan = do
     imgIndexPtr ← mallocRes
     vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
     indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
+    pcPtr ← createPushConstants 1
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     let tex1Path = "dat/tex/texture1.png"
@@ -95,7 +96,7 @@ runParacVulkan = do
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
-      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) framebuffers descriptorSets
+      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) pcPtr framebuffers descriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -145,20 +146,4 @@ vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF`
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
 indices ∷ DataFrame Word32 '[XN 3]
 indices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
-  where oneRectIndices = [0,3,2,2,1,0]
-
-fontvertices ∷ DataFrame Vertex '[XN 3]
-fontvertices = XFrame $ square `appendDF` withPos (+ vec4 4 0 0 0) square `appendDF` withPos (+ vec4 2 2 0 0) square
-  where square ∷ Vector Vertex 4
-        square = fromFlatList (D4 :* U) (Vertex 0 0 0)
-          [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec2 0 alphH)
-          , Vertex (vec3   1  (-1) 0) (vec3 0 1 0) (vec2 alphW alphH)
-          , Vertex (vec3   1    1  0) (vec3 0 0 1) (vec2 alphW 0)
-          , Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec2 0 0) ]
-        withPos ∷ (Vec4f → Vec4f) → Vector Vertex 4 → Vector Vertex 4
-        withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
-        alphW = 1 / 16
-        alphH = 1 / 6
-fontindices ∷ DataFrame Word32 '[XN 3]
-fontindices = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
   where oneRectIndices = [0,3,2,2,1,0]
