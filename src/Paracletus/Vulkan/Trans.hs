@@ -22,6 +22,7 @@ data TransformationObject = TransformationObject
   { model ∷ Mat44f
   , view  ∷ Mat44f
   , proj  ∷ Mat44f
+  , texi  ∷ Vec3i
   } deriving (Show, Generic)
 instance PrimBytes TransformationObject
 
@@ -48,6 +49,7 @@ updateTransObj device extent uniBuf = do
           (DF4 0   0  0.5  1)
         width = getField @"width" extent
         height = getField @"height" extent
+        texi = DF3 1 1 1
         --aspectRatio = fromIntegral width / fromIntegral height
 
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]

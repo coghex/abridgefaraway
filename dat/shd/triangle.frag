@@ -3,15 +3,12 @@
 
 layout(binding = 1) uniform sampler2D texSampler[2];
 
-layout(push_constant) uniform BlockPC {
-  int texIndex;
-}pc;
-
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) flat in int fragTexIndex;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-  outColor = texture(texSampler[pc.texIndex], fragTexCoord);
+  outColor = texture(texSampler[fragTexIndex], fragTexCoord);
 }
