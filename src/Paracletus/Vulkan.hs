@@ -69,7 +69,8 @@ runParacVulkan = do
     (textureView2, mipLevels2) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path
     textureSampler1 ← createTextureSampler dev mipLevels1
     textureSampler2 ← createTextureSampler dev mipLevels2
-    descriptorTextureInfo ← textureImageInfo textureView1 textureSampler1 textureView2 textureSampler2
+    --descriptorTextureInfo ← textureImageInfo textureView1 textureSampler1 textureView2 textureSampler2
+    descriptorTextureInfo ← textureImageInfos [textureView1, textureView2] [textureSampler1, textureSampler2]
     depthFormat ← findDepthFormat pdev
     -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()

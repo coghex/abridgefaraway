@@ -129,16 +129,19 @@ createTextureSampler dev mipLevels = do
         &* set @"maxLod" (fromIntegral mipLevels)
   allocResource (liftIO ∘ flip (vkDestroySampler dev) VK_NULL) $ withVkPtr samplerCreateInfo $ \sciPtr → allocaPeek $ runVk ∘ vkCreateSampler dev sciPtr VK_NULL
 
-textureImageInfo ∷ VkImageView → VkSampler → VkImageView → VkSampler → Anamnesis ε σ [VkDescriptorImageInfo]
-textureImageInfo view1 sampler1 view2 sampler2 = return $
+textureImageInfos ∷ [VkImageView] → [VkSampler] → Anamnesis ε σ [VkDescriptorImageInfo]
+textureImageInfos [] _          = return []
+textureImageInfos (v:vs) (s:ss) = do
+  t1 ← textureImageInfo v s
+  t2 ← textureImageInfos vs ss
+  return $ t1 ⧺ t2
+
+textureImageInfo ∷ VkImageView → VkSampler → Anamnesis ε σ [VkDescriptorImageInfo]
+textureImageInfo view sampler = return $
   [ createVk @VkDescriptorImageInfo
       $  set @"imageLayout" VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-      &* set @"imageView" view1
-      &* set @"sampler" sampler1
-  , createVk @VkDescriptorImageInfo
-      $  set @"imageLayout" VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-      &* set @"imageView" view2
-      &* set @"sampler" sampler2 ]
+      &* set @"imageView" view
+      &* set @"sampler" sampler ]
 
 createImageView ∷ VkDevice → VkImage → VkFormat → VkImageAspectFlags → Word32 → Anamnesis ε σ VkImageView
 createImageView dev image format aspectFlags mipLevels = allocResource (liftIO ∘ flip (vkDestroyImageView dev) VK_NULL) $ withVkPtr imgvCreateInfo $ \imgvciPtr → allocaPeek $ runVk ∘ vkCreateImageView dev imgvciPtr VK_NULL
