@@ -36,6 +36,7 @@ executable abfa
                    Paracletus.Oblatum.GLFW
                    Paracletus.TH
                    Paracletus.Vulkan
+                   Paracletus.Vulkan.Atlas
                    Paracletus.Vulkan.Buffer
                    Paracletus.Vulkan.Command
                    Paracletus.Vulkan.Desc

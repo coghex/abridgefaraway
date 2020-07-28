@@ -17,6 +17,7 @@ import Artos.Var
 import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
+import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
@@ -135,7 +136,7 @@ runParacVulkan = do
 
 -- these is placeholder data
 vertices ∷ DataFrame Vertex '[XN 3]
-vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withTC (+ vec3 0 0 1) (withPos (+ vec4 0 2 0 0) square)
+vertices = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withTC (indexAtlas 0 0 2 2) (withTC (+ vec3 0 0 1) (withPos (+ vec4 0 2 0 0) square))
   where square ∷ Vector Vertex 4
         square = fromFlatList (D4 :* U) (Vertex 0 0 0)
           [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec3 0 1 0.1)
