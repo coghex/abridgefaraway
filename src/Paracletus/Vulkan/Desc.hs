@@ -25,7 +25,7 @@ createDescriptorPool dev n = allocResource (liftIO ∘ flip (vkDestroyDescriptor
         &* set @"descriptorCount" (fromIntegral n)
       , createVk @VkDescriptorPoolSize
         $  set @"type" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-        &* set @"descriptorCount" (fromIntegral n) ]
+        &* set @"descriptorCount" (2*(fromIntegral n)) ]
     &* set @"maxSets" (fromIntegral n)
   ) $ \ciPtr → runVk $ vkCreateDescriptorPool dev ciPtr VK_NULL pPtr
 
