@@ -83,7 +83,7 @@ createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo
                    &* set @"stencil" 0 ]
      withVkPtr renderPassBeginInfo $ \rpibPtr → liftIO $ vkCmdBeginRenderPass cmdBuffer rpibPtr VK_SUBPASS_CONTENTS_INLINE
      liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline
-     liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 1 pcPtr
+     liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 4 pcPtr
      liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr vertexOffArr
      liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer 0 VK_INDEX_TYPE_UINT32
      dsPtr ← newArrayRes [descriptorSet]
