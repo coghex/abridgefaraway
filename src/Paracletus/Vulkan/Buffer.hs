@@ -65,7 +65,7 @@ findMemoryType pdev typeFilter properties = do
            | otherwise = if testBit typeFilter (fromIntegral i) ∧ (getField @"propertyFlags" (ixOff (fromIntegral i) memTypes) ⌃ properties) ≡ properties then return i else go (i+1)
   go 0
 
-createVertexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Vertex '[XN 3] → Anamnesis ε σ VkBuffer
+createVertexBuffer ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → DataFrame Vertex '[XN 0] → Anamnesis ε σ VkBuffer
 createVertexBuffer pdev dev cmdPool cmdQueue (XFrame vertices) = do
   let bSize = bSizeOf vertices
   (_, vertexBuf) ← createBuffer pdev dev bSize (VK_BUFFER_USAGE_TRANSFER_DST_BIT ⌄ VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT

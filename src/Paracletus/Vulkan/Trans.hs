@@ -29,12 +29,12 @@ instance PrimBytes TransformationObject
 updateTransObj ∷ VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
 updateTransObj device extent uniBuf = do
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @TransformationObject undefined) VK_ZERO_FLAGS
-  -- rotation is scale identity for now
   let model = DF4
                 (DF4 32 0 0 0)
                 (DF4 0 32 0 0)
                 (DF4 0 0 32 0)
                 (DF4 0 0 0  1)
+      texi = DF3 1 1 1
   poke (castPtr uboPtr) (scalar $ TransformationObject {..})
   liftIO $ vkUnmapMemory device uniBuf
   -- these commands are all backwards
@@ -49,7 +49,6 @@ updateTransObj device extent uniBuf = do
           (DF4 0   0  0.5  1)
         width = getField @"width" extent
         height = getField @"height" extent
-        texi = DF3 1 1 1
         --aspectRatio = fromIntegral width / fromIntegral height
 
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]

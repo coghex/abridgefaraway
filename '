@@ -28,7 +28,6 @@ import Paracletus.Vulkan.Instance
 import Paracletus.Vulkan.Pipeline
 import Paracletus.Vulkan.Pres
 import Paracletus.Vulkan.Shader
-import Paracletus.Vulkan.Tile
 import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Trans
 import Paracletus.Vulkan.Vertex
@@ -59,10 +58,8 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    st ← get
-    let stateTiles = tiles st
-    vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTiles)
-    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTiles)
+    vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) vertices
+    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) indices
     pcPtr ← createPushConstants 1
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
@@ -101,7 +98,7 @@ runParacVulkan = do
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
-      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) pcPtr framebuffers descriptorSets
+      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen indices, indexBuffer) pcPtr framebuffers descriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -138,9 +135,12 @@ runParacVulkan = do
       return $ if shouldExit then AbortLoop else ContinueLoop
   return ()
 
+appendXF ∷ DataFrame Vertex '[XN 3] → DataFrame Vertex '[XN 3] → DataFrame Vertex '[XN 3]
+appendXF (XFrame xf) (XFrame df) = XFrame $ xf `appendDF` df
+
 -- these is placeholder data
-verticesex ∷ DataFrame Vertex '[XN 3]
-verticesex = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withTC (indexAtlas 0 0 2 2) (withTC (+ vec3 0 0 1) (withPos (+ vec4 0 2 0 0) square))
+vertices ∷ DataFrame Vertex '[XN 3]
+vertices = XFrame $ square-- `appendDF` withPos (+ vec4 2 0 0 0) square `appendDF` withTC (indexAtlas 0 0 2 2) (withTC (+ vec3 0 0 1) (withPos (+ vec4 0 2 0 0) square))
   where square ∷ Vector Vertex 4
         square = fromFlatList (D4 :* U) (Vertex 0 0 0)
           [ Vertex (vec3 (-1) (-1) 0) (vec3 1 0 0) (vec3 0 1 0.1)
@@ -151,6 +151,6 @@ verticesex = XFrame $ square `appendDF` withPos (+ vec4 2 0 0 0) square `appendD
         withPos f = ewmap (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
         withTC ∷ (Vec3f → Vec3f) → Vector Vertex 4 → Vector Vertex 4
         withTC f = ewmap (\(S v) → S v { texCoord = f $ texCoord v })
-indicesex ∷ DataFrame Word32 '[XN 3]
-indicesex = atLeastThree $ fromList $ oneRectIndices ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
+indices ∷ DataFrame Word32 '[XN 3]
+indices = atLeastThree $ fromList $ oneRectIndices-- ⧺ map (+4) oneRectIndices ⧺ map (+8) oneRectIndices
   where oneRectIndices = [0,3,2,2,1,0]

@@ -19,6 +19,7 @@ import GHC.Stack
 import System.Exit
 import Anamnesis
 import Anamnesis.Data
+import Paracletus.Data
 import Artos
 import Artos.Except
 import Artos.Queue
@@ -36,12 +37,16 @@ initEnv = do
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
+  let tile1 = GTile { tPos = (0,0)
+                    , tInd = (0,0)
+                    , tT   = 1 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   atomically $ newTVar State { status  = ref
                              , logFunc = lf
                              , window  = Nothing
                              , cam3d   = (2.0, 2.0, 2.0)
-                             , cursor  = (0, 0, 2) }
+                             , cursor  = (0, 0, 2)
+                             , tiles   = [tile1, tile1] }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

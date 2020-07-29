@@ -48,6 +48,7 @@ executable abfa
                    Paracletus.Vulkan.Pres
                    Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Sync
+                   Paracletus.Vulkan.Tile
                    Paracletus.Vulkan.Texture
                    Paracletus.Vulkan.Trans
                    Paracletus.Vulkan.Vertex
