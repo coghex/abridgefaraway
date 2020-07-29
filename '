@@ -23,18 +23,13 @@ vertices tiles = fromList $ combineVertices tiles
                   , S $ Vertex (vec3   1    1  0) (vec3 0 0 1) (vec3 1 0 0.1)
                   , S $ Vertex (vec3 (-1)   1  0) (vec3 1 1 1) (vec3 0 0 0.1) ]
         combineVertices [] = []
-        combineVertices (tile:tiles) = (withTC (+ vec3 ax ay t) (withPos (+ vec4 x y 0 0) vertsqs)) ⧺ combineVertices tiles
-          where (x',y') = tPos tile
-                ( x, y) = (2*fromIntegral x', 2*fromIntegral y')
-                (ax', ay') = tInd tile
-                ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
-                t = fromIntegral $ tT tile
+        combineVertices (tile:tiles) = (withPos (+ vec4 2 0 0 0) vertsqs) ⧺ (combineVertices tiles)
         withPos f = map (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
-        withTC f = map (\(S v) → S v { texCoord = f $ texCoord v })
 
 indices ∷ [GTile] → DataFrame Word32 '[XN 3]
 indices tiles = atLeastThree $ fromList $ (combineIndices tiles)
 combineIndices ∷ ∀ a. (Num a) ⇒ [GTile] → [a]
 combineIndices []           = []
-combineIndices (tile:tiles) = oneRectIndices ⧺ (map (+4) (combineIndices tiles))
+combineIndices (tile:tiles) = (indMap oneRectIndices) ⧺ combineIndices tiles
   where oneRectIndices = [0,3,2,2,1,0]
+  where indMap = map (+4)

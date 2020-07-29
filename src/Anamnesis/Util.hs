@@ -39,6 +39,9 @@ initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
   let tile1 = GTile { tPos = (0,0)
                     , tInd = (0,0)
+                    , tT   = 0 }
+  let tile2 = GTile { tPos = (0,1)
+                    , tInd = (0,0)
                     , tT   = 1 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   atomically $ newTVar State { status  = ref
@@ -46,7 +49,7 @@ initState = do
                              , window  = Nothing
                              , cam3d   = (2.0, 2.0, 2.0)
                              , cursor  = (0, 0, 2)
-                             , tiles   = [tile1, tile1] }
+                             , tiles   = [tile1, tile2] }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()
