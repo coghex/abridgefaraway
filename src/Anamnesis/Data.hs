@@ -6,6 +6,7 @@ import Artos.Except
 import Artos.Queue
 import Epiklesis.Data
 import Paracletus.Data
+import Anamnesis.Draw
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- possible results of anamnesis
 -- specific utility actions
@@ -21,5 +22,6 @@ data State = State { status  ∷ AExcept
                    , window  ∷ !(Maybe GLFW.Window)
                    , cam3d   ∷ !(Float, Float, Float)
                    , cursor  ∷ !(Int, Int, Int)
-                   , tiles   ∷ ![GTile]
+                   , stateChanged ∷ !Bool
+                   , drawSt  ∷ !DrawState
                    , luaSt   ∷ !LuaState }

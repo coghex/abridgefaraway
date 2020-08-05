@@ -4,11 +4,12 @@ module Paracletus.Vulkan where
 import Prelude()
 import UPrelude
 import Control.Monad (forM_, when)
+import Control.Monad.State.Class (modify', gets)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
-import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Draw
 import Anamnesis.Event
 import Anamnesis.Foreign
 import Anamnesis.Util
@@ -17,7 +18,6 @@ import Artos.Var
 import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
-import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
@@ -59,10 +59,6 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    st ← get
-    let stateTiles = tiles st
-    vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTiles)
-    indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTiles)
     pcPtr ← createPushConstants 1
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
@@ -75,13 +71,16 @@ runParacVulkan = do
     textureSampler1 ← createTextureSampler dev mipLevels1
     textureSampler2 ← createTextureSampler dev mipLevels2
     texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
-    --descriptorTextureInfo ← textureImageInfo textureView1 textureSampler1 textureView2 textureSampler2
     descriptorTextureInfo ← textureImageInfos [textureView1, textureView2, texViewAlph] [textureSampler1, textureSampler2, texSamplerAlph]
     depthFormat ← findDepthFormat pdev
     -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
+      st ← get
+      let stateTiles = dsTiles $ drawSt st
+      vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTiles)
+      indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTiles)
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
@@ -118,9 +117,9 @@ runParacVulkan = do
                              , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
+      modify' $ \s → s { stateChanged = False }
       shouldExit ← glfwMainLoop window $ do
         -- logic
-        st ← get
         let rdata' = rdata { memoryMutator = updateTransObj dev (swapExtent swapInfo) }
         liftIO $ GLFW.pollEvents
         needRecreation ← drawFrame rdata' `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
@@ -133,9 +132,10 @@ runParacVulkan = do
           -- _    → logExcept err ExParacletus "unknown drawFrame error" )
         sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
         when sizeChanged $ logDebug "glfw window size callback"
+        stChanged ← gets stateChanged
         -- this is for key input
         processEvents
-        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
+        return $ if needRecreation ∨ sizeChanged ∨ stChanged then AbortLoop else ContinueLoop
       -- loop ends, now deallocate
       runVk $ vkDeviceWaitIdle dev
       return $ if shouldExit then AbortLoop else ContinueLoop

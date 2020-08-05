@@ -42,6 +42,7 @@ getGLFWKey "LFT" = Key'Left
 getGLFWKey "RGT" = Key'Right
 getGLFWKey "UPP" = Key'Up
 getGLFWKey "DWN" = Key'Down
+getGLFWKey "C"   = Key'C
 getGLFWKey "H"   = Key'H
 getGLFWKey "J"   = Key'J
 getGLFWKey "K"   = Key'K

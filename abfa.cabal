@@ -23,6 +23,7 @@ executable abfa
                    Artos.Var
                    Anamnesis
                    Anamnesis.Data
+                   Anamnesis.Draw
                    Anamnesis.Event
                    Anamnesis.Foreign
                    Anamnesis.Map

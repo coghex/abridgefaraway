@@ -7,6 +7,7 @@ import Control.Monad (when)
 import Control.Monad.State.Class (modify')
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
 import Paracletus.Oblatum.Data (KeyLayout)
@@ -40,6 +41,12 @@ evalKey window k _  _  keyLayout = do
     let newcam3d  = (moveCursor 1.0 (cam3d st) North)
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
+    return ()
+  when (GLFW.keyCheck keyLayout k "C") $ do
+    let newDS = (addTile (drawSt st))
+    modify' $ \s → s { stateChanged = True
+                     , drawSt = newDS }
+    logDebug $ "adding test tile..."
     return ()
   when (GLFW.keyCheck keyLayout k "J") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) South)
