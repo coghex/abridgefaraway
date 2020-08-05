@@ -4,7 +4,7 @@ module Paracletus.Vulkan where
 import Prelude()
 import UPrelude
 import Control.Monad (forM_, when)
-import Control.Monad.State.Class (modify', gets)
+import Control.Monad.State.Class (gets)--, modify')
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -77,8 +77,8 @@ runParacVulkan = do
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
-      st ← get
-      let stateTiles = dsTiles $ drawSt st
+      ds ← gets drawSt
+      let stateTiles = dsTiles ds
       vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTiles)
       indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTiles)
       logDebug "creating new swapchain..."
@@ -103,7 +103,7 @@ runParacVulkan = do
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
-      cmdBuffersPtr ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) pcPtr framebuffers descriptorSets
+      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) pcPtr framebuffers descriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -112,15 +112,21 @@ runParacVulkan = do
                              , renderFinishedSems
                              , imageAvailableSems
                              , inFlightFences
-                             , cmdBuffersPtr
+                             , cmdBuffersPtr = cmdBuffersPtr0
                              , memories = transObjMemories
                              , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
-      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr
+      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
-      modify' $ \s → s { stateChanged = False }
       shouldExit ← glfwMainLoop window $ do
-        -- logic
-        let rdata' = rdata { memoryMutator = updateTransObj dev (swapExtent swapInfo) }
+        -- changes command buffer when
+        -- the state changes
+        dsNew ← gets drawSt
+        let stateTilesNew = dsTiles dsNew
+        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTilesNew)
+        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTilesNew)
+        cmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen (indices stateTilesNew), indexBufferNew) pcPtr framebuffers descriptorSets
+        let rdata' = rdata { cmdBuffersPtr = cmdBP
+                           , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
         liftIO $ GLFW.pollEvents
         needRecreation ← drawFrame rdata' `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
           -- when khr out of date,
@@ -132,10 +138,9 @@ runParacVulkan = do
           -- _    → logExcept err ExParacletus "unknown drawFrame error" )
         sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
         when sizeChanged $ logDebug "glfw window size callback"
-        stChanged ← gets stateChanged
         -- this is for key input
         processEvents
-        return $ if needRecreation ∨ sizeChanged ∨ stChanged then AbortLoop else ContinueLoop
+        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
       -- loop ends, now deallocate
       runVk $ vkDeviceWaitIdle dev
       return $ if shouldExit then AbortLoop else ContinueLoop
