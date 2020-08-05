@@ -24,6 +24,7 @@ import Artos
 import Artos.Except
 import Artos.Queue
 import Artos.Var
+import Epiklesis.Lua
 
 runAnamnesis ∷ (Either AExcept α → IO σ) → Anamnesis ε σ α → IO σ
 runAnamnesis c p = do
@@ -37,19 +38,23 @@ initEnv = do
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
-  let tile1 = GTile { tPos = (0,0)
-                    , tInd = (0,0)
-                    , tT   = 0 }
-  let tile2 = GTile { tPos = (0,1)
-                    , tInd = (0,0)
-                    , tT   = 1 }
+  let tile1 = GTile { tPos  = (0,0)
+                    , tInd  = (0,0)
+                    , tSize = (1,1)
+                    , tT    = 0 }
+  let tile2 = GTile { tPos  = (0,1)
+                    , tInd  = (0,0)
+                    , tSize = (1,1)
+                    , tT    = 1 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
+  ls ← initLua
   atomically $ newTVar State { status  = ref
                              , logFunc = lf
                              , window  = Nothing
                              , cam3d   = (2.0, 2.0, 2.0)
                              , cursor  = (0, 0, 2)
-                             , tiles   = [tile1, tile2] }
+                             , tiles   = [tile1, tile2]
+                             , luaSt   = ls }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

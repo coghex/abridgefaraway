@@ -27,6 +27,8 @@ executable abfa
                    Anamnesis.Foreign
                    Anamnesis.Map
                    Anamnesis.Util
+                   Epiklesis.Data
+                   Epiklesis.Lua
                    Paracletus
                    Paracletus.Data
                    Paracletus.Oblatum
@@ -64,6 +66,7 @@ executable abfa
                  , process
                  , filepath
                  , directory
+                 , hslua
                  , GLFW-b
                  , vulkan-api >= 1.3
                  , vector

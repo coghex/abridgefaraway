@@ -68,12 +68,15 @@ runParacVulkan = do
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     let tex1Path = "dat/tex/texture1.png"
         tex2Path = "dat/tex/texture2.png"
+        texAlph  = "dat/tex/alph.png"
     (textureView1, mipLevels1) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
     (textureView2, mipLevels2) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path
+    (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texAlph
     textureSampler1 ← createTextureSampler dev mipLevels1
     textureSampler2 ← createTextureSampler dev mipLevels2
+    texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
     --descriptorTextureInfo ← textureImageInfo textureView1 textureSampler1 textureView2 textureSampler2
-    descriptorTextureInfo ← textureImageInfos [textureView1, textureView2] [textureSampler1, textureSampler2]
+    descriptorTextureInfo ← textureImageInfos [textureView1, textureView2, texViewAlph] [textureSampler1, textureSampler2, texSamplerAlph]
     depthFormat ← findDepthFormat pdev
     -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()

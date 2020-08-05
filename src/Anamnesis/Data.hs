@@ -4,6 +4,7 @@ module Anamnesis.Data where
 import qualified Control.Monad.Logger as Logger
 import Artos.Except
 import Artos.Queue
+import Epiklesis.Data
 import Paracletus.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- possible results of anamnesis
@@ -20,4 +21,5 @@ data State = State { status  ∷ AExcept
                    , window  ∷ !(Maybe GLFW.Window)
                    , cam3d   ∷ !(Float, Float, Float)
                    , cursor  ∷ !(Int, Int, Int)
-                   , tiles   ∷ ![GTile]}
+                   , tiles   ∷ ![GTile]
+                   , luaSt   ∷ !LuaState }

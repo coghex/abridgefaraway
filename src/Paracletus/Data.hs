@@ -5,8 +5,10 @@ data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanS
 
 -- generic tile translates to verticies
 -- for each graphics layer, pos is position
--- ind is the texture atlas index, t is the
--- texture index in 2 dimensions
-data GTile = GTile { tPos ∷ (Int, Int)
-                   , tInd ∷ (Int, Int)
-                   , tT   ∷ Int }
+-- on the screen, ind is the texture atlas
+-- index, t is the texture index in 2 dimensions
+-- size is the size of the atlas
+data GTile = GTile { tPos  ∷ (Int, Int)
+                   , tInd  ∷ (Int, Int)
+                   , tSize ∷ (Int, Int)
+                   , tT    ∷ Int }
