@@ -101,13 +101,13 @@ createGraphicsPipeline dev SwapchainInfo{swapExtent} bindDesc attrDescs shaderDe
           &* set @"alphaToOneEnable" VK_FALSE
         colorBlendAttachment = createVk @VkPipelineColorBlendAttachmentState
           $  set @"colorWriteMask" (VK_COLOR_COMPONENT_R_BIT ⌄ VK_COLOR_COMPONENT_G_BIT ⌄ VK_COLOR_COMPONENT_B_BIT ⌄ VK_COLOR_COMPONENT_A_BIT)
-          &* set @"blendEnable" VK_FALSE
-          &* set @"srcColorBlendFactor" VK_BLEND_FACTOR_ONE
-          &* set @"dstColorBlendFactor" VK_BLEND_FACTOR_ZERO
+          &* set @"blendEnable" VK_TRUE
+          &* set @"srcColorBlendFactor" VK_BLEND_FACTOR_SRC_ALPHA
+          &* set @"dstColorBlendFactor" VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA
           &* set @"colorBlendOp" VK_BLEND_OP_ADD
-          &* set @"srcAlphaBlendFactor" VK_BLEND_FACTOR_ONE
-          &* set @"dstAlphaBlendFactor" VK_BLEND_FACTOR_ZERO
-          &* set @"alphaBlendOp" VK_BLEND_OP_ADD
+          &* set @"srcAlphaBlendFactor" VK_BLEND_FACTOR_SRC_ALPHA
+          &* set @"dstAlphaBlendFactor" VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA
+          &* set @"alphaBlendOp" VK_BLEND_OP_SUBTRACT
         colorBlending = createVk @VkPipelineColorBlendStateCreateInfo
           $  set @"sType" VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
           &* set @"pNext" VK_NULL

@@ -3,7 +3,7 @@
 
 layout(binding = 1) uniform sampler2D texSampler[256];
 
-layout(location = 0) in vec3 fragColor;
+layout(location = 0) in vec4 fragColor;
 layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) flat in int fragTexIndex;
 

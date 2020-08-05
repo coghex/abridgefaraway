@@ -20,7 +20,7 @@ import qualified Numeric.DataFrame.ST as ST
 import Numeric.Dimensions
 
 data Vertex = Vertex { pos      ∷ Vec3f
-                     , color    ∷ Vec3f
+                     , color    ∷ Vec4f
                      , texCoord ∷ Vec3f
                      } deriving (Eq, Ord, Show, Generic)
 instance PrimBytes Vertex
@@ -49,7 +49,7 @@ vertIADs = ST.runST $ do
   ST.writeDataFrame mv (1 :* Empty) ∘ scalar $ createVk
     $  set @"location" 1
     &* set @"binding"  0
-    &* set @"format"   VK_FORMAT_R32G32B32_SFLOAT
+    &* set @"format"   VK_FORMAT_R32G32B32A32_SFLOAT
     &* set @"offset"   (bFieldOffsetOf @"color" @Vertex undefined)
   ST.writeDataFrame mv (2 :* Empty) ∘ scalar $ createVk
     $  set @"location" 2

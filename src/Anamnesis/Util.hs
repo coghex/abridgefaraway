@@ -46,6 +46,14 @@ initState = do
                     , tInd  = (0,0)
                     , tSize = (1,1)
                     , tT    = 1 }
+  let tile3 = GTile { tPos  = (1,0)
+                    , tInd  = (0,0)
+                    , tSize = (16,6)
+                    , tT    = 2 }
+  let tile4 = GTile { tPos  = (2,0)
+                    , tInd  = (1,1)
+                    , tSize = (16,6)
+                    , tT    = 2 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   atomically $ newTVar State { status  = ref
@@ -53,7 +61,7 @@ initState = do
                              , window  = Nothing
                              , cam3d   = (2.0, 2.0, 2.0)
                              , cursor  = (0, 0, 2)
-                             , tiles   = [tile1, tile2]
+                             , tiles   = [tile1, tile2, tile3, tile4]
                              , luaSt   = ls }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
