@@ -59,7 +59,6 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    pcPtr ← createPushConstants 1
     descriptorSetLayout ← createDescriptorSetLayout dev
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     let tex1Path = "dat/tex/texture1.png"
@@ -103,7 +102,7 @@ runParacVulkan = do
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
-      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) pcPtr framebuffers descriptorSets
+      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) framebuffers descriptorSets
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -120,11 +119,12 @@ runParacVulkan = do
       shouldExit ← glfwMainLoop window $ do
         -- changes command buffer when
         -- the state changes
-        dsNew ← gets drawSt
-        let stateTilesNew = dsTiles dsNew
-        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTilesNew)
-        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTilesNew)
-        cmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen (indices stateTilesNew), indexBufferNew) pcPtr framebuffers descriptorSets
+        --dsNew ← gets drawSt
+        --let stateTilesNew = dsTiles dsNew
+        --vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTilesNew)
+        --indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTilesNew)
+        --cmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen (indices stateTilesNew), indexBufferNew) framebuffers descriptorSets
+        let cmdBP = cmdBuffersPtr0
         let rdata' = rdata { cmdBuffersPtr = cmdBP
                            , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
         liftIO $ GLFW.pollEvents

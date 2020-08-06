@@ -44,8 +44,8 @@ createFramebuffers dev renderPass SwapchainInfo{swapExtent} swapImgViews depthIm
                 &* set @"layers" 1
            in  allocaPeek $ \fbPtr → withVkPtr fbci $ \fbciPtr → runVk $ vkCreateFramebuffer dev fbciPtr VK_NULL fbPtr
 
-createCommandBuffers ∷ VkDevice → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → Ptr Void → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
-createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) pcPtr fbs descriptorSets
+createCommandBuffers ∷ VkDevice → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
+createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) fbs descriptorSets
   | buffersCount ← length fbs = do
   cbsPtr ← mallocArrayRes buffersCount
   vertexBufArr ← newArrayRes [vertexBuffer]
@@ -83,7 +83,7 @@ createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo
                    &* set @"stencil" 0 ]
      withVkPtr renderPassBeginInfo $ \rpibPtr → liftIO $ vkCmdBeginRenderPass cmdBuffer rpibPtr VK_SUBPASS_CONTENTS_INLINE
      liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline
-     liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 4 pcPtr
+     --liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 4 pcPtr
      liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr vertexOffArr
      liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer 0 VK_INDEX_TYPE_UINT32
      dsPtr ← newArrayRes [descriptorSet]
