@@ -12,9 +12,16 @@ import Prelude()
 import UPrelude
 import Graphics.Vulkan.Core_1_0
 import Numeric.DataFrame
+import Anamnesis.Draw
 import Paracletus.Data
 import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Vertex
+
+calcVertices ∷ DrawState → (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+calcVertices ds = (verts, inds)
+  where verts = vertices ts
+        inds  = indices  ts
+        ts    = dsTiles  ds
 
 vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
 vertices ts = fromList $ combineVertices ts

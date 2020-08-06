@@ -4,7 +4,7 @@ module Paracletus.Vulkan where
 import Prelude()
 import UPrelude
 import Control.Monad (forM_, when)
-import Control.Monad.State.Class (gets)--, modify')
+import Control.Monad.State.Class (gets, modify')
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -77,9 +77,6 @@ runParacVulkan = do
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
       ds ← gets drawSt
-      let stateTiles = dsTiles ds
-      --vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTiles)
-      --indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTiles)
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
@@ -102,28 +99,33 @@ runParacVulkan = do
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
       framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
       logDebug $ "created framebuffers: " ⧺ show framebuffers
-      --cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen (indices stateTiles), indexBuffer) framebuffers descriptorSets
-      --let rdata = RenderData { dev
-      --                       , swapInfo
-      --                       , queues
-      --                       , imgIndexPtr
-      --                       , frameIndexRef
-      --                       , renderFinishedSems
-      --                       , imageAvailableSems
-      --                       , inFlightFences
-      --                       , cmdBuffersPtr = cmdBuffersPtr0
-      --                       , memories = transObjMemories
-      --                       , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
-      --cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
-      --logDebug $ "created command buffers: " ⧺ show cmdBuffers
+      let (verts, inds) = calcVertices ds
+      vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
+      indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
+
+      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
+      let newDS = ds { dsCmdBP = cmdBuffersPtr0 }
+      modify' $ \s → s { drawSt = newDS }
+      cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
+      logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
         -- changes command buffer when
         -- the state changes
-        dsNew ← gets drawSt
-        let stateTilesNew = dsTiles dsNew
-        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) (vertices stateTilesNew)
-        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) (indices stateTilesNew)
-        cmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen (indices stateTilesNew), indexBufferNew) framebuffers descriptorSets
+        stChanged ← gets stateChanged
+        cmdBP ← case stChanged of
+          True → do
+            dsNew ← gets drawSt
+            let (verts0, inds0) = calcVertices dsNew
+            vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
+            indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
+            newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+            -- for now just recreate command
+            -- buffers every frame
+            --modify' $ \s → s { stateChanged = False }
+            return newCmdBP
+          False → do
+            dsOld ← gets drawSt
+            return $ dsCmdBP dsOld
         let rdata = RenderData { dev
                                , swapInfo
                                , queues
