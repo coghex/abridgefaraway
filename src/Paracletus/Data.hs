@@ -8,7 +8,7 @@ data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanS
 -- on the screen, ind is the texture atlas
 -- index, t is the texture index in 2 dimensions
 -- size is the size of the atlas
-data GTile = GTile { tPos  ∷ (Int, Int)
+data GTile = GTile { tPos  ∷ (Float, Float)
                    , tInd  ∷ (Int, Int)
                    , tSize ∷ (Int, Int)
                    , tT    ∷ Int }

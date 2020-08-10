@@ -15,7 +15,7 @@ data DrawState = DrawState { dsCmdBP ∷ Ptr VkCommandBuffer
                            , dsTiles ∷ [GTile]
                            , dsTextB ∷ [TextBox] }
 -- defines a box full of text
-data TextBox = TextBox { tbPos ∷ (Int, Int)
+data TextBox = TextBox { tbPos ∷ (Float, Float)
                        , tbString ∷ String }
 
 initDrawState ∷ [GTile] → IO DrawState
