@@ -11,7 +11,6 @@ import Artos.Except
 import Artos.Queue
 import Artos.Var
 import Paracletus.Oblatum
-import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then

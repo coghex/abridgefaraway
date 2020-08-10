@@ -11,8 +11,7 @@ import Artos.Except
 import Artos.Var
 import Paracletus.Data
 import Paracletus.Oblatum.Callback
-import Paracletus.Oblatum.Data
-import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..))
+import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..),KeyLayout(..))
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initGLFWWindow ∷ Int → Int → String → TVar Bool → Anamnesis ε σ GLFW.Window
@@ -71,18 +70,4 @@ glfwWaitMinimized win = liftIO go where
 -- this is a placeholder
 importKeyLayout ∷ Anamnesis ε σ (KeyLayout)
 importKeyLayout = return $ KeyLayout
-  { keyC   = "C"
-  , keyR   = "R"
-  , keySPC = "SPC"
-  , keyESC = "ESC"
-  , keyRET = "RET"
-  , keyDEL = "DEL"
-  , keySH  = "`"
-  , keyH   = "H"
-  , keyJ   = "J"
-  , keyK   = "K"
-  , keyL   = "L"
-  , keyLFT = "LFT"
-  , keyRGT = "RGT"
-  , keyUPP = "UPP"
-  , keyDWN = "DWN" }
+  { klEsc  = "ESC" }

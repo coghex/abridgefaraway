@@ -57,15 +57,17 @@ initState = do
                     , tT    = 2 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
+  luasettings ← importSettings ls "mod/base/"
   ds ← initDrawState [tile1, tile2, tile3, tile4]
-  atomically $ newTVar State { status  = ref
-                             , logFunc = lf
-                             , window  = Nothing
-                             , cam3d   = (2.0, 2.0, 2.0)
-                             , cursor  = (0, 0, 2)
+  atomically $ newTVar State { status       = ref
+                             , logFunc      = lf
+                             , window       = Nothing
+                             , cam3d        = (2.0, 2.0, 2.0)
+                             , cursor       = (0, 0, 2)
                              , stateChanged = False
-                             , drawSt  = ds
-                             , luaSt   = ls }
+                             , drawSt       = ds
+                             , luaSt        = ls
+                             , sSettings    = luasettings }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

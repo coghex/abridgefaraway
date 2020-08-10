@@ -10,10 +10,9 @@ import Anamnesis.Data
 import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
-import Paracletus.Oblatum.Data (KeyLayout)
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
-evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → KeyLayout → Anamnesis ε σ ()
+evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
 evalKey window k _  _  keyLayout = do
   st ← get
   when (GLFW.keyCheck keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
@@ -36,6 +35,9 @@ evalKey window k _  _  keyLayout = do
     let newcursor = (moveCursor 1 (cursor st) West)
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
+    return ()
+  when (GLFW.keyCheck keyLayout k "SH") $ do
+    logDebug $ "shell"
     return ()
   when (GLFW.keyCheck keyLayout k "K") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) North)

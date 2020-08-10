@@ -1,5 +1,6 @@
 module Paracletus.Oblatum.GLFW
   ( module Graphics.UI.GLFW
+  , KeyLayout (..)
   , keyCheck
   ) where
 -- the input is defined for glfw, since
@@ -9,10 +10,11 @@ module Paracletus.Oblatum.GLFW
 -- we can abstract to other window managers
 import Prelude()
 import UPrelude
-import Control.Monad (when)
 import Data.Char (toUpper)
 import Graphics.UI.GLFW
-import Paracletus.Oblatum.Data
+
+data KeyLayout = KeyLayout
+  { klEsc ∷ String }
 
 -- mousebutton synonyms
 --mousebutt1 ∷ GLFW.MouseButton
@@ -42,6 +44,7 @@ getGLFWKey "LFT" = Key'Left
 getGLFWKey "RGT" = Key'Right
 getGLFWKey "UPP" = Key'Up
 getGLFWKey "DWN" = Key'Down
+getGLFWKey "SH"  = Key'GraveAccent
 getGLFWKey "C"   = Key'C
 getGLFWKey "H"   = Key'H
 getGLFWKey "J"   = Key'J
@@ -54,22 +57,21 @@ keyCheck keyLayout k str = (k ≡ (getGLFWKey nk))
   where nk = applyKeyLayout keyLayout str
 
 applyKeyLayout ∷ KeyLayout → String → String
-applyKeyLayout keyLayout "ESC" = keyESC keyLayout
-applyKeyLayout keyLayout "RET" = keyRET keyLayout
-applyKeyLayout keyLayout "DEL" = keyDEL keyLayout
-applyKeyLayout keyLayout "SPC" = keySPC keyLayout
-applyKeyLayout keyLayout "C"   = keyC   keyLayout
-applyKeyLayout keyLayout "R"   = keyR   keyLayout
-applyKeyLayout keyLayout "`"   = keySH  keyLayout
-applyKeyLayout keyLayout "H"   = keyH   keyLayout
-applyKeyLayout keyLayout "J"   = keyJ   keyLayout
-applyKeyLayout keyLayout "K"   = keyK   keyLayout
-applyKeyLayout keyLayout "L"   = keyL   keyLayout
-applyKeyLayout keyLayout "LFT" = keyLFT keyLayout
-applyKeyLayout keyLayout "RGT" = keyRGT keyLayout
-applyKeyLayout keyLayout "UPP" = keyUPP keyLayout
-applyKeyLayout keyLayout "DWN" = keyDWN keyLayout
-
+applyKeyLayout keyLayout "ESC" = klEsc keyLayout
+--applyKeyLayout keyLayout "RET" = keyRET keyLayout
+--applyKeyLayout keyLayout "DEL" = keyDEL keyLayout
+--applyKeyLayout keyLayout "SPC" = keySPC keyLayout
+--applyKeyLayout keyLayout "C"   = keyC   keyLayout
+--applyKeyLayout keyLayout "R"   = keyR   keyLayout
+--applyKeyLayout keyLayout "SH"  = keySH  keyLayout
+--applyKeyLayout keyLayout "H"   = keyH   keyLayout
+--applyKeyLayout keyLayout "J"   = keyJ   keyLayout
+--applyKeyLayout keyLayout "K"   = keyK   keyLayout
+--applyKeyLayout keyLayout "L"   = keyL   keyLayout
+--applyKeyLayout keyLayout "LFT" = keyLFT keyLayout
+--applyKeyLayout keyLayout "RGT" = keyRGT keyLayout
+--applyKeyLayout keyLayout "UPP" = keyUPP keyLayout
+--applyKeyLayout keyLayout "DWN" = keyDWN keyLayout
 applyKeyLayout keyLayout _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)
@@ -106,4 +108,5 @@ upcase '\'' = '"'
 upcase ','  = '<'
 upcase '.'  = '>'
 upcase '/'  = '?'
+upcase '`'  = '~'
 upcase c    = toUpper c

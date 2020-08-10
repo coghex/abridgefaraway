@@ -17,11 +17,18 @@ data LoopControl = ContinueLoop | AbortLoop deriving Eq
 data Env = Env { envEventsChan ∷ Queue Event }
 -- state holds mutable data, and the
 -- current status of the whole App
-data State = State { status  ∷ AExcept
-                   , logFunc ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
-                   , window  ∷ !(Maybe GLFW.Window)
-                   , cam3d   ∷ !(Float, Float, Float)
-                   , cursor  ∷ !(Int, Int, Int)
+data State = State { status       ∷ AExcept
+                   , logFunc      ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
+                   , window       ∷ !(Maybe GLFW.Window)
+                   , cam3d        ∷ !(Float, Float, Float)
+                   , cursor       ∷ !(Int, Int, Int)
                    , stateChanged ∷ !Bool
-                   , drawSt  ∷ !DrawState
-                   , luaSt   ∷ !LuaState }
+                   , drawSt       ∷ !DrawState
+                   , luaSt        ∷ !LuaState
+                   , sSettings    ∷ !Settings }
+data Settings = Settings
+  { settingScreenW   ∷ Int
+  , settingScreenH   ∷ Int
+  , settingKeyLayout ∷ GLFW.KeyLayout }
+
+
