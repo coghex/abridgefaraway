@@ -4,12 +4,11 @@ module Paracletus.Vulkan where
 import Prelude()
 import UPrelude
 import Control.Monad (forM_, when)
-import Control.Monad.State.Class (gets, modify')
+import Control.Monad.State.Class (gets)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
 import Anamnesis.Data
-import Anamnesis.Draw
 import Anamnesis.Event
 import Anamnesis.Foreign
 import Anamnesis.Util
@@ -59,7 +58,8 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    descriptorSetLayout ← createDescriptorSetLayout dev
+    let nimages = 3
+    descriptorSetLayout ← createDescriptorSetLayout dev nimages
     pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     let tex1Path = "dat/tex/texture1.png"
         tex2Path = "dat/tex/texture2.png"
@@ -84,10 +84,10 @@ runParacVulkan = do
       let swapchainLen = length (swapImgs swapInfo)
       (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
       descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-      descriptorPool ← createDescriptorPool dev swapchainLen
+      descriptorPool ← createDescriptorPool dev swapchainLen nimages
       descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
       descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet
+      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet nimages
       transObjMemories ← newArrayRes transObjMems
       imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
       logDebug $ "created image views: " ⧺ show imgViews

@@ -14,23 +14,23 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 
-createDescriptorPool ∷ VkDevice → Int → Anamnesis ε σ VkDescriptorPool
-createDescriptorPool dev n = allocResource (liftIO ∘ flip (vkDestroyDescriptorPool dev) VK_NULL) $ allocaPeek $ \pPtr → withVkPtr (createVk
+createDescriptorPool ∷ VkDevice → Int → Int → Anamnesis ε σ VkDescriptorPool
+createDescriptorPool dev nswapchains nimages = allocResource (liftIO ∘ flip (vkDestroyDescriptorPool dev) VK_NULL) $ allocaPeek $ \pPtr → withVkPtr (createVk
     $  set @"sType" VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO
     &* set @"pNext" VK_NULL
     &* set @"flags" VK_ZERO_FLAGS
     &* setListCountAndRef @"poolSizeCount" @"pPoolSizes"
       [ createVk @VkDescriptorPoolSize
         $  set @"type" VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
-        &* set @"descriptorCount" (fromIntegral n)
+        &* set @"descriptorCount" (fromIntegral nswapchains)
       , createVk @VkDescriptorPoolSize
         $  set @"type" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-        &* set @"descriptorCount" (3*(fromIntegral n)) ]
-    &* set @"maxSets" (fromIntegral n)
+        &* set @"descriptorCount" ((fromIntegral nimages)*(fromIntegral nswapchains)) ]
+    &* set @"maxSets" (fromIntegral nswapchains)
   ) $ \ciPtr → runVk $ vkCreateDescriptorPool dev ciPtr VK_NULL pPtr
 
-createDescriptorSetLayout ∷ VkDevice → Anamnesis ε σ VkDescriptorSetLayout
-createDescriptorSetLayout dev = allocResource
+createDescriptorSetLayout ∷ VkDevice → Int → Anamnesis ε σ VkDescriptorSetLayout
+createDescriptorSetLayout dev nimages = allocResource
   (\dsl → liftIO $ vkDestroyDescriptorSetLayout dev dsl VK_NULL) $
   withVkPtr dslCreateInfo $ \dslciPtr → allocaPeek $ runVk ∘ vkCreateDescriptorSetLayout dev dslciPtr VK_NULL
   where dslCreateInfo = createVk @VkDescriptorSetLayoutCreateInfo
@@ -47,7 +47,7 @@ createDescriptorSetLayout dev = allocResource
               , createVk @VkDescriptorSetLayoutBinding
                 $  set @"binding" 1
                 &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-                &* set @"descriptorCount" 3
+                &* set @"descriptorCount" (fromIntegral nimages)
                 &* set @"stageFlags" VK_SHADER_STAGE_FRAGMENT_BIT
                 &* set @"pImmutableSamplers" VK_NULL ]
 
@@ -62,8 +62,8 @@ createDescriptorSets dev descriptorPool n layoutsPtr = allocaArray n $ \dsPtr �
           &* set @"descriptorSetCount" (fromIntegral n)
           &* set @"pSetLayouts" layoutsPtr
 
-prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → [VkDescriptorImageInfo] → VkDescriptorSet → Anamnesis ε σ ()
-prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArrayLen descriptorWrites $ \dwLen dwPtr → liftIO $ vkUpdateDescriptorSets dev dwLen dwPtr 0 VK_NULL
+prepareDescriptorSet ∷ VkDevice → VkDescriptorBufferInfo → [VkDescriptorImageInfo] → VkDescriptorSet → Int → Anamnesis ε σ ()
+prepareDescriptorSet dev bufferInfo imageInfo descriptorSet nimages = liftIO $ withVkArrayLen descriptorWrites $ \dwLen dwPtr → liftIO $ vkUpdateDescriptorSets dev dwLen dwPtr 0 VK_NULL
   where descriptorWrites =
           [ createVk @VkWriteDescriptorSet
             $  set @"sType" VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET
@@ -83,7 +83,7 @@ prepareDescriptorSet dev bufferInfo imageInfo descriptorSet = liftIO $ withVkArr
             &* set @"dstBinding" 1
             &* set @"dstArrayElement" 0
             &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-            &* set @"descriptorCount" 3
+            &* set @"descriptorCount" (fromIntegral nimages)
             &* set @"pBufferInfo" VK_NULL
             &* setListRef @"pImageInfo" imageInfo
             &* set @"pTexelBufferView" VK_NULL ]
