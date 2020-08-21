@@ -46,8 +46,7 @@ evalKey window k _  _  keyLayout = do
     return ()
   when (GLFW.keyCheck keyLayout k "C") $ do
     let newDS = (addTile (drawSt st))
-    modify' $ \s → s { stateChanged = True
-                     , drawSt = newDS }
+    modify' $ \s → s { drawSt = newDS }
     logDebug $ "adding test tile..."
     return ()
   when (GLFW.keyCheck keyLayout k "J") $ do

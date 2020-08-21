@@ -104,16 +104,12 @@ runParacVulkan = do
       indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
       cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
-      let newDS = ds { dsCmdBP = cmdBuffersPtr0 }
-      modify' $ \s → s { drawSt = newDS }
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
         -- changes command buffer when
         -- the state changes
-        stChanged ← gets stateChanged
-        cmdBP ← case stChanged of
-          True → do
+        cmdBP ← do
             dsNew ← gets drawSt
             let (verts0, inds0) = calcVertices dsNew
             vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
@@ -123,9 +119,6 @@ runParacVulkan = do
             -- buffers every frame
             --modify' $ \s → s { stateChanged = False }
             return newCmdBP
-          False → do
-            dsOld ← gets drawSt
-            return $ dsCmdBP dsOld
         let rdata = RenderData { dev
                                , swapInfo
                                , queues

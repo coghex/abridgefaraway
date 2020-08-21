@@ -11,8 +11,7 @@ import Paracletus.Data
 -- a data structure containing
 -- the abstract representation
 -- of the general vertex layout
-data DrawState = DrawState { dsCmdBP ∷ Ptr VkCommandBuffer
-                           , dsTiles ∷ [GTile]
+data DrawState = DrawState { dsTiles ∷ [GTile]
                            , dsTextB ∷ [TextBox] }
 -- defines a box full of text
 data TextBox = TextBox { tbPos ∷ (Float, Float)
@@ -20,8 +19,7 @@ data TextBox = TextBox { tbPos ∷ (Float, Float)
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
-  { dsCmdBP = VK_NULL
-  , dsTiles = tiles 
+  { dsTiles = tiles 
   , dsTextB = [initTB] }
   where initTB = TextBox { tbPos = (-1,-1)
                          , tbString = "loading..." }
