@@ -58,20 +58,25 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    let nimages = 3
-    descriptorSetLayout ← createDescriptorSetLayout dev nimages
-    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-    let tex1Path = "dat/tex/texture1.png"
-        tex2Path = "dat/tex/texture2.png"
-        texAlph  = "dat/tex/alph.png"
+    let tex1Path   = "dat/tex/texture1.png"
+        tex2Path   = "dat/tex/texture2.png"
+        texAlph    = "dat/tex/alph.png"
+        texboxPath = "dat/tex/box"
+    boxTexs ← loadNTexs pdev dev commandPool (graphicsQueue queues) texboxPath
     (textureView1, mipLevels1) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
     (textureView2, mipLevels2) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path
     (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texAlph
     textureSampler1 ← createTextureSampler dev mipLevels1
     textureSampler2 ← createTextureSampler dev mipLevels2
     texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
-    descriptorTextureInfo ← textureImageInfos [textureView1, textureView2, texViewAlph] [textureSampler1, textureSampler2, texSamplerAlph]
+    let (btexs, bsamps) = unzip boxTexs
+        texViews = [textureView1, textureView2, texViewAlph] ⧺ btexs
+        texSamps = [textureSampler1, textureSampler2, texSamplerAlph] ⧺ bsamps
+    descriptorTextureInfo ← textureImageInfos texViews texSamps
     depthFormat ← findDepthFormat pdev
+    let nimages = length texViews
+    descriptorSetLayout ← createDescriptorSetLayout dev nimages
+    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
     -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
@@ -107,8 +112,6 @@ runParacVulkan = do
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
-        -- changes command buffer when
-        -- the state changes
         cmdBP ← do
             dsNew ← gets drawSt
             let (verts0, inds0) = calcVertices dsNew
@@ -117,7 +120,6 @@ runParacVulkan = do
             newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
             -- for now just recreate command
             -- buffers every frame
-            --modify' $ \s → s { stateChanged = False }
             return newCmdBP
         let rdata = RenderData { dev
                                , swapInfo

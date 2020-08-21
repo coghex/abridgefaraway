@@ -10,6 +10,8 @@ import Control.Monad
 import qualified Data.Vector.Storable as Vec
 import Foreign.Marshal.Array (copyArray)
 import Foreign.Ptr (castPtr)
+import System.Directory (getDirectoryContents)
+import System.FilePath (combine)
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Marshal.Create
@@ -21,6 +23,27 @@ import Paracletus.Data
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Foreign
+
+-- this will load all textures in
+-- the specified file directory
+loadNTexs ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ ([(VkImageView, VkSampler)])
+loadNTexs pdev dev cmdPool cmdQueue path = do
+  imgPaths ← liftIO $ getDirectoryContents path
+  loadNTex pdev dev cmdPool cmdQueue $ map (combine path) $ filter filterOutPathJunk imgPaths
+  where filterOutPathJunk ∷ FilePath → Bool
+        filterOutPathJunk "."  = False
+        filterOutPathJunk ".." = False
+        filterOutPathJunk _    = True
+
+-- recursively load all textures
+-- in the given list
+loadNTex ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → [FilePath] → Anamnesis ε σ ([(VkImageView, VkSampler)])
+loadNTex _ _ _ _ [] = return []
+loadNTex pdev dev cmdPool cmdQueue (path:paths) = do
+  (imgView, mipLevels) ← createTextureImageView pdev dev cmdPool cmdQueue path
+  sampler ← createTextureSampler dev mipLevels
+  texs ← loadNTex pdev dev cmdPool cmdQueue paths
+  return $ (imgView, sampler) : texs
 
 createTextureImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ (VkImageView, Word32)
 createTextureImageView pdev dev cmdPool cmdQueue path = do
@@ -131,6 +154,7 @@ createTextureSampler dev mipLevels = do
 
 textureImageInfos ∷ [VkImageView] → [VkSampler] → Anamnesis ε σ [VkDescriptorImageInfo]
 textureImageInfos [] _          = return []
+textureImageInfos _  []         = return []
 textureImageInfos (v:vs) (s:ss) = do
   t1 ← textureImageInfo v s
   t2 ← textureImageInfos vs ss
