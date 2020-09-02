@@ -29,26 +29,28 @@ calcFontTiles ds = ds { dsTiles = newTiles }
   where newTiles = (dsTiles ds) ⧺ (addTextBoxs (dsTextB ds))
         addTextBoxs ∷ [TextBox] → [GTile]
         addTextBoxs [] = []
-        addTextBoxs (tb:tbs) = (addTextBox tb) ⧺ (addTextBoxs tbs)
-        addTextBox ∷ TextBox → [GTile]
-        addTextBox (TextBox pos size box "")
-          | box = calcTextbox ((fst pos) - 3.25) ((snd pos) + 0.5) (fst size) (snd size)
+        addTextBoxs (tb:tbs) = (addTextBox tb (tbPos tb)) ⧺ (addTextBoxs tbs)
+        addTextBox ∷ TextBox → (Float, Float) → [GTile]
+        addTextBox (TextBox _   size box "") (oX,oY)
+          | box = calcTextbox (oX - 1) (oY + 0.5) (fst size) (snd size)
           | otherwise = []
-        addTextBox (TextBox pos size box (c:st)) = (addTextBox newTB) ⧺ (tbTile pos c)
-          where newTB = TextBox { tbPos = (newPos pos c)
+        addTextBox (TextBox pos size box (c:st)) (oX, oY) = (addTextBox newTB (oX,oY)) ⧺ (tbTile pos c)
+          where newTB = TextBox { tbPos = (newPos pos c oX)
                                 , tbSize = size
                                 , tbBox = box
                                 , tbString = st }
         tbTile ∷ (Float, Float) → Char → [GTile]
-        tbTile (x,y) c = [newTile c x y]
+        tbTile _     '\n' = []
+        tbTile (x,y) c    = [newTile c x y]
         newTile ∷ Char → Float → Float → GTile
         newTile c x y = GTile { tPos = (x,y)
                               , tScale = (1,1)
                               , tInd = fontIndex c
                               , tSize = (16,6)
                               , tT = 1 }
-        newPos ∷ (Float, Float) → Char → (Float, Float)
-        newPos (x,y) c = ((x+(fontOffset c)),y)
+        newPos ∷ (Float, Float) → Char → Float → (Float, Float)
+        newPos (_,y) '\n' oX = (oX,(y - 0.5))
+        newPos (x,y) c    _  = ((x+(fontOffset c)),y)
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Float → Float → Int → Int → [GTile]

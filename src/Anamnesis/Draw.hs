@@ -24,9 +24,10 @@ initDrawState tiles = return $ DrawState
   { dsTiles = tiles 
   , dsTextB = [initTB] }
   where initTB = TextBox { tbPos    = (-1,-1)
-                         , tbSize   = (5,1)
+                         , tbSize   = (8,2)
                          , tbBox    = True
-                         , tbString = "loading..." }
+                         , tbString = str }
+        str = "loading...\nblop blop"
 
 addTile ∷ DrawState → DrawState
 addTile ds = ds { dsTiles = newtiles }
