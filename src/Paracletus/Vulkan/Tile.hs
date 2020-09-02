@@ -40,6 +40,7 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         tbTile (x,y) c = [newTile c x y]
         newTile ∷ Char → Float → Float → GTile
         newTile c x y = GTile { tPos = (x,y)
+                              , tScale = (1,1)
                               , tInd = fontIndex c
                               , tSize = (16,6)
                               , tT = 1 }
@@ -50,21 +51,25 @@ calcFontTiles ds = ds { dsTiles = newTiles }
 calcTextbox ∷ Float → Float → Int → Int → [GTile]
 calcTextbox x y sx sy = [toplefttile] ⧺ (toprow sx) ⧺ [toprighttile]
   where (sx',sy') = (fromIntegral sx, fromIntegral sy)
-        toplefttile = GTile { tPos  = (x,y)
-                            , tInd  = (0,0)
-                            , tSize = (1,1)
-                            , tT    = 6 }
-        toprighttile = GTile { tPos  = (x+sx'+1.0,y)
-                             , tInd = (0,0)
-                             , tSize = (1,1)
-                             , tT    = 7 }
+        toplefttile = GTile { tPos   = (x,y)
+                            , tScale = (0.5,0.5)
+                            , tInd   = (0,0)
+                            , tSize  = (1,1)
+                            , tT     = 6 }
+        toprighttile = GTile { tPos   = (x+(0.5*sx')+0.5,y)
+                             , tScale = (0.5,0.5)
+                             , tInd   = (0,0)
+                             , tSize  = (1,1)
+                             , tT     = 7 }
         toprow ∷ Int → [GTile]
         toprow 0  = []
         toprow sx = [thisTile] ⧺ (toprow (sx - 1))
-          where thisTile = GTile { tPos = (x+(fromIntegral sx),y)
-                         , tInd = (0,0)
-                         , tSize = (1,1)
-                         , tT   = 8 }
+          where thisTile = GTile
+                  { tPos   = (x+(0.5*(fromIntegral sx)),y)
+                  , tScale = (0.5,0.5)
+                  , tInd   = (0,0)
+                  , tSize  = (1,1)
+                  , tT     = 8 }
 
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
@@ -75,15 +80,17 @@ vertices ts = fromList $ combineVertices ts
                   , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1)
                   , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) ]
         combineVertices [] = []
-        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) vertsqs)) ⧺ combineVertices tts
+        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
           where (x',y') = tPos tile
                 ( x, y) = (2*x', 2*y')
                 (ax', ay') = tInd tile
                 ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
+                (xscale,yscale) = tScale tile
                 (sx, sy) = tSize tile
                 t = fromIntegral $ tT tile
         withPos f = map (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
         withTC f = map (\(S v) → S v { texCoord = f $ texCoord v })
+        withScale f = map (\(S v) → S v { pos = f $ pos v})
 
 indices ∷ [GTile] → DataFrame Word32 '[XN 3]
 indices tiles = atLeastThree $ fromList $ (combineIndices tiles)

@@ -39,10 +39,11 @@ initEnv = do
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
-  let tile1 = GTile { tPos  = (0,0)
-                    , tInd  = (0,0)
-                    , tSize = (1,1)
-                    , tT    = 0 }
+  let tile1 = GTile { tPos   = (0,0)
+                    , tScale = (1,1)
+                    , tInd   = (0,0)
+                    , tSize  = (1,1)
+                    , tT     = 0 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   luasettings ← importSettings ls "mod/base/"
