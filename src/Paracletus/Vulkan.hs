@@ -58,10 +58,13 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
+    settings ← gets sSettings
     let tex1Path   = "dat/tex/texture1.png"
         tex2Path   = "dat/tex/texture2.png"
-        texAlph    = "dat/tex/alph.png"
-        texboxPath = "dat/tex/box"
+        --texAlph    = "dat/tex/alph.png"
+        --texboxPath = "dat/tex/box"
+        texAlph = settingFontPath settings
+        texboxPath = settingTBPath settings
     boxTexs ← loadNTexs pdev dev commandPool (graphicsQueue queues) texboxPath
     (textureView1, mipLevels1) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
     (textureView2, mipLevels2) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path

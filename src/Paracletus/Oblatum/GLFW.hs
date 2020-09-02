@@ -14,7 +14,7 @@ import Data.Char (toUpper)
 import Graphics.UI.GLFW
 
 data KeyLayout = KeyLayout
-  { klEsc ∷ String }
+  { klEsc ∷ String } deriving (Show, Eq)
 
 -- mousebutton synonyms
 --mousebutt1 ∷ GLFW.MouseButton

@@ -30,11 +30,15 @@ importSettings ls' fn = do
   Lua.runWith ls $ do
     Lua.openlibs
     Lua.dofile $ fn ⧺ "base.lua"
-    (sw, sh) ← Lua.callFunc "getscreensize"
-    return $ makeSettings (sw∷Int) (sh∷Int) layout
+    (sw, sh) ← Lua.callFunc "getScreenSize"
+    fontPath ← Lua.callFunc "fontAtlas"
+    tbPath   ← Lua.callFunc "textboxTexture"
+    return $ makeSettings (sw∷Int) (sh∷Int) (fontPath∷String) (tbPath∷String) layout
 
-makeSettings ∷ Int → Int → GLFW.KeyLayout → Settings
-makeSettings sw sh kl =
+makeSettings ∷ Int → Int → String → String → GLFW.KeyLayout → Settings
+makeSettings sw sh fp tbp kl =
   Settings { settingScreenW   = sw
            , settingScreenH   = sh
+           , settingFontPath  = fp
+           , settingTBPath    = tbp
            , settingKeyLayout = kl }

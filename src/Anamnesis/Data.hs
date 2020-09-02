@@ -28,6 +28,6 @@ data State = State { status       ∷ AExcept
 data Settings = Settings
   { settingScreenW   ∷ Int
   , settingScreenH   ∷ Int
-  , settingKeyLayout ∷ GLFW.KeyLayout }
-
-
+  , settingFontPath  ∷ FilePath
+  , settingTBPath    ∷ FilePath
+  , settingKeyLayout ∷ GLFW.KeyLayout } deriving (Show, Eq)

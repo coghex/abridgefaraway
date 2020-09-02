@@ -28,7 +28,8 @@ calcFontTiles ∷ DrawState → DrawState
 calcFontTiles ds = ds { dsTiles = newTiles }
   where newTiles = (dsTiles ds) ⧺ addTextBoxs (dsTextB ds)
         addTextBoxs ∷ [TextBox] → [GTile]
-        addTextBoxs [] = []
+        --addTextBoxs [] = []
+        addTextBoxs [] = calcTextbox (-2) (-2) 4 4
         addTextBoxs (tb:tbs) = (addTextBox tb) ⧺ (addTextBoxs tbs)
         addTextBox ∷ TextBox → [GTile]
         addTextBox (TextBox _   "")     = []
@@ -45,6 +46,28 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         newPos ∷ (Float, Float) → Char → (Float, Float)
         newPos (x,y) c = ((x+(fontOffset c)),y)
 
+-- creates textbox of arbitrary size
+calcTextbox ∷ Float → Float → Int → Int → [GTile]
+calcTextbox x y sx sy = [toplefttile] ⧺ (toprow sx) ⧺ [toprighttile]
+  where (sx',sy') = (fromIntegral sx, fromIntegral sy)
+        toplefttile = GTile { tPos  = (x,y)
+                            , tInd  = (0,0)
+                            , tSize = (1,1)
+                            , tT    = 7 }
+        toprighttile = GTile { tPos  = (x+sx'+1.0,y)
+                             , tInd = (0,0)
+                             , tSize = (1,1)
+                             , tT    = 8 }
+        toprow ∷ Int → [GTile]
+        toprow 0  = []
+        toprow sx = [thisTile] ⧺ (toprow (sx - 1))
+          where thisTile = GTile { tPos = (x+(fromIntegral sx),y)
+                         , tInd = (0,0)
+                         , tSize = (1,1)
+                         , tT   = 9 }
+
+-- combines all GTiles into a dataframe
+-- of vertices, preformed every frame
 vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
 vertices ts = fromList $ combineVertices ts
   where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1)

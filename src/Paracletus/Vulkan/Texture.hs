@@ -137,9 +137,9 @@ createTextureSampler dev mipLevels = do
         &* set @"pNext" VK_NULL_HANDLE
         &* set @"magFilter" VK_FILTER_LINEAR
         &* set @"minFilter" VK_FILTER_LINEAR
-        &* set @"addressModeU" VK_SAMPLER_ADDRESS_MODE_REPEAT
-        &* set @"addressModeV" VK_SAMPLER_ADDRESS_MODE_REPEAT
-        &* set @"addressModeW" VK_SAMPLER_ADDRESS_MODE_REPEAT
+        &* set @"addressModeU" VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
+        &* set @"addressModeV" VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
+        &* set @"addressModeW" VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
         &* set @"anisotropyEnable" VK_TRUE
         &* set @"maxAnisotropy" 16
         &* set @"borderColor" VK_BORDER_COLOR_INT_OPAQUE_BLACK
