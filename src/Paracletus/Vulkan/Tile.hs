@@ -51,24 +51,20 @@ calcFontTiles ds = ds { dsTiles = newTiles }
 calcTextbox ∷ Float → Float → Int → Int → [GTile]
 calcTextbox x y sx sy = [toplefttile] ⧺ (toprow sx) ⧺ [toprighttile]
   where (sx',sy') = (fromIntegral sx, fromIntegral sy)
-        toplefttile = GTile { tPos   = (x,y)
-                            , tScale = (0.5,0.5)
-                            , tInd   = (0,0)
-                            , tSize  = (1,1)
-                            , tT     = 6 }
-        toprighttile = GTile { tPos   = (x+(0.5*sx')+0.5,y)
-                             , tScale = (0.5,0.5)
-                             , tInd   = (0,0)
-                             , tSize  = (1,1)
-                             , tT     = 7 }
+        toplefttile = defaultGTile
+                        { tPos   = (x,y)
+                        , tScale = (0.5,0.5)
+                        , tT     = 6 }
+        toprighttile = defaultGTile
+                         { tPos   = (x+(0.5*sx')+0.5,y)
+                         , tScale = (0.5,0.5)
+                         , tT     = 7 }
         toprow ∷ Int → [GTile]
         toprow 0  = []
         toprow sx = [thisTile] ⧺ (toprow (sx - 1))
-          where thisTile = GTile
+          where thisTile = defaultGTile
                   { tPos   = (x+(0.5*(fromIntegral sx)),y)
                   , tScale = (0.5,0.5)
-                  , tInd   = (0,0)
-                  , tSize  = (1,1)
                   , tT     = 8 }
 
 -- combines all GTiles into a dataframe
