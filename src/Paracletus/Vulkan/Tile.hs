@@ -42,7 +42,7 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         newTile c x y = GTile { tPos = (x,y)
                               , tInd = fontIndex c
                               , tSize = (16,6)
-                              , tT = 2 }
+                              , tT = 1 }
         newPos ∷ (Float, Float) → Char → (Float, Float)
         newPos (x,y) c = ((x+(fontOffset c)),y)
 
@@ -53,18 +53,18 @@ calcTextbox x y sx sy = [toplefttile] ⧺ (toprow sx) ⧺ [toprighttile]
         toplefttile = GTile { tPos  = (x,y)
                             , tInd  = (0,0)
                             , tSize = (1,1)
-                            , tT    = 7 }
+                            , tT    = 6 }
         toprighttile = GTile { tPos  = (x+sx'+1.0,y)
                              , tInd = (0,0)
                              , tSize = (1,1)
-                             , tT    = 8 }
+                             , tT    = 7 }
         toprow ∷ Int → [GTile]
         toprow 0  = []
         toprow sx = [thisTile] ⧺ (toprow (sx - 1))
           where thisTile = GTile { tPos = (x+(fromIntegral sx),y)
                          , tInd = (0,0)
                          , tSize = (1,1)
-                         , tT   = 9 }
+                         , tT   = 8 }
 
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame

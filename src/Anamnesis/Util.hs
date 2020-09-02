@@ -43,22 +43,10 @@ initState = do
                     , tInd  = (0,0)
                     , tSize = (1,1)
                     , tT    = 0 }
-  let tile2 = GTile { tPos  = (0,1)
-                    , tInd  = (0,0)
-                    , tSize = (1,1)
-                    , tT    = 1 }
-  let tile3 = GTile { tPos  = (1,0)
-                    , tInd  = (0,0)
-                    , tSize = (16,6)
-                    , tT    = 2 }
-  let tile4 = GTile { tPos  = (2,0)
-                    , tInd  = (1,1)
-                    , tSize = (16,6)
-                    , tT    = 2 }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   luasettings ← importSettings ls "mod/base/"
-  ds ← initDrawState [tile1, tile2, tile3, tile4]
+  ds ← initDrawState [tile1]
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , window       = Nothing

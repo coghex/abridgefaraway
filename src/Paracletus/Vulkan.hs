@@ -59,22 +59,25 @@ runParacVulkan = do
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
     settings ← gets sSettings
-    let tex1Path   = "dat/tex/texture1.png"
-        tex2Path   = "dat/tex/texture2.png"
+    -- the engine reserves the first few
+    -- textures for default usage.
+    -- first texture is a test jpg, second
+    -- is the font atlas, third though 11
+    -- are a collection of simple text box
+    -- textures.
+    let tex1Path   = "dat/tex/texture.jpg"
         --texAlph    = "dat/tex/alph.png"
         --texboxPath = "dat/tex/box"
         texAlph = settingFontPath settings
         texboxPath = settingTBPath settings
     boxTexs ← loadNTexs pdev dev commandPool (graphicsQueue queues) texboxPath
     (textureView1, mipLevels1) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
-    (textureView2, mipLevels2) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex2Path
     (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texAlph
     textureSampler1 ← createTextureSampler dev mipLevels1
-    textureSampler2 ← createTextureSampler dev mipLevels2
     texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
     let (btexs, bsamps) = unzip boxTexs
-        texViews = [textureView1, textureView2, texViewAlph] ⧺ btexs
-        texSamps = [textureSampler1, textureSampler2, texSamplerAlph] ⧺ bsamps
+        texViews = [textureView1, texViewAlph] ⧺ btexs
+        texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps
     descriptorTextureInfo ← textureImageInfos texViews texSamps
     depthFormat ← findDepthFormat pdev
     let nimages = length texViews
