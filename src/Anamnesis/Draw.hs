@@ -14,14 +14,18 @@ import Paracletus.Data
 data DrawState = DrawState { dsTiles ∷ [GTile]
                            , dsTextB ∷ [TextBox] }
 -- defines a box full of text
-data TextBox = TextBox { tbPos ∷ (Float, Float)
+data TextBox = TextBox { tbPos    ∷ (Float, Float)
+                       , tbSize   ∷ (Int, Int)
+                       , tbBox    ∷ Bool
                        , tbString ∷ String }
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
   { dsTiles = tiles 
   , dsTextB = [initTB] }
-  where initTB = TextBox { tbPos = (-1,-1)
+  where initTB = TextBox { tbPos    = (-1,-1)
+                         , tbSize   = (5,1)
+                         , tbBox    = True
                          , tbString = "loading..." }
 
 addTile ∷ DrawState → DrawState

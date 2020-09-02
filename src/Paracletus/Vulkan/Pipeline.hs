@@ -125,7 +125,7 @@ createGraphicsPipeline dev SwapchainInfo{swapExtent} bindDesc attrDescs shaderDe
           &* set @"pNext" VK_NULL
           &* set @"flags" VK_ZERO_FLAGS
           &* set @"depthTestEnable" VK_TRUE
-          &* set @"depthWriteEnable" VK_TRUE
+          &* set @"depthWriteEnable" VK_FALSE
           &* set @"depthCompareOp" VK_COMPARE_OP_LESS
           &* set @"depthBoundsTestEnable" VK_FALSE
           &* set @"minDepthBounds" 0.0
