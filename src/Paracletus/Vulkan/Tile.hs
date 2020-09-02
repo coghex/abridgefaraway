@@ -49,23 +49,24 @@ calcFontTiles ds = ds { dsTiles = newTiles }
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Float → Float → Int → Int → [GTile]
-calcTextbox x y sx sy = [toplefttile] ⧺ (toprow sx) ⧺ [toprighttile]
-  where (sx',sy') = (fromIntegral sx, fromIntegral sy)
-        toplefttile = defaultGTile
+calcTextbox x y sx sy = [topLeftTile] ⧺ (topRow sx) ⧺ [topRightTile]
+  where sx' = fromIntegral sx
+        topLeftTile = defaultGTile
                         { tPos   = (x,y)
                         , tScale = (0.5,0.5)
                         , tT     = 6 }
-        toprighttile = defaultGTile
+        topRightTile = defaultGTile
                          { tPos   = (x+(0.5*sx')+0.5,y)
                          , tScale = (0.5,0.5)
                          , tT     = 7 }
-        toprow ∷ Int → [GTile]
-        toprow 0  = []
-        toprow sx = [thisTile] ⧺ (toprow (sx - 1))
+        topRow ∷ Int → [GTile]
+        topRow 0  = []
+        topRow width = [thisTile] ⧺ (topRow (width - 1))
           where thisTile = defaultGTile
-                  { tPos   = (x+(0.5*(fromIntegral sx)),y)
+                  { tPos   = (x+(0.5*width'),y)
                   , tScale = (0.5,0.5)
                   , tT     = 8 }
+                width' = fromIntegral width
 
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
@@ -92,7 +93,7 @@ indices ∷ [GTile] → DataFrame Word32 '[XN 3]
 indices tiles = atLeastThree $ fromList $ (combineIndices tiles)
 combineIndices ∷ ∀ a. (Num a) ⇒ [GTile] → [a]
 combineIndices []           = []
-combineIndices (tile:tiles) = oneRectIndices ⧺ (map (+4) (combineIndices tiles))
+combineIndices (_:tiles) = oneRectIndices ⧺ (map (+4) (combineIndices tiles))
   where oneRectIndices = [0,3,2,2,1,0]
 
 -- these pattern matches translate to
