@@ -7,6 +7,7 @@ import Prelude()
 import UPrelude
 import Codec.Picture
 import Control.Monad
+import Data.List (sort)
 import qualified Data.Vector.Storable as Vec
 import Foreign.Marshal.Array (copyArray)
 import Foreign.Ptr (castPtr)
@@ -29,7 +30,7 @@ import Paracletus.Vulkan.Foreign
 loadNTexs ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ ([(VkImageView, VkSampler)])
 loadNTexs pdev dev cmdPool cmdQueue path = do
   imgPaths ← liftIO $ getDirectoryContents path
-  loadNTex pdev dev cmdPool cmdQueue $ map (combine path) $ filter filterOutPathJunk imgPaths
+  loadNTex pdev dev cmdPool cmdQueue $ map (combine path) $ sort $ filter filterOutPathJunk imgPaths
   where filterOutPathJunk ∷ FilePath → Bool
         filterOutPathJunk "."  = False
         filterOutPathJunk ".." = False
