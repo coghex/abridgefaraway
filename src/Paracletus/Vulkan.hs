@@ -3,6 +3,7 @@ module Paracletus.Vulkan where
 -- vulkan specific calls are made
 import Prelude()
 import UPrelude
+import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets)
 import Graphics.Vulkan.Core_1_0
@@ -14,6 +15,7 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
+import Epiklesis.Lua
 import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -40,6 +42,10 @@ runParacVulkan = do
   vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
   vulkanSurface ← createSurface vulkanInstance window
   logDebug $ "created surface: " ⧺ show vulkanSurface
+  -- forks loading the state as a child
+  env ← ask
+  st  ← get
+  _ ← liftIO $ forkIO $ loadState env st
   -- forks GLFW as parent
   glfwWaitEventsMeanwhile $ do
     (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)

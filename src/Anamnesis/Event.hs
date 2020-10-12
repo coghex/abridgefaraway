@@ -37,3 +37,6 @@ processEvent event = case event of
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
+  (EventLoaded loadedType) → do
+    st ← get
+    logWarn $ "loaded event"

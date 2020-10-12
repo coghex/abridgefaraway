@@ -5,6 +5,8 @@ import Prelude()
 import UPrelude
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
+import Artos.Var
+import Artos.Queue
 import Epiklesis.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
@@ -42,3 +44,9 @@ makeSettings sw sh fp tbp kl =
            , settingFontPath  = fp
            , settingTBPath    = tbp
            , settingKeyLayout = kl }
+
+loadState ∷ Env → State → IO ()
+loadState env state = do
+  let eventQ = envEventsChan env
+  atomically $ writeQueue eventQ $ EventLoaded 1
+  return ()
