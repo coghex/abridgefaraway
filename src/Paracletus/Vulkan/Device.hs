@@ -20,6 +20,11 @@ import Anamnesis.Util
 import Artos.Except
 import Paracletus.Data
 import Paracletus.Vulkan.Foreign
+#ifdef mingw32_HOST_OS
+let vkLayerValidation = "VK_LAYER_KHRONOS_validation"
+#else
+let vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
+#endif
 data DevQueues = DevQueues { graphicsQueue  ∷ VkQueue
                            , presentQueue   ∷ VkQueue
                            , qFamIndices    ∷ Ptr Word32
@@ -94,7 +99,7 @@ getQueueFamilies pdev = do
   return $ zip [0..] fams
 createGraphicsDevice ∷ VkPhysicalDevice → VkSurfaceKHR → Anamnesis ε σ (VkDevice, DevQueues)
 createGraphicsDevice pdev surf
-  | layers ← ["VK_LAYER_LUNARG_standard_validation" | isDev]
+  | layers ← [vkLayerValidation | isDev]
   , extensions ← [VK_KHR_SWAPCHAIN_EXTENSION_NAME] = do
   qfams ← getQueueFamilies pdev
   (gFamIdx, _gFam) ← selectGraphicsFamily qfams

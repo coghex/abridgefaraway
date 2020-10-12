@@ -12,6 +12,12 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Paracletus.Vulkan.Foreign
 import qualified Paracletus.Oblatum.GLFW as GLFW
+-- platform dependent vulkan layers
+#ifdef mingw32_HOST_OS
+let vkLayerValidation = "VK_LAYER_KHRONOS_validation"
+#else
+let vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
+#endif
 -- vulkan gets instantiated from GLFW
 createVulkanInstance ∷ String → String → [CString] → [String] → Anamnesis ε σ VkInstance
 createVulkanInstance progName engineName extensions layers' = allocResource destroyVulkanInstance $ do
@@ -19,7 +25,7 @@ createVulkanInstance progName engineName extensions layers' = allocResource dest
     logDebug $ unlines $ "enabling instance extensions: " : map (" " ⧺) extStrings
     logDebug $ unlines $ "enabling instance layers: " : map (" " ⧺) layers
     withVkPtr iCreateInfo $ \iciPtr → allocaPeek $ runVk ∘ vkCreateInstance iciPtr VK_NULL
-  where layers = layers' ⧺ ["VK_LAYER_LUNARG_standard_validation" | isDev]
+  where layers = layers' ⧺ [vkLayerValidation | isDev]
         appInfo = createVk @VkApplicationInfo
           $  set @"sType" VK_STRUCTURE_TYPE_APPLICATION_INFO
           &* set @"pNext" VK_NULL
