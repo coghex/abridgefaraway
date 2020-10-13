@@ -3,6 +3,7 @@ module Epiklesis.Lua where
 -- is instantiated.
 import Prelude()
 import UPrelude
+import Control.Concurrent (threadDelay)
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
 import Artos.Var
@@ -47,6 +48,7 @@ makeSettings sw sh fp tbp kl =
 
 loadState ∷ Env → State → IO ()
 loadState env state = do
+  threadDelay 1000000
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded 1
   return ()

@@ -55,7 +55,8 @@ initState = do
                              , cursor       = (0, 0, 2)
                              , drawSt       = ds
                              , luaSt        = ls
-                             , sSettings    = luasettings }
+                             , sSettings    = luasettings
+                             , sRecreate    = False }
 -- for c functions that have to run in the main
 -- thread for as long as the program runs
 occupyThreadAndFork ∷ Anamnesis ε σ () → Anamnesis' ε () → Anamnesis ε σ ()

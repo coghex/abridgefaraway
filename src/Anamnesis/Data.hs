@@ -24,7 +24,8 @@ data State = State { status       ∷ AExcept
                    , cursor       ∷ !(Int, Int, Int)
                    , drawSt       ∷ !DrawState
                    , luaSt        ∷ !LuaState
-                   , sSettings    ∷ !Settings }
+                   , sSettings    ∷ !Settings
+                   , sRecreate    ∷ Bool }
 data Settings = Settings
   { settingScreenW   ∷ Int
   , settingScreenH   ∷ Int

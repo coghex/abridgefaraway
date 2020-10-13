@@ -4,6 +4,7 @@ module Anamnesis.Event where
 import Prelude()
 import UPrelude
 import Control.Monad (when)
+import Control.Monad.State.Class (modify)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -39,4 +40,5 @@ processEvent event = case event of
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
   (EventLoaded loadedType) → do
     st ← get
+    modify $ \s → s { sRecreate = True }
     logWarn $ "loaded event"

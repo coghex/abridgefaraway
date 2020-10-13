@@ -5,7 +5,7 @@ import Prelude()
 import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
-import Control.Monad.State.Class (gets)
+import Control.Monad.State.Class (gets, modify)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -26,6 +26,7 @@ import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Draw
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Instance
+import Paracletus.Vulkan.Load
 import Paracletus.Vulkan.Pipeline
 import Paracletus.Vulkan.Pres
 import Paracletus.Vulkan.Shader
@@ -64,32 +65,8 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    settings ← gets sSettings
-    -- the engine reserves the first few
-    -- textures for default usage.
-    -- first texture is a test jpg, second
-    -- is the font atlas, third though 11
-    -- are a collection of simple text box
-    -- textures.
-    let tex1Path   = "dat/tex/texture.jpg"
-        --texAlph    = "dat/tex/alph.png"
-        --texboxPath = "dat/tex/box"
-        texAlph = settingFontPath settings
-        texboxPath = settingTBPath settings
-    boxTexs ← loadNTexs pdev dev commandPool (graphicsQueue queues) texboxPath
-    (textureView1, mipLevels1) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) tex1Path
-    (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev commandPool (graphicsQueue queues) texAlph
-    textureSampler1 ← createTextureSampler dev mipLevels1
-    texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
-    let (btexs, bsamps) = unzip boxTexs
-        texViews = [textureView1, texViewAlph] ⧺ btexs
-        texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps
-    descriptorTextureInfo ← textureImageInfos texViews texSamps
-    depthFormat ← findDepthFormat pdev
-    let nimages = length texViews
-    descriptorSetLayout ← createDescriptorSetLayout dev nimages
-    pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-    -- wait when minimized
+    (descriptorSetLayout, pipelineLayout, nimages, descriptorTextureInfo, depthFormat) ← loadVulkanTextures pdev dev commandPool (graphicsQueue queues)
+        -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
@@ -97,6 +74,7 @@ runParacVulkan = do
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
+      modify $ \s → s { sRecreate = False }
       swapInfo ← createSwapchain dev scsd queues vulkanSurface
       let swapchainLen = length (swapImgs swapInfo)
       (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
@@ -157,8 +135,9 @@ runParacVulkan = do
         when sizeChanged $ logDebug "glfw window size callback"
         -- this is for key input
         processEvents
+        stateRecreate ← gets sRecreate
         runVk $ vkDeviceWaitIdle dev
-        return $ if needRecreation ∨ sizeChanged then AbortLoop else ContinueLoop
+        return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
       -- loop ends, now deallocate
       return $ if shouldExit then AbortLoop else ContinueLoop
   return ()

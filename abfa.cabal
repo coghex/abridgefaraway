@@ -46,6 +46,7 @@ executable abfa
                    Paracletus.Vulkan.Draw
                    Paracletus.Vulkan.Foreign
                    Paracletus.Vulkan.Instance
+                   Paracletus.Vulkan.Load
                    Paracletus.Vulkan.Pipeline
                    Paracletus.Vulkan.Pres
                    Paracletus.Vulkan.Shader
