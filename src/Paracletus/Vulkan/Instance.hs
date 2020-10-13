@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Instance where
@@ -14,9 +15,11 @@ import Paracletus.Vulkan.Foreign
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- platform dependent vulkan layers
 #ifdef mingw32_HOST_OS
-let vkLayerValidation = "VK_LAYER_KHRONOS_validation"
+vkLayerValidation ∷ String
+vkLayerValidation = "VK_LAYER_KHRONOS_validation"
 #else
-let vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
+vkLayerValidation ∷ String
+vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
 #endif
 -- vulkan gets instantiated from GLFW
 createVulkanInstance ∷ String → String → [CString] → [String] → Anamnesis ε σ VkInstance

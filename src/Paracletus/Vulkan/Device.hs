@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan.Device where
@@ -21,9 +22,11 @@ import Artos.Except
 import Paracletus.Data
 import Paracletus.Vulkan.Foreign
 #ifdef mingw32_HOST_OS
-let vkLayerValidation = "VK_LAYER_KHRONOS_validation"
+vkLayerValidation ∷ String
+vkLayerValidation = "VK_LAYER_KHRONOS_validation"
 #else
-let vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
+vkLayerValidation ∷ String
+vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
 #endif
 data DevQueues = DevQueues { graphicsQueue  ∷ VkQueue
                            , presentQueue   ∷ VkQueue
