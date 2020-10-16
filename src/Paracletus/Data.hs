@@ -1,5 +1,10 @@
 {-# LANGUAGE Strict #-}
 module Paracletus.Data where
+-- some general data structures are defined
+import Prelude()
+import UPrelude
+import Graphics.Vulkan
+import Graphics.Vulkan.Core_1_0
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
 
@@ -20,3 +25,19 @@ defaultGTile = GTile { tPos   = (0,0)
                      , tInd   = (0,0)
                      , tSize  = (1,1)
                      , tT     = 0 }
+
+-- all the data required for a set of textures
+data TextureData = TextureData
+         { descSetLayout  ∷ VkDescriptorSetLayout
+         , pipelineLayout ∷ VkPipelineLayout
+         , nimages        ∷ Int
+         , descTexInfo    ∷ [VkDescriptorImageInfo]
+         , depthFormat    ∷ VkFormat }
+
+-- the data required to create the texture
+-- from the graphicsqueue and command pool
+data GQData = GQData
+         { pdev    ∷ VkPhysicalDevice
+         , dev     ∷ VkDevice
+         , cmdPool ∷ VkCommandPool
+         , gqueue  ∷ VkQueue }

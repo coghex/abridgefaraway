@@ -8,3 +8,6 @@ end
 function textboxTexture ()
     return "dat/tex/box/"
 end
+function textureDirectory ()
+    return "dat/tex/base"
+end

@@ -36,14 +36,16 @@ importSettings ls' fn = do
     (sw, sh) ← Lua.callFunc "getScreenSize"
     fontPath ← Lua.callFunc "fontAtlas"
     tbPath   ← Lua.callFunc "textboxTexture"
-    return $ makeSettings (sw∷Int) (sh∷Int) (fontPath∷String) (tbPath∷String) layout
+    txPath   ← Lua.callFunc "textureDirectory"
+    return $ makeSettings (sw∷Int) (sh∷Int) (fontPath∷String) (tbPath∷String) (txPath∷String) layout
 
-makeSettings ∷ Int → Int → String → String → GLFW.KeyLayout → Settings
-makeSettings sw sh fp tbp kl =
+makeSettings ∷ Int → Int → String → String → String → GLFW.KeyLayout → Settings
+makeSettings sw sh fp tbp txs kl =
   Settings { settingScreenW   = sw
            , settingScreenH   = sh
            , settingFontPath  = fp
            , settingTBPath    = tbp
+           , settingTexPath   = txs
            , settingKeyLayout = kl }
 
 loadState ∷ Env → State → IO ()

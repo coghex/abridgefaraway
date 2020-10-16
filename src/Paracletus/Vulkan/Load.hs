@@ -8,6 +8,7 @@ import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Anamnesis
 import Anamnesis.Data
+import Paracletus.Data
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Pipeline
@@ -15,8 +16,8 @@ import Epiklesis.Lua
 
 -- loads all the textures into layouts of
 -- the descriptor sets and pipeline
-loadVulkanTextures ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → Anamnesis ε σ (VkDescriptorSetLayout, VkPipelineLayout, Int, [VkDescriptorImageInfo], VkFormat)
-loadVulkanTextures pdev dev cmdPool cmdQueue = do
+loadVulkanTextures ∷ GQData → Anamnesis ε σ (TextureData)
+loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) = do
   settings ← gets sSettings
   -- the engine reserves the first few
   -- textures for default usage.
@@ -42,4 +43,4 @@ loadVulkanTextures pdev dev cmdPool cmdQueue = do
   let nimages = length texViews
   descriptorSetLayout ← createDescriptorSetLayout dev nimages
   pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-  return (descriptorSetLayout, pipelineLayout, nimages, descriptorTextureInfo, depthFormat)
+  return $ TextureData descriptorSetLayout pipelineLayout nimages descriptorTextureInfo depthFormat

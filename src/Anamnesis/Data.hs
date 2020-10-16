@@ -31,4 +31,5 @@ data Settings = Settings
   , settingScreenH   ∷ Int
   , settingFontPath  ∷ FilePath
   , settingTBPath    ∷ FilePath
+  , settingTexPath   ∷ FilePath
   , settingKeyLayout ∷ GLFW.KeyLayout } deriving (Show, Eq)

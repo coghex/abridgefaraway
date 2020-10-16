@@ -43,10 +43,6 @@ runParacVulkan = do
   vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
   vulkanSurface ← createSurface vulkanInstance window
   logDebug $ "created surface: " ⧺ show vulkanSurface
-  -- forks loading the state as a child
-  env ← ask
-  st  ← get
-  _ ← liftIO $ forkIO $ loadState env st
   -- forks GLFW as parent
   glfwWaitEventsMeanwhile $ do
     (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
@@ -65,30 +61,38 @@ runParacVulkan = do
     commandPool        ← createCommandPool     dev queues
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
-    (descriptorSetLayout, pipelineLayout, nimages, descriptorTextureInfo, depthFormat) ← loadVulkanTextures pdev dev commandPool (graphicsQueue queues)
+    let gqdata = GQData pdev dev commandPool (graphicsQueue queues)
+    texData ← loadVulkanTextures gqdata
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
+    --_ ← liftIO $ forkIO $ loadModTextures pdev dev commandPool (graphicsQueue queues)
     loop $ do
       ds ← gets drawSt
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
-      modify $ \s → s { sRecreate = False }
+      rec ← gets sRecreate
+      case rec of
+        True → do
+          --reload for new textures
+          texData ← loadVulkanTextures gqdata
+          modify $ \s → s { sRecreate = False }
+        False → return ()
       swapInfo ← createSwapchain dev scsd queues vulkanSurface
       let swapchainLen = length (swapImgs swapInfo)
       (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
       descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-      descriptorPool ← createDescriptorPool dev swapchainLen nimages
-      descriptorSetLayouts ← newArrayRes $ replicate swapchainLen descriptorSetLayout
+      descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
+      descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
       descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo descriptorTextureInfo dSet nimages
+      forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
       transObjMemories ← newArrayRes transObjMems
       imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
       logDebug $ "created image views: " ⧺ show imgViews
-      renderPass ← createRenderPass dev swapInfo depthFormat msaaSamples
+      renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
       logDebug $ "created renderpass: " ⧺ show renderPass
-      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass pipelineLayout msaaSamples
+      graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
       logDebug $ "created pipeline: " ⧺ show graphicsPipeline
       colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
       depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
@@ -98,7 +102,7 @@ runParacVulkan = do
       vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
       indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
-      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
+      cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
       cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
       logDebug $ "created command buffers: " ⧺ show cmdBuffers
       shouldExit ← glfwMainLoop window $ do
@@ -107,7 +111,7 @@ runParacVulkan = do
             let (verts0, inds0) = calcVertices dsNew
             vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
             indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-            newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass pipelineLayout swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+            newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
             -- for now just recreate command
             -- buffers every frame
             return newCmdBP
