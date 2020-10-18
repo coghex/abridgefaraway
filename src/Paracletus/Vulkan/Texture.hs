@@ -46,6 +46,13 @@ loadNTex pdev dev cmdPool cmdQueue (path:paths) = do
   texs ← loadNTex pdev dev cmdPool cmdQueue paths
   return $ (imgView, sampler) : texs
 
+createTextureImageViews ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → [FilePath] → Anamnesis ε σ ([(VkImageView, Word32)])
+createTextureImageViews pdev dev cmdPool cmdQueue []           = return []
+createTextureImageViews pdev dev cmdPool cmdQueue (path:paths) = do
+  lt ← (createTextureImageViews pdev dev cmdPool cmdQueue paths)
+  nt ← (createTextureImageView pdev dev cmdPool cmdQueue path)
+  return $ lt ⧺ [nt]
+
 createTextureImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ (VkImageView, Word32)
 createTextureImageView pdev dev cmdPool cmdQueue path = do
   Image { imageWidth, imageHeight, imageData } ← liftIO (readImage path) ⌦ \case
@@ -130,6 +137,13 @@ generateMipmaps pdev image format width height mipLevels cmdBuf = do
     withVkPtr (blitStruct mipLevel srcWidth srcHeight) $ \blitPtr → liftIO $ vkCmdBlitImage cmdBuf image VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL image VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL 1 blitPtr VK_FILTER_LINEAR
     let barrier = barrierStruct (mipLevel - 1) VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL VK_ACCESS_TRANSFER_READ_BIT VK_ACCESS_SHADER_READ_BIT
      in withVkPtr barrier $ \barrPtr → liftIO $ vkCmdPipelineBarrier cmdBuf VK_PIPELINE_STAGE_TRANSFER_BIT VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT VK_ZERO_FLAGS 0 VK_NULL 0 VK_NULL 1 barrPtr
+
+createTextureSamplers ∷ VkDevice → [Word32] → Anamnesis e s [VkSampler]
+createTextureSamplers dev []                   = return $ []
+createTextureSamplers dev (mipLevel:mipLevels) = do
+  lt ← createTextureSamplers dev mipLevels
+  nt ← createTextureSampler  dev mipLevel
+  return $ lt ⧺ [nt]
 
 createTextureSampler ∷ VkDevice → Word32 → Anamnesis e s VkSampler
 createTextureSampler dev mipLevels = do

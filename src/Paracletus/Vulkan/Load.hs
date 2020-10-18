@@ -15,9 +15,11 @@ import Paracletus.Vulkan.Pipeline
 import Epiklesis.Lua
 
 -- loads all the textures into layouts of
--- the descriptor sets and pipeline
-loadVulkanTextures ∷ GQData → Anamnesis ε σ (TextureData)
-loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) = do
+-- the descriptor sets and pipeline. an
+-- empty string will just load default textures
+-- and filepaths added will be ammended to that
+loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData)
+loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   settings ← gets sSettings
   -- the engine reserves the first few
   -- textures for default usage.
@@ -33,11 +35,13 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) = do
   boxTexs ← loadNTexs pdev dev cmdPool cmdQueue texboxPath
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
+  modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
+  texSamplersMod  ← createTextureSamplers dev $ snd . unzip $ modTexViews
   let (btexs, bsamps) = unzip boxTexs
-      texViews = [textureView1, texViewAlph] ⧺ btexs
-      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps
+      texViews = [textureView1, texViewAlph] ⧺ btexs ⧺ (fst (unzip modTexViews))
+      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ texSamplersMod
   descriptorTextureInfo ← textureImageInfos texViews texSamps
   depthFormat ← findDepthFormat pdev
   let nimages = length texViews

@@ -7,10 +7,12 @@ import Control.Monad (when)
 import Control.Monad.State.Class (modify)
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Draw
 import Anamnesis.Util
 import Artos.Except
 import Artos.Queue
 import Artos.Var
+import Paracletus.Data
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -40,5 +42,13 @@ processEvent event = case event of
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
   (EventLoaded loadedType) → do
     st ← get
-    modify $ \s → s { sRecreate = True }
+    let newtile = GTile { tPos = (1,0)
+                        , tScale = (1,1)
+                        , tInd = (0,0)
+                        , tSize = (1,1)
+                        , tT = 12 }
+    --let newds = DrawState ((dsTiles (drawSt st)) ⧺ [newtile]) (dsTextB (drawSt st))
+    let newds = DrawState (dsTiles (drawSt st)) []
+    modify $ \s → s { drawSt = newds
+                    , sRecreate = True }
     logWarn $ "loaded event"

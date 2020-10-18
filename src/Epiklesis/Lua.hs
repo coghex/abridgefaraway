@@ -48,8 +48,8 @@ makeSettings sw sh fp tbp txs kl =
            , settingTexPath   = txs
            , settingKeyLayout = kl }
 
-loadState ∷ Env → State → IO ()
-loadState env state = do
+loadState ∷ Env → IO ()
+loadState env = do
   threadDelay 1000000
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded 1

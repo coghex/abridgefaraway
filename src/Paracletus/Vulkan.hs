@@ -62,11 +62,13 @@ runParacVulkan = do
     logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
     let gqdata = GQData pdev dev commandPool (graphicsQueue queues)
-    texData ← loadVulkanTextures gqdata
+    texData ← loadVulkanTextures gqdata []
+    -- this is a test function
+    env ← ask
+    _ ← liftIO $ forkIO $ loadState env
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
-    --_ ← liftIO $ forkIO $ loadModTextures pdev dev commandPool (graphicsQueue queues)
     loop $ do
       ds ← gets drawSt
       logDebug "creating new swapchain..."
@@ -76,7 +78,7 @@ runParacVulkan = do
       case rec of
         True → do
           --reload for new textures
-          texData ← loadVulkanTextures gqdata
+          texData ← loadVulkanTextures gqdata ["dat/tex/texture1.png", "dat/tex/texture2.png"]
           modify $ \s → s { sRecreate = False }
         False → return ()
       swapInfo ← createSwapchain dev scsd queues vulkanSurface
