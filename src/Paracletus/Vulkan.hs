@@ -80,137 +80,77 @@ runParacVulkan = do
         True → do
           --reload for new textures
           st  ← get
-          texData ← loadVulkanTextures gqdata [backgroundImg st]
+          newTexData ← loadVulkanTextures gqdata [backgroundImg st]
           modify $ \s → s { sRecreate = False }
-          swapInfo ← createSwapchain dev scsd queues vulkanSurface
-          let swapchainLen = length (swapImgs swapInfo)
-          (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-          descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-          descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
-          descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
-          descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-          forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
-          transObjMemories ← newArrayRes transObjMems
-          imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
-          logDebug $ "created image views: " ⧺ show imgViews
-          renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
-          logDebug $ "created renderpass: " ⧺ show renderPass
-          graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
-          logDebug $ "created pipeline: " ⧺ show graphicsPipeline
-          colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
-          depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
-          framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
-          logDebug $ "created framebuffers: " ⧺ show framebuffers
-          let (verts, inds) = calcVertices ds
-          vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
-          indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
-
-          cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
-          cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
-          logDebug $ "created command buffers: " ⧺ show cmdBuffers
-          shouldExit ← glfwMainLoop window $ do
-            cmdBP ← do
-                dsNew ← gets drawSt
-                let (verts0, inds0) = calcVertices dsNew
-                vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
-                indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-                newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
-                -- for now just recreate command
-                -- buffers every frame
-                return newCmdBP
-            let rdata = RenderData { dev
-                                   , swapInfo
-                                   , queues
-                                   , imgIndexPtr
-                                   , frameIndexRef
-                                   , renderFinishedSems
-                                   , imageAvailableSems
-                                   , inFlightFences
-                                   , cmdBuffersPtr = cmdBP
-                                   , memories = transObjMemories
-                                   , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
-            liftIO $ GLFW.pollEvents
-            needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
-              -- when khr out of date,
-              -- recreate swapchain
-              True → do
-                _ ← logDebug $ "vulkan khr out of date"
-                return True
-              _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-              -- _    → logExcept err ExParacletus "unknown drawFrame error" )
-            sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-            when sizeChanged $ logDebug "glfw window size callback"
-            -- this is for key input
-            processEvents
-            stateRecreate ← gets sRecreate
-            runVk $ vkDeviceWaitIdle dev
-            return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
-          -- loop ends, now deallocate
-          return $ if shouldExit then AbortLoop else ContinueLoop
+          vulkLoop dev pdev queues scsd window vulkanSurface newTexData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences
         False → do
-          swapInfo ← createSwapchain dev scsd queues vulkanSurface
-          let swapchainLen = length (swapImgs swapInfo)
-          (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-          descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
-          descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
-          descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
-          descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-          forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
-          transObjMemories ← newArrayRes transObjMems
-          imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
-          logDebug $ "created image views: " ⧺ show imgViews
-          renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
-          logDebug $ "created renderpass: " ⧺ show renderPass
-          graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
-          logDebug $ "created pipeline: " ⧺ show graphicsPipeline
-          colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
-          depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
-          framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
-          logDebug $ "created framebuffers: " ⧺ show framebuffers
-          let (verts, inds) = calcVertices ds
-          vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
-          indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
+          vulkLoop dev pdev queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences
 
-          cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
-          cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
-          logDebug $ "created command buffers: " ⧺ show cmdBuffers
-          shouldExit ← glfwMainLoop window $ do
-            cmdBP ← do
-                dsNew ← gets drawSt
-                let (verts0, inds0) = calcVertices dsNew
-                vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
-                indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-                newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
-                -- for now just recreate command
-                -- buffers every frame
-                return newCmdBP
-            let rdata = RenderData { dev
-                                   , swapInfo
-                                   , queues
-                                   , imgIndexPtr
-                                   , frameIndexRef
-                                   , renderFinishedSems
-                                   , imageAvailableSems
-                                   , inFlightFences
-                                   , cmdBuffersPtr = cmdBP
-                                   , memories = transObjMemories
-                                   , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
-            liftIO $ GLFW.pollEvents
-            needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
-              -- when khr out of date,
-              -- recreate swapchain
-              True → do
-                _ ← logDebug $ "vulkan khr out of date"
-                return True
-              _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-              -- _    → logExcept err ExParacletus "unknown drawFrame error" )
-            sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-            when sizeChanged $ logDebug "glfw window size callback"
-            -- this is for key input
-            processEvents
-            stateRecreate ← gets sRecreate
-            runVk $ vkDeviceWaitIdle dev
-            return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
-          -- loop ends, now deallocate
-          return $ if shouldExit then AbortLoop else ContinueLoop
-  return ()
+vulkLoop ∷ VkDevice → VkPhysicalDevice → DevQueues → SwapchainSupportDetails → GLFW.Window → VkSurfaceKHR → TextureData → VkSampleCountFlagBits → VkPipelineShaderStageCreateInfo → VkPipelineShaderStageCreateInfo → VkCommandPool → Ptr Word32 → TVar Bool → TVar Int → Ptr VkSemaphore → Ptr VkSemaphore → Ptr VkFence → Anamnesis ε σ (LoopControl)
+vulkLoop dev pdev queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences = do
+  swapInfo ← createSwapchain dev scsd queues vulkanSurface
+  let swapchainLen = length (swapImgs swapInfo)
+  (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
+  descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+  descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
+  descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
+  descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
+  forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
+  transObjMemories ← newArrayRes transObjMems
+  imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
+  logDebug $ "created image views: " ⧺ show imgViews
+  renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
+  logDebug $ "created renderpass: " ⧺ show renderPass
+  graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
+  logDebug $ "created pipeline: " ⧺ show graphicsPipeline
+  colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
+  depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
+  framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
+  logDebug $ "created framebuffers: " ⧺ show framebuffers
+  ds ← gets drawSt
+  let (verts, inds) = calcVertices ds
+  vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
+  indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
+
+  cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
+  cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
+  logDebug $ "created command buffers: " ⧺ show cmdBuffers
+  shouldExit ← glfwMainLoop window $ do
+    cmdBP ← do
+        dsNew ← gets drawSt
+        let (verts0, inds0) = calcVertices dsNew
+        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
+        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
+        newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+        -- for now just recreate command
+        -- buffers every frame
+        return newCmdBP
+    let rdata = RenderData { dev
+                           , swapInfo
+                           , queues
+                           , imgIndexPtr
+                           , frameIndexRef
+                           , renderFinishedSems
+                           , imageAvailableSems
+                           , inFlightFences
+                           , cmdBuffersPtr = cmdBP
+                           , memories = transObjMemories
+                           , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
+    liftIO $ GLFW.pollEvents
+    needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+      -- when khr out of date,
+      -- recreate swapchain
+      True → do
+        _ ← logDebug $ "vulkan khr out of date"
+        return True
+      _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
+      -- _    → logExcept err ExParacletus "unknown drawFrame error" )
+    sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
+    when sizeChanged $ logDebug "glfw window size callback"
+    -- this is for key input
+    processEvents
+    stateRecreate ← gets sRecreate
+    runVk $ vkDeviceWaitIdle dev
+    return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
+  -- loop ends, now deallocate
+  return $ if shouldExit then AbortLoop else ContinueLoop
