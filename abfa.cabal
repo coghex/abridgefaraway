@@ -26,6 +26,7 @@ executable abfa
                    Anamnesis.Draw
                    Anamnesis.Event
                    Anamnesis.Foreign
+                   Anamnesis.Init
                    Anamnesis.Map
                    Anamnesis.Util
                    Epiklesis.Data

@@ -3,7 +3,7 @@ module Main where
 import Artos
 import Paracletus
 import Paracletus.Data
-import Anamnesis.Util
+import Anamnesis.Init
 -- runs a monadic action in IO
 main ∷ IO ()
 main = runAnamnesis checkStatus (runParacletus Vulkan)

@@ -11,3 +11,7 @@ end
 function textureDirectory ()
     return "dat/tex/base"
 end
+-- this runs once at the beginning
+function initLua ()
+    return 1
+end

@@ -65,7 +65,8 @@ runParacVulkan = do
     texData ← loadVulkanTextures gqdata []
     -- this is a test function
     env ← ask
-    _ ← liftIO $ forkIO $ loadState env
+    st  ← get
+    _ ← liftIO $ forkIO $ loadState env st
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False

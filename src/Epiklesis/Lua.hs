@@ -6,6 +6,7 @@ import UPrelude
 import Control.Concurrent (threadDelay)
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
+import Anamnesis.Util
 import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
@@ -48,8 +49,14 @@ makeSettings sw sh fp tbp txs kl =
            , settingTexPath   = txs
            , settingKeyLayout = kl }
 
-loadState ∷ Env → IO ()
-loadState env = do
+loadState ∷ Env → State → IO ()
+loadState env st = do
+  let ls = luaState $ luaSt st
+  re ← Lua.runWith ls $ do
+    Lua.openlibs
+    Lua.dofile $ "mod/base/base.lua"
+    ret ← Lua.callFunc "initLua"
+    return (ret∷Int)
   threadDelay 1000000
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded 1
