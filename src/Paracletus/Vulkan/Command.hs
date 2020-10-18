@@ -13,6 +13,7 @@ import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Foreign
 import Anamnesis.Util
+import Paracletus.Data
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Sync

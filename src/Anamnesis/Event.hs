@@ -34,7 +34,7 @@ processEvent event = case event of
   (EventError err str) → do
     st ← get
     _  ← logExcept err ExParacletus str
-    case (window st) of
+    case (windowSt st) of
       Just win → liftIO $ GLFW.setWindowShouldClose win True
       Nothing  → logWarn $ "no glfw window to close"
   (EventKey window k _ ks mk) → do

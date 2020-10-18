@@ -43,7 +43,7 @@ initState = do
   ds ← initDrawState [tile1]
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
-                             , window       = Nothing
+                             , windowSt     = Nothing
                              , cam3d        = (2.0, 2.0, 2.0)
                              , cursor       = (0, 0, 2)
                              , backgroundImg = ""

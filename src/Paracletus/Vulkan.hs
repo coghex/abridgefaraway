@@ -71,7 +71,6 @@ runParacVulkan = do
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
-      ds ← gets drawSt
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
@@ -79,15 +78,18 @@ runParacVulkan = do
       case rec of
         True → do
           --reload for new textures
-          st  ← get
-          newTexData ← loadVulkanTextures gqdata [backgroundImg st]
+          newst ← get
+          newTexData ← loadVulkanTextures gqdata [backgroundImg newst]
           modify $ \s → s { sRecreate = False }
-          vulkLoop dev pdev queues scsd window vulkanSurface newTexData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences
+          let vulkLoopData' = VulkanLoopData {..}
+              vulkLoopData  = vulkLoopData' { texData = newTexData }
+          vulkLoop vulkLoopData
         False → do
-          vulkLoop dev pdev queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences
+          let vulkLoopData = VulkanLoopData {..}
+          vulkLoop vulkLoopData
 
-vulkLoop ∷ VkDevice → VkPhysicalDevice → DevQueues → SwapchainSupportDetails → GLFW.Window → VkSurfaceKHR → TextureData → VkSampleCountFlagBits → VkPipelineShaderStageCreateInfo → VkPipelineShaderStageCreateInfo → VkCommandPool → Ptr Word32 → TVar Bool → TVar Int → Ptr VkSemaphore → Ptr VkSemaphore → Ptr VkFence → Anamnesis ε σ (LoopControl)
-vulkLoop dev pdev queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag commandPool imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences = do
+vulkLoop ∷ VulkanLoopData → Anamnesis ε σ (LoopControl)
+vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen

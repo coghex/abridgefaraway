@@ -20,6 +20,7 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
+import Paracletus.Data
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Pres

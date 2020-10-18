@@ -28,17 +28,6 @@ vkLayerValidation = "VK_LAYER_KHRONOS_validation"
 vkLayerValidation ∷ String
 vkLayerValidation = "VK_LAYER_LUNARG_standard_validation"
 #endif
-data DevQueues = DevQueues { graphicsQueue  ∷ VkQueue
-                           , presentQueue   ∷ VkQueue
-                           , qFamIndices    ∷ Ptr Word32
-                           , graphicsFamIdx ∷ Word32
-                           , presentFamIdx  ∷ Word32
-                           } deriving (Eq, Show)
-data SwapchainSupportDetails = SwapchainSupportDetails
-  { capabilities ∷ VkSurfaceCapabilitiesKHR
-  , formats      ∷ [VkSurfaceFormatKHR]
-  , presentModes ∷ [VkPresentModeKHR]
-  } deriving (Eq, Show)
 -- *** functions
 selectGraphicsFamily ∷ [(Word32, VkQueueFamilyProperties)] → Anamnesis ε σ (Word32, VkQueueFamilyProperties)
 selectGraphicsFamily [] = logExcept VulkanError ExParacletus "no graphics family found"

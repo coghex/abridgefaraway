@@ -5,6 +5,10 @@ import Prelude()
 import UPrelude
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
+import Graphics.Vulkan.Ext.VK_KHR_surface
+import Graphics.Vulkan.Ext.VK_KHR_swapchain
+import Artos.Var
+import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
 
@@ -41,3 +45,34 @@ data GQData = GQData
          , dev     ∷ VkDevice
          , cmdPool ∷ VkCommandPool
          , gqueue  ∷ VkQueue }
+
+-- the main data for the vulkan loop
+data VulkanLoopData = VulkanLoopData
+         { gqdata             ∷ GQData
+         , queues             ∷ DevQueues
+         , scsd               ∷ SwapchainSupportDetails
+         , window             ∷ GLFW.Window
+         , vulkanSurface      ∷ VkSurfaceKHR
+         , texData            ∷ TextureData
+         , msaaSamples        ∷ VkSampleCountFlagBits
+         , shaderVert         ∷ VkPipelineShaderStageCreateInfo
+         , shaderFrag         ∷ VkPipelineShaderStageCreateInfo
+         , imgIndexPtr        ∷ Ptr Word32
+         , windowSizeChanged  ∷ TVar Bool
+         , frameIndexRef      ∷ TVar Int
+         , renderFinishedSems ∷ Ptr VkSemaphore
+         , imageAvailableSems ∷ Ptr VkSemaphore
+         , inFlightFences     ∷ Ptr VkFence }
+
+data DevQueues = DevQueues { graphicsQueue  ∷ VkQueue
+                           , presentQueue   ∷ VkQueue
+                           , qFamIndices    ∷ Ptr Word32
+                           , graphicsFamIdx ∷ Word32
+                           , presentFamIdx  ∷ Word32
+                           } deriving (Eq, Show)
+
+data SwapchainSupportDetails = SwapchainSupportDetails
+  { capabilities ∷ VkSurfaceCapabilitiesKHR
+  , formats      ∷ [VkSurfaceFormatKHR]
+  , presentModes ∷ [VkPresentModeKHR]
+  } deriving (Eq, Show)

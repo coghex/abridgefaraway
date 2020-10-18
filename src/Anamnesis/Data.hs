@@ -19,7 +19,7 @@ data Env = Env { envEventsChan ∷ Queue Event }
 -- current status of the whole App
 data State = State { status       ∷ AExcept
                    , logFunc      ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
-                   , window       ∷ !(Maybe GLFW.Window)
+                   , windowSt     ∷ !(Maybe GLFW.Window)
                    , cam3d        ∷ !(Float, Float, Float)
                    , cursor       ∷ !(Int, Int, Int)
                    , backgroundImg ∷ String
