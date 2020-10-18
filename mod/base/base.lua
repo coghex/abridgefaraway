@@ -13,5 +13,6 @@ function textureDirectory ()
 end
 -- this runs once at the beginning
 function initLua ()
+    setBackground ("dat/tex/texture1.png")
     return 1
 end

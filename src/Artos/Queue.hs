@@ -7,6 +7,7 @@ type Queue = STM.TQueue
 -- this is a placeholder
 data Event = EventError !GLFW.Error !String
            | EventLoaded !Int
+           | EventLua !String
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys deriving (Show)
 -- these functions act as synonyms
 -- to the STM library

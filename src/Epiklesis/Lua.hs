@@ -53,6 +53,7 @@ loadState ∷ Env → State → IO ()
 loadState env st = do
   let ls = luaState $ luaSt st
   re ← Lua.runWith ls $ do
+    Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -61,3 +62,9 @@ loadState env st = do
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded 1
   return ()
+
+hsSetBackground ∷ Env → String → Lua.Lua ()
+hsSetBackground env path = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua path
+  

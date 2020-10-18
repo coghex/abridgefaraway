@@ -40,15 +40,17 @@ processEvent event = case event of
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
+  (EventLua string) → do
+    modify $ \s → s { backgroundImg = string }
   (EventLoaded loadedType) → do
     st ← get
-    let newtile = GTile { tPos = (1,0)
-                        , tScale = (1,1)
-                        , tInd = (0,0)
-                        , tSize = (1,1)
-                        , tT = 12 }
+    let tile1 = GTile { tPos   = (0,0)
+                      , tScale = (1,1)
+                      , tInd   = (0,0)
+                      , tSize  = (1,1)
+                      , tT     = 11 }
     --let newds = DrawState ((dsTiles (drawSt st)) ⧺ [newtile]) (dsTextB (drawSt st))
-    let newds = DrawState (dsTiles (drawSt st)) []
+    let newds = DrawState [tile1] []
     modify $ \s → s { drawSt = newds
                     , sRecreate = True }
     logWarn $ "loaded event"
