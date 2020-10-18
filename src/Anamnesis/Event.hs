@@ -4,7 +4,7 @@ module Anamnesis.Event where
 import Prelude()
 import UPrelude
 import Control.Monad (when)
-import Control.Monad.State.Class (modify)
+import Control.Monad.State.Class (modify, gets)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
@@ -12,6 +12,7 @@ import Anamnesis.Util
 import Artos.Except
 import Artos.Queue
 import Artos.Var
+import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Event
@@ -40,12 +41,19 @@ processEvent event = case event of
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
-  (EventLua string) → do
-    modify $ \s → s { backgroundImg = string }
+  (EventLua command args) → do
+    oldluaSt ← gets luaSt
+    case command of
+      LuaCmdnewWindow win → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState { luaState = luaState oldluaSt
+                                     , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
+      LuaCmdNULL → logError $ "lua NULL command"
+      otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
+    -- loads a window from base lua file
     st ← get
     let tile1 = GTile { tPos   = (0,0)
-                      , tScale = (1,1)
+                      , tScale = (10,10)
                       , tInd   = (0,0)
                       , tSize  = (1,1)
                       , tT     = 11 }

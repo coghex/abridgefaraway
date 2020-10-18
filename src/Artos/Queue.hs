@@ -2,12 +2,13 @@ module Artos.Queue where
 -- an event queue is defined
 import qualified Control.Concurrent.STM as STM
 import qualified Paracletus.Oblatum.GLFW as GLFW
+import Epiklesis.Data
 -- type synonym for ease of use
 type Queue = STM.TQueue
 -- this is a placeholder
 data Event = EventError !GLFW.Error !String
            | EventLoaded !Int
-           | EventLua !String
+           | EventLua !LuaCmd !String
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys deriving (Show)
 -- these functions act as synonyms
 -- to the STM library

@@ -15,7 +15,8 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
-  return $ LuaState { luaState = ls }
+  return $ LuaState { luaState = ls
+                    , luaWindows = [] }
 
 importKeyLayout ∷ Lua.State → String → IO (GLFW.KeyLayout)
 importKeyLayout ls fn = Lua.runWith ls $ do
@@ -53,7 +54,7 @@ loadState ∷ Env → State → IO ()
 loadState env st = do
   let ls = luaState $ luaSt st
   re ← Lua.runWith ls $ do
-    Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
+    Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -63,8 +64,16 @@ loadState env st = do
   atomically $ writeQueue eventQ $ EventLoaded 1
   return ()
 
-hsSetBackground ∷ Env → String → Lua.Lua ()
-hsSetBackground env path = do
+hsNewWindow ∷ Env → String → String → Lua.Lua ()
+hsNewWindow env name background = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua path
-  
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
+  where win = Window name background
+
+-- converts windows to corresponding texture list
+windowTextures ∷ [Window] → [String]
+windowTextures []     = []
+windowTextures (w:ws) = (singleWindowTextures w) ⧺ (windowTextures ws)
+
+singleWindowTextures ∷ Window → [String]
+singleWindowTextures w = [winBackground w]

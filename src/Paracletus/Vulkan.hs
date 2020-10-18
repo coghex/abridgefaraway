@@ -15,6 +15,7 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
+import Epiklesis.Data
 import Epiklesis.Lua
 import Paracletus.Data
 import Paracletus.Oblatum
@@ -77,9 +78,9 @@ runParacVulkan = do
       rec ← gets sRecreate
       case rec of
         True → do
-          --reload for new textures
+          --reload for new textures for every window
           newst ← get
-          newTexData ← loadVulkanTextures gqdata [backgroundImg newst]
+          newTexData ← loadVulkanTextures gqdata $ windowTextures $ luaWindows $ luaSt newst
           modify $ \s → s { sRecreate = False }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }

@@ -22,7 +22,6 @@ data State = State { status       ∷ AExcept
                    , windowSt     ∷ !(Maybe GLFW.Window)
                    , cam3d        ∷ !(Float, Float, Float)
                    , cursor       ∷ !(Int, Int, Int)
-                   , backgroundImg ∷ String
                    , drawSt       ∷ !DrawState
                    , luaSt        ∷ !LuaState
                    , sSettings    ∷ !Settings
