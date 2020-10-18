@@ -43,22 +43,48 @@ processEvent event = case event of
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
   (EventLua command args) → do
     oldluaSt ← gets luaSt
+    oldds ← gets drawSt
     case command of
       LuaCmdnewWindow win → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState { luaState = luaState oldluaSt
                                      , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
+      LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdNULL → logError $ "lua NULL command"
       otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
     -- loads a window from base lua file
     st ← get
     let tile1 = GTile { tPos   = (0,0)
-                      , tScale = (10,10)
+                      , tScale = (16,16)
                       , tInd   = (0,0)
                       , tSize  = (1,1)
                       , tT     = 11 }
-    --let newds = DrawState ((dsTiles (drawSt st)) ⧺ [newtile]) (dsTextB (drawSt st))
-    let newds = DrawState [tile1] []
+    let menuwindow = head $ luaWindows (luaSt st)
+    let newds = DrawState [tile1] (calcTextBoxs menuwindow)
     modify $ \s → s { drawSt = newds
                     , sRecreate = True }
     logWarn $ "loaded event"
+
+-- converts text boxs in lua window to
+-- text boxs in the actual draw state
+calcTextBoxs ∷ Window → [TextBox]
+calcTextBoxs win = luaTBtoWinTB $ windowText win
+
+luaTBtoWinTB ∷ [WinText] → [TextBox]
+luaTBtoWinTB []       = []
+luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
+  where textBox = TextBox { tbPos    = (tbx,tby)
+                          , tbSize   = (8,2)
+                          , tbBox    = False
+                          , tbString = tbstr }
+        (tbx, tby) = winPos wt
+        (tbstr)    = winText wt
+
+addToLuaWindows ∷ String → WinText → [Window] → [Window]
+addToLuaWindows wn wt ws = map (addToLuaWindow wn wt) ws
+
+addToLuaWindow ∷ String → WinText → Window → Window
+addToLuaWindow wn wt (Window name oldb oldwt)
+  | (wn == name) = (Window name oldb (oldwt⧺[wt]))
+  | otherwise    = (Window name oldb oldwt)
