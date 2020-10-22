@@ -14,9 +14,11 @@ end
 -- this runs once at the beginning
 function initLua ()
     newWindow ( "menu", "dat/tex/texture1.png" )
+    newWindow ( "createParams", "dat/tex/texture2.png" )
     newText ("menu", -4.0, 4.0, "A Bridge Far Away...")
     newButton ("menu", -4.0, 2.0, "Create World")
     newButton ("menu", -4.0, 0.0, "Load World")
     newButton ("menu", -4.0, -2.0, "Escape")
+    switchWindow ( "menu" )
     return 1
 end

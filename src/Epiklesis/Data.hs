@@ -14,4 +14,4 @@ data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaWindows ∷ [Window] }
 
 -- possible lua commands
-data LuaCmd = LuaCmdnewWindow Window | LuaCmdnewText String WinText | LuaCmdnewButton String WinText | LuaCmdNULL deriving (Show, Eq)
+data LuaCmd = LuaCmdnewWindow Window | LuaCmdnewText String WinText | LuaCmdnewButton String WinText | LuaCmdswitchWindow String | LuaCmdNULL deriving (Show, Eq)

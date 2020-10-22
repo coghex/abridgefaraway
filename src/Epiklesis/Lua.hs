@@ -57,6 +57,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
     Lua.registerHaskellFunction "newButton" (hsNewButton env)
+    Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -83,6 +84,11 @@ hsNewButton env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText) str
   where newText = WinText (x,y) True str
+
+hsSwitchWindow ∷ Env → String → Lua.Lua ()
+hsSwitchWindow env name = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow name) name
 
 -- converts windows to corresponding texture list
 windowTextures ∷ [Window] → [String]

@@ -52,6 +52,16 @@ processEvent event = case event of
         where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdnewButton win newtext → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
+      LuaCmdswitchWindow winName → do
+        luaState ← gets luaSt
+        let windows = luaWindows luaState
+            winNum  = winToNum 0 windows winName
+            winToNum ∷ Int → [Window] → String → Int
+            winToNum _ []         name = -1
+            winToNum n (win:wins) name
+              | (winTitle win) == name = n
+              | otherwise = winToNum (n+1) wins name
+        modify $ \s → s { currentWin = winNum }
       LuaCmdNULL → logError $ "lua NULL command"
       otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
@@ -62,7 +72,7 @@ processEvent event = case event of
                       , tInd   = (0,0)
                       , tSize  = (1,1)
                       , tT     = 11 }
-    let menuwindow = head $ luaWindows (luaSt st)
+    let menuwindow = (luaWindows (luaSt st)) !! (currentWin st)
     let newds = DrawState [tile1] (calcTextBoxs menuwindow)
     modify $ \s → s { drawSt = newds
                     , sRecreate = True }
@@ -77,7 +87,7 @@ luaTBtoWinTB ∷ [WinText] → [TextBox]
 luaTBtoWinTB []       = []
 luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
   where textBox = TextBox { tbPos    = (tbx,tby)
-                          , tbSize   = (8,2)
+                          , tbSize   = (8,1)
                           , tbBox    = wb
                           , tbString = tbstr }
         (tbx, tby) = winPos wt
