@@ -15,8 +15,8 @@ end
 function initLua ()
     newWindow ( "menu", "dat/tex/texture1.png" )
     newText ("menu", -4.0, 4.0, "A Bridge Far Away...")
-    --newButton ("menu", 2, 2, "Create World")
-    --newButton ("menu", 2, 3, "Load World")
-    --newButton ("menu", 2, 4, "Escape")
+    newButton ("menu", -4.0, 2.0, "Create World")
+    newButton ("menu", -4.0, 0.0, "Load World")
+    newButton ("menu", -4.0, -2.0, "Escape")
     return 1
 end

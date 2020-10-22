@@ -50,6 +50,8 @@ processEvent event = case event of
                                      , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
       LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
+      LuaCmdnewButton win newtext → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdNULL → logError $ "lua NULL command"
       otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
@@ -76,10 +78,11 @@ luaTBtoWinTB []       = []
 luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
   where textBox = TextBox { tbPos    = (tbx,tby)
                           , tbSize   = (8,2)
-                          , tbBox    = False
+                          , tbBox    = wb
                           , tbString = tbstr }
         (tbx, tby) = winPos wt
         (tbstr)    = winText wt
+        wb         = winBox wt
 
 addToLuaWindows ∷ String → WinText → [Window] → [Window]
 addToLuaWindows wn wt ws = map (addToLuaWindow wn wt) ws

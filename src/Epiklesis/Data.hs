@@ -4,6 +4,7 @@ module Epiklesis.Data where
 import qualified Foreign.Lua as Lua
 
 data WinText = WinText { winPos ∷ (Float, Float)
+                       , winBox ∷ Bool
                        , winText ∷ String } deriving (Show, Eq)
 
 data Window = Window { winTitle ∷ String
