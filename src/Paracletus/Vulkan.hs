@@ -78,9 +78,11 @@ runParacVulkan = do
       rec ← gets sRecreate
       case rec of
         True → do
-          --reload for new textures for every window
+          --reload for new textures for current
+          --window, right now, just adds in the
+          --background tex
           newst ← get
-          newTexData ← loadVulkanTextures gqdata $ windowTextures $ luaWindows $ luaSt newst
+          newTexData ← loadVulkanTextures gqdata [(winBackground ((luaWindows (luaSt newst)) !! (currentWin newst)))]
           modify $ \s → s { sRecreate = False }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }

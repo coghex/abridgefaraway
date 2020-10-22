@@ -46,6 +46,7 @@ initState = do
                              , windowSt     = Nothing
                              , cam3d        = (2.0, 2.0, 2.0)
                              , cursor       = (0, 0, 2)
+                             , currentWin   = 0
                              , drawSt       = ds
                              , luaSt        = ls
                              , sSettings    = luasettings
