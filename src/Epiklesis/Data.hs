@@ -3,15 +3,32 @@ module Epiklesis.Data where
 -- is instantiated.
 import qualified Foreign.Lua as Lua
 
+-- a generic set of text, box bool will
+-- draw a box behind it, pos in game coords
 data WinText = WinText { winPos ∷ (Float, Float)
                        , winBox ∷ Bool
                        , winText ∷ String } deriving (Show, Eq)
 
+-- a generic tile, use to display a single sprite
+data WinTile = WinTile { winTilePos ∷ (Float, Float)
+                       , winTileTex ∷ String } deriving (Show, Eq)
+
+-- data struct of what can be on a window,
+-- every window switch entails a full reload
+-- of textures and swapchain recreation
 data Window = Window { winTitle ∷ String
                      , winBackground ∷ String
-                     , windowText ∷ [WinText] } deriving (Show, Eq)
+                     , windowText ∷ [WinText]
+                     , windowTiles ∷ [WinTile] } deriving (Show, Eq)
+
+-- the windows defined by the lua fies
 data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaWindows ∷ [Window] }
 
 -- possible lua commands
-data LuaCmd = LuaCmdnewWindow Window | LuaCmdnewText String WinText | LuaCmdnewButton String WinText | LuaCmdswitchWindow String | LuaCmdNULL deriving (Show, Eq)
+data LuaCmd = LuaCmdnewWindow Window
+            | LuaCmdnewText String WinText
+            | LuaCmdnewButton String WinText
+            | LuaCmdswitchWindow String
+            | LuaCmdnewTile String WinTile
+            | LuaCmdNULL deriving (Show, Eq)

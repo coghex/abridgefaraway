@@ -51,9 +51,11 @@ processEvent event = case event of
         where newluastate = LuaState { luaState = luaState oldluaSt
                                      , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
       LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
+        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdnewButton win newtext → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addToLuaWindows win newtext (luaWindows oldluaSt))
+        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
+      LuaCmdnewTile win tile → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addTileToLuaWindows win tile (luaWindows oldluaSt))
       LuaCmdswitchWindow winName → do
         luaState ← gets luaSt
         let windows = luaWindows luaState
@@ -65,17 +67,21 @@ processEvent event = case event of
               | otherwise = winToNum (n+1) wins name
         modify $ \s → s { currentWin = winNum }
       LuaCmdNULL → logError $ "lua NULL command"
-      otherwise → logWarn $ "unknown lua command"
+      --otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
-    -- loads a window from base lua file
+    -- translates lua draw state to engine state
     st ← get
+    -- indexes the current window
+    let menuwindow = (luaWindows (luaSt st)) !! (currentWin st)
+    -- loads a background for a menu
     let tile1 = GTile { tPos   = (0,0)
-                      , tScale = (16,16)
+                      , tScale = (32,24)
                       , tInd   = (0,0)
                       , tSize  = (1,1)
                       , tT     = 11 }
-    let menuwindow = (luaWindows (luaSt st)) !! (currentWin st)
-    let newds = DrawState [tile1] (calcTextBoxs menuwindow)
+    -- loads the tiles in lua state
+    let modtiles = calcTiles menuwindow
+    let newds = DrawState ([tile1]⧺modtiles) (calcTextBoxs menuwindow)
     modify $ \s → s { drawSt = newds
                     , sRecreate = True }
     logWarn $ "loaded event"
@@ -96,10 +102,31 @@ luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
         (tbstr)    = winText wt
         wb         = winBox wt
 
-addToLuaWindows ∷ String → WinText → [Window] → [Window]
-addToLuaWindows wn wt ws = map (addToLuaWindow wn wt) ws
+-- converts tiles from a window into GTiles
+calcTiles ∷ Window → [GTile]
+calcTiles win = luaTiletoWinTile 0 $ windowTiles win
 
-addToLuaWindow ∷ String → WinText → Window → Window
-addToLuaWindow wn wt (Window name oldb oldwt)
-  | (wn == name) = (Window name oldb (oldwt⧺[wt]))
-  | otherwise    = (Window name oldb oldwt)
+luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
+luaTiletoWinTile _ []       = []
+luaTiletoWinTile n (wt:wts) = (luaTiletoWinTile (n+1) wts) ⧺ [tile]
+  where tile = GTile { tPos = winTilePos wt
+                     , tScale = (1,1)
+                     , tInd = (0,0)
+                     , tSize = (1,1)
+                     , tT = (12+n) }
+
+addTileToLuaWindows ∷ String → WinTile → [Window] → [Window]
+addTileToLuaWindows wn wt ws = map (addTileToLuaWindow wn wt) ws
+
+addTileToLuaWindow ∷ String → WinTile → Window → Window
+addTileToLuaWindow wn wt (Window name oldb oldwt oldtiles)
+  | (wn == name) = (Window name oldb oldwt (oldtiles⧺[wt]))
+  | otherwise    = (Window name oldb oldwt oldtiles)
+
+addTextToLuaWindows ∷ String → WinText → [Window] → [Window]
+addTextToLuaWindows wn wt ws = map (addTextToLuaWindow wn wt) ws
+
+addTextToLuaWindow ∷ String → WinText → Window → Window
+addTextToLuaWindow wn wt (Window name oldb oldwt oldtiles)
+  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldtiles)
+  | otherwise    = (Window name oldb oldwt oldtiles)

@@ -82,7 +82,11 @@ runParacVulkan = do
           --window, right now, just adds in the
           --background tex
           newst ← get
-          newTexData ← loadVulkanTextures gqdata [(winBackground ((luaWindows (luaSt newst)) !! (currentWin newst)))]
+          let windows = luaWindows (luaSt newst)
+              thiswin = windows !! (currentWin newst)
+              -- loadvulkantextures loads in reverse
+              wintextures = reverse $ [winBackground thiswin] ⧺ (map winTileTex (windowTiles thiswin))
+          newTexData ← loadVulkanTextures gqdata wintextures -- [winBackground thiswin]
           modify $ \s → s { sRecreate = False }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }
