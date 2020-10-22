@@ -64,3 +64,11 @@ evalKey window k _  _  keyLayout = do
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
     return ()
+
+-- evaluates mouse input
+evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
+evalMouse win mb mbs mk = do
+  state ← get
+  when (mb == GLFW.mousebutt1) $ do
+    (x,y) ← liftIO $ GLFW.getCursorPos win
+    logDebug $ "mouse click 1 at x: " ⧺ (show x) ⧺ ", y: " ⧺ (show y)

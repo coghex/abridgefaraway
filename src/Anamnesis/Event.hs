@@ -41,6 +41,8 @@ processEvent event = case event of
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
+  (EventMouseButton win mb mbs mk) → do
+    evalMouse win mb mbs mk
   (EventLua command args) → do
     oldluaSt ← gets luaSt
     oldds ← gets drawSt

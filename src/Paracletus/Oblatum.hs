@@ -41,6 +41,7 @@ initGLFWWindow w h n windowSizeChanged = do
       Just window → do
         logDebug "initialized glfw window"
         liftIO $ GLFW.setKeyCallback window $ Just $ keyCallback eventsChan
+        liftIO $ GLFW.setMouseButtonCallback window $ Just $ mouseButtonCallback eventsChan
         liftIO $ GLFW.setWindowSizeCallback window $
           Just (\_ _ _ → atomically $ writeTVar windowSizeChanged True)
         return window
