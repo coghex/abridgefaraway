@@ -57,6 +57,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
     Lua.registerHaskellFunction "newButton" (hsNewButton env)
+    Lua.registerHaskellFunction "newButtonAction" (hsNewButtonAction env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "newTile" (hsNewTile env)
     Lua.openlibs
@@ -78,13 +79,31 @@ hsNewWindow ∷ Env → String → String → Lua.Lua ()
 hsNewWindow env name background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name background [] []
+  where win = Window name background [] [] []
 
 hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewButton env win x y str = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText) str
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText "") str
   where newText = WinText (x,y) True str
+
+hsNewButtonAction ∷ Env → String → Double → Double → String → String → String → Lua.Lua ()
+hsNewButtonAction env win x y str "action" args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
+  where newText = WinText (x,y) True str
+        newLink = WinLink (x,y) (2.0,0.5) "action" args
+hsNewButtonAction env win x y str "link" args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
+  where newText = WinText (x,y) True str
+        newLink = WinLink (x,y) (2.0,0.5) "link" args
+hsNewButtonAction env win x y str action args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) str
+  where errorstr = "action " ⧺ action ⧺ " not known"
 
 hsNewTile ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewTile env win x y str = do

@@ -41,6 +41,7 @@ runParacVulkan = do
   windowSizeChanged ← liftIO $ atomically $ newTVar False
   logInfo $ "beginning paracletus"
   window ← initGLFWWindow 1280 720 "paracletus" windowSizeChanged
+  modify $ \s → s { windowSt = Just window }
   vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
   vulkanSurface ← createSurface vulkanInstance window
   logDebug $ "created surface: " ⧺ show vulkanSurface

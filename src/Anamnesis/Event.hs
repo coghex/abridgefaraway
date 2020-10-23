@@ -52,11 +52,15 @@ processEvent event = case event of
                                      , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
       LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
-      LuaCmdnewButton win newtext → modify $ \s → s { luaSt = newluastate }
+      LuaCmdnewButton win newtext link → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdnewTile win tile → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addTileToLuaWindows win tile (luaWindows oldluaSt))
+      LuaCmdnewLink win link → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addLinkToLuaWindows win link (luaWindows oldluaSt))
       LuaCmdswitchWindow winName → do
+        env ← ask
+        let eventQ = envEventsChan env
         luaState ← gets luaSt
         let windows = luaWindows luaState
             winNum  = winToNum 0 windows winName
@@ -66,6 +70,8 @@ processEvent event = case event of
               | (winTitle win) == name = n
               | otherwise = winToNum (n+1) wins name
         modify $ \s → s { currentWin = winNum }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded 1
+      LuaError str → logWarn str
       LuaCmdNULL → logError $ "lua NULL command"
       --otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
@@ -119,14 +125,22 @@ addTileToLuaWindows ∷ String → WinTile → [Window] → [Window]
 addTileToLuaWindows wn wt ws = map (addTileToLuaWindow wn wt) ws
 
 addTileToLuaWindow ∷ String → WinTile → Window → Window
-addTileToLuaWindow wn wt (Window name oldb oldwt oldtiles)
-  | (wn == name) = (Window name oldb oldwt (oldtiles⧺[wt]))
-  | otherwise    = (Window name oldb oldwt oldtiles)
+addTileToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles)
+  | (wn == name) = (Window name oldb oldwt oldlinks (oldtiles⧺[wt]))
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)
 
 addTextToLuaWindows ∷ String → WinText → [Window] → [Window]
 addTextToLuaWindows wn wt ws = map (addTextToLuaWindow wn wt) ws
 
 addTextToLuaWindow ∷ String → WinText → Window → Window
-addTextToLuaWindow wn wt (Window name oldb oldwt oldtiles)
-  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldtiles)
-  | otherwise    = (Window name oldb oldwt oldtiles)
+addTextToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles)
+  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldlinks oldtiles)
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)
+
+addLinkToLuaWindows ∷ String → WinLink → [Window] → [Window]
+addLinkToLuaWindows wn wl ws = map (addLinkToLuaWindow wn wl) ws
+
+addLinkToLuaWindow ∷ String → WinLink → Window → Window
+addLinkToLuaWindow wn wl (Window name oldb oldwt oldlinks oldtiles)
+  | (wn == name) = (Window name oldb oldwt (oldlinks⧺[wl]) oldtiles)
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)

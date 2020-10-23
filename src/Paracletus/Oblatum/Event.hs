@@ -4,12 +4,14 @@ module Paracletus.Oblatum.Event where
 import Prelude()
 import UPrelude
 import Control.Monad (when)
-import Control.Monad.State.Class (modify')
+import Control.Monad.State.Class (modify',gets)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
+import Artos.Queue
+import Artos.Var
 import Epiklesis.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
@@ -69,28 +71,44 @@ evalKey window k _  _  keyLayout = do
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs mk = do
-  state ← get
-  let thisWinText = filter isButton $ windowText $ (luaWindows (luaSt state)) !! (currentWin state)
-      isButton ∷ WinText → Bool
-      isButton (WinText _ False _) = False
-      isButton (WinText _ True  _) = True
-      testButt ∷ (Double,Double) → WinText → Bool
-      testButt clickpos (WinText pos _ _)
-        | posClose pos clickpos = True
-        | otherwise = False
-      posClose ∷ (Double,Double) → (Double,Double) → Bool
-      posClose (x1,y1) (x2,y2)
-        | ((abs(x1 - x2 + 1.5)) < buttWidth) && ((abs(y1 - y2 + 0.5)) < buttHeight) = True
-        | otherwise = False
-      buttWidth = 2.5
-      buttHeight = 0.5
+  st ← get
   when (mb == GLFW.mousebutt1) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
-    let bools = map (testButt (x',y')) thisWinText
-    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ (show bools)
+        windows = luaWindows (luaSt st)
+        thisWindow = windows !! (currentWin st)
+    linkTest (x',y') (windowLinks thisWindow)
+    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " " ⧺ (show ( fst (linkPos ((windowLinks thisWindow) !! 0)))) ⧺ " " ⧺ (show ( snd (linkPos ((windowLinks thisWindow) !! 0))))
+
+-- test the mouse click against every link
+linkTest ∷ (Double,Double) → [WinLink] → Anamnesis ε σ ()
+linkTest _     []           = return ()
+linkTest (x,y) (link:links) = do
+  case (posClose (buttWidth,buttHeight) (linkPos link) (x,y)) of
+    True  → do
+      logDebug $ "link"
+      env ← ask
+      let eventQ = envEventsChan env
+      case (linkAction link) of
+        "link" → do
+          logDebug $ "following link to " ⧺ (linkLink link)
+          liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow (linkLink link)) ""
+        "action" → do
+          logDebug $ "quitting..."
+          window' ← gets windowSt
+          case window' of
+            Just window → liftIO $ GLFW.setWindowShouldClose window True
+            Nothing → logWarn "no window to exit"
+        action → logWarn $ "no known action " ⧺ action
+    False → linkTest (x,y) links
+  where (buttWidth,buttHeight) = linkSize link
 
 convertPixels ∷ (Double,Double) → (Double,Double)
 convertPixels (x,y) = (x',y')
-  where x' = ((x - (1080.0 / 2.0)) / 64.0) - 1.0
-        y' = ((y - ( 720.0 / 2.0)) / 64.0) + 0.5
+  where x' = ((x - (1080.0 / 2.0)) / 64.0)
+        y' = - ((y - ( 720.0 / 2.0)) / 64.0)
+
+posClose ∷ (Double,Double) → (Double,Double) → (Double,Double) → Bool
+posClose (buttWidth,buttHeight) (x1,y1) (x2,y2)
+  | ((abs(x1 - x2 + 1.5)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
+  | otherwise = False
