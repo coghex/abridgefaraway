@@ -58,6 +58,8 @@ processEvent event = case event of
         where newluastate = LuaState (luaState oldluaSt) (addTileToLuaWindows win tile (luaWindows oldluaSt))
       LuaCmdnewLink win link → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addLinkToLuaWindows win link (luaWindows oldluaSt))
+      LuaCmdnewMenu win link → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addMenuToLuaWindows win link (luaWindows oldluaSt))
       LuaCmdswitchWindow winName → do
         env ← ask
         let eventQ = envEventsChan env
@@ -92,21 +94,32 @@ processEvent event = case event of
                     , sRecreate = True }
     logWarn $ "loaded event"
 
--- converts text boxs in lua window to
+-- converts elements in lua window to
 -- text boxs in the actual draw state
 calcTextBoxs ∷ Window → [TextBox]
-calcTextBoxs win = luaTBtoWinTB $ windowText win
+calcTextBoxs win = luaTBtoWinTB (windowText win)
+                 ⧺ luaMenutoWinTB (windowMenus win)
 
 luaTBtoWinTB ∷ [WinText] → [TextBox]
 luaTBtoWinTB []       = []
 luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
   where textBox = TextBox { tbPos    = (tbx,tby)
-                          , tbSize   = (8,1)
+                          , tbSize   = (3+tbsize,1)
                           , tbBox    = wb
                           , tbString = tbstr }
         (tbx, tby) = winPos wt
         (tbstr)    = winText wt
+        tbsize     = round $ fromIntegral((length tbstr)) / (2.0 ∷ Double)
         wb         = winBox wt
+
+luaMenutoWinTB ∷ [WinMenu] → [TextBox]
+luaMenutoWinTB []       = []
+luaMenutoWinTB (wm:wms) = luaMenutoWinTB wms ⧺ [textBox]
+  where textBox = TextBox { tbPos = menuPos wm
+                          , tbSize = (3+tbsize,2)
+                          , tbBox = True
+                          , tbString = menuName wm }
+        tbsize     = round $ fromIntegral ((length (menuName wm))) / (2.0 ∷ Double)
 
 -- converts tiles from a window into GTiles
 calcTiles ∷ Window → [GTile]
@@ -121,26 +134,36 @@ luaTiletoWinTile n (wt:wts) = (luaTiletoWinTile (n+1) wts) ⧺ [tile]
                      , tSize = (1,1)
                      , tT = (12+n) }
 
+-- these functions are seperate so that
+-- they can be easily recursive
 addTileToLuaWindows ∷ String → WinTile → [Window] → [Window]
 addTileToLuaWindows wn wt ws = map (addTileToLuaWindow wn wt) ws
 
 addTileToLuaWindow ∷ String → WinTile → Window → Window
-addTileToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles)
-  | (wn == name) = (Window name oldb oldwt oldlinks (oldtiles⧺[wt]))
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)
+addTileToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldb oldwt oldlinks (oldtiles⧺[wt]) oldm)
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
 
 addTextToLuaWindows ∷ String → WinText → [Window] → [Window]
 addTextToLuaWindows wn wt ws = map (addTextToLuaWindow wn wt) ws
 
 addTextToLuaWindow ∷ String → WinText → Window → Window
-addTextToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles)
-  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldlinks oldtiles)
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)
+addTextToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldlinks oldtiles oldm)
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
 
 addLinkToLuaWindows ∷ String → WinLink → [Window] → [Window]
 addLinkToLuaWindows wn wl ws = map (addLinkToLuaWindow wn wl) ws
 
 addLinkToLuaWindow ∷ String → WinLink → Window → Window
-addLinkToLuaWindow wn wl (Window name oldb oldwt oldlinks oldtiles)
-  | (wn == name) = (Window name oldb oldwt (oldlinks⧺[wl]) oldtiles)
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles)
+addLinkToLuaWindow wn wl (Window name oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldb oldwt (oldlinks⧺[wl]) oldtiles oldm)
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+
+addMenuToLuaWindows ∷ String → WinMenu → [Window] → [Window]
+addMenuToLuaWindows wn wm ws = map (addMenuToLuaWindow wn wm) ws
+
+addMenuToLuaWindow ∷ String → WinMenu → Window → Window
+addMenuToLuaWindow wn wm (Window name oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldb oldwt oldlinks oldtiles (oldm⧺[wm]))
+  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)

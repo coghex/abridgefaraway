@@ -110,5 +110,5 @@ convertPixels (x,y) = (x',y')
 
 posClose ∷ (Double,Double) → (Double,Double) → (Double,Double) → Bool
 posClose (buttWidth,buttHeight) (x1,y1) (x2,y2)
-  | ((abs(x1 - x2 + 1.5)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
+  | ((abs(x1 - x2 + 3.0)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
   | otherwise = False

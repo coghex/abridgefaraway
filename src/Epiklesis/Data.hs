@@ -19,6 +19,14 @@ data WinLink = WinLink { linkPos  ∷ (Double,Double)
                        , linkAction ∷ String
                        , linkLink ∷ String } deriving (Show, Eq)
 
+-- a generic menu of possible elements
+data WinMenu = WinMenu { menuName  ∷ String
+                       , menuPos   ∷ (Double,Double)
+                       , menuElems ∷ [WinElem] } deriving (Show, Eq)
+
+-- a element can be many things
+data WinElem = WinElemText String | WinElemNULL deriving (Show, Eq)
+
 -- data struct of what can be on a window,
 -- every window switch entails a full reload
 -- of textures and swapchain recreation
@@ -26,7 +34,8 @@ data Window = Window { winTitle      ∷ String
                      , winBackground ∷ String
                      , windowText    ∷ [WinText]
                      , windowLinks   ∷ [WinLink]
-                     , windowTiles   ∷ [WinTile] } deriving (Show, Eq)
+                     , windowTiles   ∷ [WinTile]
+                     , windowMenus   ∷ [WinMenu] } deriving (Show, Eq)
 
 -- the windows defined by the lua fies
 data LuaState = LuaState { luaState   ∷ Lua.State
@@ -39,5 +48,6 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdswitchWindow String
             | LuaCmdnewLink String WinLink
             | LuaCmdnewTile String WinTile
+            | LuaCmdnewMenu String WinMenu
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)

@@ -60,6 +60,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newButtonAction" (hsNewButtonAction env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "newTile" (hsNewTile env)
+    Lua.registerHaskellFunction "newMenu" (hsNewMenu env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -78,7 +79,7 @@ hsNewWindow ∷ Env → String → String → Lua.Lua ()
 hsNewWindow env name background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name background [] [] []
+  where win = Window name background [] [] [] []
 
 hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewButton env win x y str = do
@@ -92,13 +93,15 @@ hsNewButtonAction env win x y str "action" args = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
   where newText = WinText (x,y) True str
-        newLink = WinLink (x,y) (2.0,0.5) "action" args
+        newLink = WinLink (x,y) (strwidth,0.5) "action" args
+        strwidth = (fromIntegral (length str)) / (4.0 ∷ Double)
 hsNewButtonAction env win x y str "link" args = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
   where newText = WinText (x,y) True str
-        newLink = WinLink (x,y) (2.0,0.5) "link" args
+        newLink = WinLink (x,y) (strwidth,0.5) "link" args
+        strwidth = (fromIntegral (length str)) / (4.0 ∷ Double)
 hsNewButtonAction env win x y str action args = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) str
@@ -108,6 +111,11 @@ hsNewTile ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewTile env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewTile win (WinTile (x,y) str)) str
+
+hsNewMenu ∷ Env → String → String → Double → Double → String → Lua.Lua ()
+hsNewMenu env win menu x y title = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenu win (WinMenu title (x,y) [])) win
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
