@@ -80,10 +80,10 @@ evalMouse win mb mbs mk = do
         | otherwise = False
       posClose ∷ (Double,Double) → (Double,Double) → Bool
       posClose (x1,y1) (x2,y2)
-        | ((abs(x1-x2)) < buttWidth) && ((abs(y1-y2)) < buttHeight) = True
+        | ((abs(x1 - x2 + 1.5)) < buttWidth) && ((abs(y1 - y2 + 0.5)) < buttHeight) = True
         | otherwise = False
-      buttWidth = 4.0
-      buttHeight = 1.0
+      buttWidth = 2.5
+      buttHeight = 0.5
   when (mb == GLFW.mousebutt1) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
