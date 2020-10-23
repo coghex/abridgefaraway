@@ -10,6 +10,7 @@ import Anamnesis.Data
 import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
+import Epiklesis.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
@@ -69,6 +70,27 @@ evalKey window k _  _  keyLayout = do
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs mk = do
   state ← get
+  let thisWinText = filter isButton $ windowText $ (luaWindows (luaSt state)) !! (currentWin state)
+      isButton ∷ WinText → Bool
+      isButton (WinText _ False _) = False
+      isButton (WinText _ True  _) = True
+      testButt ∷ (Double,Double) → WinText → Bool
+      testButt clickpos (WinText pos _ _)
+        | posClose pos clickpos = True
+        | otherwise = False
+      posClose ∷ (Double,Double) → (Double,Double) → Bool
+      posClose (x1,y1) (x2,y2)
+        | ((abs(x1-x2)) < buttWidth) && ((abs(y1-y2)) < buttHeight) = True
+        | otherwise = False
+      buttWidth = 4.0
+      buttHeight = 1.0
   when (mb == GLFW.mousebutt1) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
-    logDebug $ "mouse click 1 at x: " ⧺ (show x) ⧺ ", y: " ⧺ (show y)
+    let (x',y') = convertPixels (x,y)
+    let bools = map (testButt (x',y')) thisWinText
+    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ (show bools)
+
+convertPixels ∷ (Double,Double) → (Double,Double)
+convertPixels (x,y) = (x',y')
+  where x' = ((x - (1080.0 / 2.0)) / 64.0) - 1.0
+        y' = ((y - ( 720.0 / 2.0)) / 64.0) + 0.5

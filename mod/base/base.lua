@@ -20,6 +20,7 @@ function initLua ()
     newButton ("menu", -4.0, 0.0, "Load World")
     newButton ("menu", -4.0, -2.0, "Escape")
     newTile ( "createParams", 0.0, 0.0, "dat/tex/texture2.png" )
-    switchWindow ( "createParams" )
+    newTile ( "createParams", 1.0, 1.0, "dat/tex/texture1.png" )
+    switchWindow ( "menu" )
     return 1
 end

@@ -14,7 +14,7 @@ import Paracletus.Data
 data DrawState = DrawState { dsTiles ∷ [GTile]
                            , dsTextB ∷ [TextBox] }
 -- defines a box full of text
-data TextBox = TextBox { tbPos    ∷ (Float, Float)
+data TextBox = TextBox { tbPos    ∷ (Double,Double)
                        , tbSize   ∷ (Int, Int)
                        , tbBox    ∷ Bool
                        , tbString ∷ String }

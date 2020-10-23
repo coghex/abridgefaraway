@@ -30,7 +30,7 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         addTextBoxs ∷ [TextBox] → [GTile]
         addTextBoxs [] = []
         addTextBoxs (tb:tbs) = (addTextBox tb (tbPos tb)) ⧺ (addTextBoxs tbs)
-        addTextBox ∷ TextBox → (Float, Float) → [GTile]
+        addTextBox ∷ TextBox → (Double,Double) → [GTile]
         addTextBox (TextBox _   size box "") (oX,oY)
           | box = calcTextbox (oX - 1) (oY + 0.5) (fst size) (snd size)
           | otherwise = []
@@ -39,21 +39,21 @@ calcFontTiles ds = ds { dsTiles = newTiles }
                                 , tbSize = size
                                 , tbBox = box
                                 , tbString = st }
-        tbTile ∷ (Float, Float) → Char → [GTile]
+        tbTile ∷ (Double,Double) → Char → [GTile]
         tbTile _     '\n' = []
         tbTile (x,y) c    = [newTile c x y]
-        newTile ∷ Char → Float → Float → GTile
+        newTile ∷ Char → Double → Double → GTile
         newTile c x y = GTile { tPos = (x,y)
                               , tScale = (1,1)
                               , tInd = fontIndex c
                               , tSize = (16,6)
                               , tT = 1 }
-        newPos ∷ (Float, Float) → Char → Float → (Float, Float)
+        newPos ∷ (Double,Double) → Char → Double → (Double,Double)
         newPos (_,y) '\n' oX = (oX,(y - 0.5))
         newPos (x,y) c    _  = ((x+(fontOffset c)),y)
 
 -- creates textbox of arbitrary size
-calcTextbox ∷ Float → Float → Int → Int → [GTile]
+calcTextbox ∷ Double → Double → Int → Int → [GTile]
 calcTextbox x y sx sy = [topLeftTile] ⧺ (topRow sx) ⧺ [topRightTile] ⧺ (middleBit sx sy) ⧺ (bottomRow sx sx sy)
   where sx' = fromIntegral sx
         topLeftTile = defaultGTile
@@ -126,10 +126,11 @@ vertices ts = fromList $ combineVertices ts
         combineVertices [] = []
         combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
           where (x',y') = tPos tile
-                ( x, y) = (2*x', 2*y')
+                ( x, y) = (realToFrac(2*x'), realToFrac(2*y'))
                 (ax', ay') = tInd tile
                 ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
-                (xscale,yscale) = tScale tile
+                (xscale',yscale') = tScale tile
+                (xscale, yscale)  = (realToFrac xscale', realToFrac yscale')
                 (sx, sy) = tSize tile
                 t = fromIntegral $ tT tile
         withPos f = map (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
@@ -241,7 +242,7 @@ fontIndex '|'  = ( 8,5)
 fontIndex '<'  = ( 9,5)
 fontIndex '>'  = (10,5)
 fontIndex _    = (15,4)
-fontOffset ∷ Char → Float
+fontOffset ∷ Char → Double
 fontOffset 'a'  = 0.3
 fontOffset 'b'  = 0.3
 fontOffset 'c'  = 0.3

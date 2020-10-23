@@ -68,7 +68,7 @@ loadState env st = do
   atomically $ writeQueue eventQ $ EventLoaded 1
   return ()
 
-hsNewText ∷ Env → String → Float → Float → String → Lua.Lua ()
+hsNewText ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewText env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewText win newText) str
@@ -80,13 +80,13 @@ hsNewWindow env name background = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
   where win = Window name background [] []
 
-hsNewButton ∷ Env → String → Float → Float → String → Lua.Lua ()
+hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewButton env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText) str
   where newText = WinText (x,y) True str
 
-hsNewTile ∷ Env → String → Float → Float → String → Lua.Lua ()
+hsNewTile ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewTile env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewTile win (WinTile (x,y) str)) str
