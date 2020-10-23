@@ -64,7 +64,6 @@ loadState env st = do
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
     return (ret∷Int)
-  threadDelay 1000000
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded 1
   return ()
