@@ -165,10 +165,12 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     -- this is for key input
     processEvents
     -- this is for mouse input
-    is ← gets inputState
-    case (mouse3 is) of
-      True → moveCamWithMouse
-      False → return ()
+    st ← get
+    let windows = luaWindows (luaSt st)
+    let win = windows !! (currentWin st)
+    case (winType win) of
+      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse else return ()
+      otherwise → return ()
     stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
