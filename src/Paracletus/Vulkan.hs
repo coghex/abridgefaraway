@@ -19,6 +19,8 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Paracletus.Data
 import Paracletus.Oblatum
+import Paracletus.Oblatum.Data
+import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
@@ -120,7 +122,6 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   ds ← gets drawSt
-  cam ← gets cam3d
   let (verts, inds) = calcVertices ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
@@ -138,6 +139,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
         -- for now just recreate command
         -- buffers every frame
         return newCmdBP
+    cam ← gets cam3d
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -162,6 +164,11 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     when sizeChanged $ logDebug "glfw window size callback"
     -- this is for key input
     processEvents
+    -- this is for mouse input
+    is ← gets inputState
+    case (mouse3 is) of
+      True → moveCamWithMouse
+      False → return ()
     stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop

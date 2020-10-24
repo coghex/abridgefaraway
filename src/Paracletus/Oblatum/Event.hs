@@ -81,14 +81,6 @@ evalMouse win mb mbs mk = do
     let newis = InputState { mouse3 = True
                            , mouseCache = pos }
     modify' $ \s → s { inputState = newis }
-  when (((mouse3 (inputState st)) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
-    currentMouse' ← liftIO $ GLFW.getCursorPos win
-    let currentMouse = ((realToFrac (fst currentMouse')),(realToFrac (snd currentMouse')))
-    let newcam = add3 (cam3d st) (mousediff)
-        mousediff = diff (mouseCache (inputState st)) (currentMouse)
-        add3 (x1,y1,z1) (x2,y2) = (x1+x2,y1+y2,z1)
-        diff (x1,y1) (x2,y2) = (x1-x2,y1-y2)
-    modify' $ \s → s { cam3d = newcam }
   when (((mouse3 (inputState st)) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
     let newis = InputState { mouse3 = False
                            , mouseCache = mouseCache (inputState st) }
@@ -131,3 +123,23 @@ posClose ∷ (Double,Double) → (Double,Double) → (Double,Double) → Bool
 posClose (buttWidth,buttHeight) (x1,y1) (x2,y2)
   | ((abs(x1 - x2 + 3.0)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
   | otherwise = False
+
+moveCamWithMouse ∷ Anamnesis ε σ ()
+moveCamWithMouse = do
+  st ← get
+  let win' = windowSt st
+  case win' of
+    Just win → do
+      pos' ← liftIO $ GLFW.getCursorPos win
+      let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
+          oldpos = (mouseCache (inputState st))
+          diff = (((fst pos)-(fst oldpos)),((snd pos)-(snd oldpos)))
+          oldcam = cam3d st
+          newcam = moveCam oldcam diff
+          moveCam ∷ (Float,Float,Float) → (Float,Float) → (Float,Float,Float)
+          moveCam (x1,y1,z1) (x2,y2) = (x1+x2,y1-y2,z1)
+          newis = InputState { mouse3 = True
+                             , mouseCache = ((fst pos),(snd pos)) }
+      modify' $ \s → s { cam3d = newcam
+                       , inputState = newis }
+    Nothing → return ()
