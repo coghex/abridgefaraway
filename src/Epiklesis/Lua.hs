@@ -61,6 +61,7 @@ loadState env st = do
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "newTile" (hsNewTile env)
     Lua.registerHaskellFunction "newMenu" (hsNewMenu env)
+    Lua.registerHaskellFunction "newMenuElement" (hsNewMenuElement env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -112,10 +113,20 @@ hsNewTile env win x y str = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewTile win (WinTile (x,y) str)) str
 
-hsNewMenu ∷ Env → String → String → Double → Double → String → Lua.Lua ()
-hsNewMenu env win menu x y title = do
+hsNewMenu ∷ Env → String → String → Double → Double → Lua.Lua ()
+hsNewMenu env win menu x y = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenu win (WinMenu title (x,y) [])) win
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenu win (WinMenu menu (x,y) [])) win
+
+hsNewMenuElement ∷ Env → String → String → String → Lua.Lua ()
+hsNewMenuElement env menu "text" args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemText args)) menu
+hsNewMenuElement env menu elemtype args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) menu
+  where errorstr = "newMenuElement " ⧺ elemtype ⧺ " not known"
+
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do

@@ -60,6 +60,8 @@ processEvent event = case event of
         where newluastate = LuaState (luaState oldluaSt) (addLinkToLuaWindows win link (luaWindows oldluaSt))
       LuaCmdnewMenu win link → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addMenuToLuaWindows win link (luaWindows oldluaSt))
+      LuaCmdnewMenuElement menu element → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addElementToMenu menu element (luaWindows oldluaSt))
       LuaCmdswitchWindow winName → do
         env ← ask
         let eventQ = envEventsChan env
@@ -116,10 +118,21 @@ luaMenutoWinTB ∷ [WinMenu] → [TextBox]
 luaMenutoWinTB []       = []
 luaMenutoWinTB (wm:wms) = luaMenutoWinTB wms ⧺ [textBox]
   where textBox = TextBox { tbPos = menuPos wm
-                          , tbSize = (3+tbsize,2)
+                          , tbSize = (3+tbsize,tbheight)
                           , tbBox = True
-                          , tbString = menuName wm }
-        tbsize     = round $ fromIntegral ((length (menuName wm))) / (2.0 ∷ Double)
+                          , tbString = elemsToString (menuElems wm) }
+        tbsize     = 10
+        tbheight   = length $ menuElems wm
+
+-- converts list of menu elements into
+-- a string for a textbox
+elemsToString ∷ [WinElem] → String
+elemsToString []       = ""
+elemsToString (we:wes) = (elemToString we) ⧺ "\n" ⧺ (elemsToString wes)
+
+elemToString ∷ WinElem → String
+elemToString (WinElemText text) = text
+elemToString WinElemNULL = "NULL"
 
 -- converts tiles from a window into GTiles
 calcTiles ∷ Window → [GTile]
@@ -167,3 +180,14 @@ addMenuToLuaWindow ∷ String → WinMenu → Window → Window
 addMenuToLuaWindow wn wm (Window name oldb oldwt oldlinks oldtiles oldm)
   | (wn == name) = (Window name oldb oldwt oldlinks oldtiles (oldm⧺[wm]))
   | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+
+addElementToMenu ∷ String → WinElem → [Window] → [Window]
+addElementToMenu menu element ws = map (addElementToMenuWindow menu element) ws
+
+addElementToMenuWindow ∷ String → WinElem → Window → Window
+addElementToMenuWindow menu element (Window name oldb oldwt oldlinks oldtiles oldm) = Window name oldb oldwt oldlinks oldtiles (map (addElemToWindowsMenu menu element) oldm)
+
+addElemToWindowsMenu ∷ String → WinElem → WinMenu → WinMenu
+addElemToWindowsMenu menu element (WinMenu name pos elems)
+   | menu == name = WinMenu name pos (elems⧺[element])
+   | otherwise = WinMenu name pos elems

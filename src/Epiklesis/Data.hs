@@ -49,5 +49,6 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewLink String WinLink
             | LuaCmdnewTile String WinTile
             | LuaCmdnewMenu String WinMenu
+            | LuaCmdnewMenuElement String WinElem
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)
