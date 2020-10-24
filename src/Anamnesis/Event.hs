@@ -93,7 +93,7 @@ processEvent event = case event of
                       , tT     = 11 }
     -- loads the tiles in lua state
     let modtiles = calcTiles menuwindow
-    let newds = DrawState ([tile1]⧺modtiles) (calcTextBoxs menuwindow)
+    let newds = DrawState ([tile1]⧺modtiles) (calcTextBoxs menuwindow) MBNULL
     modify $ \s → s { drawSt = newds
                     , sRecreate = True }
     logWarn $ "loaded event"

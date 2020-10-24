@@ -22,7 +22,7 @@ calcVertices ds' = (verts, inds)
   where verts = vertices      ts
         inds  = indices       ts
         ts    = dsTiles       ds
-        ds    = calcFontTiles ds'
+        ds    = calcFontTiles $ calcMouseBox ds'
 
 calcFontTiles ∷ DrawState → DrawState
 calcFontTiles ds = ds { dsTiles = newTiles }
@@ -51,6 +51,19 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         newPos ∷ (Double,Double) → Char → Double → (Double,Double)
         newPos (_,y) '\n' oX = (oX,(y - 0.5))
         newPos (x,y) c    _  = ((x+(fontOffset c)),y)
+
+calcMouseBox ∷ DrawState → DrawState
+calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
+calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
+  where newTiles   = [topTile, bottomTile, leftTile, rightTile]
+        topTile    = GTile pos1 ((10.0*(fst pos2)/1080.0),0.1) (0,0) (1,1) 2
+        bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2
+        leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2
+        rightTile  = GTile ((fst pos2),(snd pos1)) (0.1,1.0) (0,0) (1,1) 2
+        pos1'      = mbPos1 $ dsMBox ds
+        pos2'      = mbPos2 $ dsMBox ds
+        pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
+        pos2       = ((realToFrac (fst pos2')), (realToFrac (snd pos2')))
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Double → Double → Int → Int → [GTile]

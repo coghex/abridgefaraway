@@ -12,17 +12,22 @@ import Paracletus.Data
 -- the abstract representation
 -- of the general vertex layout
 data DrawState = DrawState { dsTiles ∷ [GTile]
-                           , dsTextB ∷ [TextBox] }
+                           , dsTextB ∷ [TextBox]
+                           , dsMBox  ∷ MouseBox } deriving (Show, Eq)
 -- defines a box full of text
 data TextBox = TextBox { tbPos    ∷ (Double,Double)
                        , tbSize   ∷ (Int, Int)
                        , tbBox    ∷ Bool
-                       , tbString ∷ String }
+                       , tbString ∷ String } deriving (Show, Eq)
+
+data MouseBox = MBNULL | MouseBox { mbPos1 ∷ (Float,Float)
+                                  , mbPos2 ∷ (Float,Float) } deriving (Show, Eq)
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
   { dsTiles = tiles 
-  , dsTextB = [initTB] }
+  , dsTextB = [initTB]
+  , dsMBox = MBNULL }
   where initTB = TextBox { tbPos    = (-1,-1)
                          , tbSize   = (8,2)
                          , tbBox    = True

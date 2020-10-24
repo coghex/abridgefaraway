@@ -42,8 +42,12 @@ initState = do
   ls ← initLua
   luasettings ← importSettings ls "mod/base/"
   ds ← initDrawState [tile1]
-  let is = InputState { mouse3 = False
-                      , mouseCache = (0.0,0.0) }
+  let is = InputState { mouse1 = False
+                      , mouse1Cache = (0.0,0.0)
+                      , mouse2 = False
+                      , mouse2Cache = (0.0,0.0)
+                      , mouse3 = False
+                      , mouse3Cache = (0.0,0.0) }
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , windowSt     = Nothing

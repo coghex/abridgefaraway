@@ -75,21 +75,31 @@ evalMouse win mb mbs mk = do
   st ← get
   let windows = luaWindows (luaSt st)
       thisWindow = windows !! (currentWin st)
-  when (((mouse3 (inputState st)) == False) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
+      isold = inputState st
+      oldds = drawSt st
+  when (((mouse3 isold) == False) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
     pos' ← liftIO $ GLFW.getCursorPos win
     let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
-    let newis = InputState { mouse3 = True
-                           , mouseCache = pos }
+    let newis = isold { mouse3 = True
+                      , mouse3Cache = pos }
     modify' $ \s → s { inputState = newis }
-  when (((mouse3 (inputState st)) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
-    let newis = InputState { mouse3 = False
-                           , mouseCache = mouseCache (inputState st) }
+  when (((mouse3 isold) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
+    let newis = isold { mouse3 = False }
     modify' $ \s → s { inputState = newis }
-  when (mb == GLFW.mousebutt1) $ do
+  when ((mb == GLFW.mousebutt1) && ((winType thisWindow) == (WinTypeMenu))) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
     linkTest (x',y') (windowLinks thisWindow)
-    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y')
+    --logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y')
+  when (((mouse1 isold) == False) && (mb == GLFW.mousebutt1) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == (WinTypeGame))) $ do
+    let newis = isold { mouse1 = True }
+    modify' $ \s → s { inputState = newis }
+  when ((mb == GLFW.mousebutt1) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == (WinTypeGame))) $ do
+    let newis = isold { mouse1 = False }
+    let newds = DrawState (dsTiles oldds) (dsTextB oldds) MBNULL
+    --logDebug $ "mouse unclick 1, mousebox: " ⧺ (show (dsMBox oldds))
+    modify' $ \s → s { inputState = newis
+                     , drawSt     = newds }
 
 -- test the mouse click against every link
 linkTest ∷ (Double,Double) → [WinLink] → Anamnesis ε σ ()
@@ -124,6 +134,21 @@ posClose (buttWidth,buttHeight) (x1,y1) (x2,y2)
   | ((abs(x1 - x2 + 3.0)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
   | otherwise = False
 
+-- these functions preform actions with the mouse
+drawBoxWithMouse ∷ Anamnesis ε σ ()
+drawBoxWithMouse = do
+  st ← get
+  let win' = windowSt st
+  case win' of
+    Just win → do
+      pos' ← liftIO $ GLFW.getCursorPos win
+      let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
+          oldpos = (mouse1Cache (inputState st))
+          oldds = drawSt st
+          newds = DrawState (dsTiles oldds) (dsTextB oldds) $ MouseBox oldpos pos
+      modify' $ \s → s { drawSt = newds }
+    Nothing → return ()
+
 moveCamWithMouse ∷ Anamnesis ε σ ()
 moveCamWithMouse = do
   st ← get
@@ -132,14 +157,15 @@ moveCamWithMouse = do
     Just win → do
       pos' ← liftIO $ GLFW.getCursorPos win
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
-          oldpos = (mouseCache (inputState st))
+          oldpos = (mouse3Cache (inputState st))
           diff = (((fst pos)-(fst oldpos)),((snd pos)-(snd oldpos)))
           oldcam = cam3d st
           newcam = moveCam oldcam diff
           moveCam ∷ (Float,Float,Float) → (Float,Float) → (Float,Float,Float)
           moveCam (x1,y1,z1) (x2,y2) = (x1+x2,y1-y2,z1)
-          newis = InputState { mouse3 = True
-                             , mouseCache = ((fst pos),(snd pos)) }
+          isold = inputState st
+          newis = isold { mouse3 = True
+                        , mouse3Cache = ((fst pos),(snd pos)) }
       modify' $ \s → s { cam3d = newcam
                        , inputState = newis }
     Nothing → return ()

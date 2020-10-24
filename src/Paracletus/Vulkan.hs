@@ -19,8 +19,6 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Paracletus.Data
 import Paracletus.Oblatum
-import Paracletus.Oblatum.Data
-import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
@@ -162,15 +160,11 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       -- _    → logExcept err ExParacletus "unknown drawFrame error" )
     sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
     when sizeChanged $ logDebug "glfw window size callback"
-    -- this is for key input
+    -- this is for the vaious events
+    -- such as key input and state changes
     processEvents
-    -- this is for mouse input
-    st ← get
-    let windows = luaWindows (luaSt st)
-    let win = windows !! (currentWin st)
-    case (winType win) of
-      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse else return ()
-      otherwise → return ()
+    -- this is for input calculations
+    processInput
     stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop

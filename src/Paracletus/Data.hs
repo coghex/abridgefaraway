@@ -21,7 +21,7 @@ data GTile = GTile { tPos   ∷ (Double,Double)
                    , tScale ∷ (Double,Double)
                    , tInd   ∷ (Int, Int)
                    , tSize  ∷ (Int, Int)
-                   , tT     ∷ Int }
+                   , tT     ∷ Int } deriving (Show, Eq)
 -- default gtile provides interface similar
 -- to the optional arguments found in C
 defaultGTile = GTile { tPos   = (0,0)

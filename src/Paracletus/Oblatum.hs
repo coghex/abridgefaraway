@@ -10,8 +10,11 @@ import Anamnesis.Util
 import Artos.Except
 import Artos.Var
 import Artos.Queue
+import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Oblatum.Callback
+import Paracletus.Oblatum.Data
+import Paracletus.Oblatum.Event
 import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..),KeyLayout(..))
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
@@ -68,6 +71,18 @@ glfwWaitMinimized win = liftIO go where
     (x,y) ← GLFW.getFramebufferSize win
     GLFW.waitEvents
     when (x ≡ 0 ∧ y ≡ 0) go
+
+-- this will be run every frame to handle input
+processInput ∷ Anamnesis ε σ ()
+processInput = do
+    st ← get
+    let windows = luaWindows (luaSt st)
+    let win = windows !! (currentWin st)
+    case (winType win) of
+      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse 
+                    else if (mouse1 (inputState st)) then drawBoxWithMouse
+                    else return ()
+      otherwise → return ()
 
 -- this is a placeholder
 importKeyLayout ∷ Anamnesis ε σ (KeyLayout)
