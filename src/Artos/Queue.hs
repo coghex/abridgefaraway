@@ -9,6 +9,7 @@ type Queue = STM.TQueue
 data Event = EventError !GLFW.Error !String
            | EventLoaded !Int
            | EventLua !LuaCmd !String
+           | EventCam !(Float,Float,Float)
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
            | EventMouseButton !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys deriving (Show)
 -- these functions act as synonyms

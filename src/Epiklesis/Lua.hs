@@ -76,11 +76,19 @@ hsNewText env win x y str = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewText win newText) str
   where newText = WinText (x,y) False str
 
-hsNewWindow ∷ Env → String → String → Lua.Lua ()
-hsNewWindow env name background = do
+hsNewWindow ∷ Env → String → String → String → Lua.Lua ()
+hsNewWindow env name "menu" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name background [] [] [] []
+  where win = Window name WinTypeMenu background [] [] [] []
+hsNewWindow env name "game" background = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
+  where win = Window name (WinTypeGame) background [] [] [] []
+hsNewWindow env name wintype background = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
+  where errorstr = "window type " ⧺ wintype ⧺ " not known"
 
 hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewButton env win x y str = do

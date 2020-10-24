@@ -65,7 +65,9 @@ runParacVulkan = do
     imgIndexPtr ← mallocRes
     let gqdata = GQData pdev dev commandPool (graphicsQueue queues)
     texData ← loadVulkanTextures gqdata []
-    -- this is a test function
+    -- this is where we load all the lua data
+    -- forked as child so that we can continue
+    -- to draw the loading screen
     env ← ask
     st  ← get
     _ ← liftIO $ forkIO $ loadState env st
@@ -118,6 +120,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   ds ← gets drawSt
+  cam ← gets cam3d
   let (verts, inds) = calcVertices ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
@@ -145,7 +148,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , inFlightFences
                            , cmdBuffersPtr = cmdBP
                            , memories = transObjMemories
-                           , memoryMutator = updateTransObj dev (swapExtent swapInfo) }
+                           , memoryMutator = updateTransObj cam dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents
     needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
       -- when khr out of date,

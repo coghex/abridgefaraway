@@ -3,6 +3,8 @@ module Paracletus.Oblatum.GLFW
   , KeyLayout (..)
   , keyCheck
   , mousebutt1
+  , mousebutt2
+  , mousebutt3
   ) where
 -- the input is defined for glfw, since
 -- the library is just one giant unified
@@ -20,10 +22,10 @@ data KeyLayout = KeyLayout
 -- mousebutton synonyms
 mousebutt1 ∷ MouseButton
 mousebutt1 = MouseButton'1
---mousebutt2 ∷ GLFW.MouseButton
---mousebutt2 = GLFW.MouseButton'2
---mousebutt3 ∷ GLFW.MouseButton
---mousebutt3 = GLFW.MouseButton'3
+mousebutt2 ∷ MouseButton
+mousebutt2 = MouseButton'2
+mousebutt3 ∷ MouseButton
+mousebutt3 = MouseButton'3
 --mousebutt4 ∷ GLFW.MouseButton
 --mousebutt4 = GLFW.MouseButton'4
 --mousebutt5 ∷ GLFW.MouseButton

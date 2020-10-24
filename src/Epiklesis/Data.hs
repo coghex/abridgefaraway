@@ -27,10 +27,14 @@ data WinMenu = WinMenu { menuName  ∷ String
 -- a element can be many things
 data WinElem = WinElemText String | WinElemNULL deriving (Show, Eq)
 
+-- window types define behavior
+data WinType = WinTypeMenu | WinTypeGame | WinTypeNULL deriving (Show, Eq)
+
 -- data struct of what can be on a window,
 -- every window switch entails a full reload
 -- of textures and swapchain recreation
 data Window = Window { winTitle      ∷ String
+                     , winType       ∷ WinType
                      , winBackground ∷ String
                      , windowText    ∷ [WinText]
                      , windowLinks   ∷ [WinLink]

@@ -26,8 +26,8 @@ data TransformationObject = TransformationObject
   } deriving (Show, Generic)
 instance PrimBytes TransformationObject
 
-updateTransObj ∷ VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
-updateTransObj device extent uniBuf = do
+updateTransObj ∷ (Float,Float,Float) → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
+updateTransObj cam device extent uniBuf = do
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @TransformationObject undefined) VK_ZERO_FLAGS
   let model = DF4
                 (DF4 32 0 0 0)
@@ -39,7 +39,12 @@ updateTransObj device extent uniBuf = do
   liftIO $ vkUnmapMemory device uniBuf
   -- these commands are all backwards
   -- ortho near far w h
-  where view  = translate3 (vec3 0 0 (-1))
+  where view  = translate3 (vec3 (unT 1 cam) (unT 2 cam) (unT 3 cam))--(vec3 0 0 (-1))
+        unT ∷ Int → (Float,Float,Float) → Float
+        unT 1 (x,_,_) = x
+        unT 2 (_,y,_) = y
+        unT 3 (_,_,z) = z
+        unT _ _ = 0.0
         proj  = proj' %* clip
         proj' = orthogonal (0.1) (500) (fromIntegral width) (fromIntegral height)
         clip = DF4

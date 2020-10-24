@@ -9,6 +9,7 @@ import Anamnesis.Data
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
+import Artos.Queue
 import Paracletus.Data
 import Paracletus.Oblatum.Callback
 import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..),KeyLayout(..))

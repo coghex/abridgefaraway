@@ -35,6 +35,7 @@ executable abfa
                    Paracletus.Data
                    Paracletus.Oblatum
                    Paracletus.Oblatum.Callback
+                   Paracletus.Oblatum.Data
                    Paracletus.Oblatum.Event
                    Paracletus.Oblatum.GLFW
                    Paracletus.TH

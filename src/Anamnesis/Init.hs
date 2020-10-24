@@ -14,6 +14,7 @@ import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
 import Paracletus.Data
+import Paracletus.Oblatum.Data
 import Artos
 import Artos.Except
 import Artos.Queue
@@ -41,13 +42,16 @@ initState = do
   ls ← initLua
   luasettings ← importSettings ls "mod/base/"
   ds ← initDrawState [tile1]
+  let is = InputState { mouse3 = False
+                      , mouseCache = (0.0,0.0) }
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , windowSt     = Nothing
-                             , cam3d        = (2.0, 2.0, 2.0)
+                             , cam3d        = (0.0, 0.0, -1.0)
                              , cursor       = (0, 0, 2)
                              , currentWin   = 0
                              , drawSt       = ds
                              , luaSt        = ls
+                             , inputState   = is
                              , sSettings    = luasettings
                              , sRecreate    = False }

@@ -43,6 +43,8 @@ processEvent event = case event of
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
   (EventMouseButton win mb mbs mk) → do
     evalMouse win mb mbs mk
+  (EventCam pos) → do
+    modify $ \s → s { cam3d = pos }
   (EventLua command args) → do
     oldluaSt ← gets luaSt
     oldds ← gets drawSt
@@ -153,39 +155,39 @@ addTileToLuaWindows ∷ String → WinTile → [Window] → [Window]
 addTileToLuaWindows wn wt ws = map (addTileToLuaWindow wn wt) ws
 
 addTileToLuaWindow ∷ String → WinTile → Window → Window
-addTileToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles oldm)
-  | (wn == name) = (Window name oldb oldwt oldlinks (oldtiles⧺[wt]) oldm)
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+addTileToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldt oldb oldwt oldlinks (oldtiles⧺[wt]) oldm)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm)
 
 addTextToLuaWindows ∷ String → WinText → [Window] → [Window]
 addTextToLuaWindows wn wt ws = map (addTextToLuaWindow wn wt) ws
 
 addTextToLuaWindow ∷ String → WinText → Window → Window
-addTextToLuaWindow wn wt (Window name oldb oldwt oldlinks oldtiles oldm)
-  | (wn == name) = (Window name oldb (oldwt⧺[wt]) oldlinks oldtiles oldm)
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+addTextToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldt oldb (oldwt⧺[wt]) oldlinks oldtiles oldm)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm)
 
 addLinkToLuaWindows ∷ String → WinLink → [Window] → [Window]
 addLinkToLuaWindows wn wl ws = map (addLinkToLuaWindow wn wl) ws
 
 addLinkToLuaWindow ∷ String → WinLink → Window → Window
-addLinkToLuaWindow wn wl (Window name oldb oldwt oldlinks oldtiles oldm)
-  | (wn == name) = (Window name oldb oldwt (oldlinks⧺[wl]) oldtiles oldm)
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+addLinkToLuaWindow wn wl (Window name oldt oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldt oldb oldwt (oldlinks⧺[wl]) oldtiles oldm)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm)
 
 addMenuToLuaWindows ∷ String → WinMenu → [Window] → [Window]
 addMenuToLuaWindows wn wm ws = map (addMenuToLuaWindow wn wm) ws
 
 addMenuToLuaWindow ∷ String → WinMenu → Window → Window
-addMenuToLuaWindow wn wm (Window name oldb oldwt oldlinks oldtiles oldm)
-  | (wn == name) = (Window name oldb oldwt oldlinks oldtiles (oldm⧺[wm]))
-  | otherwise    = (Window name oldb oldwt oldlinks oldtiles oldm)
+addMenuToLuaWindow wn wm (Window name oldt oldb oldwt oldlinks oldtiles oldm)
+  | (wn == name) = (Window name oldt oldb oldwt oldlinks oldtiles (oldm⧺[wm]))
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm)
 
 addElementToMenu ∷ String → WinElem → [Window] → [Window]
 addElementToMenu menu element ws = map (addElementToMenuWindow menu element) ws
 
 addElementToMenuWindow ∷ String → WinElem → Window → Window
-addElementToMenuWindow menu element (Window name oldb oldwt oldlinks oldtiles oldm) = Window name oldb oldwt oldlinks oldtiles (map (addElemToWindowsMenu menu element) oldm)
+addElementToMenuWindow menu element (Window name oldt oldb oldwt oldlinks oldtiles oldm) = Window name oldt oldb oldwt oldlinks oldtiles (map (addElemToWindowsMenu menu element) oldm)
 
 addElemToWindowsMenu ∷ String → WinElem → WinMenu → WinMenu
 addElemToWindowsMenu menu element (WinMenu name pos elems)

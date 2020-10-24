@@ -13,6 +13,7 @@ import Anamnesis.Map
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
+import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
@@ -72,13 +73,31 @@ evalKey window k _  _  keyLayout = do
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs mk = do
   st ← get
+  let windows = luaWindows (luaSt st)
+      thisWindow = windows !! (currentWin st)
+  when (((mouse3 (inputState st)) == False) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
+    pos' ← liftIO $ GLFW.getCursorPos win
+    let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
+    let newis = InputState { mouse3 = True
+                           , mouseCache = pos }
+    modify' $ \s → s { inputState = newis }
+  when (((mouse3 (inputState st)) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
+    currentMouse' ← liftIO $ GLFW.getCursorPos win
+    let currentMouse = ((realToFrac (fst currentMouse')),(realToFrac (snd currentMouse')))
+    let newcam = add3 (cam3d st) (mousediff)
+        mousediff = diff (mouseCache (inputState st)) (currentMouse)
+        add3 (x1,y1,z1) (x2,y2) = (x1+x2,y1+y2,z1)
+        diff (x1,y1) (x2,y2) = (x1-x2,y1-y2)
+    modify' $ \s → s { cam3d = newcam }
+  when (((mouse3 (inputState st)) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
+    let newis = InputState { mouse3 = False
+                           , mouseCache = mouseCache (inputState st) }
+    modify' $ \s → s { inputState = newis }
   when (mb == GLFW.mousebutt1) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
-        windows = luaWindows (luaSt st)
-        thisWindow = windows !! (currentWin st)
     linkTest (x',y') (windowLinks thisWindow)
-    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " " ⧺ (show ( fst (linkPos ((windowLinks thisWindow) !! 0)))) ⧺ " " ⧺ (show ( snd (linkPos ((windowLinks thisWindow) !! 0))))
+    logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y')
 
 -- test the mouse click against every link
 linkTest ∷ (Double,Double) → [WinLink] → Anamnesis ε σ ()
