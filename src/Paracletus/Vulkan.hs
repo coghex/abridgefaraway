@@ -17,6 +17,7 @@ import Artos.Except
 import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
+import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -87,9 +88,12 @@ runParacVulkan = do
           newst ← get
           let windows = luaWindows (luaSt newst)
               thiswin = windows !! (currentWin newst)
+              worldtexs = case (windowWorld thiswin) of
+                WorldNULL   → []
+                World _ _ t → [t]
               -- loadvulkantextures loads in reverse
-              wintextures = reverse $ [winBackground thiswin] ⧺ (map winTileTex (windowTiles thiswin))
-          newTexData ← loadVulkanTextures gqdata wintextures -- [winBackground thiswin]
+              wintextures = reverse $ [winBackground thiswin] ⧺ (map winTileTex (windowTiles thiswin)) ⧺ worldtexs
+          newTexData ← loadVulkanTextures gqdata wintextures
           modify $ \s → s { sRecreate = False }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }

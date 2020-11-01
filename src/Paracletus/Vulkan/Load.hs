@@ -26,7 +26,10 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   -- first texture is a test jpg, second
   -- is the font atlas, third though 11
   -- are a collection of simple text box
-  -- textures.
+  -- textures. what follows is dynamic
+  -- texture data, first an array of
+  -- generic tiles that can be created,
+  -- then the list of world textures
   let tex1Path   = "dat/tex/texture.jpg"
       --texAlph    = "dat/tex/alph.png"
       --texboxPath = "dat/tex/box"

@@ -7,9 +7,11 @@ import Control.Concurrent (threadDelay)
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
 import Anamnesis.Util
+import Anamnesis.World
 import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
+import Epiklesis.World
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
@@ -62,6 +64,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newTile" (hsNewTile env)
     Lua.registerHaskellFunction "newMenu" (hsNewMenu env)
     Lua.registerHaskellFunction "newMenuElement" (hsNewMenuElement env)
+    Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
     Lua.openlibs
     Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -80,11 +83,11 @@ hsNewWindow ∷ Env → String → String → String → Lua.Lua ()
 hsNewWindow env name "menu" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name WinTypeMenu background [] [] [] []
+  where win = Window name WinTypeMenu background [] [] [] [] WorldNULL
 hsNewWindow env name "game" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name (WinTypeGame) background [] [] [] []
+  where win = Window name (WinTypeGame) background [] [] [] [] WorldNULL
 hsNewWindow env name wintype background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
@@ -135,6 +138,10 @@ hsNewMenuElement env menu elemtype args = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) menu
   where errorstr = "newMenuElement " ⧺ elemtype ⧺ " not known"
 
+hsNewWorld ∷ Env → String → Int → Int → String → Lua.Lua()
+hsNewWorld env menu w h texs = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (World (w,h) (createWorld w h) texs)) menu
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do

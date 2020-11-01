@@ -1,6 +1,7 @@
 module Epiklesis.Data where
 -- the interface to the lua state
 -- is instantiated.
+import Epiklesis.World
 import qualified Foreign.Lua as Lua
 
 -- a generic set of text, box bool will
@@ -39,7 +40,9 @@ data Window = Window { winTitle      ∷ String
                      , windowText    ∷ [WinText]
                      , windowLinks   ∷ [WinLink]
                      , windowTiles   ∷ [WinTile]
-                     , windowMenus   ∷ [WinMenu] } deriving (Show, Eq)
+                     , windowMenus   ∷ [WinMenu]
+                     , windowWorld   ∷ World
+                     } deriving (Show, Eq)
 
 -- the windows defined by the lua fies
 data LuaState = LuaState { luaState   ∷ Lua.State
@@ -54,5 +57,6 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewTile String WinTile
             | LuaCmdnewMenu String WinMenu
             | LuaCmdnewMenuElement String WinElem
+            | LuaCmdnewWorld String World
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)

@@ -29,8 +29,10 @@ executable abfa
                    Anamnesis.Init
                    Anamnesis.Map
                    Anamnesis.Util
+                   Anamnesis.World
                    Epiklesis.Data
                    Epiklesis.Lua
+                   Epiklesis.World
                    Paracletus
                    Paracletus.Data
                    Paracletus.Oblatum

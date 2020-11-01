@@ -11,6 +11,9 @@ import Paracletus.Data
 -- a data structure containing
 -- the abstract representation
 -- of the general vertex layout
+-- any structures here will be
+-- decoded every frame so keep
+-- them as fundamental as possible
 data DrawState = DrawState { dsTiles ∷ [GTile]
                            , dsTextB ∷ [TextBox]
                            , dsMBox  ∷ MouseBox } deriving (Show, Eq)
