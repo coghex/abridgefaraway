@@ -57,6 +57,7 @@ loadState env st = do
   let ls = luaState $ luaSt st
   re ← Lua.runWith ls $ do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
+    Lua.registerHaskellFunction "newLuaWindow" (hsNewLuaWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
     Lua.registerHaskellFunction "newButton" (hsNewButton env)
     Lua.registerHaskellFunction "newButtonAction" (hsNewButtonAction env)
@@ -92,6 +93,11 @@ hsNewWindow env name wintype background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
   where errorstr = "window type " ⧺ wintype ⧺ " not known"
+
+hsNewLuaWindow ∷ Env → LuaWindow → Lua.Lua ()
+hsNewLuaWindow env lw = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLuaWindow lw) "luawindow"
 
 hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
 hsNewButton env win x y str = do

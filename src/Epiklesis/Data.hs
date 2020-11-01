@@ -1,7 +1,12 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 module Epiklesis.Data where
 -- the interface to the lua state
 -- is instantiated.
 import Epiklesis.World
+import Data.Typeable
+import Data.Data
+import qualified Foreign.Lua.Types.Peekable as Lua.Peekable
+import qualified Foreign.Lua.Types.Pushable as Lua.Pushable
 import qualified Foreign.Lua as Lua
 
 -- a generic set of text, box bool will
@@ -26,7 +31,11 @@ data WinMenu = WinMenu { menuName  ∷ String
                        , menuElems ∷ [WinElem] } deriving (Show, Eq)
 
 -- a element can be many things
-data WinElem = WinElemText String | WinElemNULL deriving (Show, Eq)
+data WinElem = WinElemText String
+             | WinElemSlider { sliderMin  ∷ Int
+                             , sliderMax  ∷ Int
+                             , sliderText ∷ String }
+             | WinElemNULL deriving (Show, Eq)
 
 -- window types define behavior
 data WinType = WinTypeMenu | WinTypeGame | WinTypeNULL deriving (Show, Eq)
@@ -50,6 +59,7 @@ data LuaState = LuaState { luaState   ∷ Lua.State
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
+            | LuaCmdnewLuaWindow LuaWindow
             | LuaCmdnewText String WinText
             | LuaCmdnewButton String WinText String
             | LuaCmdswitchWindow String
@@ -60,3 +70,10 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewWorld String World
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)
+
+-- lua userdata structures
+data LuaWindow = LuaWindow { lwName ∷ String } deriving (Show, Eq, Typeable, Data)
+instance Lua.Peekable LuaWindow where
+  peek = Lua.peekAny
+instance Lua.Pushable LuaWindow where
+  push = Lua.pushAny

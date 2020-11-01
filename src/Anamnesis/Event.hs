@@ -53,6 +53,7 @@ processEvent event = case event of
       LuaCmdnewWindow win → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState { luaState = luaState oldluaSt
                                      , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
+      LuaCmdnewLuaWindow win → logDebug $ "newLuaWindow"-- ⧺ (lwName win)
       LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
       LuaCmdnewButton win newtext link → modify $ \s → s { luaSt = newluastate }
