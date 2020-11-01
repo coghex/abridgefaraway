@@ -21,14 +21,16 @@ data GTile = GTile { tPos   ∷ (Double,Double)
                    , tScale ∷ (Double,Double)
                    , tInd   ∷ (Int, Int)
                    , tSize  ∷ (Int, Int)
-                   , tT     ∷ Int } deriving (Show, Eq)
+                   , tT     ∷ Int
+                   , tMoves ∷ Bool } deriving (Show, Eq)
 -- default gtile provides interface similar
 -- to the optional arguments found in C
 defaultGTile = GTile { tPos   = (0,0)
                      , tScale = (1,1)
                      , tInd   = (0,0)
                      , tSize  = (1,1)
-                     , tT     = 0 }
+                     , tT     = 0
+                     , tMoves = False }
 
 -- all the data required for a set of textures
 data TextureData = TextureData

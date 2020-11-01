@@ -22,6 +22,7 @@ data State = State { status       ∷ AExcept
                    , logFunc      ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
                    , windowSt     ∷ !(Maybe GLFW.Window)
                    , cam3d        ∷ !(Float, Float, Float)
+                   , gamecam3d    ∷ !(Float, Float, Float)
                    , cursor       ∷ !(Int, Int, Int)
                    , currentWin   ∷ Int
                    , drawSt       ∷ !DrawState

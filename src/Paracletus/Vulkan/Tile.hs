@@ -17,9 +17,9 @@ import Paracletus.Data
 import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Vertex
 
-calcVertices ∷ DrawState → (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
-calcVertices ds' = (verts, inds)
-  where verts = vertices      ts
+calcVertices ∷ (Float,Float,Float) → DrawState → (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+calcVertices cam ds' = (verts, inds)
+  where verts = vertices cam  ts
         inds  = indices       ts
         ts    = dsTiles       ds
         ds    = calcFontTiles $ calcMouseBox ds'
@@ -47,7 +47,8 @@ calcFontTiles ds = ds { dsTiles = newTiles }
                               , tScale = (1,1)
                               , tInd = fontIndex c
                               , tSize = (16,6)
-                              , tT = 1 }
+                              , tT = 1
+                              , tMoves = False }
         newPos ∷ (Double,Double) → Char → Double → (Double,Double)
         newPos (_,y) '\n' oX = (oX,(y - 0.5))
         newPos (x,y) c    _  = ((x+(fontOffset c)),y)
@@ -56,10 +57,10 @@ calcMouseBox ∷ DrawState → DrawState
 calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
   where newTiles   = [topTile, bottomTile, leftTile, rightTile]
-        topTile    = GTile pos1 ((10.0*(fst pos2)/1080.0),0.1) (0,0) (1,1) 2
-        bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2
-        leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2
-        rightTile  = GTile ((fst pos2),(snd pos1)) (0.1,1.0) (0,0) (1,1) 2
+        topTile    = GTile pos1 ((10.0*(fst pos2)/1080.0),0.1) (0,0) (1,1) 2 False
+        bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2 False
+        leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2 False
+        rightTile  = GTile ((fst pos2),(snd pos1)) (0.1,1.0) (0,0) (1,1) 2 False
         pos1'      = mbPos1 $ dsMBox ds
         pos2'      = mbPos2 $ dsMBox ds
         pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
@@ -130,8 +131,8 @@ calcTextbox x y sx sy = [topLeftTile] ⧺ (topRow sx) ⧺ [topRightTile] ⧺ (mi
 
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
-vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
-vertices ts = fromList $ combineVertices ts
+vertices ∷ (Float,Float,Float) → [GTile] → DataFrame Vertex '[XN 0]
+vertices (cx,cy,_) ts = fromList $ combineVertices ts
   where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1)
                   , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1)
                   , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1)
@@ -139,7 +140,10 @@ vertices ts = fromList $ combineVertices ts
         combineVertices [] = []
         combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
           where (x',y') = tPos tile
-                ( x, y) = (realToFrac(2*x'), realToFrac(2*y'))
+                (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
+                (x, y)  = case (tMoves tile) of
+                  True  → ((x0+(0.1*cx)),(y0+(0.1*cy)))
+                  False → ((x0,y0))
                 (ax', ay') = tInd tile
                 ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
                 (xscale',yscale') = tScale tile

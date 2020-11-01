@@ -37,7 +37,8 @@ initState = do
                     , tScale = (10,10)
                     , tInd   = (0,0)
                     , tSize  = (1,1)
-                    , tT     = 0 }
+                    , tT     = 0
+                    , tMoves = False }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   luasettings ← importSettings ls "mod/base/"
@@ -52,6 +53,7 @@ initState = do
                              , logFunc      = lf
                              , windowSt     = Nothing
                              , cam3d        = (0.0, 0.0, -1.0)
+                             , gamecam3d    = (0.0, 0.0, -1.0)
                              , cursor       = (0, 0, 2)
                              , currentWin   = 0
                              , drawSt       = ds

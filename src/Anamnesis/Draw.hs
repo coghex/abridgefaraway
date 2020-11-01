@@ -44,4 +44,5 @@ addTile ds = ds { dsTiles = newtiles }
                   , tScale = (1,1)
                   , tInd   = (2,0)
                   , tSize  = (16,6)
-                  , tT     = 2 } ]
+                  , tT     = 2
+                  , tMoves = False } ]

@@ -124,7 +124,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   ds ← gets drawSt
-  let (verts, inds) = calcVertices ds
+  gcam ← gets gamecam3d
+  let (verts, inds) = calcVertices gcam ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
@@ -134,7 +135,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   shouldExit ← glfwMainLoop window $ do
     cmdBP ← do
         dsNew ← gets drawSt
-        let (verts0, inds0) = calcVertices dsNew
+        ngcam ← gets gamecam3d
+        let (verts0, inds0) = calcVertices ngcam dsNew
         vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
         indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
         newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets

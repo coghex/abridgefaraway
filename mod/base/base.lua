@@ -25,6 +25,7 @@ function initLua ()
     newButtonAction ("createParams", -4.0, -4.0, "back", "link", "menu")
     newWindow ( "game", "game", "dat/tex/black.png" )
     newWorld ( "game", 10, 10, "dat/tex/plains.png")
+    newButton ( "game", -4.0, 0.0, "blop blop")
     switchWindow ( "menu" )
     return 1
 end

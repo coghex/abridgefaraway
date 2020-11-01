@@ -159,13 +159,13 @@ moveCamWithMouse = do
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
           oldpos = (mouse3Cache (inputState st))
           diff = (((fst pos)-(fst oldpos)),((snd pos)-(snd oldpos)))
-          oldcam = cam3d st
+          oldcam = gamecam3d st
           newcam = moveCam oldcam diff
           moveCam ∷ (Float,Float,Float) → (Float,Float) → (Float,Float,Float)
           moveCam (x1,y1,z1) (x2,y2) = (x1+x2,y1-y2,z1)
           isold = inputState st
           newis = isold { mouse3 = True
                         , mouse3Cache = ((fst pos),(snd pos)) }
-      modify' $ \s → s { cam3d = newcam
+      modify' $ \s → s { gamecam3d = newcam
                        , inputState = newis }
     Nothing → return ()
