@@ -61,10 +61,6 @@ calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
         bottomTile = GTile btpos ((absfloor pos2diff) - bSize,bSize) (0,0) (1,1) 15 False
         leftTile   = GTile ltpos (bSize,(absfloor pos1diff) - bSize) (0,0) (1,1) 11 False
         rightTile  = GTile rtpos (bSize,(absfloor pos1diff) - bSize) (0,0) (1,1) 18 False
-        tlTile     = GTile ((fst pos1) + 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 14 False
-        trTile     = GTile ((fst pos2) - 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 13 False
-        brTile     = GTile ((fst pos2) - 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 16 False
-        blTile     = GTile ((fst pos1) + 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 17 False
         (pos1,pos2) = rtF (mbPos1 (dsMBox ds)) (mbPos2 (dsMBox ds))
         --pos1       = rtF $ mbPos1 $ dsMBox ds
         --pos2       = rtF $ mbPos2 $ dsMBox ds
@@ -91,11 +87,43 @@ calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
                 x2' = realToFrac x2
                 y2' = realToFrac y2
                 x2out = case (abs(x2'-x1') < (2.0*bSize)) of
-                        True  → x1' + (2.0*bSize)
+                        True  → if      (x1' > x2') then x1' - (2.0*bSize)
+                                else if (x1' < x2') then x1' + (2.0*bSize)
+                                else x1'
                         False → x2'
-                y2out = case (abs(y2'-y1') < bSize) of
-                        True  → y1' - bSize
+                y2out = case (abs(y2'-y1') < (2.0*bSize)) of
+                        True  → if      (y1' > y2') then y1' - (2.0*bSize)
+                                else if (y1' < y2') then y1' + (2.0*bSize)
+                                else y1'
                         False → y2'
+        (tlTile,trTile,brTile,blTile) = checkMouseBoxDirection pos1 pos2
+        checkMouseBoxDirection ∷ (Double,Double) → (Double,Double) → (GTile,GTile,GTile,GTile)
+        checkMouseBoxDirection (px1,py1) (px2,py2)
+          | ((px1 > px2) ∧ (py1 > py2)) = (tlTilese, trTilese, brTilese, blTilese)
+          | ((px1 < px2) ∧ (py1 > py2)) = (tlTilesw, trTilesw, brTilesw, blTilesw)
+          | ((px1 > px2) ∧ (py1 < py2)) = (tlTilene, trTilene, brTilene, blTilene)
+          | ((px1 < px2) ∧ (py1 < py2)) = (tlTilenw, trTilenw, brTilenw, blTilenw)
+          | otherwise                   = (tlTilefun, trTilefun, brTilefun, blTilefun)
+              where tlTilefun  = GTile (10.0,10.0) (bSize,bSize) (0,0) (1,1) 14 False
+                    trTilefun  = GTile (10.0,10.0) (bSize,bSize) (0,0) (1,1) 13 False
+                    brTilefun  = GTile (10.0,10.0) (bSize,bSize) (0,0) (1,1) 16 False
+                    blTilefun  = GTile (10.0,10.0) (bSize,bSize) (0,0) (1,1) 17 False
+                    tlTilese   = GTile ((fst pos1),(snd pos1)) (bSize,bSize) (0,0) (1,1) 13 False
+                    trTilese   = GTile ((fst pos2),(snd pos1)) (bSize,bSize) (0,0) (1,1) 14 False
+                    brTilese   = GTile ((fst pos2),(snd pos2)) (bSize,bSize) (0,0) (1,1) 17 False
+                    blTilese   = GTile ((fst pos1),(snd pos2)) (bSize,bSize) (0,0) (1,1) 16 False
+                    tlTilesw   = GTile ((fst pos1) + 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 14 False
+                    trTilesw   = GTile ((fst pos2) - 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 13 False
+                    brTilesw   = GTile ((fst pos2) - 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 16 False
+                    blTilesw   = GTile ((fst pos1) + 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 17 False
+                    tlTilenw   = GTile ((fst pos1) + 0.125,(snd pos1) + 0.125) (bSize,bSize) (0,0) (1,1) 17 False
+                    trTilenw   = GTile ((fst pos2) - 0.125,(snd pos1) + 0.125) (bSize,bSize) (0,0) (1,1) 16 False
+                    brTilenw   = GTile ((fst pos2) - 0.125,(snd pos2) - 0.125) (bSize,bSize) (0,0) (1,1) 13 False
+                    blTilenw   = GTile ((fst pos1) + 0.125,(snd pos2) - 0.125) (bSize,bSize) (0,0) (1,1) 14 False
+                    tlTilene   = GTile ((fst pos1),(snd pos1) + 0.125) (bSize,bSize) (0,0) (1,1) 16 False
+                    trTilene   = GTile ((fst pos2),(snd pos1) + 0.125) (bSize,bSize) (0,0) (1,1) 17 False
+                    brTilene   = GTile ((fst pos2),(snd pos2) - 0.125) (bSize,bSize) (0,0) (1,1) 14 False
+                    blTilene   = GTile ((fst pos1),(snd pos2) - 0.125) (bSize,bSize) (0,0) (1,1) 13 False
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Double → Double → Int → Int → [GTile]
