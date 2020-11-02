@@ -57,7 +57,7 @@ calcMouseBox ∷ DrawState → DrawState
 calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
   where newTiles   = [topTile]--, bottomTile, leftTile, rightTile]
-        topTile    = GTile pos1 ((10.0*(fst pos2)/1080.0),0.1) (0,0) (1,1) 2 False
+        topTile    = GTile ttpos ((pos2diff),0.1) (0,0) (1,1) 2 False
         bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2 False
         leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2 False
         rightTile  = GTile ((fst pos2),(snd pos1)) (0.1,1.0) (0,0) (1,1) 2 False
@@ -65,6 +65,9 @@ calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
         pos2'      = mbPos2 $ dsMBox ds
         pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
         pos2       = ((realToFrac (fst pos2')), (realToFrac (snd pos2')))
+        ttpos      = (((fst pos1) + (pos2diff / 2.0)),(snd pos1))
+        pos2diff   = ((fst pos2)-(fst pos1))
+
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Double → Double → Int → Int → [GTile]

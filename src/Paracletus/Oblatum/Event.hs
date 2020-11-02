@@ -147,7 +147,8 @@ drawBoxWithMouse = do
   let win' = windowSt st
   case win' of
     Just win → do
-      pos' ← liftIO $ GLFW.getCursorPos win
+      posraw ← liftIO $ GLFW.getCursorPos win
+      let pos' = convertPixels posraw
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
           oldpos = (mouse1Cache (inputState st))
           oldds = drawSt st
