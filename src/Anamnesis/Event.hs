@@ -94,7 +94,7 @@ processEvent event = case event of
                       , tScale = (32,24)
                       , tInd   = (0,0)
                       , tSize  = (1,1)
-                      , tT     = 15
+                      , tT     = 19
                       , tMoves = False }
     -- loads the tiles in lua state
     let modtiles = calcTiles menuwindow
@@ -169,7 +169,7 @@ calcWorldTilesSpot nModTiles (x,y) (gspot:gspots) = [tile] ⧺ (calcWorldTilesSp
                      , tScale = (1,1)
                      , tInd = (gspot,0)
                      , tSize = (3,15)
-                     , tT = (16+nModTiles)
+                     , tT = (20+nModTiles)
                      , tMoves = True }
 
 luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
@@ -179,7 +179,7 @@ luaTiletoWinTile n (wt:wts) = (luaTiletoWinTile (n+1) wts) ⧺ [tile]
                      , tScale = (1,1)
                      , tInd = (0,0)
                      , tSize = (1,1)
-                     , tT = (16+n)
+                     , tT = (20+n)
                      , tMoves = True }
 
 -- these functions are seperate so that
