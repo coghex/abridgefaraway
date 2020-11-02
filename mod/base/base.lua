@@ -37,6 +37,27 @@ end
 function LuaWindow:addButtonAction (x,y,text,action)
     newButtonAction ((self.lwName),x,y,text,"action",action)
 end
+LuaWindowElem = { lweName = "NULLname"
+                , lweX = 0
+                , lweY = 0 }
+function LuaWindowElem:new (o)
+    o = o or {}
+    self.__index = self
+    setmetatable (o, self)
+    self.lweName = "NULL"
+    return o
+end
+function LuaWindowElem:init (n,x,y)
+    self.lweName = n
+    self.lweX = x
+    self.lweY = y
+end
+function LuaWindow:addElement (lwe)
+    newMenu ((self.lwName), (lwe.lweName), (lwe.lweX), (lwe.lweY))
+end
+function LuaWindowElem:addToElem (elemType, string)
+    newMenuElement ((self.lweName), elemType, "World Parameters")
+end
 
 -- this runs once at the beginning
 function initLua ()
@@ -51,9 +72,13 @@ function initLua ()
     menu1:addTextBox (-4.0, 0.0, "Load World")
     menu1:addButtonAction (-4.0, -2.0, "Escape", "quit")
     menu2:addButton (-4.0, -2.0, "Create World", game)
-    newMenu ("menu2", "createParamsMenu", -4.0, 2.0)
+    local paramsMenu = LuaWindowElem:new ()
+    paramsMenu:init("paramsMenu1",-4.0,2.0)
+    menu2:addElement (paramsMenu)
+    paramsMenu:addToElem("text", "World Parameters")
+    --newMenu ("menu2", "createParamsMenu", -4.0, 2.0)
     --local paramsMenu = menu2:addMenu ("createParamsMenu", -4.0, 2.0,)
-    newMenuElement ("createParamsMenu", "text", "World Parameters")
+    --newMenuElement ("createParamsMenu", "text", "World Parameters")
     --newMenuElement ("createParamsMenu", "slider", 10, 100, "width:"
     --newMenuElement ("createParamsMenu", "slider", 10, 100, "height:"
     --newButtonAction ("menu2", -4.0, -4.0, "back", "link", "menu1")
