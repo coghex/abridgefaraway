@@ -56,7 +56,7 @@ calcFontTiles ds = ds { dsTiles = newTiles }
 calcMouseBox ∷ DrawState → DrawState
 calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
-  where newTiles   = [topTile, bottomTile, leftTile, rightTile]
+  where newTiles   = [topTile]--, bottomTile, leftTile, rightTile]
         topTile    = GTile pos1 ((10.0*(fst pos2)/1080.0),0.1) (0,0) (1,1) 2 False
         bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2 False
         leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2 False

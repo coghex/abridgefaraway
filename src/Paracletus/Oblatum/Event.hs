@@ -92,7 +92,10 @@ evalMouse win mb mbs mk = do
     linkTest (x',y') (windowLinks thisWindow)
     --logDebug $ "mouse click 1 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y')
   when (((mouse1 isold) == False) && (mb == GLFW.mousebutt1) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == (WinTypeGame))) $ do
-    let newis = isold { mouse1 = True }
+    (x,y) ← liftIO $ GLFW.getCursorPos win
+    let (x',y') = convertPixels (x,y)
+    let newis = isold { mouse1 = True
+                      , mouse1Cache = (realToFrac(x'),realToFrac(y'))}
     modify' $ \s → s { inputState = newis }
   when ((mb == GLFW.mousebutt1) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == (WinTypeGame))) $ do
     let newis = isold { mouse1 = False }
@@ -105,15 +108,17 @@ evalMouse win mb mbs mk = do
 linkTest ∷ (Double,Double) → [WinLink] → Anamnesis ε σ ()
 linkTest _     []           = return ()
 linkTest (x,y) (link:links) = do
+  --logDebug $ "linkTest: " ⧺ (linkAction link)
   case (posClose (buttWidth,buttHeight) (linkPos link) (x,y)) of
     True  → do
-      logDebug $ "link"
       env ← ask
       let eventQ = envEventsChan env
       case (linkAction link) of
         "link" → do
           logDebug $ "following link to " ⧺ (linkLink link)
           liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow (linkLink link)) ""
+        "sliderLeft" → do
+          logDebug $ "sliderLeft"
         "action" → do
           logDebug $ "quitting..."
           window' ← gets windowSt
@@ -121,17 +126,18 @@ linkTest (x,y) (link:links) = do
             Just window → liftIO $ GLFW.setWindowShouldClose window True
             Nothing → logWarn "no window to exit"
         action → logWarn $ "no known action " ⧺ action
+      linkTest (x,y) links
     False → linkTest (x,y) links
   where (buttWidth,buttHeight) = linkSize link
 
 convertPixels ∷ (Double,Double) → (Double,Double)
 convertPixels (x,y) = (x',y')
-  where x' = ((x - (1080.0 / 2.0)) / 64.0)
+  where x' = ((x - (1280.0 / 2.0)) / 64.0)
         y' = - ((y - ( 720.0 / 2.0)) / 64.0)
 
 posClose ∷ (Double,Double) → (Double,Double) → (Double,Double) → Bool
 posClose (buttWidth,buttHeight) (x1,y1) (x2,y2)
-  | ((abs(x1 - x2 + 3.0)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
+  | ((abs(x1 - x2)) < buttWidth) && ((abs(y1 - y2)) < buttHeight) = True
   | otherwise = False
 
 -- these functions preform actions with the mouse

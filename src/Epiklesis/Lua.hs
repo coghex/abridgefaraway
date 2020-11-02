@@ -141,6 +141,8 @@ hsNewMenuElement env menu "text" args = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemText args)) menu
 hsNewMenuElement env menu "slider" args = do
   let eventQ = envEventsChan env
+  -- these links are not working right now
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink menu (WinLink (-4.0,2.0) (100.0,100.0) "sliderLeft" "sliderLeft") ) args
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemSlider (read min) (read max) (read dflt) text)) menu
   where (text,dflt,min,max) = tupify $ words args
         tupify ∷ [String] → (String,String,String,String)
