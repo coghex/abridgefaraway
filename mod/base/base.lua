@@ -37,6 +37,9 @@ end
 function LuaWindow:addButtonAction (x,y,text,action)
     newButtonAction ((self.lwName),x,y,text,"action",action)
 end
+function LuaWindow:addWorld (w,h,path)
+    newWorld ((self.lwName),w,h,path)
+end
 LuaWindowElem = { lweName = "NULLname"
                 , lweX = 0
                 , lweY = 0 }
@@ -56,7 +59,7 @@ function LuaWindow:addElement (lwe)
     newMenu ((self.lwName), (lwe.lweName), (lwe.lweX), (lwe.lweY))
 end
 function LuaWindowElem:addToElem (elemType, string)
-    newMenuElement ((self.lweName), elemType, "World Parameters")
+    newMenuElement ((self.lweName), elemType, string)
 end
 
 -- this runs once at the beginning
@@ -76,14 +79,10 @@ function initLua ()
     paramsMenu:init("paramsMenu1",-4.0,2.0)
     menu2:addElement (paramsMenu)
     paramsMenu:addToElem("text", "World Parameters")
-    --newMenu ("menu2", "createParamsMenu", -4.0, 2.0)
-    --local paramsMenu = menu2:addMenu ("createParamsMenu", -4.0, 2.0,)
-    --newMenuElement ("createParamsMenu", "text", "World Parameters")
     --newMenuElement ("createParamsMenu", "slider", 10, 100, "width:"
     --newMenuElement ("createParamsMenu", "slider", 10, 100, "height:"
-    --newButtonAction ("menu2", -4.0, -4.0, "back", "link", "menu1")
     menu2:addButton (-4.0, -4.0, "back", menu1)
-    newWorld ( "game", 10, 10, "dat/tex/plains.png")
+    game:addWorld ( 10, 10, "dat/tex/plains.png" )
     game:addTextBox (-4.0, 0.0, "blop blop")
     switchWindow ( "menu1" )
     return 1
