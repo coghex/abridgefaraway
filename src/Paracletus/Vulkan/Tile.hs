@@ -57,25 +57,45 @@ calcMouseBox ∷ DrawState → DrawState
 calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
   where newTiles   = [topTile, bottomTile, leftTile, rightTile, trTile, tlTile, brTile, blTile]
-        topTile    = GTile ttpos ((abs pos2diff) - bSize,bSize) (0,0) (1,1) 12 False
-        bottomTile = GTile btpos ((abs pos2diff) - bSize,bSize) (0,0) (1,1) 15 False
-        leftTile   = GTile ltpos (bSize,(abs pos1diff) - bSize) (0,0) (1,1) 11 False
-        rightTile  = GTile rtpos (bSize,(abs pos1diff) - bSize) (0,0) (1,1) 18 False
+        topTile    = GTile ttpos ((absfloor pos2diff) - bSize,bSize) (0,0) (1,1) 12 False
+        bottomTile = GTile btpos ((absfloor pos2diff) - bSize,bSize) (0,0) (1,1) 15 False
+        leftTile   = GTile ltpos (bSize,(absfloor pos1diff) - bSize) (0,0) (1,1) 11 False
+        rightTile  = GTile rtpos (bSize,(absfloor pos1diff) - bSize) (0,0) (1,1) 18 False
         tlTile     = GTile ((fst pos1) + 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 14 False
         trTile     = GTile ((fst pos2) - 0.125,(snd pos1)) (bSize,bSize) (0,0) (1,1) 13 False
         brTile     = GTile ((fst pos2) - 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 16 False
         blTile     = GTile ((fst pos1) + 0.125,(snd pos2)) (bSize,bSize) (0,0) (1,1) 17 False
-        pos1'      = mbPos1 $ dsMBox ds
-        pos2'      = mbPos2 $ dsMBox ds
-        pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
-        pos2       = ((realToFrac (fst pos2')), (realToFrac (snd pos2')))
+        (pos1,pos2) = rtF (mbPos1 (dsMBox ds)) (mbPos2 (dsMBox ds))
+        --pos1       = rtF $ mbPos1 $ dsMBox ds
+        --pos2       = rtF $ mbPos2 $ dsMBox ds
+        --pos1'      = mbPos1 $ dsMBox ds
+        --pos2'      = mbPos2 $ dsMBox ds
+        --pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
+        --pos2       = ((realToFrac (fst pos2')), (realToFrac (snd pos2')))
         ttpos      = (((fst pos1) + (pos2diff / 2.0)),(snd pos1))
         btpos      = (((fst pos1) + (pos2diff / 2.0)),(snd pos2))
         ltpos      = ((fst pos1),((snd pos1)+(pos1diff / 2.0)))
         rtpos      = ((fst pos2),((snd pos1)+(pos1diff / 2.0)))
-        pos1diff   = ((snd pos2)-(snd pos1))
-        pos2diff   = ((fst pos2)-(fst pos1))
+        pos1diff   = ((snd pos2) - (snd pos1))
+        pos2diff   = ((fst pos2) - (fst pos1))
         bSize      = 0.2
+        absfloor ∷ Double → Double
+        absfloor x = case (x' > bSize) of
+          True → x'
+          False → bSize
+          where x' = abs x
+        rtF ∷ (Float,Float) → (Float,Float) → ((Double,Double),(Double,Double))
+        rtF (x1,y1) (x2,y2) = ((x1',y1'),(x2out,y2out))
+          where x1' = realToFrac x1
+                y1' = realToFrac y1
+                x2' = realToFrac x2
+                y2' = realToFrac y2
+                x2out = case (abs(x2'-x1') < (2.0*bSize)) of
+                        True  → x1' + (2.0*bSize)
+                        False → x2'
+                y2out = case (abs(y2'-y1') < bSize) of
+                        True  → y1' - bSize
+                        False → y2'
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Double → Double → Int → Int → [GTile]
