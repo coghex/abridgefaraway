@@ -8,6 +8,9 @@ end
 function textboxTexture ()
     return "dat/tex/box/"
 end
+function mouseboxTexture ()
+    return "dat/tex/mbox/"
+end
 function textureDirectory ()
     return "dat/tex/base"
 end

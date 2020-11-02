@@ -35,7 +35,9 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
       --texboxPath = "dat/tex/box"
       texAlph = settingFontPath settings
       texboxPath = settingTBPath settings
+      texmboxPath = settingMTBPath settings
   boxTexs ← loadNTexs pdev dev cmdPool cmdQueue texboxPath
+  mboxTexs ← loadNTexs pdev dev cmdPool cmdQueue texmboxPath
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
   modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
@@ -43,8 +45,9 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
   texSamplersMod  ← createTextureSamplers dev $ snd . unzip $ modTexViews
   let (btexs, bsamps) = unzip boxTexs
-      texViews = [textureView1, texViewAlph] ⧺ btexs ⧺ (fst (unzip modTexViews))
-      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ texSamplersMod
+      (mbtexs, mbsamps) = unzip mboxTexs
+      texViews = [textureView1, texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ (fst (unzip modTexViews))
+      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ texSamplersMod
   descriptorTextureInfo ← textureImageInfos texViews texSamps
   depthFormat ← findDepthFormat pdev
   let nimages = length texViews

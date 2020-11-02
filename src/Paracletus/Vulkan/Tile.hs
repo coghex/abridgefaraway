@@ -56,18 +56,21 @@ calcFontTiles ds = ds { dsTiles = newTiles }
 calcMouseBox ∷ DrawState → DrawState
 calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
-  where newTiles   = [topTile]--, bottomTile, leftTile, rightTile]
-        topTile    = GTile ttpos ((pos2diff),0.1) (0,0) (1,1) 2 False
-        bottomTile = GTile ((fst pos1),(snd pos2)) (1.0,0.1) (0,0) (1,1) 2 False
-        leftTile   = GTile pos1 (0.1,1.0) (0,0) (1,1) 2 False
-        rightTile  = GTile ((fst pos2),(snd pos1)) (0.1,1.0) (0,0) (1,1) 2 False
+  where newTiles   = [topTile, bottomTile, leftTile, rightTile]
+        topTile    = GTile ttpos ((abs pos2diff),0.1) (0,0) (1,1) 12 False
+        bottomTile = GTile btpos ((abs pos2diff),0.1) (0,0) (1,1) 13 False
+        leftTile   = GTile ltpos (0.1,(abs pos1diff)) (0,0) (1,1) 11 False
+        rightTile  = GTile rtpos (0.1,(abs pos1diff)) (0,0) (1,1) 14 False
         pos1'      = mbPos1 $ dsMBox ds
         pos2'      = mbPos2 $ dsMBox ds
         pos1       = ((realToFrac (fst pos1')), (realToFrac (snd pos1')))
         pos2       = ((realToFrac (fst pos2')), (realToFrac (snd pos2')))
         ttpos      = (((fst pos1) + (pos2diff / 2.0)),(snd pos1))
+        btpos      = (((fst pos1) + (pos2diff / 2.0)),(snd pos2))
+        ltpos      = ((fst pos1),((snd pos1)+(pos1diff / 2.0)))
+        rtpos      = ((fst pos2),((snd pos1)+(pos1diff / 2.0)))
+        pos1diff   = ((snd pos2)-(snd pos1))
         pos2diff   = ((fst pos2)-(fst pos1))
-
 
 -- creates textbox of arbitrary size
 calcTextbox ∷ Double → Double → Int → Int → [GTile]
