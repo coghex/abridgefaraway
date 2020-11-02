@@ -34,6 +34,7 @@ data WinMenu = WinMenu { menuName  ∷ String
 data WinElem = WinElemText String
              | WinElemSlider { sliderMin  ∷ Int
                              , sliderMax  ∷ Int
+                             , sliderDflt ∷ Int
                              , sliderText ∷ String }
              | WinElemNULL deriving (Show, Eq)
 

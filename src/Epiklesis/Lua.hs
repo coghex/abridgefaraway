@@ -139,6 +139,12 @@ hsNewMenuElement ∷ Env → String → String → String → Lua.Lua ()
 hsNewMenuElement env menu "text" args = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemText args)) menu
+hsNewMenuElement env menu "slider" args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemSlider (read min) (read max) (read dflt) text)) menu
+  where (text,dflt,min,max) = tupify $ words args
+        tupify ∷ [String] → (String,String,String,String)
+        tupify t = ((t !! 0), (t !! 1), (t !! 2), (t !! 3))
 hsNewMenuElement env menu elemtype args = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) menu

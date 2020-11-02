@@ -130,7 +130,7 @@ luaMenutoWinTB (wm:wms) = luaMenutoWinTB wms ⧺ [textBox]
                           , tbSize = (3+tbsize,tbheight)
                           , tbBox = True
                           , tbString = elemsToString (menuElems wm) }
-        tbsize     = 10
+        tbsize     = 20
         tbheight   = length $ menuElems wm
 
 -- converts list of menu elements into
@@ -141,6 +141,7 @@ elemsToString (we:wes) = (elemToString we) ⧺ "\n" ⧺ (elemsToString wes)
 
 elemToString ∷ WinElem → String
 elemToString (WinElemText text) = text
+elemToString (WinElemSlider x y d args) = args ⧺ (show d) ⧺ "   " ⧺ (show x) ⧺ " <--|--> " ⧺ (show y)
 elemToString WinElemNULL = "NULL"
 
 -- converts tiles from a window into GTiles
