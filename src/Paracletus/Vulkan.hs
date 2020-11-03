@@ -6,8 +6,10 @@ import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets, modify)
+import Data.List (sort)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
+import System.Directory (getDirectoryContents)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Event
@@ -88,9 +90,15 @@ runParacVulkan = do
           newst ← get
           let windows = luaWindows (luaSt newst)
               thiswin = windows !! (currentWin newst)
-              worldtexs = case (windowWorld thiswin) of
-                WorldNULL   → []
-                World _ _ t → [t]
+              worldtexs' = case (windowWorld thiswin) of
+                WorldNULL   → "dat/tex/world/"
+                World _ _ t → t
+          worldtexsdir ← liftIO $ getDirectoryContents $ worldtexs'
+          let worldtexs = map (worldtexs' ⧺) $ sort $ filter filterOutPathJunk $ worldtexsdir
+              filterOutPathJunk ∷ FilePath → Bool
+              filterOutPathJunk "."  = False
+              filterOutPathJunk ".." = False
+              filterOutPathJunk _    = True
               -- loadvulkantextures loads in reverse
               wintextures = reverse $ [winBackground thiswin] ⧺ (map winTileTex (windowTiles thiswin)) ⧺ worldtexs
           newTexData ← loadVulkanTextures gqdata wintextures

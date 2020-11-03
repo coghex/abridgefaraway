@@ -101,7 +101,7 @@ function initLua ()
     elemPiece2:init("slider", "Width: 10 10 100")
     paramsMenu:addToElem(elemPiece2)
     menu2:addButton (-4.0, -4.0, "back", menu1)
-    game:addWorld ( 10, 10, "dat/tex/plains.png" )
+    game:addWorld ( 10, 10, "dat/tex/world/" )
     game:addTextBox (-4.0, 0.0, "blop blop")
     switchWindow ( "menu1" )
     return 1
