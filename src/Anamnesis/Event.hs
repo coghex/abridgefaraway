@@ -10,6 +10,7 @@ import Anamnesis.Data
 import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.World
+import Artos.Data
 import Artos.Except
 import Artos.Queue
 import Artos.Var
@@ -41,6 +42,7 @@ processEvent event = case event of
     case (windowSt st) of
       Just win → liftIO $ GLFW.setWindowShouldClose win True
       Nothing  → logWarn $ "no glfw window to close"
+  (EventLogDebug str) → logDebug str
   (EventKey window k _ ks mk) → do
     keyLayout ← importKeyLayout
     when (ks ≡ GLFW.KeyState'Pressed) $ evalKey window k ks mk keyLayout
@@ -88,6 +90,7 @@ processEvent event = case event of
       --otherwise → logWarn $ "unknown lua command"
   (EventLoaded loadedType) → do
     -- translates lua draw state to engine state
+    env ← ask
     st ← get
     -- indexes the current window
     let menuwindow = (luaWindows (luaSt st)) !! (currentWin st)
@@ -103,9 +106,12 @@ processEvent event = case event of
     -- loads tiles from world object
     let worldtiles = calcWorldTiles (screenCursor st) menuwindow (length modtiles)
     let newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (calcTextBoxs menuwindow) MBNULL
+        newsc = initScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
     modify $ \s → s { drawSt = newds
-                    , screenCursor = initScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
+                    , screenCursor = newsc
                     , sRecreate = True }
+    liftIO $ atomically $ writeChan (envWTimerChan env) TStart
+    liftIO $ atomically $ writeChan (envSCChan env) newsc
     logDebug $ "loaded event"
 
 -- these functions are seperate so that

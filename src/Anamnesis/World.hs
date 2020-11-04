@@ -17,12 +17,14 @@ import Paracletus.Data
 createWorld ∷ Int → Int → [[Int]]
 createWorld w h = take h (repeat (take w (repeat 1)))
 
-updateWorld ∷ Env → TState → IO ()
-updateWorld env TStop = do
-  let timerChan = envWTimerChan env
+updateWorld ∷ Env → ((Float,Float),(Int,Int)) → TState → IO ()
+updateWorld env sc TStop = do
+  let scchan    = envSCChan env
+      timerChan = envWTimerChan env
   tsnew ← atomically $ readChan timerChan
-  updateWorld env tsnew
-updateWorld env TStart = do
+  firstSC ← atomically $ readChan scchan
+  updateWorld env sc tsnew
+updateWorld env sc TStart = do
   start ← getCurrentTime
   let scchan    = envSCChan env
       timerChan = envWTimerChan env
@@ -37,8 +39,20 @@ updateWorld env TStart = do
   if delay > 0
     then threadDelay delay
     else return ()
-  updateWorld env tsnew
-updateWorld _ TNULL = return ()
+  updateWorld env sc tsnew
+updateWorld env sc TPause = do
+  let scchan = envSCChan env
+      eventQ = envEventsChan env
+  newSC ← atomically $ readChan scchan
+  atomically $ writeQueue eventQ $ EventLogDebug $ "screenCursor updated to: " ⧺ (show newSC)
+  updateWorld env newSC TStart
+updateWorld _   _  TNULL = return ()
+
+-- sends the updating thread the screen cursor
+reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()
+reloadScreenCursor env sc = do
+  atomically $ writeChan (envWTimerChan env) TPause
+  atomically $ writeChan (envSCChan env) sc
 
 -- converts elements in lua window to
 -- text boxs in the actual draw state
@@ -87,13 +101,13 @@ flatten ∷ [[α]] → [α]
 flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 
 -- converts tiles from the world object into GTiles
-calcWorldTiles ∷ (Float,Float,Int,Int) → Window → Int → [GTile]
+calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
 calcWorldTiles sc (Window _ _ _ _ _ _ _ WorldNULL) _ = []
 calcWorldTiles sc (Window _ _ _ _ _ _ _ (World size grid texs)) nModTiles = tiles
   where tiles = flatten $ calcWorldTilesRow sc' nModTiles (0,0) grid
         sc'   = roundsc sc
-        roundsc ∷ (Float,Float,Int,Int) → (Int,Int,Int,Int)
-        roundsc (x,y,w,h) = (round x,round y,w,h)
+        roundsc ∷ ((Float,Float),(Int,Int)) → (Int,Int,Int,Int)
+        roundsc ((x,y),(w,h)) = (round x,round y,w,h)
 
 calcWorldTilesRow ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [[Int]] → [[GTile]]
 calcWorldTilesRow _             _         _     []           = [[]]

@@ -78,7 +78,7 @@ runParacVulkan = do
     _ ← liftIO $ forkIO $ loadState env st
     -- this function updates the world grid
     -- as we change the camera.
-    _ ← liftIO $ forkIO $ updateWorld env TStop
+    _ ← liftIO $ forkIO $ updateWorld env (screenCursor st) TStop
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False

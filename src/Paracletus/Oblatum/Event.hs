@@ -73,6 +73,7 @@ evalKey window k _  _  keyLayout = do
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs mk = do
+  env ← ask
   st ← get
   let windows = luaWindows (luaSt st)
       thisWindow = windows !! (currentWin st)
@@ -86,8 +87,9 @@ evalMouse win mb mbs mk = do
     modify' $ \s → s { inputState = newis }
   when (((mouse3 isold) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
     let newis = isold { mouse3 = False }
-    let (cx,cy,_,_) = screenCursor st
+    let ((cx,cy),_) = screenCursor st
     modify' $ \s → s { inputState = newis }
+    liftIO $ reloadScreenCursor env (screenCursor st)
     --(x,y) ← liftIO $ GLFW.getCursorPos win
     --let (x',y') = convertPixels (x,y)
     --logDebug $ "mouse 3 unclick at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " game cam is: (" ⧺ (show cx) ⧺ ", " ⧺ (show cy) ⧺ ")"
@@ -191,10 +193,10 @@ moveCamWithMouse = do
     Nothing → return ()
 
 -- initializes the camera
-initScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → (Float,Float,Int,Int) → (Float,Float,Int,Int)
+initScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → ((Float,Float),(Int,Int)) → ((Float,Float),(Int,Int))
 initScreenCursor oldcam3d oldgcam3d oldsc = moveScreenCursor oldcam3d oldgcam3d oldsc
 
-moveScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → (Float,Float,Int,Int) → (Float,Float,Int,Int)
-moveScreenCursor (x1,y1,_) (x2,y2,_) ( _, _,cw,ch) = (cx,cy,cw,ch)
+moveScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → ((Float,Float),(Int,Int)) → ((Float,Float),(Int,Int))
+moveScreenCursor (x1,y1,_) (x2,y2,_) (( _, _),(cw,ch)) = ((cx,cy),(cw,ch))
   where cx = -0.05*(x2-x1)
         cy = -0.05*(y2-y1)

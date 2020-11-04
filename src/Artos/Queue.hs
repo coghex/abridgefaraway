@@ -8,6 +8,7 @@ type Queue = STM.TQueue
 type TChan = STM.TChan
 -- this is a placeholder
 data Event = EventError !GLFW.Error !String
+           | EventLogDebug !String
            | EventLoaded !Int
            | EventLua !LuaCmd !String
            | EventCam !(Float,Float,Float)
@@ -27,3 +28,5 @@ readChan     :: STM.TChan a -> STM.STM a
 readChan     = STM.readTChan
 tryReadChan  :: STM.TChan a -> STM.STM (Maybe a)
 tryReadChan  = STM.tryReadTChan
+writeChan    :: STM.TChan a -> a -> STM.STM ()
+writeChan    = STM.writeTChan
