@@ -10,6 +10,7 @@ import Anamnesis.Data
 import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
+import Anamnesis.World
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
@@ -85,7 +86,11 @@ evalMouse win mb mbs mk = do
     modify' $ \s → s { inputState = newis }
   when (((mouse3 isold) == True) && (mb == GLFW.mousebutt3) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
     let newis = isold { mouse3 = False }
+    let (cx,cy,_,_) = screenCursor st
     modify' $ \s → s { inputState = newis }
+    --(x,y) ← liftIO $ GLFW.getCursorPos win
+    --let (x',y') = convertPixels (x,y)
+    --logDebug $ "mouse 3 unclick at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " game cam is: (" ⧺ (show cx) ⧺ ", " ⧺ (show cy) ⧺ ")"
   when ((mb == GLFW.mousebutt1) && ((winType thisWindow) == (WinTypeMenu))) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
@@ -130,7 +135,7 @@ linkTest (x,y) (link:links) = do
     False → linkTest (x,y) links
   where (buttWidth,buttHeight) = linkSize link
 
-convertPixels ∷ (Double,Double) → (Double,Double)
+convertPixels ∷ ∀ a. (Fractional a, Num a) ⇒ (a,a) → (a,a)
 convertPixels (x,y) = (x',y')
   where x' = ((x - (1280.0 / 2.0)) / 64.0)
         y' = - ((y - ( 720.0 / 2.0)) / 64.0)
@@ -164,15 +169,28 @@ moveCamWithMouse = do
     Just win → do
       pos' ← liftIO $ GLFW.getCursorPos win
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
-          oldpos = (mouse3Cache (inputState st))
+          oldpos = mouse3Cache (inputState st)
           diff = (((fst pos)-(fst oldpos)),((snd pos)-(snd oldpos)))
           oldcam = gamecam3d st
           newcam = moveCam oldcam diff
           moveCam ∷ (Float,Float,Float) → (Float,Float) → (Float,Float,Float)
-          moveCam (x1,y1,z1) (x2,y2) = (x1+x2,y1-y2,z1)
+          moveCam (x1,y1,z1) (x2,y2) = (x1+x2',y1-y2',z1) where (x2',y2') = (x2/3.6,y2/3.6)
           isold = inputState st
           newis = isold { mouse3 = True
                         , mouse3Cache = ((fst pos),(snd pos)) }
-      modify' $ \s → s { gamecam3d = newcam
+          luawin = (luaWindows (luaSt st)) !! (currentWin st)
+          modtiles = calcTiles luawin
+          newsc = moveScreenCursor (cam3d st) newcam $ screenCursor st
+          worldtiles = calcWorldTiles newsc luawin $ length modtiles
+          tile1 = head $ dsTiles (drawSt st)
+          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
+      modify' $ \s → s { drawSt = newds
+                       , gamecam3d = newcam
+                       , screenCursor = newsc
                        , inputState = newis }
     Nothing → return ()
+
+moveScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → (Float,Float,Int,Int) → (Float,Float,Int,Int)
+moveScreenCursor (x1,y1,_) (x2,y2,_) ( _, _,cw,ch) = (cx,cy,cw,ch)
+  where cx = -0.05*(x2-x1)
+        cy = -0.05*(y2-y1)

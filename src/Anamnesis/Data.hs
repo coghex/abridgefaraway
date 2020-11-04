@@ -24,6 +24,7 @@ data State = State { status       ∷ AExcept
                    , cam3d        ∷ !(Float, Float, Float)
                    , gamecam3d    ∷ !(Float, Float, Float)
                    , cursor       ∷ !(Int, Int, Int)
+                   , screenCursor ∷ !(Float, Float, Int, Int)
                    , currentWin   ∷ Int
                    , drawSt       ∷ !DrawState
                    , luaSt        ∷ !LuaState

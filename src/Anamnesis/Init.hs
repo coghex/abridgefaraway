@@ -55,6 +55,7 @@ initState = do
                              , cam3d        = (0.0, 0.0, -1.0)
                              , gamecam3d    = (0.0, 0.0, -1.0)
                              , cursor       = (0, 0, 2)
+                             , screenCursor = (0,0,3,3)
                              , currentWin   = 0
                              , drawSt       = ds
                              , luaSt        = ls
