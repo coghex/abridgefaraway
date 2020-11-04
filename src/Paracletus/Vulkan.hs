@@ -16,6 +16,7 @@ import Anamnesis.Event
 import Anamnesis.Foreign
 import Anamnesis.Util
 import Anamnesis.World
+import Artos.Data
 import Artos.Except
 import Artos.Var
 import Epiklesis.Data
@@ -77,7 +78,7 @@ runParacVulkan = do
     _ ← liftIO $ forkIO $ loadState env st
     -- this function updates the world grid
     -- as we change the camera.
-    _ ← liftIO $ forkIO $ updateWorld env
+    _ ← liftIO $ forkIO $ updateWorld env TStop
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False

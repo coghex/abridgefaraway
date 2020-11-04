@@ -5,6 +5,9 @@ import Prelude()
 import UPrelude
 import Control.Concurrent (threadDelay)
 import Data.Time.Clock
+import Artos.Data
+import Artos.Var
+import Artos.Queue
 import Anamnesis.Data
 import Anamnesis.Draw
 import Epiklesis.Data
@@ -14,9 +17,19 @@ import Paracletus.Data
 createWorld ∷ Int → Int → [[Int]]
 createWorld w h = take h (repeat (take w (repeat 1)))
 
-updateWorld ∷ Env → IO ()
-updateWorld env = do
+updateWorld ∷ Env → TState → IO ()
+updateWorld env TStop = do
+  let timerChan = envWTimerChan env
+  tsnew ← atomically $ readChan timerChan
+  updateWorld env tsnew
+updateWorld env TStart = do
   start ← getCurrentTime
+  let scchan    = envSCChan env
+      timerChan = envWTimerChan env
+  timerstate <- atomically $ tryReadChan timerChan
+  tsnew <- case (timerstate) of
+    Nothing -> return TStart
+    Just x  -> return x
   end ← getCurrentTime
   let diff  = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int
@@ -24,7 +37,8 @@ updateWorld env = do
   if delay > 0
     then threadDelay delay
     else return ()
-  updateWorld env
+  updateWorld env tsnew
+updateWorld _ TNULL = return ()
 
 -- converts elements in lua window to
 -- text boxs in the actual draw state

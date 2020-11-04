@@ -18,6 +18,7 @@ executable abfa
     hs-source-dirs: src
     other-modules: UPrelude
                    Artos
+                   Artos.Data
                    Artos.Except
                    Artos.Queue
                    Artos.Var

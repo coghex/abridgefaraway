@@ -2,6 +2,7 @@
 module Anamnesis.Data where
 -- data for continuation monad
 import qualified Control.Monad.Logger as Logger
+import Artos.Data
 import Artos.Except
 import Artos.Queue
 import Epiklesis.Data
@@ -15,7 +16,9 @@ data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
 -- glfw loop status
 data LoopControl = ContinueLoop | AbortLoop deriving Eq
 -- env should only hold pointers/references
-data Env = Env { envEventsChan ∷ Queue Event }
+data Env = Env { envEventsChan ∷ Queue Event
+               , envSCChan     ∷ TChan ((Float,Float),(Int,Int))
+               , envWTimerChan ∷ TChan TState }
 -- state holds mutable data, and the
 -- current status of the whole App
 data State = State { status       ∷ AExcept
