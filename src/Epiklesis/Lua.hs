@@ -3,7 +3,6 @@ module Epiklesis.Lua where
 -- is instantiated.
 import Prelude()
 import UPrelude
-import Control.Concurrent (threadDelay)
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
 import Anamnesis.Util
@@ -157,7 +156,7 @@ hsNewMenuElement env menu elemtype args = do
 hsNewWorld ∷ Env → String → Int → Int → String → Lua.Lua()
 hsNewWorld env menu w h texs = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (World (w,h) (createWorld w h) texs)) menu
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (World (w,h) (createWorld 128 128) texs)) menu
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do

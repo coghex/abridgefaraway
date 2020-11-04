@@ -3,6 +3,9 @@ module Anamnesis.World where
 -- gen faster
 import Prelude()
 import UPrelude
+import Control.Concurrent (threadDelay)
+import Data.Time.Clock
+import Anamnesis.Data
 import Anamnesis.Draw
 import Epiklesis.Data
 import Epiklesis.World
@@ -10,6 +13,18 @@ import Paracletus.Data
 
 createWorld ∷ Int → Int → [[Int]]
 createWorld w h = take h (repeat (take w (repeat 1)))
+
+updateWorld ∷ Env → IO ()
+updateWorld env = do
+  start ← getCurrentTime
+  end ← getCurrentTime
+  let diff  = diffUTCTime end start
+      usecs = floor (toRational diff * 1000000) :: Int
+      delay = 1000 - usecs
+  if delay > 0
+    then threadDelay delay
+    else return ()
+  updateWorld env
 
 -- converts elements in lua window to
 -- text boxs in the actual draw state
