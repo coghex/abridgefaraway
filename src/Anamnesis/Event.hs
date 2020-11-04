@@ -17,6 +17,7 @@ import Epiklesis.Data
 import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum
+import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
@@ -103,6 +104,7 @@ processEvent event = case event of
     let worldtiles = calcWorldTiles (screenCursor st) menuwindow (length modtiles)
     let newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (calcTextBoxs menuwindow) MBNULL
     modify $ \s → s { drawSt = newds
+                    , screenCursor = initScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
                     , sRecreate = True }
     logDebug $ "loaded event"
 

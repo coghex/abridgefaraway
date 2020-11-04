@@ -190,6 +190,10 @@ moveCamWithMouse = do
                        , inputState = newis }
     Nothing → return ()
 
+-- initializes the camera
+initScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → (Float,Float,Int,Int) → (Float,Float,Int,Int)
+initScreenCursor oldcam3d oldgcam3d oldsc = moveScreenCursor oldcam3d oldgcam3d oldsc
+
 moveScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → (Float,Float,Int,Int) → (Float,Float,Int,Int)
 moveScreenCursor (x1,y1,_) (x2,y2,_) ( _, _,cw,ch) = (cx,cy,cw,ch)
   where cx = -0.05*(x2-x1)
