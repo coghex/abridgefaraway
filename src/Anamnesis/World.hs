@@ -14,8 +14,10 @@ import Epiklesis.Data
 import Epiklesis.World
 import Paracletus.Data
 
-createWorld ∷ Int → Int → [[Int]]
-createWorld w h = take h (repeat (take w (repeat 1)))
+createWorld ∷ Int → Int → Int → Int → String → World
+createWorld w h sw sh texs = World (w,h) segs texs
+  where segs = [[seg]]
+        seg  = WorldSeg $ take h (repeat (take w (repeat (Tile 1 1))))
 
 updateWorld ∷ Env → ((Float,Float),(Int,Int)) → TState → IO ()
 updateWorld env sc TStop = do
@@ -103,30 +105,33 @@ flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 -- converts tiles from the world object into GTiles
 calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
 calcWorldTiles sc (Window _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ (World size grid texs)) nModTiles = tiles
+calcWorldTiles sc (Window _ _ _ _ _ _ _ (World size segs texs)) nModTiles = tiles
   where tiles = flatten $ calcWorldTilesRow sc' nModTiles (0,0) grid
+        grid  = worldGrid $ ((segs) !! 0) !! 0
         sc'   = roundsc sc
         roundsc ∷ ((Float,Float),(Int,Int)) → (Int,Int,Int,Int)
         roundsc ((x,y),(w,h)) = (round x,round y,w,h)
 
-calcWorldTilesRow ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [[Int]] → [[GTile]]
+calcWorldTilesRow ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [[Tile]] → [[GTile]]
 calcWorldTilesRow _             _         _     []           = [[]]
 calcWorldTilesRow _             _         _     [[]]         = [[]]
 calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,y) (grow:grows)
   | ((y > (cy+ch)) ∨ (y < (cy-ch))) = [[]] ⧺ (calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,(y+1)) grows)
   | otherwise = [(calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) grow)] ⧺ (calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,(y+1)) grows)
 
-calcWorldTilesSpot ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [Int] → [GTile]
+calcWorldTilesSpot ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [Tile] → [GTile]
 calcWorldTilesSpot _             _         _     []             = []
 calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) (gspot:gspots)
   | ((x > (cx+cw)) ∨ (x < (cx-cw))) = [] ⧺ (calcWorldTilesSpot (cx,cy,cw,ch) nModTiles ((x+1),y) gspots)
   | otherwise = [tile] ⧺ (calcWorldTilesSpot (cx,cy,cw,ch) nModTiles ((x+1),y) gspots)
   where tile = GTile { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
                      , tScale = (1,1)
-                     , tInd = (gspot,0)
+                     , tInd = (ix,iy)
                      , tSize = (3,15)
-                     , tT = (20+nModTiles)
+                     , tT = (20+nModTiles+(tileCont gspot))
                      , tMoves = True }
+        ix = (tileType gspot) `mod` 3
+        iy = (tileType gspot) `div` 3
 
 luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
 luaTiletoWinTile _ []       = []
