@@ -15,9 +15,14 @@ import Epiklesis.World
 import Paracletus.Data
 
 createWorld ∷ Int → Int → Int → Int → String → World
-createWorld w h sw sh texs = World (w,h) segs texs
-  where segs = [[seg]]
-        seg  = WorldSeg $ take h (repeat (take w (repeat (Tile 1 1))))
+createWorld sw sh zw zh texs = World [initZone] texs
+  where initZone = Zone (0,0) $ initSegments zw zh
+        initSegments ∷ Int → Int → [[Segment]]
+        initSegments w h = make0Seg $ take h (repeat (take w (repeat (SegmentNULL))))
+        make0Seg ∷ [[Segment]] → [[Segment]]
+        make0Seg segs = [make0SegRow] ⧺ (tail segs)
+          where make0SegRow = [newseg] ⧺ (tail $ head segs)
+                newseg = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
 
 updateWorld ∷ Env → ((Float,Float),(Int,Int)) → TState → IO ()
 updateWorld env sc TStop = do
@@ -34,6 +39,7 @@ updateWorld env sc TStart = do
   tsnew <- case (timerstate) of
     Nothing -> return TStart
     Just x  -> return x
+  -- logic goes here
   end ← getCurrentTime
   let diff  = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int
@@ -105,9 +111,22 @@ flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 -- converts tiles from the world object into GTiles
 calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
 calcWorldTiles sc (Window _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ (World size segs texs)) nModTiles = tiles
+calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones texs)) nModTiles = calcZoneTiles sc zones nModTiles
+calcZoneTiles ∷ ((Float,Float),(Int,Int)) → [Zone] → Int → [GTile]
+calcZoneTiles _  []                      _         = []
+calcZoneTiles sc (ZoneNULL:zones)        nModTiles = calcZoneTiles sc zones nModTiles
+calcZoneTiles sc ((Zone ind segs):zones) nModTiles = (calcSegTiles sc ind segs nModTiles) ⧺ (calcZoneTiles sc zones nModTiles)
+calcSegTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [[Segment]] → Int → [GTile]
+calcSegTiles _  _   []               _         = []
+calcSegTiles _  _   [[]]             _         = []
+calcSegTiles sc ind (segrow:segrows) nModTiles = (calcSegTilesRow sc ind segrow nModTiles) ⧺ (calcSegTiles sc ind segrows nModTiles)
+calcSegTilesRow ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Segment] → Int → [GTile]
+calcSegTilesRow _  _   []         _         = []
+calcSegTilesRow sc ind (seg:segs) nModTiles = (calcSegTilesSpot sc ind seg nModTiles) ⧺ calcSegTilesRow sc ind segs nModTiles
+calcSegTilesSpot ∷ ((Float,Float),(Int,Int)) → (Int,Int) → Segment → Int → [GTile]
+calcSegTilesSpot _  _   SegmentNULL    _         = []
+calcSegTilesSpot sc ind (Segment grid) nModTiles = tiles
   where tiles = flatten $ calcWorldTilesRow sc' nModTiles (0,0) grid
-        grid  = worldGrid $ ((segs) !! 0) !! 0
         sc'   = roundsc sc
         roundsc ∷ ((Float,Float),(Int,Int)) → (Int,Int,Int,Int)
         roundsc ((x,y),(w,h)) = (round x,round y,w,h)
@@ -132,6 +151,21 @@ calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) (gspot:gspots)
                      , tMoves = True }
         ix = (tileType gspot) `mod` 3
         iy = (tileType gspot) `div` 3
+
+-- segment index helper function
+getSegment ∷ (Int,Int) → [[Segment]] → Segment
+getSegment pos segs = findSegRow pos 0 segs
+findSegRow ∷ (Int,Int) → Int → [[Segment]] → Segment
+findSegRow _ _ [[]] = SegmentNULL
+findSegRow _ _ []   = SegmentNULL
+findSegRow (i,j) n (segrow:segrows)
+  | (n == j)  = findSegSpot i 0 segrow
+  | otherwise = findSegRow (i,j) (n+1) segrows
+findSegSpot ∷ Int → Int → [Segment] → Segment
+findSegSpot _ _ []         = SegmentNULL
+findSegSpot i n (seg:segs)
+  | (n == i)  = seg
+  | otherwise = findSegSpot i (n+1) segs
 
 luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
 luaTiletoWinTile _ []       = []

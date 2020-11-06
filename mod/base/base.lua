@@ -102,7 +102,6 @@ function initLua ()
     paramsMenu:addToElem(elemPiece2)
     menu2:addButton (-4.0, -4.0, "back", menu1)
     game:addWorld ( 1000, 1000, "dat/tex/world/" )
-    game:addTextBox (-4.0, 0.0, "blop blop")
     switchWindow ( "menu1" )
     return 1
 end
