@@ -15,14 +15,22 @@ import Epiklesis.World
 import Paracletus.Data
 
 createWorld ∷ Int → Int → Int → Int → String → World
-createWorld sw sh zw zh texs = World [initZone] texs
+createWorld sw sh zw zh texs = World [initZone] (sw,sh) texs
   where initZone = Zone (0,0) $ initSegments zw zh
+        -- this test code for now
         initSegments ∷ Int → Int → [[Segment]]
         initSegments w h = make0Seg $ take h (repeat (take w (repeat (SegmentNULL))))
         make0Seg ∷ [[Segment]] → [[Segment]]
-        make0Seg segs = [make0SegRow] ⧺ (tail segs)
-          where make0SegRow = [newseg] ⧺ (tail $ head segs)
-                newseg = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
+        make0Seg segs = [make0SegRow,make1SegRow] ⧺ (tail (tail segs))
+          where make0SegRow = [newseg00,newseg01] ⧺ (tail (tail (head segs)))
+                make1SegRow = [newseg10,newseg11] ⧺ (tail (tail (head segs)))
+        --make0Seg segs = [make0SegRow] ⧺ (tail segs)
+          --where make0SegRow = [newseg0,newseg1] ⧺ (tail $ tail $ head segs)
+                newsegnull = SegmentNULL
+                newseg00 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
+                newseg01 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 2 2
+                newseg10 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 2
+                newseg11 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 2 1
 
 updateWorld ∷ Env → ((Float,Float),(Int,Int)) → TState → IO ()
 updateWorld env sc TStop = do
@@ -111,22 +119,24 @@ flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 -- converts tiles from the world object into GTiles
 calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
 calcWorldTiles sc (Window _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones texs)) nModTiles = calcZoneTiles sc zones nModTiles
-calcZoneTiles ∷ ((Float,Float),(Int,Int)) → [Zone] → Int → [GTile]
-calcZoneTiles _  []                      _         = []
-calcZoneTiles sc (ZoneNULL:zones)        nModTiles = calcZoneTiles sc zones nModTiles
-calcZoneTiles sc ((Zone ind segs):zones) nModTiles = (calcSegTiles sc ind segs nModTiles) ⧺ (calcZoneTiles sc zones nModTiles)
-calcSegTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [[Segment]] → Int → [GTile]
-calcSegTiles _  _   []               _         = []
-calcSegTiles _  _   [[]]             _         = []
-calcSegTiles sc ind (segrow:segrows) nModTiles = (calcSegTilesRow sc ind segrow nModTiles) ⧺ (calcSegTiles sc ind segrows nModTiles)
-calcSegTilesRow ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Segment] → Int → [GTile]
-calcSegTilesRow _  _   []         _         = []
-calcSegTilesRow sc ind (seg:segs) nModTiles = (calcSegTilesSpot sc ind seg nModTiles) ⧺ calcSegTilesRow sc ind segs nModTiles
-calcSegTilesSpot ∷ ((Float,Float),(Int,Int)) → (Int,Int) → Segment → Int → [GTile]
-calcSegTilesSpot _  _   SegmentNULL    _         = []
-calcSegTilesSpot sc ind (Segment grid) nModTiles = tiles
-  where tiles = flatten $ calcWorldTilesRow sc' nModTiles (0,0) grid
+calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones segsize texs)) nModTiles = calcZoneTiles sc segsize zones nModTiles
+calcZoneTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Zone] → Int → [GTile]
+calcZoneTiles sc segsize []           nModTiles = []
+calcZoneTiles sc segsize (ZoneNULL:zones) nModTiles = calcZoneTiles sc segsize zones nModTiles
+calcZoneTiles sc segsize (zone:zones) nModTiles = (calcSegTiles sc segsize zone nModTiles) ⧺ (calcZoneTiles sc segsize zones nModTiles)
+calcSegTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → Zone → Int → [GTile]
+calcSegTiles sc segsize (Zone ind segs) nModTiles = flatten $ map (calcSegTilesRow sc segsize ind nModTiles) (zip yinds segs)
+  where yinds = take (fst segsize) [0..]
+calcSegTilesRow ∷ ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Int → (Int,[Segment]) → [GTile]
+calcSegTilesRow sc segsize ind nModTiles (j,segs) = flatten $ map (calcSegTilesSpot j sc segsize ind nModTiles) (zip xinds segs)
+  where xinds = take (snd segsize) [0..]
+calcSegTilesSpot ∷ Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Int → (Int,Segment) → [GTile]
+calcSegTilesSpot j sc segsize ind nModTiles (i,seg) = calcGTileFromSeg i j sc segsize ind seg nModTiles
+
+calcGTileFromSeg ∷ Int → Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Segment → Int → [GTile]
+calcGTileFromSeg m n sc (sw,sh) ind (SegmentNULL) nModTiles = []
+calcGTileFromSeg m n sc (sw,sh) ind (Segment grid) nModTiles = tiles
+  where tiles = flatten $ calcWorldTilesRow sc' nModTiles (sw*(m + (fst ind)),sh*(n + (snd ind))) grid
         sc'   = roundsc sc
         roundsc ∷ ((Float,Float),(Int,Int)) → (Int,Int,Int,Int)
         roundsc ((x,y),(w,h)) = (round x,round y,w,h)

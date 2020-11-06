@@ -97,7 +97,7 @@ runParacVulkan = do
               thiswin = windows !! (currentWin newst)
               worldtexs' = case (windowWorld thiswin) of
                 WorldNULL   → "dat/tex/world/"
-                World _ t → t
+                World _ _ t → t
           worldtexsdir ← liftIO $ getDirectoryContents $ worldtexs'
           let worldtexs = map (worldtexs' ⧺) $ sort $ filter filterOutPathJunk $ worldtexsdir
               filterOutPathJunk ∷ FilePath → Bool

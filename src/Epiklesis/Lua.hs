@@ -156,7 +156,7 @@ hsNewMenuElement env menu elemtype args = do
 hsNewWorld ∷ Env → String → Int → Int → String → Lua.Lua()
 hsNewWorld env menu w h texs = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (createWorld w h 32 32 texs)) menu
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (createWorld 32 32 32 32 texs)) menu
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do

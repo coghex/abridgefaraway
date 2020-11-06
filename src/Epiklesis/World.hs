@@ -7,6 +7,7 @@ module Epiklesis.World where
 -- and dont contain the index in the struct
 
 data World = WorldNULL | World { worldZone ∷ [Zone]
+                               , worldSegS ∷ (Int,Int)
                                , worldTex  ∷ String
                                } deriving (Show, Eq)
 data Zone = ZoneNULL | Zone { zoneIndex ∷ (Int,Int)
