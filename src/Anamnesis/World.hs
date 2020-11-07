@@ -1,3 +1,4 @@
+{-# LANGUAGE Strict #-}
 module Anamnesis.World where
 -- various functions to make lua world
 -- gen faster
@@ -16,38 +17,35 @@ import Paracletus.Data
 
 createWorld ∷ Int → Int → Int → Int → String → World
 createWorld sw sh zw zh texs = World [initZone] (sw,sh) texs
-  where initZone = Zone (0,0) $ initSegments zw zh
-        -- this test code for now
-        initSegments ∷ Int → Int → [[Segment]]
-        initSegments w h = make0Seg $ take h (repeat (take w (repeat (SegmentNULL))))
-        make0Seg ∷ [[Segment]] → [[Segment]]
-        make0Seg segs = [make0SegRow,make1SegRow] ⧺ (tail (tail segs))
-          where make0SegRow = [newseg00,newseg01] ⧺ (tail (tail (head segs)))
-                make1SegRow = [newseg10,newseg11] ⧺ (tail (tail (head segs)))
-        --make0Seg segs = [make0SegRow] ⧺ (tail segs)
-          --where make0SegRow = [newseg0,newseg1] ⧺ (tail $ tail $ head segs)
-                newsegnull = SegmentNULL
-                newseg00 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
-                newseg01 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 2 2
-                newseg10 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 2
-                newseg11 = Segment $ take sh $ repeat $ take sw $ repeat $ Tile 2 1
+  where initZone = Zone (0,0) $ take zh (repeat (take zw (repeat (seg))))
+        seg = SegmentNULL--Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
 
-updateWorld ∷ Env → ((Float,Float),(Int,Int)) → TState → IO ()
-updateWorld env sc TStop = do
+updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()
+updateWorld env n sc segs TStop = do
   let scchan    = envSCChan env
       timerChan = envWTimerChan env
+      eventQ = envEventsChan env
   tsnew ← atomically $ readChan timerChan
   firstSC ← atomically $ readChan scchan
-  updateWorld env sc tsnew
-updateWorld env sc TStart = do
+  updateWorld env n sc segs tsnew
+updateWorld env n sc segs TStart = do
   start ← getCurrentTime
   let scchan    = envSCChan env
       timerChan = envWTimerChan env
+      segChan   = envSegChan env
+      eventQ = envEventsChan env
   timerstate <- atomically $ tryReadChan timerChan
   tsnew <- case (timerstate) of
     Nothing -> return TStart
     Just x  -> return x
   -- logic goes here
+  let newsegs = genSegs $ evalScreenCursor sc
+  newn ← if (n > 100)
+         then do
+           sendSegs env newsegs
+           return 0
+         else return (n+1)
+  -- logic ends here
   end ← getCurrentTime
   let diff  = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) :: Int
@@ -55,14 +53,32 @@ updateWorld env sc TStart = do
   if delay > 0
     then threadDelay delay
     else return ()
-  updateWorld env sc tsnew
-updateWorld env sc TPause = do
+  updateWorld env newn sc newsegs tsnew
+updateWorld env n sc segs TPause = do
   let scchan = envSCChan env
-      eventQ = envEventsChan env
   newSC ← atomically $ readChan scchan
-  atomically $ writeQueue eventQ $ EventLogDebug $ "screenCursor updated to: " ⧺ (show newSC)
-  updateWorld env newSC TStart
-updateWorld _   _  TNULL = return ()
+  sendSegs env segs
+  updateWorld env 0 newSC segs TStart
+updateWorld _   _ _  _    TNULL = return ()
+
+sendSegs ∷ Env → [((Int,Int),Segment)] → IO ()
+sendSegs _   []          = return ()
+sendSegs env ((sp,s):ss) = do
+  let eventQ = envEventsChan env
+  atomically $ writeQueue eventQ $ EventUpdateSegs (sp,s)
+  sendSegs env ss
+
+-- returns the list of indecies
+-- of segments to generate
+evalScreenCursor ∷ ((Float,Float),(Int,Int)) → [(Int,Int)]
+evalScreenCursor ((cx,cy),(sw,wh)) = [(round cx,round cy)]
+
+-- generates the segments that are
+-- required by evalScreenCursor
+genSegs ∷ [(Int,Int)] → [((Int,Int),Segment)]
+genSegs []             = []
+genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
+  where seg = Segment $ take 32 (repeat (take 32 (repeat (Tile 1 1))))
 
 -- sends the updating thread the screen cursor
 reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()
@@ -162,7 +178,7 @@ calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) (gspot:gspots)
         ix = (tileType gspot) `mod` 3
         iy = (tileType gspot) `div` 3
 
--- segment index helper function
+-- segment index helper functions
 getSegment ∷ (Int,Int) → [[Segment]] → Segment
 getSegment pos segs = findSegRow pos 0 segs
 findSegRow ∷ (Int,Int) → Int → [[Segment]] → Segment
@@ -176,6 +192,21 @@ findSegSpot _ _ []         = SegmentNULL
 findSegSpot i n (seg:segs)
   | (n == i)  = seg
   | otherwise = findSegSpot i (n+1) segs
+findAndReplaceSegment ∷ ((Int,Int),Segment) → [[Segment]] → [[Segment]]
+findAndReplaceSegment ((sx,sy),seg) segs = addToSegRow 0 sx sy seg segs
+addToSegRow ∷ Int → Int → Int → Segment → [[Segment]] → [[Segment]]
+addToSegRow _ _  _  _      [[]]             = [[]]
+addToSegRow _ _  _  _      []               = []
+addToSegRow n sx sy newseg (segrow:segrows) = [thissegrow] ⧺ addToSegRow (n+1) sx sy newseg segrows
+  where thissegrow = addToSegSpot sx sy 0 n newseg segrow
+addToSegSpot ∷ Int → Int → Int → Int → Segment → [Segment] → [Segment]
+addToSegSpot _  _  _ _ _      []              = []
+addToSegSpot sx sy m n newseg (seg:segs)      = [newseg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
+replaceWindow ∷ Window → [Window] → [Window]
+replaceWindow _      []         = []
+replaceWindow newwin (win:wins)
+  | (winTitle newwin) == (winTitle win) = [newwin] ⧺ replaceWindow newwin wins
+  | otherwise = [win] ⧺ replaceWindow newwin wins
 
 luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
 luaTiletoWinTile _ []       = []

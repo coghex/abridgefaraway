@@ -76,6 +76,7 @@ processEvent event = case event of
         env ← ask
         let eventQ = envEventsChan env
         luaState ← gets luaSt
+        sc ← gets screenCursor
         let windows = luaWindows luaState
             winNum  = winToNum 0 windows winName
             winToNum ∷ Int → [Window] → String → Int
@@ -88,6 +89,25 @@ processEvent event = case event of
       LuaError str → logWarn str
       LuaCmdNULL → logError $ "lua NULL command"
       --otherwise → logWarn $ "unknown lua command"
+  (EventUpdateSegs segs) → do
+    env ← ask
+    st ← get
+    let currWin    = (luaWindows (luaSt st)) !! (currentWin st)
+    if ((winType currWin) == WinTypeGame)
+    then do
+      let oldsegs    = zoneSegs $ oldZone
+          oldZone    = head $ worldZone $ windowWorld $ currWin
+          newsegs    = findAndReplaceSegment segs oldsegs
+          newls      = LuaState (luaState (luaSt st)) (newWins)
+          newWins    = replaceWindow newWin (luaWindows (luaSt st))
+          newWin     = currWin { windowWorld = newWorld }
+          newWorld   = (windowWorld currWin) { worldZone = [newZone] }
+          newZone    = Zone (zoneIndex oldZone) (newsegs)
+          newds = reloadDrawSt env st
+      liftIO $ reloadScreenCursor env (screenCursor st)
+      modify $ \s → s { drawSt = newds
+                      , luaSt = newls }
+    else return ()
   (EventLoaded loadedType) → do
     -- translates lua draw state to engine state
     env ← ask
@@ -106,13 +126,16 @@ processEvent event = case event of
     -- loads tiles from world object
     let worldtiles = calcWorldTiles (screenCursor st) menuwindow (length modtiles)
     let newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (calcTextBoxs menuwindow) MBNULL
-        newsc = initScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
+        newsc = initScreenCursor (cam3d st) (gamecam3d st) (screenCursor st)
     modify $ \s → s { drawSt = newds
-                    , screenCursor = newsc
+                    , screenCursor  = newsc
                     , sRecreate = True }
-    liftIO $ atomically $ writeChan (envWTimerChan env) TStart
-    liftIO $ atomically $ writeChan (envSCChan env) newsc
     logDebug $ "loaded event"
+    if ((winType menuwindow) == WinTypeGame)
+    then liftIO $ reloadScreenCursor env (screenCursor st)
+    else do
+      liftIO $ atomically $ writeChan (envWTimerChan env) TStart
+      liftIO $ atomically $ writeChan (envSCChan env) (screenCursor st)
 
 -- these functions are seperate so that
 -- they can be easily recursive

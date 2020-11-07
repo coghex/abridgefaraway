@@ -31,9 +31,11 @@ initEnv = do
   newQ  ← newQueue
   newC1 ← newTChan
   newC2 ← newTChan
+  newC3 ← newTChan
   atomically $ newTVar Env { envEventsChan = newQ
                            , envSCChan     = newC1
-                           , envWTimerChan = newC2 }
+                           , envSegChan    = newC2
+                           , envWTimerChan = newC3 }
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""

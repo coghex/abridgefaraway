@@ -6,6 +6,7 @@ import Artos.Data
 import Artos.Except
 import Artos.Queue
 import Epiklesis.Data
+import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum.Data
 import Anamnesis.Draw
@@ -18,6 +19,7 @@ data LoopControl = ContinueLoop | AbortLoop deriving Eq
 -- env should only hold pointers/references
 data Env = Env { envEventsChan ∷ Queue Event
                , envSCChan     ∷ TChan ((Float,Float),(Int,Int))
+               , envSegChan    ∷ TChan [Segment]
                , envWTimerChan ∷ TChan TState }
 -- state holds mutable data, and the
 -- current status of the whole App

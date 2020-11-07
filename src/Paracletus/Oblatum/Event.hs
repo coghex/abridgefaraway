@@ -93,6 +93,23 @@ evalMouse win mb mbs mk = do
     --(x,y) ← liftIO $ GLFW.getCursorPos win
     --let (x',y') = convertPixels (x,y)
     --logDebug $ "mouse 3 unclick at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " game cam is: (" ⧺ (show cx) ⧺ ", " ⧺ (show cy) ⧺ ")"
+  when (((mouse2 isold) == False) && (mb == GLFW.mousebutt2) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
+    let newis = isold { mouse2 = True }
+    modify' $ \s → s { inputState = newis }
+  when (((mouse2 isold) == True) && (mb == GLFW.mousebutt2) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
+    let newis = isold { mouse2 = False }
+    let ((cx,cy),_) = screenCursor st
+        luawin = (thisWindow)
+        modtiles = calcTiles luawin
+        newsc = moveScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
+        worldtiles = calcWorldTiles newsc luawin $ length modtiles
+
+        tile1 = head $ dsTiles (drawSt st)
+        newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
+    modify' $ \s → s { drawSt       = newds
+                     , inputState   = newis
+                     , screenCursor = (screenCursor st) }
+    liftIO $ reloadScreenCursor env (screenCursor st)
   when ((mb == GLFW.mousebutt1) && ((winType thisWindow) == (WinTypeMenu))) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
@@ -200,3 +217,14 @@ moveScreenCursor ∷ (Float,Float,Float) → (Float,Float,Float) → ((Float,Flo
 moveScreenCursor (x1,y1,_) (x2,y2,_) (( _, _),(cw,ch)) = ((cx,cy),(cw,ch))
   where cx = -0.05*(x2-x1)
         cy = -0.05*(y2-y1)
+
+reloadDrawSt ∷ Env → State → DrawState
+reloadDrawSt env st = newds
+    where ((cx,cy),_) = screenCursor st
+          luawin = (luaWindows (luaSt st)) !! (currentWin st)
+          modtiles = calcTiles luawin
+          newsc = moveScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
+          worldtiles = calcWorldTiles newsc luawin $ length modtiles
+
+          tile1 = head $ dsTiles (drawSt st)
+          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
