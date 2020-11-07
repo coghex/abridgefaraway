@@ -77,6 +77,8 @@ executable abfa
                  , GLFW-b
                  , vulkan-api >= 1.3
                  , vector
+                 , bytestring
+                 , split
                  , easytensor
                  , easytensor-vulkan
                  , JuicyPixels

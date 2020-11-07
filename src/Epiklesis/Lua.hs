@@ -24,14 +24,17 @@ importKeyLayout ls fn = Lua.runWith ls $ do
   Lua.openlibs
   Lua.dofile $ fn ⧺ "config.lua"
   esckey ← Lua.getglobal "esckey" *> Lua.peek (-1)
+  retkey ← Lua.getglobal "retkey" *> Lua.peek (-1)
   delkey ← Lua.getglobal "delkey" *> Lua.peek (-1)
   shkey  ← Lua.getglobal "shkey"  *> Lua.peek (-1)
-  return $ makeKeyLayout esckey delkey shkey
+  return $ makeKeyLayout esckey retkey delkey shkey
 
-makeKeyLayout ∷ String → String → String → GLFW.KeyLayout
-makeKeyLayout esckey delkey shkey = GLFW.KeyLayout { klEsc = esckey
-                                      , klDel = delkey
-                                      , klSh  = shkey }
+makeKeyLayout ∷ String → String → String → String → GLFW.KeyLayout
+makeKeyLayout esckey retkey delkey shkey =
+  GLFW.KeyLayout { klEsc = esckey
+                 , klRet = retkey
+                 , klDel = delkey
+                 , klSh  = shkey }
 
 importSettings ∷ LuaState → String → IO (Settings)
 importSettings ls' fn = do

@@ -19,6 +19,7 @@ import Graphics.UI.GLFW
 
 data KeyLayout = KeyLayout
   { klEsc ∷ String
+  , klRet ∷ String
   , klDel ∷ String
   , klSh  ∷ String } deriving (Show, Eq)
 
@@ -66,7 +67,7 @@ keyCheck cap keyLayout k str
 
 applyKeyLayout ∷ KeyLayout → String → String
 applyKeyLayout keyLayout "ESC" = klEsc keyLayout
---applyKeyLayout keyLayout "RET" = keyRET keyLayout
+applyKeyLayout keyLayout "RET" = klRet keyLayout
 applyKeyLayout keyLayout "DEL" = klDel keyLayout
 --applyKeyLayout keyLayout "SPC" = keySPC keyLayout
 --applyKeyLayout keyLayout "C"   = keyC   keyLayout

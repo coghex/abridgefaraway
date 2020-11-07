@@ -84,9 +84,15 @@ evalKey window k ks mk keyLayout = do
     if (GLFW.keyCheck False keyLayout k "DEL")
     then do
       modify' $ \s → s { drawSt = removeShellString (drawSt st) }
+    else if (GLFW.keyCheck False keyLayout k "RET")
+    then do
+      let ls = luaState $ luaSt st
+      newds ← liftIO $ evalShell (drawSt st) ls
+      modify' $ \s → s { drawSt = newds }
     else do
       ch ← liftIO $ GLFW.calcInpKey k mk
       modify' $ \s → s { drawSt = addShellString (drawSt st) ch }
+    return ()
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
