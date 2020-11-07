@@ -39,8 +39,11 @@ addShellString ds str = updateShell ds newsh
   where newsh = Shell ((shString (dsShell ds)) ⧺ str) (shPos oldsh) (shSize oldsh)
         oldsh = dsShell ds
 
+-- the guard is so we dont remove the prompt
 removeShellString ∷ DrawState → DrawState
-removeShellString ds = updateShell ds newsh
+removeShellString ds
+  | ((length (last (splitOn ['\n'] (shString (dsShell ds))))) < 4) = ds
+  | otherwise = updateShell ds newsh
   where newsh = Shell (init (shString (dsShell ds))) (shPos oldsh) (shSize oldsh)
         oldsh = dsShell ds
 
