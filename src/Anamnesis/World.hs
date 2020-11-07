@@ -78,7 +78,7 @@ evalScreenCursor ((cx,cy),(sw,wh)) = [(round cx,round cy)]
 genSegs ∷ [(Int,Int)] → [((Int,Int),Segment)]
 genSegs []             = []
 genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
-  where seg = Segment $ take 32 (repeat (take 32 (repeat (Tile 1 1))))
+  where seg = Segment $ take 32 (repeat (take 32 (repeat (Tile 2 1))))
 
 -- sends the updating thread the screen cursor
 reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()
@@ -200,8 +200,10 @@ addToSegRow _ _  _  _      []               = []
 addToSegRow n sx sy newseg (segrow:segrows) = [thissegrow] ⧺ addToSegRow (n+1) sx sy newseg segrows
   where thissegrow = addToSegSpot sx sy 0 n newseg segrow
 addToSegSpot ∷ Int → Int → Int → Int → Segment → [Segment] → [Segment]
-addToSegSpot _  _  _ _ _      []              = []
-addToSegSpot sx sy m n newseg (seg:segs)      = [newseg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
+addToSegSpot _  _  _ _ _      []         = []
+addToSegSpot sx sy m n newseg (seg:segs)
+  | ((sx == m) ∧ (sy == n)) = [newseg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
+  | otherwise               = [seg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
 replaceWindow ∷ Window → [Window] → [Window]
 replaceWindow _      []         = []
 replaceWindow newwin (win:wins)
