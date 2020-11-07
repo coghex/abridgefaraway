@@ -11,6 +11,7 @@ import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.Map
 import Anamnesis.World
+import Epiklesis.Shell
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
@@ -18,7 +19,7 @@ import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
-evalKey window k _  _  keyLayout = do
+evalKey window k ks mk keyLayout = do
   st ← get
   when (GLFW.keyCheck keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
   when (GLFW.keyCheck keyLayout k "UPP") $ do
@@ -41,9 +42,17 @@ evalKey window k _  _  keyLayout = do
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
     return ()
-  when (GLFW.keyCheck keyLayout k "SH") $ do
-    logDebug $ "shell"
-    return ()
+  when ((GLFW.keyCheck keyLayout k "SH") && (ks == GLFW.KeyState'Pressed)) $ do
+    if (sShell st) then do
+      let newds = (drawSt st) { dsShell = ShellNULL }
+      modify' $ \s → s { drawSt = newds
+                       , sShell = False }
+      return ()
+    else do
+      let newds = initShell (drawSt st)
+      modify' $ \s → s { drawSt = newds
+                       , sShell = True }
+      return ()
   when (GLFW.keyCheck keyLayout k "K") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) North)
     modify' $ \s → s { cam3d  = newcam3d }
@@ -97,19 +106,11 @@ evalMouse win mb mbs mk = do
     let newis = isold { mouse2 = True }
     modify' $ \s → s { inputState = newis }
   when (((mouse2 isold) == True) && (mb == GLFW.mousebutt2) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == WinTypeGame)) $ do
+    (x,y) ← liftIO $ GLFW.getCursorPos win
     let newis = isold { mouse2 = False }
-    let ((cx,cy),_) = screenCursor st
-        luawin = (thisWindow)
-        modtiles = calcTiles luawin
-        newsc = moveScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
-        worldtiles = calcWorldTiles newsc luawin $ length modtiles
-
-        tile1 = head $ dsTiles (drawSt st)
-        newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
-    modify' $ \s → s { drawSt       = newds
-                     , inputState   = newis
-                     , screenCursor = (screenCursor st) }
-    liftIO $ reloadScreenCursor env (screenCursor st)
+        (x',y') = convertPixels (x,y)
+    modify' $ \s → s { inputState   = newis }
+    logDebug $ "mouse click 2 at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " | screenCursor: " ⧺ (show (screenCursor st))
   when ((mb == GLFW.mousebutt1) && ((winType thisWindow) == (WinTypeMenu))) $ do
     (x,y) ← liftIO $ GLFW.getCursorPos win
     let (x',y') = convertPixels (x,y)
@@ -123,7 +124,7 @@ evalMouse win mb mbs mk = do
     modify' $ \s → s { inputState = newis }
   when ((mb == GLFW.mousebutt1) && (mbs == GLFW.MouseButtonState'Released) && ((winType thisWindow) == (WinTypeGame))) $ do
     let newis = isold { mouse1 = False }
-    let newds = DrawState (dsTiles oldds) (dsTextB oldds) MBNULL
+    let newds = DrawState (dsTiles oldds) (dsTextB oldds) MBNULL ShellNULL
     --logDebug $ "mouse unclick 1, mousebox: " ⧺ (show (dsMBox oldds))
     modify' $ \s → s { inputState = newis
                      , drawSt     = newds }
@@ -176,7 +177,7 @@ drawBoxWithMouse = do
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
           oldpos = (mouse1Cache (inputState st))
           oldds = drawSt st
-          newds = DrawState (dsTiles oldds) (dsTextB oldds) $ MouseBox oldpos pos
+          newds = DrawState (dsTiles oldds) (dsTextB oldds) (MouseBox oldpos pos) (dsShell oldds)
       modify' $ \s → s { drawSt = newds }
     Nothing → return ()
 
@@ -202,7 +203,7 @@ moveCamWithMouse = do
           newsc = moveScreenCursor (cam3d st) newcam $ screenCursor st
           worldtiles = calcWorldTiles newsc luawin $ length modtiles
           tile1 = head $ dsTiles (drawSt st)
-          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
+          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st)) (dsShell (drawSt st))
       modify' $ \s → s { drawSt = newds
                        , gamecam3d = newcam
                        , screenCursor = newsc
@@ -227,4 +228,4 @@ reloadDrawSt env st = newds
           worldtiles = calcWorldTiles newsc luawin $ length modtiles
 
           tile1 = head $ dsTiles (drawSt st)
-          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st))
+          newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (dsTextB (drawSt st)) (dsMBox (drawSt st)) (dsShell (drawSt st))

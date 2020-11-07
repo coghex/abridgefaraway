@@ -6,31 +6,16 @@ module Anamnesis.Draw where
 import Prelude()
 import UPrelude
 import Graphics.Vulkan.Core_1_0
+import Anamnesis.Data
 import Paracletus.Data
-
--- a data structure containing
--- the abstract representation
--- of the general vertex layout
--- any structures here will be
--- decoded every frame so keep
--- them as fundamental as possible
-data DrawState = DrawState { dsTiles ∷ [GTile]
-                           , dsTextB ∷ [TextBox]
-                           , dsMBox  ∷ MouseBox } deriving (Show, Eq)
--- defines a box full of text
-data TextBox = TextBox { tbPos    ∷ (Double,Double)
-                       , tbSize   ∷ (Int, Int)
-                       , tbBox    ∷ Bool
-                       , tbString ∷ String } deriving (Show, Eq)
-
-data MouseBox = MBNULL | MouseBox { mbPos1 ∷ (Float,Float)
-                                  , mbPos2 ∷ (Float,Float) } deriving (Show, Eq)
+import Epiklesis.Data
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
   { dsTiles = tiles 
   , dsTextB = [initTB]
-  , dsMBox = MBNULL }
+  , dsMBox = MBNULL
+  , dsShell = ShellNULL }
   where initTB = TextBox { tbPos    = (-1,-1)
                          , tbSize   = (8,2)
                          , tbBox    = True

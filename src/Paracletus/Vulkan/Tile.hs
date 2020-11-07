@@ -12,7 +12,8 @@ import Prelude()
 import UPrelude
 import Graphics.Vulkan.Core_1_0
 import Numeric.DataFrame
-import Anamnesis.Draw
+import Anamnesis.Data
+import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Vertex
@@ -22,7 +23,16 @@ calcVertices cam ds' = (verts, inds)
   where verts = vertices cam  ts
         inds  = indices       ts
         ts    = dsTiles       ds
-        ds    = calcFontTiles $ calcMouseBox ds'
+        ds    = calcFontTiles $ calcShell $ calcMouseBox ds'
+
+calcShell ∷ DrawState → DrawState
+calcShell (DrawState oldt oldtb oldmb ShellNULL) = DrawState oldt oldtb oldmb ShellNULL
+calcShell ds = ds { dsTextB = newTextBs }
+  where newTextBs = [newTextB] ⧺ (dsTextB ds)
+        newTextB  = TextBox pos size True str
+        str       = shString $ dsShell ds
+        pos       = shPos $ dsShell ds
+        size      = shSize $ dsShell ds
 
 calcFontTiles ∷ DrawState → DrawState
 calcFontTiles ds = ds { dsTiles = newTiles }
@@ -54,7 +64,7 @@ calcFontTiles ds = ds { dsTiles = newTiles }
         newPos (x,y) c    _  = ((x+(fontOffset c)),y)
 
 calcMouseBox ∷ DrawState → DrawState
-calcMouseBox (DrawState a b MBNULL) = DrawState a b MBNULL
+calcMouseBox (DrawState a b MBNULL sh) = DrawState a b MBNULL sh
 calcMouseBox ds = ds { dsTiles = (dsTiles ds)⧺newTiles }
   where newTiles   = [topTile, bottomTile, leftTile, rightTile, trTile, tlTile, brTile, blTile]
         topTile    = GTile ttpos ((absfloor pos2diff) - bSize,bSize) (0,0) (1,1) 12 False

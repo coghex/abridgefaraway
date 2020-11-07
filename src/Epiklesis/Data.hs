@@ -78,3 +78,9 @@ instance Lua.Peekable LuaWindow where
   peek = Lua.peekAny
 instance Lua.Pushable LuaWindow where
   push = Lua.pushAny
+
+-- shell data stuct goes in drawstate
+data Shell = ShellNULL | Shell { shString ∷ String
+                               , shPos    ∷ (Double,Double)
+                               , shSize   ∷ (Int,Int)
+                               } deriving (Show, Eq)

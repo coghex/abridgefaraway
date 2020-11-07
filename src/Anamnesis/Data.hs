@@ -9,7 +9,6 @@ import Epiklesis.Data
 import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum.Data
-import Anamnesis.Draw
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- possible results of anamnesis
 -- specific utility actions
@@ -35,6 +34,7 @@ data State = State { status       ∷ AExcept
                    , luaSt        ∷ !LuaState
                    , inputState   ∷ !InputState
                    , sSettings    ∷ !Settings
+                   , sShell       ∷ Bool
                    , sRecreate    ∷ Bool }
 data Settings = Settings
   { settingScreenW   ∷ Int
@@ -44,3 +44,22 @@ data Settings = Settings
   , settingMTBPath    ∷ FilePath
   , settingTexPath   ∷ FilePath
   , settingKeyLayout ∷ GLFW.KeyLayout } deriving (Show, Eq)
+
+-- a data structure containing
+-- the abstract representation
+-- of the general vertex layout
+-- any structures here will be
+-- decoded every frame so keep
+-- them as fundamental as possible
+data DrawState = DrawState { dsTiles ∷ [GTile]
+                           , dsTextB ∷ [TextBox]
+                           , dsMBox  ∷ MouseBox
+                           , dsShell ∷ Shell } deriving (Show, Eq)
+-- defines a box full of text
+data TextBox = TextBox { tbPos    ∷ (Double,Double)
+                       , tbSize   ∷ (Int, Int)
+                       , tbBox    ∷ Bool
+                       , tbString ∷ String } deriving (Show, Eq)
+
+data MouseBox = MBNULL | MouseBox { mbPos1 ∷ (Float,Float)
+                                  , mbPos2 ∷ (Float,Float) } deriving (Show, Eq)

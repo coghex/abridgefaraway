@@ -16,6 +16,7 @@ import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
 import Epiklesis.World
+import Epiklesis.Shell
 import Paracletus.Data
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Data
@@ -89,7 +90,7 @@ processEvent event = case event of
       LuaError str → logWarn str
       LuaCmdNULL → logError $ "lua NULL command"
       --otherwise → logWarn $ "unknown lua command"
-  (EventUpdateSegs segs) → do
+  (EventUpdateSegs seg) → do
     env ← ask
     st ← get
     let currWin    = (luaWindows (luaSt st)) !! (currentWin st)
@@ -97,7 +98,7 @@ processEvent event = case event of
     then do
       let oldsegs    = zoneSegs $ oldZone
           oldZone    = head $ worldZone $ windowWorld $ currWin
-          newsegs    = findAndReplaceSegment segs oldsegs
+          newsegs    = findAndReplaceSegment seg oldsegs
           newls      = LuaState (luaState (luaSt st)) (newWins)
           newWins    = replaceWindow newWin (luaWindows (luaSt st))
           newWin     = currWin { windowWorld = newWorld }
@@ -125,7 +126,7 @@ processEvent event = case event of
     let modtiles = calcTiles menuwindow
     -- loads tiles from world object
     let worldtiles = calcWorldTiles (screenCursor st) menuwindow (length modtiles)
-    let newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (calcTextBoxs menuwindow) MBNULL
+    let newds = DrawState ([tile1]⧺modtiles⧺worldtiles) (calcTextBoxs menuwindow) MBNULL ShellNULL
         newsc = initScreenCursor (cam3d st) (gamecam3d st) (screenCursor st)
     modify $ \s → s { drawSt = newds
                     , screenCursor  = newsc

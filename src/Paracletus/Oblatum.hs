@@ -87,4 +87,5 @@ processInput = do
 -- this is a placeholder
 importKeyLayout ∷ Anamnesis ε σ (KeyLayout)
 importKeyLayout = return $ KeyLayout
-  { klEsc  = "ESC" }
+  { klEsc  = "ESC"
+  , klSh   = "SH"}

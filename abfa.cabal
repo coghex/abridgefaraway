@@ -33,6 +33,7 @@ executable abfa
                    Anamnesis.World
                    Epiklesis.Data
                    Epiklesis.Lua
+                   Epiklesis.Shell
                    Epiklesis.World
                    Paracletus
                    Paracletus.Data

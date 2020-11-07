@@ -17,7 +17,8 @@ import Data.Char (toUpper)
 import Graphics.UI.GLFW
 
 data KeyLayout = KeyLayout
-  { klEsc ∷ String } deriving (Show, Eq)
+  { klEsc ∷ String
+  , klSh  ∷ String } deriving (Show, Eq)
 
 -- mousebutton synonyms
 mousebutt1 ∷ MouseButton
@@ -66,7 +67,7 @@ applyKeyLayout keyLayout "ESC" = klEsc keyLayout
 --applyKeyLayout keyLayout "SPC" = keySPC keyLayout
 --applyKeyLayout keyLayout "C"   = keyC   keyLayout
 --applyKeyLayout keyLayout "R"   = keyR   keyLayout
---applyKeyLayout keyLayout "SH"  = keySH  keyLayout
+applyKeyLayout keyLayout "SH"  = klSh  keyLayout
 --applyKeyLayout keyLayout "H"   = keyH   keyLayout
 --applyKeyLayout keyLayout "J"   = keyJ   keyLayout
 --applyKeyLayout keyLayout "K"   = keyK   keyLayout

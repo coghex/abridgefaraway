@@ -205,6 +205,15 @@ addToSegSpot _  _  _ _ _      []         = []
 addToSegSpot sx sy m n newseg (seg:segs)
   | ((sx == m) ∧ (sy == n)) = [newseg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
   | otherwise               = [seg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
+
+-- tests if a segment from the event
+-- channel is out of segment bounds
+outOfBoundsSeg ∷ ((Int,Int),Segment) → Bool
+outOfBoundsSeg ((sx,sy),(Segment grid))
+  | (sx > 32) ∨ (sy > 32) = False
+  | (sx <  0) ∨ (sy <  0) = False
+  | otherwise             = True
+
 replaceWindow ∷ Window → [Window] → [Window]
 replaceWindow _      []         = []
 replaceWindow newwin (win:wins)

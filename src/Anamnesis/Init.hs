@@ -67,4 +67,5 @@ initState = do
                              , luaSt        = ls
                              , inputState   = is
                              , sSettings    = luasettings
+                             , sShell       = False
                              , sRecreate    = False }
