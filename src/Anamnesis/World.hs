@@ -71,7 +71,8 @@ sendSegs env ((sp,s):ss) = do
 -- returns the list of indecies
 -- of segments to generate
 evalScreenCursor ∷ ((Float,Float),(Int,Int)) → [(Int,Int)]
-evalScreenCursor ((cx,cy),(sw,wh)) = [(round cx,round cy)]
+evalScreenCursor ((cx,cy),(sw,wh)) = [(cx',cy')]
+  where (cx',cy') = (round $ cx / 32, round $ cy / 32)
 
 -- generates the segments that are
 -- required by evalScreenCursor

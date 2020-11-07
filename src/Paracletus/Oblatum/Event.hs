@@ -90,9 +90,9 @@ evalMouse win mb mbs mk = do
     let ((cx,cy),_) = screenCursor st
     modify' $ \s → s { inputState = newis }
     liftIO $ reloadScreenCursor env (screenCursor st)
-    --(x,y) ← liftIO $ GLFW.getCursorPos win
-    --let (x',y') = convertPixels (x,y)
-    --logDebug $ "mouse 3 unclick at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " game cam is: (" ⧺ (show cx) ⧺ ", " ⧺ (show cy) ⧺ ")"
+    (x,y) ← liftIO $ GLFW.getCursorPos win
+    let (x',y') = convertPixels (x,y)
+    logDebug $ "mouse 3 unclick at x: " ⧺ (show x') ⧺ ", y: " ⧺ (show y') ⧺ " game cam is: (" ⧺ (show cx) ⧺ ", " ⧺ (show cy) ⧺ ")"
   when (((mouse2 isold) == False) && (mb == GLFW.mousebutt2) && (mbs == GLFW.MouseButtonState'Pressed) && ((winType thisWindow) == WinTypeGame)) $ do
     let newis = isold { mouse2 = True }
     modify' $ \s → s { inputState = newis }
