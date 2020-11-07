@@ -15,7 +15,6 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Paracletus.Data
 import Paracletus.Vulkan.Foreign
-import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Sync
 
 createCommandPool ∷ VkDevice → DevQueues → Anamnesis ε σ VkCommandPool

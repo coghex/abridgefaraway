@@ -9,7 +9,6 @@ import Anamnesis.Data
 import Anamnesis.Util
 import Artos.Except
 import Artos.Var
-import Artos.Queue
 import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Oblatum.Callback
@@ -82,7 +81,8 @@ processInput = do
       WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse 
                     else if (mouse1 (inputState st)) then drawBoxWithMouse
                     else return ()
-      otherwise → return ()
+      WinTypeMenu → return ()
+      WinTypeNULL → return ()
 
 -- this is a placeholder
 importKeyLayout ∷ Anamnesis ε σ (KeyLayout)

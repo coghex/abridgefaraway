@@ -10,7 +10,6 @@ import Artos.Data
 import Artos.Var
 import Artos.Queue
 import Anamnesis.Data
-import Anamnesis.Draw
 import Epiklesis.Data
 import Epiklesis.World
 import Paracletus.Data
@@ -21,19 +20,15 @@ createWorld sw sh zw zh texs = World [initZone] (sw,sh) texs
         seg = SegmentNULL--Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
 
 updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()
-updateWorld env n sc segs TStop = do
+updateWorld env n _  segs TStop = do
   let scchan    = envSCChan env
       timerChan = envWTimerChan env
-      eventQ = envEventsChan env
   tsnew ← atomically $ readChan timerChan
   firstSC ← atomically $ readChan scchan
-  updateWorld env n sc segs tsnew
-updateWorld env n sc segs TStart = do
+  updateWorld env n firstSC segs tsnew
+updateWorld env n sc _    TStart = do
   start ← getCurrentTime
-  let scchan    = envSCChan env
-      timerChan = envWTimerChan env
-      segChan   = envSegChan env
-      eventQ = envEventsChan env
+  let timerChan = envWTimerChan env
   timerstate <- atomically $ tryReadChan timerChan
   tsnew <- case (timerstate) of
     Nothing -> return TStart
@@ -54,7 +49,7 @@ updateWorld env n sc segs TStart = do
     then threadDelay delay
     else return ()
   updateWorld env newn sc newsegs tsnew
-updateWorld env n sc segs TPause = do
+updateWorld env _ _  segs TPause = do
   let scchan = envSCChan env
   newSC ← atomically $ readChan scchan
   sendSegs env segs
@@ -71,7 +66,7 @@ sendSegs env ((sp,s):ss) = do
 -- returns the list of indecies
 -- of segments to generate
 evalScreenCursor ∷ ((Float,Float),(Int,Int)) → [(Int,Int)]
-evalScreenCursor ((cx,cy),(sw,wh)) = [(cx',cy')]
+evalScreenCursor ((cx,cy),_) = [(cx',cy')]
   where (cx',cy') = (round $ cx / 32, round $ cy / 32)
 
 -- generates the segments that are
@@ -135,13 +130,14 @@ flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 
 -- converts tiles from the world object into GTiles
 calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
-calcWorldTiles sc (Window _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones segsize texs)) nModTiles = calcZoneTiles sc segsize zones nModTiles
+calcWorldTiles _  (Window _ _ _ _ _ _ _ WorldNULL) _ = []
+calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones segsize _   )) nModTiles = calcZoneTiles sc segsize zones nModTiles
 calcZoneTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Zone] → Int → [GTile]
-calcZoneTiles sc segsize []           nModTiles = []
+calcZoneTiles _  _       []           _         = []
 calcZoneTiles sc segsize (ZoneNULL:zones) nModTiles = calcZoneTiles sc segsize zones nModTiles
 calcZoneTiles sc segsize (zone:zones) nModTiles = (calcSegTiles sc segsize zone nModTiles) ⧺ (calcZoneTiles sc segsize zones nModTiles)
 calcSegTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → Zone → Int → [GTile]
+calcSegTiles _  _       ZoneNULL        _         = []
 calcSegTiles sc segsize (Zone ind segs) nModTiles = flatten $ map (calcSegTilesRow sc segsize ind nModTiles) (zip yinds segs)
   where yinds = take (fst segsize) [0..]
 calcSegTilesRow ∷ ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Int → (Int,[Segment]) → [GTile]
@@ -151,7 +147,7 @@ calcSegTilesSpot ∷ Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,In
 calcSegTilesSpot j sc segsize ind nModTiles (i,seg) = calcGTileFromSeg i j sc segsize ind seg nModTiles
 
 calcGTileFromSeg ∷ Int → Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Segment → Int → [GTile]
-calcGTileFromSeg m n sc (sw,sh) ind (SegmentNULL) nModTiles = []
+calcGTileFromSeg _ _ _  _       _   (SegmentNULL) _         = []
 calcGTileFromSeg m n sc (sw,sh) ind (Segment grid) nModTiles = tiles
   where tiles = flatten $ calcWorldTilesRow sc' nModTiles (sw*(m + (fst ind)),sh*(n + (snd ind))) grid
         sc'   = roundsc sc
@@ -209,7 +205,8 @@ addToSegSpot sx sy m n newseg (seg:segs)
 -- tests if a segment from the event
 -- channel is out of segment bounds
 outOfBoundsSeg ∷ ((Int,Int),Segment) → Bool
-outOfBoundsSeg ((sx,sy),(Segment grid))
+outOfBoundsSeg (_,(SegmentNULL)) = False
+outOfBoundsSeg ((sx,sy),(Segment _))
   | (sx > 32) ∨ (sy > 32) = False
   | (sx <  0) ∨ (sy <  0) = False
   | otherwise             = True

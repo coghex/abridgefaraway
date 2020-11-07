@@ -4,15 +4,12 @@ module Paracletus.Vulkan.Load where
 import Prelude()
 import UPrelude
 import Control.Monad.State.Class (gets)
-import Graphics.Vulkan
-import Graphics.Vulkan.Core_1_0
 import Anamnesis
 import Anamnesis.Data
 import Paracletus.Data
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Pipeline
-import Epiklesis.Lua
 
 -- loads all the textures into layouts of
 -- the descriptor sets and pipeline. an

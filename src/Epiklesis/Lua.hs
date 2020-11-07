@@ -5,7 +5,6 @@ import Prelude()
 import UPrelude
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
-import Anamnesis.Util
 import Anamnesis.World
 import Artos.Var
 import Artos.Queue
@@ -22,7 +21,7 @@ initLua = do
 importKeyLayout ∷ Lua.State → String → IO (GLFW.KeyLayout)
 importKeyLayout ls fn = Lua.runWith ls $ do
   Lua.openlibs
-  Lua.dofile $ fn ⧺ "config.lua"
+  _ ← Lua.dofile $ fn ⧺ "config.lua"
   esckey ← Lua.getglobal "esckey" *> Lua.peek (-1)
   retkey ← Lua.getglobal "retkey" *> Lua.peek (-1)
   delkey ← Lua.getglobal "delkey" *> Lua.peek (-1)
@@ -42,7 +41,7 @@ importSettings ls' fn = do
   layout ← importKeyLayout ls fn
   Lua.runWith ls $ do
     Lua.openlibs
-    Lua.dofile $ fn ⧺ "base.lua"
+    _ ← Lua.dofile $ fn ⧺ "base.lua"
     (sw, sh) ← Lua.callFunc "getScreenSize"
     fontPath ← Lua.callFunc "fontAtlas"
     tbPath   ← Lua.callFunc "textboxTexture"
@@ -63,7 +62,7 @@ makeSettings sw sh fp tbp mtbp txs kl =
 loadState ∷ Env → State → IO ()
 loadState env st = do
   let ls = luaState $ luaSt st
-  re ← Lua.runWith ls $ do
+  _ ← Lua.runWith ls $ do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newLuaWindow" (hsNewLuaWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
@@ -75,7 +74,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newMenuElement" (hsNewMenuElement env)
     Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
     Lua.openlibs
-    Lua.dofile $ "mod/base/base.lua"
+    _ ← Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
     return (ret∷Int)
   let eventQ = envEventsChan env
@@ -97,7 +96,7 @@ hsNewWindow env name "game" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
   where win = Window name (WinTypeGame) background [] [] [] [] WorldNULL
-hsNewWindow env name wintype background = do
+hsNewWindow env _    wintype _          = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
   where errorstr = "window type " ⧺ wintype ⧺ " not known"
@@ -128,7 +127,7 @@ hsNewButtonAction env win x y str "link" args = do
   where newText = WinText (x,y) True str
         newLink = WinLink (x,y) (strwidth,0.5) "link" args
         strwidth = (fromIntegral (length str)) / (4.0 ∷ Double)
-hsNewButtonAction env win x y str action args = do
+hsNewButtonAction env _   _ _ str action _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) str
   where errorstr = "action " ⧺ action ⧺ " not known"
@@ -151,17 +150,17 @@ hsNewMenuElement env menu "slider" args = do
   let eventQ = envEventsChan env
   -- these links are not working right now
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink menu (WinLink (-4.0,2.0) (100.0,100.0) "sliderLeft" "sliderLeft") ) args
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemSlider (read min) (read max) (read dflt) text)) menu
-  where (text,dflt,min,max) = tupify $ words args
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemSlider (read smin) (read smax) (read dflt) text)) menu
+  where (text,dflt,smin,smax) = tupify $ words args
         tupify ∷ [String] → (String,String,String,String)
         tupify t = ((t !! 0), (t !! 1), (t !! 2), (t !! 3))
-hsNewMenuElement env menu elemtype args = do
+hsNewMenuElement env menu elemtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) menu
   where errorstr = "newMenuElement " ⧺ elemtype ⧺ " not known"
 
 hsNewWorld ∷ Env → String → Int → Int → String → Lua.Lua()
-hsNewWorld env menu w h texs = do
+hsNewWorld env menu _ _ texs = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (createWorld 32 32 32 32 texs)) menu
 

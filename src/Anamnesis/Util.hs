@@ -11,18 +11,14 @@ module Anamnesis.Util where
 import Prelude()
 import UPrelude
 import Control.Concurrent
-import qualified Control.Monad.Logger as Logger
 import qualified Control.Monad.Logger.CallStack as LoggerCS
 import Data.String (fromString)
 import GHC.Stack
 import System.Exit
 import Anamnesis
 import Anamnesis.Data
-import Anamnesis.Draw
-import Paracletus.Data
 import Artos
 import Artos.Except
-import Artos.Queue
 import Artos.Var
 
 -- for c functions that have to run in the main

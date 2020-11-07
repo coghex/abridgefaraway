@@ -7,7 +7,6 @@ import Control.Monad (when)
 import Control.Monad.State.Class (modify, gets)
 import Anamnesis
 import Anamnesis.Data
-import Anamnesis.Draw
 import Anamnesis.Util
 import Anamnesis.World
 import Artos.Data
@@ -16,10 +15,8 @@ import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
 import Epiklesis.World
-import Epiklesis.Shell
 import Paracletus.Data
 import Paracletus.Oblatum
-import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
@@ -51,24 +48,23 @@ processEvent event = case event of
     evalMouse win mb mbs mk
   (EventCam pos) → do
     modify $ \s → s { cam3d = pos }
-  (EventLua command args) → do
+  (EventLua command _   ) → do
     oldluaSt ← gets luaSt
-    oldds ← gets drawSt
     case command of
-      LuaCmdnewWindow win → modify $ \s → s { luaSt = newluastate }
+      LuaCmdnewWindow lwin → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState { luaState = luaState oldluaSt
-                                     , luaWindows = ((luaWindows oldluaSt) ⧺ [win]) }
-      LuaCmdnewLuaWindow win → logDebug $ "newLuaWindow"-- ⧺ (lwName win)
-      LuaCmdnewText win newtext → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
-      LuaCmdnewButton win newtext link → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows win newtext (luaWindows oldluaSt))
-      LuaCmdnewTile win tile → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addTileToLuaWindows win tile (luaWindows oldluaSt))
-      LuaCmdnewLink win link → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addLinkToLuaWindows win link (luaWindows oldluaSt))
-      LuaCmdnewMenu win link → modify $ \s → s { luaSt = newluastate }
-        where newluastate = LuaState (luaState oldluaSt) (addMenuToLuaWindows win link (luaWindows oldluaSt))
+                                     , luaWindows = ((luaWindows oldluaSt) ⧺ [lwin]) }
+      LuaCmdnewLuaWindow lwin → logDebug $ "newLuaWindow" ⧺ (lwName lwin)
+      LuaCmdnewText lwin newtext → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows lwin newtext (luaWindows oldluaSt))
+      LuaCmdnewButton lwin newtext _    → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addTextToLuaWindows lwin newtext (luaWindows oldluaSt))
+      LuaCmdnewTile lwin tile → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addTileToLuaWindows lwin tile (luaWindows oldluaSt))
+      LuaCmdnewLink lwin link → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addLinkToLuaWindows lwin link (luaWindows oldluaSt))
+      LuaCmdnewMenu lwin link → modify $ \s → s { luaSt = newluastate }
+        where newluastate = LuaState (luaState oldluaSt) (addMenuToLuaWindows lwin link (luaWindows oldluaSt))
       LuaCmdnewMenuElement menu element → modify $ \s → s { luaSt = newluastate }
         where newluastate = LuaState (luaState oldluaSt) (addElementToMenu menu element (luaWindows oldluaSt))
       LuaCmdnewWorld menu world → modify $ \s → s { luaSt = newluastate }
@@ -77,11 +73,10 @@ processEvent event = case event of
         env ← ask
         let eventQ = envEventsChan env
         luaState ← gets luaSt
-        sc ← gets screenCursor
         let windows = luaWindows luaState
             winNum  = winToNum 0 windows winName
             winToNum ∷ Int → [Window] → String → Int
-            winToNum _ []         name = -1
+            winToNum _ []         _    = -1
             winToNum n (win:wins) name
               | (winTitle win) == name = n
               | otherwise = winToNum (n+1) wins name
@@ -102,14 +97,14 @@ processEvent event = case event of
           newls      = LuaState (luaState (luaSt st)) (newWins)
           newWins    = replaceWindow newWin (luaWindows (luaSt st))
           newWin     = currWin { windowWorld = newWorld }
-          newWorld   = (windowWorld currWin) { worldZone = [newZone] }
+          newWorld   = World [newZone] (worldSegS (windowWorld currWin)) (worldTex (windowWorld currWin))
           newZone    = Zone (zoneIndex oldZone) (newsegs)
           newds = reloadDrawSt env st
       liftIO $ reloadScreenCursor env (screenCursor st)
       modify $ \s → s { drawSt = newds
                       , luaSt = newls }
     else return ()
-  (EventLoaded loadedType) → do
+  (EventLoaded _) → do
     -- translates lua draw state to engine state
     env ← ask
     st ← get
@@ -187,6 +182,6 @@ addWorldToWindows ∷ String → World → [Window] → [Window]
 addWorldToWindows menu world ws = map (addWorldToWindow menu world) ws
 
 addWorldToWindow ∷ String → World → Window → Window
-addWorldToWindow menu world (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
+addWorldToWindow menu world (Window name oldt oldb oldwt oldlinks oldtiles oldm _)
   | menu == name = Window name oldt oldb oldwt oldlinks oldtiles oldm world
   | otherwise    = Window name oldt oldb oldwt oldlinks oldtiles oldm WorldNULL

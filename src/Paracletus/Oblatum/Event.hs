@@ -96,7 +96,7 @@ evalKey window k ks mk keyLayout = do
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
-evalMouse win mb mbs mk = do
+evalMouse win mb mbs _  = do
   env ← ask
   st ← get
   let windows = luaWindows (luaSt st)
@@ -235,9 +235,8 @@ moveScreenCursor (x1,y1,_) (x2,y2,_) (( _, _),(cw,ch)) = ((cx,cy),(cw,ch))
         cy = -0.05*(y2-y1)
 
 reloadDrawSt ∷ Env → State → DrawState
-reloadDrawSt env st = newds
-    where ((cx,cy),_) = screenCursor st
-          luawin = (luaWindows (luaSt st)) !! (currentWin st)
+reloadDrawSt _   st = newds
+    where luawin = (luaWindows (luaSt st)) !! (currentWin st)
           modtiles = calcTiles luawin
           newsc = moveScreenCursor (cam3d st) (gamecam3d st) $ screenCursor st
           worldtiles = calcWorldTiles newsc luawin $ length modtiles

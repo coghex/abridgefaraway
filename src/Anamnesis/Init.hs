@@ -7,15 +7,12 @@ module Anamnesis.Init where
 -- init functions can be found
 import Prelude()
 import UPrelude
-import Control.Concurrent
 import qualified Control.Monad.Logger as Logger
-import qualified Control.Monad.Logger.CallStack as LoggerCS
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
 import Paracletus.Data
 import Paracletus.Oblatum.Data
-import Artos
 import Artos.Except
 import Artos.Queue
 import Artos.Var

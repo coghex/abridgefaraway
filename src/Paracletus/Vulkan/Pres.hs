@@ -19,7 +19,6 @@ import Anamnesis.Util
 import Artos.Except
 import Paracletus.Data
 import Paracletus.Vulkan.Foreign
-import Paracletus.Vulkan.Device
 
 createSurface ∷ VkInstance → GLFW.Window → Anamnesis ε σ VkSurfaceKHR
 createSurface vkInstance window = allocResource

@@ -5,7 +5,6 @@ module Anamnesis.Draw where
 -- for the specific gl
 import Prelude()
 import UPrelude
-import Graphics.Vulkan.Core_1_0
 import Anamnesis.Data
 import Paracletus.Data
 import Epiklesis.Data

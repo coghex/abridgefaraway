@@ -47,7 +47,7 @@ loadNTex pdev dev cmdPool cmdQueue (path:paths) = do
   return $ (imgView, sampler) : texs
 
 createTextureImageViews ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → [FilePath] → Anamnesis ε σ ([(VkImageView, Word32)])
-createTextureImageViews pdev dev cmdPool cmdQueue []           = return []
+createTextureImageViews _    _   _       _        []           = return []
 createTextureImageViews pdev dev cmdPool cmdQueue (path:paths) = do
   lt ← (createTextureImageViews pdev dev cmdPool cmdQueue paths)
   nt ← (createTextureImageView pdev dev cmdPool cmdQueue path)
@@ -139,7 +139,7 @@ generateMipmaps pdev image format width height mipLevels cmdBuf = do
      in withVkPtr barrier $ \barrPtr → liftIO $ vkCmdPipelineBarrier cmdBuf VK_PIPELINE_STAGE_TRANSFER_BIT VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT VK_ZERO_FLAGS 0 VK_NULL 0 VK_NULL 1 barrPtr
 
 createTextureSamplers ∷ VkDevice → [Word32] → Anamnesis e s [VkSampler]
-createTextureSamplers dev []                   = return $ []
+createTextureSamplers _   []                   = return $ []
 createTextureSamplers dev (mipLevel:mipLevels) = do
   lt ← createTextureSamplers dev mipLevels
   nt ← createTextureSampler  dev mipLevel

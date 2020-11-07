@@ -6,7 +6,6 @@ import UPrelude
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_surface
-import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Artos.Var
 import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
@@ -25,6 +24,7 @@ data GTile = GTile { tPos   ∷ (Double,Double)
                    , tMoves ∷ Bool } deriving (Show, Eq)
 -- default gtile provides interface similar
 -- to the optional arguments found in C
+defaultGTile ∷ GTile
 defaultGTile = GTile { tPos   = (0,0)
                      , tScale = (1,1)
                      , tInd   = (0,0)

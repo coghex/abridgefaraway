@@ -81,7 +81,7 @@ applyKeyLayout keyLayout "SH"  = klSh  keyLayout
 --applyKeyLayout keyLayout "RGT" = keyRGT keyLayout
 --applyKeyLayout keyLayout "UPP" = keyUPP keyLayout
 --applyKeyLayout keyLayout "DWN" = keyDWN keyLayout
-applyKeyLayout keyLayout _     = "NULL"
+applyKeyLayout _         _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)
 getKeyStr k = getKeyName k 0
