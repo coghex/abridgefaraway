@@ -90,4 +90,5 @@ importKeyLayout = return $ KeyLayout
   { klEsc  = "ESC"
   , klRet  = "RET"
   , klDel  = "DEL"
+  , klSpc  = "SPC"
   , klSh   = "SH"}

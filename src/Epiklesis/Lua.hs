@@ -25,14 +25,16 @@ importKeyLayout ls fn = Lua.runWith ls $ do
   esckey ← Lua.getglobal "esckey" *> Lua.peek (-1)
   retkey ← Lua.getglobal "retkey" *> Lua.peek (-1)
   delkey ← Lua.getglobal "delkey" *> Lua.peek (-1)
+  spckey ← Lua.getglobal "spckey" *> Lua.peek (-1)
   shkey  ← Lua.getglobal "shkey"  *> Lua.peek (-1)
-  return $ makeKeyLayout esckey retkey delkey shkey
+  return $ makeKeyLayout esckey retkey delkey spckey shkey
 
-makeKeyLayout ∷ String → String → String → String → GLFW.KeyLayout
-makeKeyLayout esckey retkey delkey shkey =
+makeKeyLayout ∷ String → String → String → String → String → GLFW.KeyLayout
+makeKeyLayout esckey retkey delkey spckey shkey =
   GLFW.KeyLayout { klEsc = esckey
                  , klRet = retkey
                  , klDel = delkey
+                 , klSpc = spckey
                  , klSh  = shkey }
 
 importSettings ∷ LuaState → String → IO (Settings)

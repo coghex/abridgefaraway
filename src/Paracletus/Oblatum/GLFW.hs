@@ -21,6 +21,7 @@ data KeyLayout = KeyLayout
   { klEsc ∷ String
   , klRet ∷ String
   , klDel ∷ String
+  , klSpc ∷ String
   , klSh  ∷ String } deriving (Show, Eq)
 
 -- mousebutton synonyms
@@ -69,7 +70,7 @@ applyKeyLayout ∷ KeyLayout → String → String
 applyKeyLayout keyLayout "ESC" = klEsc keyLayout
 applyKeyLayout keyLayout "RET" = klRet keyLayout
 applyKeyLayout keyLayout "DEL" = klDel keyLayout
---applyKeyLayout keyLayout "SPC" = keySPC keyLayout
+applyKeyLayout keyLayout "SPC" = klSpc keyLayout
 --applyKeyLayout keyLayout "C"   = keyC   keyLayout
 --applyKeyLayout keyLayout "R"   = keyR   keyLayout
 applyKeyLayout keyLayout "SH"  = klSh  keyLayout

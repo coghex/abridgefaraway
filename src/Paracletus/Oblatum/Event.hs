@@ -89,6 +89,10 @@ evalKey window k ks mk keyLayout = do
       let ls = luaState $ luaSt st
       newds ← liftIO $ evalShell (drawSt st) ls
       modify' $ \s → s { drawSt = newds }
+    else if (GLFW.keyCheck False keyLayout k "SPC")
+    then do
+      let newds = addShellString (drawSt st) [' ']
+      modify' $ \s → s { drawSt = newds }
     else do
       ch ← liftIO $ GLFW.calcInpKey k mk
       modify' $ \s → s { drawSt = addShellString (drawSt st) ch }
