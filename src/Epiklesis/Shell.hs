@@ -14,10 +14,9 @@ addShellString ∷ DrawState → String → DrawState
 addShellString ds str = updateShell ds newsh
   where newsh = (dsShell ds) { shString = (shString (dsShell ds)) ⧺ str }
 
+removeShellString ∷ DrawState → DrawState
+removeShellString ds = updateShell ds newsh
+  where newsh = (dsShell ds) { shString = init (shString (dsShell ds)) }
+
 updateShell ∷ DrawState → Shell → DrawState
 updateShell ds sh = ds { dsShell = sh }
-
-evalShell ∷ GLFW.Window → Shell → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Shell
-evalShell win sh k ks mk kl
-  | (ks == GLFW.KeyState'Pressed) = if (GLFW.keyCheck kl k "SH") then ShellNULL else sh
-  | otherwise = sh

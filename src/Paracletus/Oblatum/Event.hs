@@ -21,28 +21,30 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
 evalKey window k ks mk keyLayout = do
   st ← get
-  when (GLFW.keyCheck keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
-  when (GLFW.keyCheck keyLayout k "UPP") $ do
+  -- capture will disable most keys for typing
+  let cap = sShell st
+  when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
+  when (GLFW.keyCheck cap keyLayout k "UPP") $ do
     let newcursor = (moveCursor 1 (cursor st) North)
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
     return ()
-  when (GLFW.keyCheck keyLayout k "DWN") $ do
+  when (GLFW.keyCheck cap keyLayout k "DWN") $ do
     let newcursor = (moveCursor 1 (cursor st) South)
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
     return ()
-  when (GLFW.keyCheck keyLayout k "RGT") $ do
+  when (GLFW.keyCheck cap keyLayout k "RGT") $ do
     let newcursor = (moveCursor 1 (cursor st) East)
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
     return ()
-  when (GLFW.keyCheck keyLayout k "LFT") $ do
+  when (GLFW.keyCheck cap keyLayout k "LFT") $ do
     let newcursor = (moveCursor 1 (cursor st) West)
     modify' $ \s → s { cursor = newcursor }
     logDebug $ "cursor: " ⧺ (show newcursor) ⧺ ", cam3d: " ⧺ (show (cam3d st))
     return ()
-  when ((GLFW.keyCheck keyLayout k "SH") && (ks == GLFW.KeyState'Pressed)) $ do
+  when ((GLFW.keyCheck False keyLayout k "SH") && (ks == GLFW.KeyState'Pressed)) $ do
     if (sShell st) then do
       let newds = (drawSt st) { dsShell = ShellNULL }
       modify' $ \s → s { drawSt = newds
@@ -53,31 +55,38 @@ evalKey window k ks mk keyLayout = do
       modify' $ \s → s { drawSt = newds
                        , sShell = True }
       return ()
-  when (GLFW.keyCheck keyLayout k "K") $ do
+  when (GLFW.keyCheck cap keyLayout k "K") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) North)
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
     return ()
-  when (GLFW.keyCheck keyLayout k "C") $ do
+  when (GLFW.keyCheck cap keyLayout k "C") $ do
     let newDS = (addTile (drawSt st))
     modify' $ \s → s { drawSt = newDS }
     logDebug $ "adding test tile..."
     return ()
-  when (GLFW.keyCheck keyLayout k "J") $ do
+  when (GLFW.keyCheck cap keyLayout k "J") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) South)
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
     return ()
-  when (GLFW.keyCheck keyLayout k "L") $ do
+  when (GLFW.keyCheck cap keyLayout k "L") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) East)
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
     return ()
-  when (GLFW.keyCheck keyLayout k "H") $ do
+  when (GLFW.keyCheck cap keyLayout k "H") $ do
     let newcam3d  = (moveCursor 1.0 (cam3d st) West)
     modify' $ \s → s { cam3d  = newcam3d }
     logDebug $ "cursor: " ⧺ (show (cursor st)) ⧺ ", cam3d: " ⧺ (show newcam3d)
     return ()
+  when ((not (GLFW.keyCheck False keyLayout k "SH")) ∧ (ks == GLFW.KeyState'Pressed) ∧ (sShell st)) $ do
+    if (GLFW.keyCheck False keyLayout k "DEL")
+    then do
+      modify' $ \s → s { drawSt = removeShellString (drawSt st) }
+    else do
+      ch ← liftIO $ GLFW.calcInpKey k mk
+      modify' $ \s → s { drawSt = addShellString (drawSt st) ch }
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()

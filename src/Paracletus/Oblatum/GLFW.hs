@@ -2,6 +2,7 @@ module Paracletus.Oblatum.GLFW
   ( module Graphics.UI.GLFW
   , KeyLayout (..)
   , keyCheck
+  , calcInpKey
   , mousebutt1
   , mousebutt2
   , mousebutt3
@@ -13,11 +14,12 @@ module Paracletus.Oblatum.GLFW
 -- we can abstract to other window managers
 import Prelude()
 import UPrelude
-import Data.Char (toUpper)
+import Data.Char (toUpper,toLower)
 import Graphics.UI.GLFW
 
 data KeyLayout = KeyLayout
   { klEsc ∷ String
+  , klDel ∷ String
   , klSh  ∷ String } deriving (Show, Eq)
 
 -- mousebutton synonyms
@@ -56,14 +58,16 @@ getGLFWKey "K"   = Key'K
 getGLFWKey "L"   = Key'L
 getGLFWKey _     = Key'Unknown
 
-keyCheck ∷ KeyLayout → Key → String → Bool
-keyCheck keyLayout k str = (k ≡ (getGLFWKey nk))
+keyCheck ∷ Bool → KeyLayout → Key → String → Bool
+keyCheck cap keyLayout k str
+  | cap       = False
+  | otherwise = (k ≡ (getGLFWKey nk))
   where nk = applyKeyLayout keyLayout str
 
 applyKeyLayout ∷ KeyLayout → String → String
 applyKeyLayout keyLayout "ESC" = klEsc keyLayout
 --applyKeyLayout keyLayout "RET" = keyRET keyLayout
---applyKeyLayout keyLayout "DEL" = keyDEL keyLayout
+applyKeyLayout keyLayout "DEL" = klDel keyLayout
 --applyKeyLayout keyLayout "SPC" = keySPC keyLayout
 --applyKeyLayout keyLayout "C"   = keyC   keyLayout
 --applyKeyLayout keyLayout "R"   = keyR   keyLayout
@@ -89,7 +93,7 @@ calcInpKey k mk = do
     Nothing  → return ""
 
 applyMod ∷ ModifierKeys → String → String
-applyMod mk str = if (modifierKeysShift mk) then map upcase str else str
+applyMod mk str = if (modifierKeysShift mk) then map upcase str else map downcase str
 
 upcase ∷ Char → Char
 upcase '1'  = '!'
@@ -114,3 +118,26 @@ upcase '.'  = '>'
 upcase '/'  = '?'
 upcase '`'  = '~'
 upcase c    = toUpper c
+downcase ∷ Char → Char
+downcase '!' = '1'
+downcase '@' = '2'
+downcase '#' = '3'
+downcase '$' = '4'
+downcase '%' = '5'
+downcase '^' = '6'
+downcase '&' = '7'
+downcase '*' = '8'
+downcase '(' = '9'
+downcase ')' = '0'
+downcase '_' = '-'
+downcase '+' = '='
+downcase '{' = '['
+downcase '}' = ']'
+downcase '|' = '\\'
+downcase ':' = ';'
+downcase '"' = '\''
+downcase '<' = ','
+downcase '>' = '.'
+downcase '?' = '/'
+downcase '~' = '`'
+downcase c  = toLower c
