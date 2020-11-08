@@ -93,11 +93,11 @@ hsNewWindow ∷ Env → String → String → String → Lua.Lua ()
 hsNewWindow env name "menu" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name WinTypeMenu background [] [] [] [] WorldNULL
+  where win = Window name WinTypeMenu background [] [] [] [] [] WorldNULL
 hsNewWindow env name "game" background = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name (WinTypeGame) background [] [] [] [] WorldNULL
+  where win = Window name (WinTypeGame) background [] [] [] [] [] WorldNULL
 hsNewWindow env _    wintype _          = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
@@ -170,6 +170,16 @@ hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow name) name
+
+hsNewUnit ∷ Env → String → Int → Int → String → String → Lua.Lua() 
+hsNewUnit env win x y unittype texs = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewUnit win (WinUnit unittype (x',y') texs)) win
+  where (x',y') = (fromIntegral x, fromIntegral y)
+hsNewUnit env win _ _ unittype _    = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) win
+  where errorstr = "newUnit " ⧺ unittype ⧺ " not known"
 
 -- converts windows to corresponding texture list
 windowTextures ∷ [Window] → [String]

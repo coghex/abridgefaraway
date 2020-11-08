@@ -13,7 +13,13 @@ import qualified Foreign.Lua as Lua
 -- draw a box behind it, pos in game coords
 data WinText = WinText { winPos ∷ (Double,Double)
                        , winBox ∷ Bool
-                       , winText ∷ String } deriving (Show, Eq)
+                       , winText ∷ String
+                       } deriving (Show, Eq)
+
+data WinUnit = WinUnit { unitType ∷ String
+                       , unitPos  ∷ (Double,Double)
+                       , unitTexs ∷ String
+                       } deriving (Show, Eq)
 
 -- a generic tile, use to display a single sprite
 data WinTile = WinTile { winTilePos ∷ (Double,Double)
@@ -51,6 +57,7 @@ data Window = Window { winTitle      ∷ String
                      , windowLinks   ∷ [WinLink]
                      , windowTiles   ∷ [WinTile]
                      , windowMenus   ∷ [WinMenu]
+                     , windowUnits   ∷ [WinUnit]
                      , windowWorld   ∷ World
                      } deriving (Show, Eq)
 
@@ -67,6 +74,7 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewLink String WinLink
             | LuaCmdnewTile String WinTile
             | LuaCmdnewMenu String WinMenu
+            | LuaCmdnewUnit String WinUnit
             | LuaCmdnewMenuElement String WinElem
             | LuaCmdnewWorld String World
             | LuaError String

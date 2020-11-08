@@ -141,39 +141,39 @@ addTileToLuaWindows ∷ String → WinTile → [Window] → [Window]
 addTileToLuaWindows wn wt ws = map (addTileToLuaWindow wn wt) ws
 
 addTileToLuaWindow ∷ String → WinTile → Window → Window
-addTileToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
-  | (wn == name) = (Window name oldt oldb oldwt oldlinks (oldtiles⧺[wt]) oldm oldw)
-  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
+addTileToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
+  | (wn == name) = (Window name oldt oldb oldwt oldlinks (oldtiles⧺[wt]) oldm oldu oldw)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
 
 addTextToLuaWindows ∷ String → WinText → [Window] → [Window]
 addTextToLuaWindows wn wt ws = map (addTextToLuaWindow wn wt) ws
 
 addTextToLuaWindow ∷ String → WinText → Window → Window
-addTextToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
-  | (wn == name) = (Window name oldt oldb (oldwt⧺[wt]) oldlinks oldtiles oldm oldw)
-  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
+addTextToLuaWindow wn wt (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
+  | (wn == name) = (Window name oldt oldb (oldwt⧺[wt]) oldlinks oldtiles oldm oldu oldw)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
 
 addLinkToLuaWindows ∷ String → WinLink → [Window] → [Window]
 addLinkToLuaWindows wn wl ws = map (addLinkToLuaWindow wn wl) ws
 
 addLinkToLuaWindow ∷ String → WinLink → Window → Window
-addLinkToLuaWindow wn wl (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
-  | (wn == name) = (Window name oldt oldb oldwt (oldlinks⧺[wl]) oldtiles oldm oldw)
-  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
+addLinkToLuaWindow wn wl (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
+  | (wn == name) = (Window name oldt oldb oldwt (oldlinks⧺[wl]) oldtiles oldm oldu oldw)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
 
 addMenuToLuaWindows ∷ String → WinMenu → [Window] → [Window]
 addMenuToLuaWindows wn wm ws = map (addMenuToLuaWindow wn wm) ws
 
 addMenuToLuaWindow ∷ String → WinMenu → Window → Window
-addMenuToLuaWindow wn wm (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
-  | (wn == name) = (Window name oldt oldb oldwt oldlinks oldtiles (oldm⧺[wm]) oldw)
-  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw)
+addMenuToLuaWindow wn wm (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
+  | (wn == name) = (Window name oldt oldb oldwt oldlinks oldtiles (oldm⧺[wm]) oldu oldw)
+  | otherwise    = (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw)
 
 addElementToMenu ∷ String → WinElem → [Window] → [Window]
 addElementToMenu menu element ws = map (addElementToMenuWindow menu element) ws
 
 addElementToMenuWindow ∷ String → WinElem → Window → Window
-addElementToMenuWindow menu element (Window name oldt oldb oldwt oldlinks oldtiles oldm oldw) = Window name oldt oldb oldwt oldlinks oldtiles (map (addElemToWindowsMenu menu element) oldm) oldw
+addElementToMenuWindow menu element (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu oldw) = Window name oldt oldb oldwt oldlinks oldtiles (map (addElemToWindowsMenu menu element) oldm) oldu oldw
 
 addElemToWindowsMenu ∷ String → WinElem → WinMenu → WinMenu
 addElemToWindowsMenu menu element (WinMenu name pos elems)
@@ -184,6 +184,6 @@ addWorldToWindows ∷ String → World → [Window] → [Window]
 addWorldToWindows menu world ws = map (addWorldToWindow menu world) ws
 
 addWorldToWindow ∷ String → World → Window → Window
-addWorldToWindow menu world (Window name oldt oldb oldwt oldlinks oldtiles oldm _)
-  | menu == name = Window name oldt oldb oldwt oldlinks oldtiles oldm world
-  | otherwise    = Window name oldt oldb oldwt oldlinks oldtiles oldm WorldNULL
+addWorldToWindow menu world (Window name oldt oldb oldwt oldlinks oldtiles oldm oldu _)
+  | menu == name = Window name oldt oldb oldwt oldlinks oldtiles oldm oldu world
+  | otherwise    = Window name oldt oldb oldwt oldlinks oldtiles oldm oldu WorldNULL

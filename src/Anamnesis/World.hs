@@ -132,8 +132,8 @@ flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
 
 -- converts tiles from the world object into GTiles
 calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
-calcWorldTiles _  (Window _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ (World zones segsize _   )) nModTiles = calcZoneTiles sc segsize zones nModTiles
+calcWorldTiles _  (Window _ _ _ _ _ _ _ _ WorldNULL) _ = []
+calcWorldTiles sc (Window _ _ _ _ _ _ _ _ (World zones segsize _   )) nModTiles = calcZoneTiles sc segsize zones nModTiles
 calcZoneTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Zone] → Int → [GTile]
 calcZoneTiles _  _       []           _         = []
 calcZoneTiles sc segsize (ZoneNULL:zones) nModTiles = calcZoneTiles sc segsize zones nModTiles

@@ -89,9 +89,6 @@ runParacVulkan = do
       rec ← gets sRecreate
       case rec of
         True → do
-          --reload for new textures for current
-          --window, right now, just adds in the
-          --background tex
           newst ← get
           let windows = luaWindows (luaSt newst)
               thiswin = windows !! (currentWin newst)
