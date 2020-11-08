@@ -60,7 +60,7 @@ sendSegs ∷ Env → [((Int,Int),Segment)] → IO ()
 sendSegs _   []          = return ()
 sendSegs env ((sp,s):ss) = do
   let eventQ = envEventsChan env
-  atomically $ writeQueue eventQ $ EventUpdateSegs (sp,s)
+  atomically $ writeQueue eventQ $ EventUpdateSegs $ SegUpdateData SegOpAdd (0,0) sp s
   sendSegs env ss
 
 -- returns the list of indecies
@@ -191,8 +191,8 @@ findSegSpot _ _ []         = SegmentNULL
 findSegSpot i n (seg:segs)
   | (n == i)  = seg
   | otherwise = findSegSpot i (n+1) segs
-findAndReplaceSegment ∷ ((Int,Int),Segment) → [[Segment]] → [[Segment]]
-findAndReplaceSegment ((sx,sy),seg) segs = addToSegRow 0 sx sy seg segs
+findAndReplaceSegment ∷ (Int,Int) → Segment → [[Segment]] → [[Segment]]
+findAndReplaceSegment (sx,sy) seg segs = addToSegRow 0 sx sy seg segs
 addToSegRow ∷ Int → Int → Int → Segment → [[Segment]] → [[Segment]]
 addToSegRow _ _  _  _      [[]]             = [[]]
 addToSegRow _ _  _  _      []               = []

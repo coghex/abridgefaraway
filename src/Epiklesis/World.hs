@@ -13,6 +13,13 @@ data World = WorldNULL | World { worldZone ∷ [Zone]
 data Zone = ZoneNULL | Zone { zoneIndex ∷ (Int,Int)
                             , zoneSegs  ∷ [[Segment]]
                             } deriving (Show, Eq)
+data SegOp = SegOpAdd | SegOpDel deriving (Show, Eq)
+data SegUpdateData = SegUpdateData
+                     { sudOp  ∷ SegOp
+                     , sudZ   ∷ (Int,Int)
+                     , sudS   ∷ (Int,Int)
+                     , sudDat ∷ Segment
+                     } deriving (Show, Eq)
 data Segment = SegmentNULL | Segment { segGrid ∷ [[Tile]]
                                      } deriving (Show, Eq)
 data Tile = TileNULL | Tile { tileCont ∷ Int

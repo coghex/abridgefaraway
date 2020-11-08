@@ -85,15 +85,17 @@ processEvent event = case event of
       LuaError str → logWarn str
       LuaCmdNULL → logError $ "lua NULL command"
       --otherwise → logWarn $ "unknown lua command"
-  (EventUpdateSegs seg) → do
+  (EventUpdateSegs segData) → do
     env ← ask
     st ← get
     let currWin    = (luaWindows (luaSt st)) !! (currentWin st)
+        seg = sudDat segData
+        sp  = sudS segData
     if ((winType currWin) == WinTypeGame)
     then do
       let oldsegs    = zoneSegs $ oldZone
           oldZone    = head $ worldZone $ windowWorld $ currWin
-          newsegs    = findAndReplaceSegment seg oldsegs
+          newsegs    = findAndReplaceSegment sp seg oldsegs
           newls      = LuaState (luaState (luaSt st)) (newWins)
           newWins    = replaceWindow newWin (luaWindows (luaSt st))
           newWin     = currWin { windowWorld = newWorld }
