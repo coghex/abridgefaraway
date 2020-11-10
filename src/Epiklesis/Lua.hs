@@ -3,6 +3,7 @@ module Epiklesis.Lua where
 -- is instantiated.
 import Prelude()
 import UPrelude
+import Data.List.Split (splitOn)
 import qualified Foreign.Lua as Lua
 import Anamnesis.Data
 import Anamnesis.World
@@ -33,6 +34,7 @@ loadState env st = do
   _ ← Lua.runWith ls $ do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
+    Lua.registerHaskellFunction "newLink" (hsNewLink env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.openlibs
@@ -65,6 +67,26 @@ hsNewText env _   _ _ _    textType = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
   where errorstr = "window type " ⧺ textType ⧺ " not known"
 
+hsNewLink ∷ Env → String → Double → Double → String → String → String → Lua.Lua ()
+hsNewLink env win x y text "action" "exit" = do
+  let eventQ = envEventsChan env
+      size'  = (length (text),length (splitOn ['\n'] text))
+      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit))
+hsNewLink env _   _ _ _    "action" args   = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+  where errorstr = "link args " ⧺ args ⧺ " unknown"
+hsNewLink env win x y text "link" args     = do
+  let eventQ = envEventsChan env
+      size'  = (length (text),length (splitOn ['\n'] text))
+      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)))
+hsNewLink env _   _ _ _    action _        = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+  where errorstr = "link action " ⧺ action ⧺ " unknown"
+
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
@@ -83,10 +105,6 @@ findTexturesFromElems ((WinElemBack fp):wes) = elemTexs ⧺ findTexturesFromElem
   where elemTexs = [fp]
 findTexturesFromElems ((WinElemText _ _ _):wes) = []
 findTexturesFromElems ((WinElemNULL):wes)       = []
-
---findLuaWinCam ∷ LuaState → (Float,Float,Float)
---findLuaWinCam (LuaState _ currWin wins) = winCursor win
---  where win = wins !! currWin
 
 -- some simple data manipulators
 addWinToLuaState ∷ LuaState → Window → LuaState

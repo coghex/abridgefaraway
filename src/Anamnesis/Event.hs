@@ -64,8 +64,14 @@ processEvent event = case event of
         st ← get
         modify $ \s → s { luaSt = addWinToLuaState (luaSt st) newWin }
       (LuaCmdnewElem win e) → do
+      -- if you wish to load more textures
+      -- sRecreate must be set True
         case e of
           WinElemText _ _ _ → do
+            st ← get
+            let newLS = addElemToLuaState win e (luaSt st)
+            modify $ \s → s { luaSt = newLS }
+          WinElemLink _ _ _ → do
             st ← get
             let newLS = addElemToLuaState win e (luaSt st)
             modify $ \s → s { luaSt = newLS }

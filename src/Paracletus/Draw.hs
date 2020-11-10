@@ -30,6 +30,7 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem (WinElemText pos False str) = addText pos str
 loadWinElem (WinElemBack fp) = [GTile (0,0) (32,24) (0,0) (1,1) 19 False]
+loadWinElem (WinElemLink _ _ _) = []
 loadWinElem WinElemNULL = []
 
 addText ∷ (Double,Double) → String → [GTile]
