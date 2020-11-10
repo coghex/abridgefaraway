@@ -11,7 +11,7 @@ function LuaWindow:new (o)
 end
 function LuaWindow:init (n,t)
     self.lwName = n
-    newWindow (n,t,"menu")
+    newWindow (n,t)
 end
 function LuaWindow:addText (x,y,text)
     newText ((self.lwName),x,y,text,"text")
@@ -31,6 +31,7 @@ function LuaWindow:newButton (x,y,text,action,args)
 end
 -- this runs once at the beginning
 function initLua ()
+    -- basic UI elements can be in any order
     local menu1 = LuaWindow:new ()
     menu1:init("menu1","menu")
     menu1:setBackground ("dat/tex/texture1.png")
@@ -41,8 +42,15 @@ function initLua ()
     local menu2 = LuaWindow:new ()
     menu2:init("menu2","menu")
     menu2:setBackground ("dat/tex/texture1.png")
-    menu2:addTextBox (-4.0, 0.0, "Create World")
+    menu2:newButton (-4.0, 0.0, "Create World", "link", "game1")
+    menu2:newButton (-4.0, -4.0, "Back", "action", "back")
+
+    local game1 = LuaWindow:new ()
+    game1:init("game1","game")
+    game1:setBackground ("dat/tex/black.png")
+    game1:addTextBox (-4.0, 4.0, "blop blop")
 
     menu1:switchToWindow ()
+
     return 0
 end

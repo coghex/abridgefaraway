@@ -18,6 +18,7 @@ initLua = do
   ls ← Lua.newstate
   return $ LuaState { luaState = ls
                     , luaCurrWin = 0
+                    , luaLastWin = 0
                     , luaWindows = [] }
 
 makeKeyLayout ∷ String → String → String → String → String → GLFW.KeyLayout
@@ -50,6 +51,10 @@ hsNewWindow env name "menu" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
   where win = Window name WinTypeMenu (0,0,(-1)) []
+hsNewWindow env name "game" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
+  where win = Window name WinTypeGame (0,0,(-1)) []
 hsNewWindow env _    wintype = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -73,6 +78,11 @@ hsNewLink env win x y text "action" "exit" = do
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit))
+hsNewLink env win x y text "action" "back" = do
+  let eventQ = envEventsChan env
+      size'  = (length (text),length (splitOn ['\n'] text))
+      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack))
 hsNewLink env _   _ _ _    "action" args   = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -101,14 +111,16 @@ hsSwitchWindow env name = do
 findReqTextures ∷ Window → [String]
 findReqTextures win = findTexturesFromElems $ winElems win
 findTexturesFromElems ∷ [WinElem] → [String]
-findTexturesFromElems ((WinElemBack fp):wes) = elemTexs ⧺ findTexturesFromElems wes
+findTexturesFromElems []                        = []
+findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromElems wes
   where elemTexs = [fp]
-findTexturesFromElems ((WinElemText _ _ _):wes) = []
-findTexturesFromElems ((WinElemNULL):wes)       = []
+findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
 -- some simple data manipulators
 addWinToLuaState ∷ LuaState → Window → LuaState
-addWinToLuaState ls win = LuaState (luaState ls) (luaCurrWin ls) $ (luaWindows ls) ⧺ [win]
+addWinToLuaState ls win = LuaState (luaState ls) (luaCurrWin ls) (luaLastWin ls) $ (luaWindows ls) ⧺ [win]
 
 addElemToLuaState ∷ String → WinElem → LuaState → LuaState
 addElemToLuaState thisWin e ls = ls { luaWindows = newWins }
@@ -123,5 +135,6 @@ addElemToWindow ∷ WinElem → Window → Window
 addElemToWindow e win = win { winElems = (winElems win) ⧺ [e] }
 
 changeCurrWin ∷ Int → LuaState → LuaState
-changeCurrWin n ls = ls { luaCurrWin = n }
-
+changeCurrWin n ls = ls { luaCurrWin = n
+                        , luaLastWin = n' }
+  where n' = luaCurrWin ls

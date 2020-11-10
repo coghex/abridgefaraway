@@ -76,6 +76,11 @@ linkTestFunc (x,y) (link:links) = do
         LinkLink win → do
           logDebug $ "following link to " ⧺ win
           liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow win)
+        LinkBack → do
+          ls ← gets luaSt
+          let newWin  = (luaWindows ls) !! (luaLastWin ls)
+          logDebug $ "going back to " ⧺ winTitle newWin
+          liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow (winTitle newWin))
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links

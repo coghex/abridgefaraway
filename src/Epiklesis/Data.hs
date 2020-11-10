@@ -26,6 +26,7 @@ data Window = Window { winTitle  ∷ String
 -- different functionality to each window
 data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaCurrWin ∷ Int
+                         , luaLastWin ∷ Int
                          , luaWindows ∷ [Window] }
 
 data WinElem = WinElemText { textPos ∷ (Double,Double)
@@ -38,7 +39,7 @@ data WinElem = WinElemText { textPos ∷ (Double,Double)
              | WinElemNULL deriving (Show, Eq)
 
 -- possible actions when links are clicked
-data LinkAction = LinkExit | LinkLink String | LinkNULL deriving (Show, Eq)
+data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Show, Eq)
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
