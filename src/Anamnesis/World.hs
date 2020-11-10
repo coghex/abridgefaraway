@@ -21,7 +21,7 @@ createWorld sw sh zw zh texs = World [initZone] (sw,sh) texs
 
 updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()
 updateWorld env n _  segs TStop = do
-  let scchan    = envSCChan env
+  let scchan    = envCamChan env
       timerChan = envWTimerChan env
   tsnew ← atomically $ readChan timerChan
   firstSC ← atomically $ readChan scchan
@@ -50,7 +50,7 @@ updateWorld env n sc _    TStart = do
     else return ()
   updateWorld env newn sc newsegs tsnew
 updateWorld env _ _  segs TPause = do
-  let scchan = envSCChan env
+  let scchan = envCamChan env
   newSC ← atomically $ readChan scchan
   sendSegs env segs
   updateWorld env 0 newSC segs TStart
@@ -82,149 +82,4 @@ genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
 reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()
 reloadScreenCursor env sc = do
   atomically $ writeChan (envWTimerChan env) TPause
-  atomically $ writeChan (envSCChan env) sc
-
--- converts elements in lua window to
--- text boxs in the actual draw state
-calcTextBoxs ∷ Window → [TextBox]
-calcTextBoxs win = luaTBtoWinTB (windowText win)
-                 ⧺ luaMenutoWinTB (windowMenus win)
-
-luaTBtoWinTB ∷ [WinText] → [TextBox]
-luaTBtoWinTB []       = []
-luaTBtoWinTB (wt:wts) = luaTBtoWinTB wts ⧺ [textBox]
-  where textBox = TextBox { tbPos    = (tbx,tby)
-                          , tbSize   = (3+tbsize,1)
-                          , tbBox    = wb
-                          , tbString = tbstr }
-        (tbx, tby) = winPos wt
-        (tbstr)    = winText wt
-        tbsize     = round $ fromIntegral((length tbstr)) / (2.0 ∷ Double)
-        wb         = winBox wt
-
-luaMenutoWinTB ∷ [WinMenu] → [TextBox]
-luaMenutoWinTB []       = []
-luaMenutoWinTB (wm:wms) = luaMenutoWinTB wms ⧺ [textBox]
-  where textBox = TextBox { tbPos = menuPos wm
-                          , tbSize = (3+tbsize,tbheight)
-                          , tbBox = True
-                          , tbString = elemsToString (menuElems wm) }
-        tbsize     = 20
-        tbheight   = length $ menuElems wm
-
--- converts list of menu elements into
--- a string for a textbox
-elemsToString ∷ [WinElem] → String
-elemsToString []       = ""
-elemsToString (we:wes) = (elemToString we) ⧺ "\n" ⧺ (elemsToString wes)
-
-elemToString ∷ WinElem → String
-elemToString (WinElemText text) = text
-elemToString (WinElemSlider x y d args) = args ⧺ (show d) ⧺ "   " ⧺ (show x) ⧺ " <--|--> " ⧺ (show y)
-elemToString WinElemNULL = "NULL"
-
--- converts tiles from a window into GTiles
-calcTiles ∷ Window → [GTile]
-calcTiles win = luaTiletoWinTile 0 $ windowTiles win
-
-flatten ∷ [[α]] → [α]
-flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
-
--- converts tiles from the world object into GTiles
-calcWorldTiles ∷ ((Float,Float),(Int,Int)) → Window → Int → [GTile]
-calcWorldTiles _  (Window _ _ _ _ _ _ _ _ WorldNULL) _ = []
-calcWorldTiles sc (Window _ _ _ _ _ _ _ _ (World zones segsize _   )) nModTiles = calcZoneTiles sc segsize zones nModTiles
-calcZoneTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → [Zone] → Int → [GTile]
-calcZoneTiles _  _       []           _         = []
-calcZoneTiles sc segsize (ZoneNULL:zones) nModTiles = calcZoneTiles sc segsize zones nModTiles
-calcZoneTiles sc segsize (zone:zones) nModTiles = (calcSegTiles sc segsize zone nModTiles) ⧺ (calcZoneTiles sc segsize zones nModTiles)
-calcSegTiles ∷ ((Float,Float),(Int,Int)) → (Int,Int) → Zone → Int → [GTile]
-calcSegTiles _  _       ZoneNULL        _         = []
-calcSegTiles sc segsize (Zone ind segs) nModTiles = flatten $ map (calcSegTilesRow sc segsize ind nModTiles) (zip yinds segs)
-  where yinds = take (fst segsize) [0..]
-calcSegTilesRow ∷ ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Int → (Int,[Segment]) → [GTile]
-calcSegTilesRow sc segsize ind nModTiles (j,segs) = flatten $ map (calcSegTilesSpot j sc segsize ind nModTiles) (zip xinds segs)
-  where xinds = take (snd segsize) [0..]
-calcSegTilesSpot ∷ Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Int → (Int,Segment) → [GTile]
-calcSegTilesSpot j sc segsize ind nModTiles (i,seg) = calcGTileFromSeg i j sc segsize ind seg nModTiles
-
-calcGTileFromSeg ∷ Int → Int → ((Float,Float),(Int,Int)) → (Int,Int) → (Int,Int) → Segment → Int → [GTile]
-calcGTileFromSeg _ _ _  _       _   (SegmentNULL) _         = []
-calcGTileFromSeg m n sc (sw,sh) ind (Segment grid) nModTiles = tiles
-  where tiles = flatten $ calcWorldTilesRow sc' nModTiles (sw*(m + (fst ind)),sh*(n + (snd ind))) grid
-        sc'   = roundsc sc
-        roundsc ∷ ((Float,Float),(Int,Int)) → (Int,Int,Int,Int)
-        roundsc ((x,y),(w,h)) = (round x,round y,w,h)
-
-calcWorldTilesRow ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [[Tile]] → [[GTile]]
-calcWorldTilesRow _             _         _     []           = [[]]
-calcWorldTilesRow _             _         _     [[]]         = [[]]
-calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,y) (grow:grows)
-  | ((y > (cy+ch)) ∨ (y < (cy-ch))) = [[]] ⧺ (calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,(y+1)) grows)
-  | otherwise = [(calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) grow)] ⧺ (calcWorldTilesRow (cx,cy,cw,ch) nModTiles (x,(y+1)) grows)
-
-calcWorldTilesSpot ∷ (Int,Int,Int,Int) → Int → (Int,Int) → [Tile] → [GTile]
-calcWorldTilesSpot _             _         _     []             = []
-calcWorldTilesSpot (cx,cy,cw,ch) nModTiles (x,y) (gspot:gspots)
-  | ((x > (cx+cw)) ∨ (x < (cx-cw))) = [] ⧺ (calcWorldTilesSpot (cx,cy,cw,ch) nModTiles ((x+1),y) gspots)
-  | otherwise = [tile] ⧺ (calcWorldTilesSpot (cx,cy,cw,ch) nModTiles ((x+1),y) gspots)
-  where tile = GTile { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
-                     , tScale = (1,1)
-                     , tInd = (ix,iy)
-                     , tSize = (3,15)
-                     , tT = (20+nModTiles+(tileCont gspot))
-                     , tMoves = True }
-        ix = (tileType gspot) `mod` 3
-        iy = (tileType gspot) `div` 3
-
--- segment index helper functions
-getSegment ∷ (Int,Int) → [[Segment]] → Segment
-getSegment pos segs = findSegRow pos 0 segs
-findSegRow ∷ (Int,Int) → Int → [[Segment]] → Segment
-findSegRow _ _ [[]] = SegmentNULL
-findSegRow _ _ []   = SegmentNULL
-findSegRow (i,j) n (segrow:segrows)
-  | (n == j)  = findSegSpot i 0 segrow
-  | otherwise = findSegRow (i,j) (n+1) segrows
-findSegSpot ∷ Int → Int → [Segment] → Segment
-findSegSpot _ _ []         = SegmentNULL
-findSegSpot i n (seg:segs)
-  | (n == i)  = seg
-  | otherwise = findSegSpot i (n+1) segs
-findAndReplaceSegment ∷ (Int,Int) → Segment → [[Segment]] → [[Segment]]
-findAndReplaceSegment (sx,sy) seg segs = addToSegRow 0 sx sy seg segs
-addToSegRow ∷ Int → Int → Int → Segment → [[Segment]] → [[Segment]]
-addToSegRow _ _  _  _      [[]]             = [[]]
-addToSegRow _ _  _  _      []               = []
-addToSegRow n sx sy newseg (segrow:segrows) = [thissegrow] ⧺ addToSegRow (n+1) sx sy newseg segrows
-  where thissegrow = addToSegSpot sx sy 0 n newseg segrow
-addToSegSpot ∷ Int → Int → Int → Int → Segment → [Segment] → [Segment]
-addToSegSpot _  _  _ _ _      []         = []
-addToSegSpot sx sy m n newseg (seg:segs)
-  | ((sx == m) ∧ (sy == n)) = [newseg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
-  | otherwise               = [seg] ⧺ addToSegSpot sx sy (m+1) n newseg segs
-
--- tests if a segment from the event
--- channel is out of segment bounds
-outOfBoundsSeg ∷ ((Int,Int),Segment) → Bool
-outOfBoundsSeg (_,(SegmentNULL)) = False
-outOfBoundsSeg ((sx,sy),(Segment _))
-  | (sx > 32) ∨ (sy > 32) = False
-  | (sx <  0) ∨ (sy <  0) = False
-  | otherwise             = True
-
-replaceWindow ∷ Window → [Window] → [Window]
-replaceWindow _      []         = []
-replaceWindow newwin (win:wins)
-  | (winTitle newwin) == (winTitle win) = [newwin] ⧺ replaceWindow newwin wins
-  | otherwise = [win] ⧺ replaceWindow newwin wins
-
-luaTiletoWinTile ∷ Int → [WinTile] → [GTile]
-luaTiletoWinTile _ []       = []
-luaTiletoWinTile n (wt:wts) = (luaTiletoWinTile (n+1) wts) ⧺ [tile]
-  where tile = GTile { tPos = winTilePos wt
-                     , tScale = (1,1)
-                     , tInd = (0,0)
-                     , tSize = (1,1)
-                     , tT = (20+n)
-                     , tMoves = True }
+  atomically $ writeChan (envCamChan env) sc

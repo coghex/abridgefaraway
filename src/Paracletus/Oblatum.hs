@@ -75,12 +75,11 @@ glfwWaitMinimized win = liftIO go where
 processInput ∷ Anamnesis ε σ ()
 processInput = do
     st ← get
-    let windows = luaWindows (luaSt st)
-    let win = windows !! (currentWin st)
+    let ls      = luaSt st
+        windows = luaWindows (ls)
+        win     = windows !! (luaCurrWin ls)
     case (winType win) of
-      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse 
-                    else if (mouse1 (inputState st)) then drawBoxWithMouse
-                    else return ()
+      WinTypeGame → return ()
       WinTypeMenu → return ()
       WinTypeNULL → return ()
 

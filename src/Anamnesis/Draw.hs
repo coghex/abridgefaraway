@@ -11,15 +11,7 @@ import Epiklesis.Data
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
-  { dsTiles = tiles 
-  , dsTextB = [initTB]
-  , dsMBox = MBNULL
-  , dsShell = ShellNULL }
-  where initTB = TextBox { tbPos    = (-1,-1)
-                         , tbSize   = (8,2)
-                         , tbBox    = True
-                         , tbString = str }
-        str = "loading...\nblop blop"
+  { dsTiles = tiles }
 
 addTile ∷ DrawState → DrawState
 addTile ds = ds { dsTiles = newtiles }

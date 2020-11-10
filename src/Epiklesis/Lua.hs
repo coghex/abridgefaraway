@@ -16,18 +16,8 @@ initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
   return $ LuaState { luaState = ls
+                    , luaCurrWin = 0
                     , luaWindows = [] }
-
-importKeyLayout ∷ Lua.State → String → IO (GLFW.KeyLayout)
-importKeyLayout ls fn = Lua.runWith ls $ do
-  Lua.openlibs
-  _ ← Lua.dofile $ fn ⧺ "config.lua"
-  esckey ← Lua.getglobal "esckey" *> Lua.peek (-1)
-  retkey ← Lua.getglobal "retkey" *> Lua.peek (-1)
-  delkey ← Lua.getglobal "delkey" *> Lua.peek (-1)
-  spckey ← Lua.getglobal "spckey" *> Lua.peek (-1)
-  shkey  ← Lua.getglobal "shkey"  *> Lua.peek (-1)
-  return $ makeKeyLayout esckey retkey delkey spckey shkey
 
 makeKeyLayout ∷ String → String → String → String → String → GLFW.KeyLayout
 makeKeyLayout esckey retkey delkey spckey shkey =
@@ -37,154 +27,83 @@ makeKeyLayout esckey retkey delkey spckey shkey =
                  , klSpc = spckey
                  , klSh  = shkey }
 
-importSettings ∷ LuaState → String → IO (Settings)
-importSettings ls' fn = do
-  let ls = luaState ls'
-  layout ← importKeyLayout ls fn
-  Lua.runWith ls $ do
-    Lua.openlibs
-    _ ← Lua.dofile $ fn ⧺ "base.lua"
-    (sw, sh) ← Lua.callFunc "getScreenSize"
-    fontPath ← Lua.callFunc "fontAtlas"
-    tbPath   ← Lua.callFunc "textboxTexture"
-    mtbPath  ← Lua.callFunc "mouseboxTexture"
-    txPath   ← Lua.callFunc "textureDirectory"
-    return $ makeSettings (sw∷Int) (sh∷Int) (fontPath∷String) (tbPath∷String) (mtbPath∷String) (txPath∷String) layout
-
-makeSettings ∷ Int → Int → String → String → String → String → GLFW.KeyLayout → Settings
-makeSettings sw sh fp tbp mtbp txs kl =
-  Settings { settingScreenW   = sw
-           , settingScreenH   = sh
-           , settingFontPath  = fp
-           , settingTBPath    = tbp
-           , settingMTBPath   = mtbp
-           , settingTexPath   = txs
-           , settingKeyLayout = kl }
-
 loadState ∷ Env → State → IO ()
 loadState env st = do
   let ls = luaState $ luaSt st
   _ ← Lua.runWith ls $ do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
-    Lua.registerHaskellFunction "newLuaWindow" (hsNewLuaWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
-    Lua.registerHaskellFunction "newButton" (hsNewButton env)
-    Lua.registerHaskellFunction "newButtonAction" (hsNewButtonAction env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
-    Lua.registerHaskellFunction "newTile" (hsNewTile env)
-    Lua.registerHaskellFunction "newMenu" (hsNewMenu env)
-    Lua.registerHaskellFunction "newMenuElement" (hsNewMenuElement env)
-    Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
+    Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.openlibs
     _ ← Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
     return (ret∷Int)
   let eventQ = envEventsChan env
-  atomically $ writeQueue eventQ $ EventLoaded 1
+  atomically $ writeQueue eventQ $ EventLoaded
   return ()
 
-hsNewText ∷ Env → String → Double → Double → String → Lua.Lua ()
-hsNewText env win x y str = do
+hsNewWindow ∷ Env → String → String → Lua.Lua ()
+hsNewWindow env name "menu" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewText win newText) str
-  where newText = WinText (x,y) False str
-
-hsNewWindow ∷ Env → String → String → String → Lua.Lua ()
-hsNewWindow env name "menu" background = do
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
+  where win = Window name WinTypeMenu (0,0,(-1)) []
+hsNewWindow env _    wintype = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name WinTypeMenu background [] [] [] [] [] WorldNULL
-hsNewWindow env name "game" background = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win) name
-  where win = Window name (WinTypeGame) background [] [] [] [] [] WorldNULL
-hsNewWindow env _    wintype _          = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) wintype
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
   where errorstr = "window type " ⧺ wintype ⧺ " not known"
 
-hsNewLuaWindow ∷ Env → LuaWindow → Lua.Lua ()
-hsNewLuaWindow env lw = do
+hsNewText ∷ Env → String → Double → Double → String → String → Lua.Lua ()
+hsNewText env win x y text "text" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLuaWindow lw) "luawindow"
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text))
+hsNewText env win x y text "textbox" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text))
+hsNewText env _   _ _ _    textType = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+  where errorstr = "window type " ⧺ textType ⧺ " not known"
 
-hsNewButton ∷ Env → String → Double → Double → String → Lua.Lua ()
-hsNewButton env win x y str = do
+hsSetBackground ∷ Env → String → String → Lua.Lua ()
+hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText "") str
-  where newText = WinText (x,y) True str
-
-hsNewButtonAction ∷ Env → String → Double → Double → String → String → String → Lua.Lua ()
-hsNewButtonAction env win x y str "action" args = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
-  where newText = WinText (x,y) True str
-        newLink = WinLink (x,y) (strwidth,0.5) "action" args
-        strwidth = (fromIntegral (length str)) / (4.0 ∷ Double)
-hsNewButtonAction env win x y str "link" args = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink win newLink) str
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewButton win newText args) str
-  where newText = WinText (x,y) True str
-        newLink = WinLink (x,y) (strwidth,0.5) "link" args
-        strwidth = (fromIntegral (length str)) / (4.0 ∷ Double)
-hsNewButtonAction env _   _ _ str action _    = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) str
-  where errorstr = "action " ⧺ action ⧺ " not known"
-
-hsNewTile ∷ Env → String → Double → Double → String → Lua.Lua ()
-hsNewTile env win x y str = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewTile win (WinTile (x,y) str)) str
-
-hsNewMenu ∷ Env → String → String → Double → Double → Lua.Lua ()
-hsNewMenu env win menu x y = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenu win (WinMenu menu (x,y) [])) win
-
-hsNewMenuElement ∷ Env → String → String → String → Lua.Lua ()
-hsNewMenuElement env menu "text" args = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemText args)) menu
-hsNewMenuElement env menu "slider" args = do
-  let eventQ = envEventsChan env
-  -- these links are not working right now
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewLink menu (WinLink (-4.0,2.0) (100.0,100.0) "sliderLeft" "sliderLeft") ) args
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuElement menu (WinElemSlider (read smin) (read smax) (read dflt) text)) menu
-  where (text,dflt,smin,smax) = tupify $ words args
-        tupify ∷ [String] → (String,String,String,String)
-        tupify t = ((t !! 0), (t !! 1), (t !! 2), (t !! 3))
-hsNewMenuElement env menu elemtype _    = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) menu
-  where errorstr = "newMenuElement " ⧺ elemtype ⧺ " not known"
-
-hsNewWorld ∷ Env → String → Int → Int → String → Lua.Lua()
-hsNewWorld env menu _ _ texs = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWorld menu (createWorld 32 32 32 32 texs)) menu
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp))
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow name) name
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow name)
 
-hsNewUnit ∷ Env → String → Int → Int → String → String → Lua.Lua() 
-hsNewUnit env win x y unittype texs = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewUnit win (WinUnit unittype (x',y') texs)) win
-  where (x',y') = (fromIntegral x, fromIntegral y)
-hsNewUnit env win _ _ unittype _    = do
-  let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr) win
-  where errorstr = "newUnit " ⧺ unittype ⧺ " not known"
+-- returns list of textures a window may require
+findReqTextures ∷ Window → [String]
+findReqTextures win = findTexturesFromElems $ winElems win
+findTexturesFromElems ∷ [WinElem] → [String]
+findTexturesFromElems ((WinElemBack fp):wes) = elemTexs ⧺ findTexturesFromElems wes
+  where elemTexs = [fp]
+findTexturesFromElems ((WinElemText _ _ _):wes) = []
+findTexturesFromElems ((WinElemNULL):wes)       = []
 
--- converts windows to corresponding texture list
-windowTextures ∷ [Window] → [String]
-windowTextures []     = []
-windowTextures (w:ws) = (singleWindowTextures w) ⧺ (windowTextures ws)
+--findLuaWinCam ∷ LuaState → (Float,Float,Float)
+--findLuaWinCam (LuaState _ currWin wins) = winCursor win
+--  where win = wins !! currWin
 
-singleWindowTextures ∷ Window → [String]
-singleWindowTextures w = [winBackground w]
+-- some simple data manipulators
+addWinToLuaState ∷ LuaState → Window → LuaState
+addWinToLuaState ls win = LuaState (luaState ls) (luaCurrWin ls) $ (luaWindows ls) ⧺ [win]
+
+addElemToLuaState ∷ String → WinElem → LuaState → LuaState
+addElemToLuaState thisWin e ls = ls { luaWindows = newWins }
+  where newWins = addElemToWindows thisWin e (luaWindows ls)
+
+addElemToWindows ∷ String → WinElem → [Window] → [Window]
+addElemToWindows _       _    []         = []
+addElemToWindows thisWin e (win:wins)
+  | (thisWin == (winTitle win)) = [(addElemToWindow e win)] ⧺ addElemToWindows thisWin e wins
+  | otherwise                   = [win] ⧺ addElemToWindows thisWin e wins
+addElemToWindow ∷ WinElem → Window → Window
+addElemToWindow e win = win { winElems = (winElems win) ⧺ [e] }
+
+changeCurrWin ∷ Int → LuaState → LuaState
+changeCurrWin n ls = ls { luaCurrWin = n }
+

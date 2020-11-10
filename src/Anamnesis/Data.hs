@@ -17,7 +17,7 @@ data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
 data LoopControl = ContinueLoop | AbortLoop deriving Eq
 -- env should only hold pointers/references
 data Env = Env { envEventsChan ∷ Queue Event
-               , envSCChan     ∷ TChan ((Float,Float),(Int,Int))
+               , envCamChan    ∷ TChan ((Float,Float),(Int,Int))
                , envSegChan    ∷ TChan [Segment]
                , envWTimerChan ∷ TChan TState }
 -- state holds mutable data, and the
@@ -25,16 +25,9 @@ data Env = Env { envEventsChan ∷ Queue Event
 data State = State { status       ∷ AExcept
                    , logFunc      ∷ Logger.Loc → Logger.LogSource → Logger.LogLevel → Logger.LogStr → IO ()
                    , windowSt     ∷ !(Maybe GLFW.Window)
-                   , cam3d        ∷ !(Float, Float, Float)
-                   , gamecam3d    ∷ !(Float, Float, Float)
-                   , cursor       ∷ !(Int, Int, Int)
-                   , screenCursor ∷ !((Float, Float), (Int, Int))
-                   , currentWin   ∷ Int
                    , drawSt       ∷ !DrawState
                    , luaSt        ∷ !LuaState
                    , inputState   ∷ !InputState
-                   , sSettings    ∷ !Settings
-                   , sShell       ∷ Bool
                    , sRecreate    ∷ Bool }
 data Settings = Settings
   { settingScreenW   ∷ Int
@@ -51,15 +44,4 @@ data Settings = Settings
 -- any structures here will be
 -- decoded every frame so keep
 -- them as fundamental as possible
-data DrawState = DrawState { dsTiles ∷ [GTile]
-                           , dsTextB ∷ [TextBox]
-                           , dsMBox  ∷ MouseBox
-                           , dsShell ∷ Shell } deriving (Show, Eq)
--- defines a box full of text
-data TextBox = TextBox { tbPos    ∷ (Double,Double)
-                       , tbSize   ∷ (Int, Int)
-                       , tbBox    ∷ Bool
-                       , tbString ∷ String } deriving (Show, Eq)
-
-data MouseBox = MBNULL | MouseBox { mbPos1 ∷ (Float,Float)
-                                  , mbPos2 ∷ (Float,Float) } deriving (Show, Eq)
+data DrawState = DrawState { dsTiles ∷ [GTile] } deriving (Show, Eq)

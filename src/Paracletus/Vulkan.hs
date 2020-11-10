@@ -26,6 +26,7 @@ import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
+import Paracletus.Vulkan.Calc
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Device
@@ -36,7 +37,6 @@ import Paracletus.Vulkan.Load
 import Paracletus.Vulkan.Pipeline
 import Paracletus.Vulkan.Pres
 import Paracletus.Vulkan.Shader
-import Paracletus.Vulkan.Tile
 import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Trans
 import Paracletus.Vulkan.Vertex
@@ -78,7 +78,7 @@ runParacVulkan = do
     _ ← liftIO $ forkIO $ loadState env st
     -- this function updates the world grid
     -- as we change the camera.
-    _ ← liftIO $ forkIO $ updateWorld env 0 (screenCursor st) [] TStop
+    --_ ← liftIO $ forkIO $ updateWorld env 0 (screenCursor st) [] TStop
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
@@ -90,19 +90,10 @@ runParacVulkan = do
       case rec of
         True → do
           newst ← get
-          let windows = luaWindows (luaSt newst)
-              thiswin = windows !! (currentWin newst)
-              worldtexs' = case (windowWorld thiswin) of
-                WorldNULL   → "dat/tex/world/"
-                World _ _ t → t
-          worldtexsdir ← liftIO $ getDirectoryContents $ worldtexs'
-          let worldtexs = map (worldtexs' ⧺) $ sort $ filter filterOutPathJunk $ worldtexsdir
-              filterOutPathJunk ∷ FilePath → Bool
-              filterOutPathJunk "."  = False
-              filterOutPathJunk ".." = False
-              filterOutPathJunk _    = True
-              -- loadvulkantextures loads in reverse
-              wintextures = reverse $ [winBackground thiswin] ⧺ (map winTileTex (windowTiles thiswin)) ⧺ worldtexs
+          let ls          = luaSt newst
+              windows     = luaWindows ls
+              thiswin     = windows !! (luaCurrWin ls)
+              wintextures = findReqTextures thiswin
           newTexData ← loadVulkanTextures gqdata wintextures
           modify $ \s → s { sRecreate = False }
           let vulkLoopData' = VulkanLoopData {..}
@@ -133,9 +124,10 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
-  ds ← gets drawSt
-  gcam ← gets gamecam3d
-  let (verts, inds) = calcVertices gcam ds
+  st ← get
+  let ds   = drawSt st
+      ls   = luaSt st
+      (verts, inds) = calcVertices ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
@@ -144,16 +136,16 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   logDebug $ "created command buffers: " ⧺ show cmdBuffers
   shouldExit ← glfwMainLoop window $ do
     cmdBP ← do
-        dsNew ← gets drawSt
-        ngcam ← gets gamecam3d
-        let (verts0, inds0) = calcVertices ngcam dsNew
+        stNew ← get
+        let dsNew = drawSt stNew
+            ls    = luaSt stNew
+            (verts0, inds0) = calcVertices dsNew
         vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
         indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
         newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
         -- for now just recreate command
         -- buffers every frame
         return newCmdBP
-    cam ← gets cam3d
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -164,7 +156,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , inFlightFences
                            , cmdBuffersPtr = cmdBP
                            , memories = transObjMemories
-                           , memoryMutator = updateTransObj cam dev (swapExtent swapInfo) }
+                           , memoryMutator = updateTransObj (0,0,(-1)) dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents
     needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
       -- when khr out of date,
@@ -173,14 +165,13 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
         _ ← logDebug $ "vulkan khr out of date"
         return True
       _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-      -- _    → logExcept err ExParacletus "unknown drawFrame error" )
     sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
     when sizeChanged $ logDebug "glfw window size callback"
     -- this is for the vaious events
     -- such as key input and state changes
     processEvents
     -- this is for input calculations
-    processInput
+    --processInput
     stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop

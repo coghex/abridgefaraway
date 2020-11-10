@@ -16,13 +16,7 @@ import Prelude()
 import UPrelude
 import Data.Char (toUpper,toLower)
 import Graphics.UI.GLFW
-
-data KeyLayout = KeyLayout
-  { klEsc ∷ String
-  , klRet ∷ String
-  , klDel ∷ String
-  , klSpc ∷ String
-  , klSh  ∷ String } deriving (Show, Eq)
+import Paracletus.Oblatum.Data
 
 -- mousebutton synonyms
 mousebutt1 ∷ MouseButton

@@ -10,8 +10,8 @@ type TChan = STM.TChan
 -- this is a placeholder
 data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
-           | EventLoaded !Int
-           | EventLua !LuaCmd !String
+           | EventLoaded
+           | EventLua !LuaCmd
            | EventCam !(Float,Float,Float)
            | EventUpdateSegs !SegUpdateData
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys

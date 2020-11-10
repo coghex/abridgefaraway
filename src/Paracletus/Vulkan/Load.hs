@@ -17,7 +17,6 @@ import Paracletus.Vulkan.Pipeline
 -- and filepaths added will be ammended to that
 loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData)
 loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
-  settings ← gets sSettings
   -- the engine reserves the first few
   -- textures for default usage.
   -- first texture is a test jpg, second
@@ -27,12 +26,13 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   -- texture data, first an array of
   -- generic tiles that can be created,
   -- then the list of world textures
-  let tex1Path   = "dat/tex/texture.jpg"
-      --texAlph    = "dat/tex/alph.png"
-      --texboxPath = "dat/tex/box"
-      texAlph = settingFontPath settings
-      texboxPath = settingTBPath settings
-      texmboxPath = settingMTBPath settings
+  let tex1Path    = "dat/tex/texture.jpg"
+      texAlph     = "dat/tex/alph.png"
+      texboxPath  = "dat/tex/box"
+      texmboxPath = "dat/tex/mbox"
+      --texAlph = settingFontPath settings
+      --texboxPath = settingTBPath settings
+      --texmboxPath = settingMTBPath settings
   boxTexs ← loadNTexs pdev dev cmdPool cmdQueue texboxPath
   mboxTexs ← loadNTexs pdev dev cmdPool cmdQueue texmboxPath
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path

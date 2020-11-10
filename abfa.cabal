@@ -33,10 +33,10 @@ executable abfa
                    Anamnesis.World
                    Epiklesis.Data
                    Epiklesis.Lua
-                   Epiklesis.Shell
                    Epiklesis.World
                    Paracletus
                    Paracletus.Data
+                   Paracletus.Draw
                    Paracletus.Oblatum
                    Paracletus.Oblatum.Callback
                    Paracletus.Oblatum.Data
@@ -46,6 +46,7 @@ executable abfa
                    Paracletus.Vulkan
                    Paracletus.Vulkan.Atlas
                    Paracletus.Vulkan.Buffer
+                   Paracletus.Vulkan.Calc
                    Paracletus.Vulkan.Command
                    Paracletus.Vulkan.Desc
                    Paracletus.Vulkan.Device
@@ -57,7 +58,6 @@ executable abfa
                    Paracletus.Vulkan.Pres
                    Paracletus.Vulkan.Shader
                    Paracletus.Vulkan.Sync
-                   Paracletus.Vulkan.Tile
                    Paracletus.Vulkan.Texture
                    Paracletus.Vulkan.Trans
                    Paracletus.Vulkan.Vertex

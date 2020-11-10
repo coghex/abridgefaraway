@@ -30,7 +30,7 @@ initEnv = do
   newC2 ← newTChan
   newC3 ← newTChan
   atomically $ newTVar Env { envEventsChan = newQ
-                           , envSCChan     = newC1
+                           , envCamChan    = newC1
                            , envSegChan    = newC2
                            , envWTimerChan = newC3 }
 initState ∷ IO (TVar State)
@@ -44,7 +44,6 @@ initState = do
                     , tMoves = False }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
-  luasettings ← importSettings ls "mod/base/"
   ds ← initDrawState [tile1]
   let is = InputState { mouse1 = False
                       , mouse1Cache = (0.0,0.0)
@@ -55,14 +54,7 @@ initState = do
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , windowSt     = Nothing
-                             , cam3d        = (0.0, 0.0, -1.0)
-                             , gamecam3d    = (0.0, 0.0, -1.0)
-                             , cursor       = (0, 0, 2)
-                             , screenCursor = ((0.0,0.0),(12,8))
-                             , currentWin   = 0
                              , drawSt       = ds
                              , luaSt        = ls
                              , inputState   = is
-                             , sSettings    = luasettings
-                             , sShell       = False
                              , sRecreate    = False }
