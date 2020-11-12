@@ -29,14 +29,39 @@ data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaLastWin ∷ Int
                          , luaWindows ∷ [Window] }
 
-data WinElem = WinElemText { textPos ∷ (Double,Double)
-                           , textBox ∷ Bool
-                           , textStr ∷ String }
-             | WinElemBack { backFP  ∷ String }
-             | WinElemLink { linkPos ∷ (Double,Double)
-                           , linkBox ∷ (Double,Double)
-                           , linkAct ∷ LinkAction }
+data WinElem = WinElemText  { textPos ∷ (Double,Double)
+                            , textBox ∷ Bool
+                            , textStr ∷ String }
+             | WinElemBack  { backFP  ∷ String }
+             | WinElemLink  { linkPos ∷ (Double,Double)
+                            , linkBox ∷ (Double,Double)
+                            , linkAct ∷ LinkAction }
+             | WinElemWorld { worldTexs ∷ [String] }
              | WinElemNULL deriving (Show, Eq)
+-- define an order so sorting is consistent,
+-- some equalities are more or less arbitrary
+instance Ord WinElem where
+  --these compare against themselves
+  compare (WinElemText tp1 _ _) (WinElemText tp2 _ _) = EQ
+  compare (WinElemLink lp1 _ _) (WinElemLink lp2 _ _) = EQ
+  compare (WinElemBack _) (WinElemBack _)      = EQ
+  compare (WinElemWorld _) (WinElemWorld _)    = EQ
+  compare (WinElemNULL) (WinElemNULL)          = EQ
+  -- this is where the real definition is
+  compare (WinElemBack _) (WinElemWorld _)     = GT
+  compare (WinElemBack _) (WinElemLink _ _ _)  = GT
+  compare (WinElemBack _) (WinElemNULL)        = GT
+  compare (WinElemWorld _) (WinElemBack _)     = LT
+  compare (WinElemWorld _) (WinElemLink _ _ _) = GT
+  compare (WinElemWorld _) (WinElemNULL)       = GT
+  -- these help cover all cases where we dont
+  -- even have textures to compare
+  compare (WinElemLink _ _ _) _                = LT
+  compare _ (WinElemLink _ _ _)                = GT
+  compare (WinElemText _ _ _) _                = LT
+  compare _ (WinElemText _ _ _)                = GT
+  compare (WinElemNULL) _                      = LT
+  compare _ (WinElemNULL)                      = GT
 
 -- possible actions when links are clicked
 data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Show, Eq)

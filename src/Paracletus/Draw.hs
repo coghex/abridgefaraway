@@ -5,6 +5,7 @@ module Paracletus.Draw where
 -- vertex translation in seperate modules
 import Prelude()
 import UPrelude
+import Data.List (sort)
 import Data.List.Split (splitOn)
 import Anamnesis.Data
 import Epiklesis.Data
@@ -30,6 +31,7 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem (WinElemText pos False str) = addText pos str
 loadWinElem (WinElemBack fp) = [GTile (0,0) (32,24) (0,0) (1,1) 19 False]
+loadWinElem (WinElemWorld fp) = [GTile (0,0) (1,1) (0,0) (3,15) 20 True]
 loadWinElem (WinElemLink _ _ _) = []
 loadWinElem WinElemNULL = []
 

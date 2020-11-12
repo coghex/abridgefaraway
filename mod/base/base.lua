@@ -29,6 +29,9 @@ function LuaWindow:newButton (x,y,text,action,args)
     newText ((self.lwName),x,y,text,"textbox")
     newLink ((self.lwName),x,y,text,action,args)
 end
+function LuaWindow:addWorld (dp)
+    newWorld ((self.lwName),dp)
+end
 -- this runs once at the beginning
 function initLua ()
     -- basic UI elements can be in any order
@@ -49,6 +52,7 @@ function initLua ()
     game1:init("game1","game")
     game1:setBackground ("dat/tex/black.png")
     game1:addTextBox (-4.0, 4.0, "blop blop")
+    game1:addWorld ("dat/tex/world/")
 
     menu1:switchToWindow ()
 

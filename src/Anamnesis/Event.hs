@@ -42,6 +42,7 @@ processEvent event = case event of
     case (windowSt st) of
       Just win → liftIO $ GLFW.setWindowShouldClose win True
       Nothing  → logWarn $ "no glfw window to close"
+  (EventLogDebug str) → logDebug str
   (EventKey win k _ ks mk) → do
     keyLayout ← importKeyLayout
     evalKey win k ks mk keyLayout
@@ -51,10 +52,8 @@ processEvent event = case event of
   -- into the engine draw state,
   -- called every window change
     logDebug $ "loaded event"
-    env ← ask
     st  ← get
     let ls = luaSt st
-        currWin = (luaWindows ls) !! (luaCurrWin ls)
         newDS   = loadDrawState ls
     modify $ \s → s { drawSt = newDS
                     , sRecreate = True }
@@ -66,17 +65,19 @@ processEvent event = case event of
       (LuaCmdnewElem win e) → do
       -- if you wish to load more textures
       -- sRecreate must be set True
+        st ← get
         case e of
           WinElemText _ _ _ → do
-            st ← get
             let newLS = addElemToLuaState win e (luaSt st)
             modify $ \s → s { luaSt = newLS }
           WinElemLink _ _ _ → do
-            st ← get
             let newLS = addElemToLuaState win e (luaSt st)
             modify $ \s → s { luaSt = newLS }
           WinElemBack _ → do
-            st ← get
+            let newLS = addElemToLuaState win e (luaSt st)
+            modify $ \s → s { luaSt = newLS
+                            , sRecreate = True }
+          WinElemWorld _ → do
             let newLS = addElemToLuaState win e (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
@@ -86,8 +87,8 @@ processEvent event = case event of
         st  ← get
         let eventQ = envEventsChan env
             ls     = luaSt st
-            wins   = luaWindows ls
-            winNum = winToNum 0 wins winName
+            lwins  = luaWindows ls
+            winNum = winToNum 0 lwins winName
             winToNum ∷ Int → [Window] → String → Int
             winToNum _ []      _   = -1
             winToNum n (win:wins) name

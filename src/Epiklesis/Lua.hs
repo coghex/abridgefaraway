@@ -3,8 +3,11 @@ module Epiklesis.Lua where
 -- is instantiated.
 import Prelude()
 import UPrelude
+import Data.List (sort)
 import Data.List.Split (splitOn)
 import qualified Foreign.Lua as Lua
+import System.Directory (getDirectoryContents)
+import System.FilePath (combine)
 import Anamnesis.Data
 import Anamnesis.World
 import Artos.Var
@@ -36,6 +39,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
     Lua.registerHaskellFunction "newLink" (hsNewLink env)
+    Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.openlibs
@@ -97,6 +101,17 @@ hsNewLink env _   _ _ _    action _        = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
   where errorstr = "link action " ⧺ action ⧺ " unknown"
 
+hsNewWorld ∷ Env → String → String → Lua.Lua ()
+hsNewWorld env win dp = do
+  let eventQ = envEventsChan env
+  rawdp ← Lua.liftIO $ getDirectoryContents dp
+  let dps = map (combine dp) $ sort $ filter filterOutPathJunk rawdp
+      filterOutPathJunk ∷ FilePath → Bool
+      filterOutPathJunk "."  = False
+      filterOutPathJunk ".." = False
+      filterOutPathJunk _    = True
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld dps))
+
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
@@ -109,11 +124,12 @@ hsSwitchWindow env name = do
 
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
-findReqTextures win = findTexturesFromElems $ winElems win
+findReqTextures win = findTexturesFromElems $ sort $ winElems win
 findTexturesFromElems ∷ [WinElem] → [String]
 findTexturesFromElems []                        = []
 findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromElems wes
   where elemTexs = [fp]
+findTexturesFromElems ((WinElemWorld dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
