@@ -124,8 +124,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   st ← get
-  let ds   = drawSt st
-      (verts, inds) = calcVertices ds
+  let ds  = drawSt st
+      (verts, inds) = calcVertices (0.0,0.0,(-1.0)) ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
@@ -136,7 +136,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     cmdBP ← do
         stNew ← get
         let dsNew = drawSt stNew
-            (verts0, inds0) = calcVertices dsNew
+            lsNew = luaSt stNew
+            camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+            (verts0, inds0) = calcVertices camNew dsNew
         vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
         indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
         newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
@@ -168,7 +170,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     -- such as key input and state changes
     processEvents
     -- this is for input calculations
-    --processInput
+    processInput
     stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop

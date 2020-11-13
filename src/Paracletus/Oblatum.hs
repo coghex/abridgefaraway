@@ -79,7 +79,7 @@ processInput = do
         windows = luaWindows (ls)
         win     = windows !! (luaCurrWin ls)
     case (winType win) of
-      WinTypeGame → return ()
+      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse else return ()
       WinTypeMenu → return ()
       WinTypeNULL → return ()
 

@@ -15,9 +15,9 @@ import Paracletus.Vulkan.Vertex
 -- preformance of dataframe creation seems
 -- to be negligent, regardless, keep other
 -- calcuations to a minimum.
-calcVertices ∷ DrawState →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
-calcVertices ds = (verts,inds)
-  where verts = vertices (0.0,0.0,-1.0) ts
+calcVertices ∷ (Float,Float,Float) → DrawState →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+calcVertices cam ds = (verts,inds)
+  where verts = vertices cam ts
         inds  = indices  ts
         ts    = dsTiles  ds
 -- combines all GTiles into a dataframe

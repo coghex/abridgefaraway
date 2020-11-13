@@ -48,7 +48,6 @@ evalMouse win mb mbs _  = do
   -- mouse button 3 press
   when ((mb ≡ GLFW.mousebutt3) ∧ (winType thisWin ≡ WinTypeGame)) $ do
     if ((mbs ≡ GLFW.MouseButtonState'Pressed) ∧ ((mouse3 oldIS) ≡ False)) then do
-      logDebug $ "mouse 3 click"
       pos' ← liftIO $ GLFW.getCursorPos win
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
           newIS = oldIS { mouse3 = True
@@ -57,7 +56,6 @@ evalMouse win mb mbs _  = do
       --logDebug $ "mouse 3 click at: " ⧺ (show pos)
   -- mouse button 3 release
     else if ((mbs ≡ GLFW.MouseButtonState'Released) ∧ ((mouse3 oldIS) ≡ True)) then do
-      logDebug $ "mouse 3 unclick"
       if ((winType thisWin) ≡ WinTypeGame) then do
         case (findWorldData thisWin) of
           Just (_,wd) → do
@@ -65,6 +63,7 @@ evalMouse win mb mbs _  = do
                 sc = ((wdCam wd),(wdCSize wd))
             liftIO $ reloadScreenCursor env sc
             modify' $ \s → s { inputState = newIS }
+            --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
       else return ()
     else return ()
       
@@ -147,8 +146,8 @@ moveCamWithMouse = do
                 newLS = ls { luaWindows = newWins }
                 newDS = loadDrawState newLS
             modify' $ \s → s { drawSt = newDS
-                            , luaSt = newLS
-                            , inputState = newIS }
+                             , luaSt = newLS
+                             , inputState = newIS }
           Nothing → return ()
       else return ()
     Nothing → return ()
