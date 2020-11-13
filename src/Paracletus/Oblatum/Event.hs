@@ -14,6 +14,7 @@ import Anamnesis.World
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
+import Paracletus.Draw
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
@@ -45,15 +46,18 @@ evalMouse win mb mbs _  = do
       modify' $ \s → s { inputState = newIS }
     else return ()
   -- mouse button 3 press
-  when ((mb ≡ GLFW.mousebutt1) ∧ (winType thisWin ≡ WinTypeGame)) $ do
+  when ((mb ≡ GLFW.mousebutt3) ∧ (winType thisWin ≡ WinTypeGame)) $ do
     if ((mbs ≡ GLFW.MouseButtonState'Pressed) ∧ ((mouse3 oldIS) ≡ False)) then do
+      logDebug $ "mouse 3 click"
       pos' ← liftIO $ GLFW.getCursorPos win
       let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
           newIS = oldIS { mouse3 = True
                         , mouse3Cache = pos }
       modify' $ \s → s { inputState = newIS }
+      --logDebug $ "mouse 3 click at: " ⧺ (show pos)
   -- mouse button 3 release
-    else if ((mbs ≡ GLFW.MouseButtonState'Released) ∧ ((mouse3 oldIS) ≡ False)) then do
+    else if ((mbs ≡ GLFW.MouseButtonState'Released) ∧ ((mouse3 oldIS) ≡ True)) then do
+      logDebug $ "mouse 3 unclick"
       if ((winType thisWin) ≡ WinTypeGame) then do
         case (findWorldData thisWin) of
           Just (_,wd) → do
@@ -112,3 +116,42 @@ isElemLink (WinElemLink _ _ _) = True
 isElemLink (WinElemText _ _ _) = False
 isElemLink (WinElemBack _ )    = False
 isElemLink (WinElemNULL)       = False
+
+moveCamWithMouse ∷ Anamnesis ε σ ()
+moveCamWithMouse = do
+  st ← get
+  let win' = windowSt st
+  case win' of
+    Just win → do
+      let currWin = (luaWindows ls) ‼ (luaCurrWin ls)
+          ls = luaSt st
+      if ((winType currWin) ≡ WinTypeGame) then do
+        case (findWorldData currWin) of
+          Just (_,wd) → do
+            pos' ← liftIO $ GLFW.getCursorPos win
+            let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
+                oldpos = mouse3Cache (inputState st)
+                diff = (((fst pos)-(fst oldpos)),((snd pos)-(snd oldpos)))
+                oldcam = winCursor currWin
+                newcam = moveCam oldcam diff
+                moveCam ∷ (Float,Float,Float) → (Float,Float) → (Float,Float,Float)
+                moveCam (x1,y1,z1) (x2,y2) = (x1+x2',y1-y2',z1) where (x2',y2') = (x2/3.6,y2/3.6)
+                oldIS = inputState st
+                newIS = oldIS { mouse3 = True
+                              , mouse3Cache = ((fst pos),(snd pos)) }
+                newSC = moveScreenCursor newcam
+                newWD = wd { wdCam = newSC }
+                newWin' = replaceWorldData currWin newWD
+                newWin  = newWin' { winCursor = newcam }
+                newWins = findAndReplaceWindow newWin (luaWindows ls)
+                newLS = ls { luaWindows = newWins }
+                newDS = loadDrawState newLS
+            modify' $ \s → s { drawSt = newDS
+                            , luaSt = newLS
+                            , inputState = newIS }
+          Nothing → return ()
+      else return ()
+    Nothing → return ()
+
+moveScreenCursor ∷ (Float,Float,Float) → (Float,Float)
+moveScreenCursor (x,y,z) = (-0.05*x,-0.05*y)

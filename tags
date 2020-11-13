@@ -204,7 +204,7 @@ code	src/Artos/Except.hs	23;"	f
 color	src/Paracletus/Vulkan/Vertex.hs	23;"	f
 combineIndices	src/Paracletus/Vulkan/Calc.hs	50;"	f
 compileGLSL	src/Paracletus/TH.hs	20;"	f
-convertPixels	src/Paracletus/Oblatum/Event.hs	66;"	f
+convertPixels	src/Paracletus/Oblatum/Event.hs	72;"	f
 copyBuffer	src/Paracletus/Vulkan/Buffer.hs	51;"	f
 copyBufferToImage	src/Paracletus/Vulkan/Texture.hs	311;"	f
 createAtlas	src/Paracletus/Vulkan/Atlas.hs	20;"	f
@@ -264,8 +264,8 @@ envEventsChan	src/Anamnesis/Data.hs	19;"	f
 envSegChan	src/Anamnesis/Data.hs	21;"	f
 envWTimerChan	src/Anamnesis/Data.hs	22;"	f
 errorCallback	src/Paracletus/Oblatum/Callback.hs	7;"	f
-evalKey	src/Paracletus/Oblatum/Event.hs	20;"	f
-evalMouse	src/Paracletus/Oblatum/Event.hs	25;"	f
+evalKey	src/Paracletus/Oblatum/Event.hs	21;"	f
+evalMouse	src/Paracletus/Oblatum/Event.hs	26;"	f
 evalScreenCursor	src/Anamnesis/World.hs	68;"	f
 exTy	src/Artos/Except.hs	24;"	f
 finally	src/Anamnesis/Util.hs	62;"	f
@@ -334,7 +334,7 @@ initState	src/Anamnesis/Init.hs	36;"	f
 inputState	src/Anamnesis/Data.hs	30;"	f
 isDev	src/Anamnesis/Util.hs	77;"	f
 isDeviceSuitable	src/Paracletus/Vulkan/Device.hs	52;"	f
-isElemLink	src/Paracletus/Oblatum/Event.hs	108;"	f
+isElemLink	src/Paracletus/Oblatum/Event.hs	114;"	f
 keyCallback	src/Paracletus/Oblatum/Callback.hs	9;"	f
 keyCheck	src/Paracletus/Oblatum/GLFW.hs	57;"	f
 klDel	src/Paracletus/Oblatum/Data.hs	7;"	f
@@ -348,8 +348,8 @@ liftIOWith	src/Anamnesis/Foreign.hs	44;"	f
 linkAct	src/Epiklesis/Data.hs	38;"	f
 linkBox	src/Epiklesis/Data.hs	37;"	f
 linkPos	src/Epiklesis/Data.hs	36;"	f
-linkTest	src/Paracletus/Oblatum/Event.hs	76;"	f
-linkTestFunc	src/Paracletus/Oblatum/Event.hs	81;"	f
+linkTest	src/Paracletus/Oblatum/Event.hs	82;"	f
+linkTestFunc	src/Paracletus/Oblatum/Event.hs	87;"	f
 loadDrawState	src/Paracletus/Draw.hs	16;"	f
 loadNTex	src/Paracletus/Vulkan/Texture.hs	41;"	f
 loadNTexs	src/Paracletus/Vulkan/Texture.hs	30;"	f
@@ -391,7 +391,9 @@ mouseButtonCallback	src/Paracletus/Oblatum/Callback.hs	11;"	f
 mousebutt1	src/Paracletus/Oblatum/GLFW.hs	22;"	f
 mousebutt2	src/Paracletus/Oblatum/GLFW.hs	24;"	f
 mousebutt3	src/Paracletus/Oblatum/GLFW.hs	26;"	f
+moveCamWithMouse	src/Paracletus/Oblatum/Event.hs	120;"	f
 moveCursor	src/Anamnesis/Map.hs	9;"	f
+moveScreenCursor	src/Paracletus/Oblatum/Event.hs	156;"	f
 msaaSamples	src/Paracletus/Data.hs	59;"	f
 msg	src/Artos/Except.hs	25;"	f
 newArrayRes	src/Anamnesis/Foreign.hs	52;"	f
@@ -410,7 +412,7 @@ pickPhysicalDevice	src/Paracletus/Vulkan/Device.hs	42;"	f
 pipelineLayout	src/Paracletus/Data.hs	38;"	f
 poke	src/Anamnesis/Foreign.hs	25;"	f
 pos	src/Paracletus/Vulkan/Vertex.hs	22;"	f
-posClose	src/Paracletus/Oblatum/Event.hs	71;"	f
+posClose	src/Paracletus/Oblatum/Event.hs	77;"	f
 prepareDescriptorSet	src/Paracletus/Vulkan/Desc.hs	65;"	f
 presentFamIdx	src/Paracletus/Data.hs	73;"	f
 presentModes	src/Paracletus/Data.hs	79;"	f
