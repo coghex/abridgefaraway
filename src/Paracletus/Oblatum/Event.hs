@@ -29,6 +29,7 @@ evalMouse win mb mbs _  = do
   let oldIS   = inputState st
       ls      = luaSt st
       thisWin = (luaWindows ls) !! (luaCurrWin ls)
+  -- mouse button 1 press
   when ((mb ≡ GLFW.mousebutt1) ∧ ((winType thisWin) ≡ WinTypeMenu)) $ do
     if (mbs ≡ GLFW.MouseButtonState'Pressed) then do
       pos' ← liftIO $ GLFW.getCursorPos win
@@ -38,11 +39,32 @@ evalMouse win mb mbs _  = do
       let newIS = oldIS { mouse1      = True
                         , mouse1Cache = (realToFrac (fst pos'), realToFrac (snd pos')) }
       modify' $ \s → s { inputState = newIS }
+  -- mouse button 1 release
     else if (mbs ≡ GLFW.MouseButtonState'Released) then do
       let newIS = oldIS { mouse1 = False }
       modify' $ \s → s { inputState = newIS }
     else return ()
-
+  -- mouse button 3 press
+  when ((mb ≡ GLFW.mousebutt1) ∧ (winType thisWin ≡ WinTypeGame)) $ do
+    if ((mbs ≡ GLFW.MouseButtonState'Pressed) ∧ ((mouse3 oldIS) ≡ False)) then do
+      pos' ← liftIO $ GLFW.getCursorPos win
+      let pos = ((realToFrac (fst pos')),(realToFrac (snd pos')))
+          newIS = oldIS { mouse3 = True
+                        , mouse3Cache = pos }
+      modify' $ \s → s { inputState = newIS }
+  -- mouse button 3 release
+    else if ((mbs ≡ GLFW.MouseButtonState'Released) ∧ ((mouse3 oldIS) ≡ False)) then do
+      if ((winType thisWin) ≡ WinTypeGame) then do
+        case (findWorldData thisWin) of
+          Just (_,wd) → do
+            let newIS = oldIS { mouse3 = False }
+                sc = ((wdCam wd),(wdCSize wd))
+            liftIO $ reloadScreenCursor env sc
+            modify' $ \s → s { inputState = newIS }
+      else return ()
+    else return ()
+      
+-- TODO: un-hardcode the pixels here
 convertPixels ∷ ∀ a. (Fractional a, Num a) ⇒ (a,a) → (a,a)
 convertPixels (x,y) = (x',y')
   where x' = ((x - (1280.0 / 2.0)) / 64.0)
