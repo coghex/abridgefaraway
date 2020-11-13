@@ -114,7 +114,7 @@ hsNewWorld env win zx zy sx sy dp = do
       -- TODO: represent aspect ratio
       wd = WorldData (0.0,0.0) (12,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
-      initSeg  = Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
+      initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps))
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
@@ -129,7 +129,7 @@ hsSwitchWindow env name = do
 
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
-findReqTextures win = findTexturesFromElems $ sort $ winElems win
+findReqTextures win = findTexturesFromElems $ reverse $ sort $ winElems win
 findTexturesFromElems ∷ [WinElem] → [String]
 findTexturesFromElems []                        = []
 findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromElems wes

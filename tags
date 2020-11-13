@@ -12,7 +12,7 @@ Artos	src/Artos.hs	2;"	m
 Atlas	src/Paracletus/Vulkan/Atlas.hs	13;"	t
 Atlas	src/Paracletus/Vulkan/Atlas.hs	2;"	m
 Buffer	src/Paracletus/Vulkan/Buffer.hs	5;"	m
-Calc	src/Paracletus/Vulkan/Calc.hs	1;"	m
+Calc	src/Paracletus/Vulkan/Calc.hs	2;"	m
 Callback	src/Paracletus/Oblatum/Callback.hs	1;"	m
 CardNULL	src/Anamnesis/Map.hs	7;"	C
 Cardinal	src/Anamnesis/Map.hs	7;"	t
@@ -186,7 +186,7 @@ calcSegSpot	src/Paracletus/Draw.hs	75;"	f
 calcSegTiles	src/Paracletus/Draw.hs	61;"	f
 calcTextBoxSize	src/Paracletus/Draw.hs	95;"	f
 calcTiles	src/Paracletus/Draw.hs	40;"	f
-calcVertices	src/Paracletus/Vulkan/Calc.hs	18;"	f
+calcVertices	src/Paracletus/Vulkan/Calc.hs	19;"	f
 calcZoneRows	src/Paracletus/Draw.hs	50;"	f
 calcZoneSpot	src/Paracletus/Draw.hs	56;"	f
 calcZoneTiles	src/Paracletus/Draw.hs	44;"	f
@@ -202,7 +202,7 @@ cmdBuffersPtr	src/Paracletus/Vulkan/Draw.hs	117;"	f
 cmdPool	src/Paracletus/Data.hs	48;"	f
 code	src/Artos/Except.hs	23;"	f
 color	src/Paracletus/Vulkan/Vertex.hs	23;"	f
-combineIndices	src/Paracletus/Vulkan/Calc.hs	50;"	f
+combineIndices	src/Paracletus/Vulkan/Calc.hs	51;"	f
 compileGLSL	src/Paracletus/TH.hs	20;"	f
 convertPixels	src/Paracletus/Oblatum/Event.hs	71;"	f
 copyBuffer	src/Paracletus/Vulkan/Buffer.hs	51;"	f
@@ -325,7 +325,7 @@ inDev	src/Anamnesis/Util.hs	85;"	f
 inFlightFences	src/Paracletus/Data.hs	67;"	f
 inFlightFences	src/Paracletus/Vulkan/Draw.hs	116;"	f
 indexAtlas	src/Paracletus/Vulkan/Atlas.hs	31;"	f
-indices	src/Paracletus/Vulkan/Calc.hs	48;"	f
+indices	src/Paracletus/Vulkan/Calc.hs	49;"	f
 initDrawState	src/Anamnesis/Draw.hs	12;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
 initGLFWWindow	src/Paracletus/Oblatum.hs	20;"	f
@@ -503,7 +503,7 @@ updateWorld	src/Anamnesis/World.hs	22;"	f
 version	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	28;"	f
 vertIADs	src/Paracletus/Vulkan/Vertex.hs	41;"	f
 vertIBD	src/Paracletus/Vulkan/Vertex.hs	36;"	f
-vertices	src/Paracletus/Vulkan/Calc.hs	25;"	f
+vertices	src/Paracletus/Vulkan/Calc.hs	26;"	f
 view	src/Paracletus/Vulkan/Trans.hs	23;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Device.hs	25;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Instance.hs	18;"	f

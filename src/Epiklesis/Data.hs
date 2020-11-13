@@ -50,18 +50,18 @@ instance Ord WinElem where
   compare (WinElemWorld _ _ _) (WinElemWorld _ _ _)   = EQ
   compare (WinElemNULL) (WinElemNULL)                 = EQ
   -- this is where the real definition is
-  compare (WinElemBack _) (WinElemWorld _ _ _)        = GT
+  compare (WinElemBack _) (WinElemWorld _ _ _)        = LT
   compare (WinElemBack _) (WinElemLink _ _ _)         = GT
   compare (WinElemBack _) (WinElemNULL)               = GT
-  compare (WinElemWorld _ _ _) (WinElemBack _)        = LT
+  compare (WinElemWorld _ _ _) (WinElemBack _)        = GT
   compare (WinElemWorld _ _ _) (WinElemLink _ _ _)    = GT
   compare (WinElemWorld _ _ _) (WinElemNULL)          = GT
   -- these help cover all cases where we dont
   -- even have textures to compare
   compare (WinElemLink _ _ _) _ = LT
   compare _ (WinElemLink _ _ _) = GT
-  compare (WinElemText _ _ _) _ = LT
-  compare _ (WinElemText _ _ _) = GT
+  compare (WinElemText _ _ _) _ = GT
+  compare _ (WinElemText _ _ _) = LT
   compare (WinElemNULL) _       = LT
   compare _ (WinElemNULL)       = GT
 

@@ -76,7 +76,7 @@ evalScreenCursor ((cx,cy),_) = [pos]
 genSegs ∷ [(Int,Int)] → [((Int,Int),Segment)]
 genSegs []             = []
 genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
-  where seg = Segment $ take 32 (repeat (take 32 (repeat (Tile 2 1))))
+  where seg = Segment $ take 8 (repeat (take 8 (repeat (Tile 2 1))))
 
 -- sends the updating thread the screen cursor
 reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()

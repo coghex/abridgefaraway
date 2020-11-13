@@ -20,7 +20,7 @@ loadDrawState ls = DrawState tiles
         currWin = (luaWindows ls) !! winInd
   
 loadWindow ∷ Window → [GTile]
-loadWindow win = loadWinElems $ winElems win
+loadWindow win = loadWinElems $ sort $ winElems win
 
 loadWinElems ∷ [WinElem] → [GTile]
 loadWinElems []           = []

@@ -1,3 +1,4 @@
+{-# LANGUAGE Strict #-}
 module Paracletus.Vulkan.Calc where
 -- translations from lua state to draw
 -- state are defined, should be run
