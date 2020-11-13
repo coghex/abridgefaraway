@@ -6,10 +6,8 @@ import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets, modify)
-import Data.List (sort)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
-import System.Directory (getDirectoryContents)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Event
@@ -21,7 +19,6 @@ import Artos.Except
 import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
-import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -78,7 +75,9 @@ runParacVulkan = do
     _ ← liftIO $ forkIO $ loadState env st
     -- this function updates the world grid
     -- as we change the camera.
-    --_ ← liftIO $ forkIO $ updateWorld env 0 (screenCursor st) [] TStop
+    -- TODO: the aspect ratio should
+    -- not be hardcoded
+    _ ← liftIO $ forkIO $ updateWorld env 0 ((0.0,0.0),(12,8)) [] TStop
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
@@ -126,7 +125,6 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   st ← get
   let ds   = drawSt st
-      ls   = luaSt st
       (verts, inds) = calcVertices ds
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
@@ -138,7 +136,6 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     cmdBP ← do
         stNew ← get
         let dsNew = drawSt stNew
-            ls    = luaSt stNew
             (verts0, inds0) = calcVertices dsNew
         vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
         indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0

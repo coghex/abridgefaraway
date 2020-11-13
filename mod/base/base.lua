@@ -29,8 +29,8 @@ function LuaWindow:newButton (x,y,text,action,args)
     newText ((self.lwName),x,y,text,"textbox")
     newLink ((self.lwName),x,y,text,action,args)
 end
-function LuaWindow:addWorld (dp)
-    newWorld ((self.lwName),dp)
+function LuaWindow:addWorld (zx,zy,sx,sy,dp)
+    newWorld ((self.lwName),zx,zy,sx,sy,dp)
 end
 -- this runs once at the beginning
 function initLua ()
@@ -52,7 +52,7 @@ function initLua ()
     game1:init("game1","game")
     game1:setBackground ("dat/tex/black.png")
     game1:addTextBox (-4.0, 4.0, "blop blop")
-    game1:addWorld ("dat/tex/world/")
+    game1:addWorld (32,32,32,32,"dat/tex/world/")
 
     menu1:switchToWindow ()
 

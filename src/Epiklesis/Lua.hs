@@ -101,8 +101,8 @@ hsNewLink env _   _ _ _    action _        = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
   where errorstr = "link action " ⧺ action ⧺ " unknown"
 
-hsNewWorld ∷ Env → String → String → Lua.Lua ()
-hsNewWorld env win dp = do
+hsNewWorld ∷ Env → String → Int → Int → Int → Int → String → Lua.Lua ()
+hsNewWorld env win zx zy sx sy dp = do
   let eventQ = envEventsChan env
   rawdp ← Lua.liftIO $ getDirectoryContents dp
   let dps = map (combine dp) $ sort $ filter filterOutPathJunk rawdp
@@ -110,7 +110,12 @@ hsNewWorld env win dp = do
       filterOutPathJunk "."  = False
       filterOutPathJunk ".." = False
       filterOutPathJunk _    = True
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld dps))
+      wp = WorldParams (zx,zy) (sx,sy) $ length dps
+      -- TODO: represent aspect ratio
+      wd = WorldData (0.0,0.0) (12,8) [Zone (0,0) (initSegs)]
+      initSegs = take zy (repeat (take zx (repeat (initSeg))))
+      initSeg  = Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps))
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
@@ -129,7 +134,7 @@ findTexturesFromElems ∷ [WinElem] → [String]
 findTexturesFromElems []                        = []
 findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromElems wes
   where elemTexs = [fp]
-findTexturesFromElems ((WinElemWorld dps):wes)  = dps ⧺ findTexturesFromElems wes
+findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes

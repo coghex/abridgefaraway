@@ -83,3 +83,64 @@ reloadScreenCursor ∷ Env → ((Float,Float),(Int,Int)) → IO ()
 reloadScreenCursor env sc = do
   atomically $ writeChan (envWTimerChan env) TPause
   atomically $ writeChan (envCamChan env) sc
+
+-- returns the first world element
+-- found on the current window
+findWorldData ∷ Window → (Maybe (WorldParams,WorldData))
+findWorldData (Window _ _ _ elems) = findElemData elems
+findElemData ∷ [WinElem] → (Maybe (WorldParams,WorldData))
+findElemData []                            = Nothing
+findElemData ((WinElemNULL):elems)         = findElemData elems
+findElemData ((WinElemText _ _ _):elems)   = findElemData elems
+findElemData ((WinElemBack _):elems)       = findElemData elems
+findElemData ((WinElemLink _ _ _):elems)   = findElemData elems
+findElemData ((WinElemWorld wp wd _):elems) = Just (wp,wd)
+
+-- replaces world data in a window
+replaceWorldData ∷ Window → WorldData → Window
+replaceWorldData (Window name wType curs elems) wd = Window name wType curs $ map (replaceElemData wd) elems
+replaceElemData ∷ WorldData → WinElem → WinElem
+replaceElemData wd' (WinElemNULL)           = WinElemNULL
+replaceElemData wd' (WinElemText tp tb ts)  = WinElemText tp tb ts
+replaceElemData wd' (WinElemWorld wp wd wt) = WinElemWorld wp wd' wt
+replaceElemData wd' (WinElemLink lp lb la)  = WinElemLink lp lb la
+replaceElemData wd' (WinElemBack fp)        = WinElemBack fp
+
+-- finds a segment in world data,
+-- then replace it with a new segment.
+-- since zones can be in any order, we
+-- need to go through the list twice to
+-- see if we need to generate a new zone
+findAndReplaceSegment ∷ (Int,Int) → (Int,Int) → (Int,Int) → Segment → WorldData → WorldData
+findAndReplaceSegment zoneSize zoneInd segInd newSeg (WorldData cam camSize zones) = WorldData cam camSize zones'
+  where zones' = case (zoneExists zoneInd zones) of
+          True  → findAndReplaceZone zoneSize zoneInd segInd newSeg zones
+          False → zones ⧺ [(Zone zoneInd [])]
+findAndReplaceZone ∷ (Int,Int) → (Int,Int) → (Int,Int) → Segment → [Zone] → [Zone]
+findAndReplaceZone _        _       _      _      [] = []
+findAndReplaceZone zoneSize testInd segInd newSeg ((Zone ind segs):zs)
+  | (testInd ≡ ind) = [Zone ind segs'] ⧺ findAndReplaceZone zoneSize testInd segInd newSeg zs
+  | otherwise       = [Zone ind segs]  ⧺ findAndReplaceZone zoneSize testInd segInd newSeg zs
+  where segs' = findAndReplaceSegmentSpot zoneSize segInd segs newSeg
+findAndReplaceSegmentSpot ∷ (Int,Int) → (Int,Int) → [[Segment]] → Segment → [[Segment]]
+findAndReplaceSegmentSpot zoneSize segInd segs newSeg = map (findAndReplaceSegmentRow zoneSize segInd newSeg) (zip yinds segs)
+  where yinds = take (fst zoneSize) [0..]
+findAndReplaceSegmentRow ∷ (Int,Int) → (Int,Int) → Segment → (Int,[Segment]) → [Segment]
+findAndReplaceSegmentRow zoneSize segInd newSeg (j,segs) = map (findAndReplaceSegmentSpotSpot segInd newSeg j) (zip xinds segs)
+  where xinds = take (snd zoneSize) [0..]
+findAndReplaceSegmentSpotSpot ∷ (Int,Int) → Segment → Int → (Int,Segment) → Segment
+findAndReplaceSegmentSpotSpot segInd newSeg j (i,seg)
+  | (i,j) ≡ segInd = newSeg
+  | otherwise      = seg
+
+-- tells us if a zone is loaded in
+zoneExists ∷ (Int,Int) → [Zone] → Bool
+zoneExists _       [] = False
+zoneExists testInd ((Zone ind segs):zs)
+  | (testInd ≡ ind) = True
+  | otherwise       = zoneExists testInd zs
+
+findAndReplaceWindow ∷ Window → [Window] → [Window]
+findAndReplaceWindow (Window testname a1 a2 a3) ((Window name b1 b2 b3):ws)
+  | testname ≡ name = [Window testname a1 a2 a3] ⧺ findAndReplaceWindow (Window testname a1 a2 a3) ws
+  | otherwise       = [Window name     b1 b2 b3] ⧺ findAndReplaceWindow (Window testname a1 a2 a3) ws
