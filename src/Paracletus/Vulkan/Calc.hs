@@ -4,7 +4,7 @@ module Paracletus.Vulkan.Calc ( calcVertices ) where
 -- outside of parent thread
 import Prelude()
 import UPrelude
-import Control.Parallel.Strategies (rpar, rseq, runEval)
+--import Control.Parallel.Strategies (rpar, rseq, runEval)
 import Graphics.Vulkan.Core_1_0
 import Numeric.DataFrame
 import Anamnesis.Data
@@ -18,11 +18,11 @@ import Paracletus.Vulkan.Vertex
 -- to be negligent, regardless, keep other
 -- calcuations to a minimum.
 calcVertices ∷ (Float,Float,Float) → [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
-calcVertices cam ts = runEval $ do
-  verts ← rpar $ vertices cam ts
-  inds ← rseq $ indices ts
-  rseq verts
-  return (verts,inds)
+calcVertices cam ts = (vertices cam ts, indices ts)--runEval $ do
+  --verts ← rpar $ vertices cam ts
+  --inds ← rseq $ indices ts
+  --rseq verts
+  --return (verts,inds)
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
 vertices ∷ (Float,Float,Float) → [GTile] → DataFrame Vertex '[XN 0]
