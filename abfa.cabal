@@ -71,6 +71,7 @@ executable abfa
                  , containers
                  , dimensions
                  , process
+                 , parallel
                  , filepath
                  , directory
                  , hslua

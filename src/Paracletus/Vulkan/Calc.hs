@@ -4,6 +4,7 @@ module Paracletus.Vulkan.Calc where
 -- outside of parent thread
 import Prelude()
 import UPrelude
+import Control.Parallel.Strategies (parMap, rpar)
 import Graphics.Vulkan.Core_1_0
 import Numeric.DataFrame
 import Anamnesis.Data
@@ -24,7 +25,7 @@ calcVertices cam ds = (verts,inds)
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
 vertices ∷ (Float,Float,Float) → [GTile] → DataFrame Vertex '[XN 0]
-vertices (cx,cy,_) ts = fromList $ flatten $ map combineVertices ts
+vertices (cx,cy,_) ts = fromList $ flatten $ parMap rpar combineVertices ts
   where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1)
                   , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1)
                   , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1)
