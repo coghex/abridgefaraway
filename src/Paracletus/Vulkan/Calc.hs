@@ -8,6 +8,7 @@ import Graphics.Vulkan.Core_1_0
 import Numeric.DataFrame
 import Anamnesis.Data
 import Paracletus.Data
+import Paracletus.Draw
 import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Vertex
 
@@ -23,13 +24,14 @@ calcVertices cam ds = (verts,inds)
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
 vertices ∷ (Float,Float,Float) → [GTile] → DataFrame Vertex '[XN 0]
-vertices (cx,cy,_) ts = fromList $ combineVertices ts
+vertices (cx,cy,_) ts = fromList $ flatten $ map combineVertices ts
   where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1)
                   , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1)
                   , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1)
                   , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) ]
-        combineVertices [] = []
-        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
+        --combineVertices [] = []
+        --combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
+        combineVertices tile = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs)))
           where (x',y') = tPos tile
                 (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
                 (x, y)  = case (tMoves tile) of
