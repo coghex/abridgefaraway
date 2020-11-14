@@ -94,7 +94,7 @@ logDebug ∷ HasCallStack ⇒ String → Anamnesis ε σ ()
 #ifdef DEVELOPMENT
 logDebug = LoggerCS.logDebug ∘ fromString
 #else
-logDebug const $ pure ()
+logDebug = const $ pure ()
 #endif
 {-# INLINE logDebug #-}
 logInfo ∷ HasCallStack ⇒ String → Anamnesis ε σ ()
