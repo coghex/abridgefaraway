@@ -1,4 +1,3 @@
-{-# LANGUAGE Strict #-}
 module Paracletus.Vulkan.Atlas where
 import Prelude()
 import UPrelude

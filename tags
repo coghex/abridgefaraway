@@ -1,5 +1,4 @@
 !_TAG_FILE_SORTED	1	//
-$	src/Anamnesis/Util.hs	97;"	o
 AExcept	src/Artos/Except.hs	22;"	t
 AbortLoop	src/Anamnesis/Data.hs	19;"	C
 AnamnError	src/Anamnesis/Data.hs	17;"	C
@@ -9,8 +8,8 @@ Anamnesis	src/Anamnesis.hs	24;"	t
 Anamnesis	src/Anamnesis.hs	3;"	m
 Anamnesis'	src/Anamnesis.hs	27;"	t
 Artos	src/Artos.hs	2;"	m
-Atlas	src/Paracletus/Vulkan/Atlas.hs	13;"	t
-Atlas	src/Paracletus/Vulkan/Atlas.hs	2;"	m
+Atlas	src/Paracletus/Vulkan/Atlas.hs	12;"	t
+Atlas	src/Paracletus/Vulkan/Atlas.hs	1;"	m
 Buffer	src/Paracletus/Vulkan/Buffer.hs	5;"	m
 Calc	src/Paracletus/Vulkan/Calc.hs	1;"	m
 Callback	src/Paracletus/Oblatum/Callback.hs	1;"	m
@@ -215,7 +214,7 @@ compileGLSL	src/Paracletus/TH.hs	20;"	f
 convertPixels	src/Paracletus/Oblatum/Event.hs	70;"	f
 copyBuffer	src/Paracletus/Vulkan/Buffer.hs	51;"	f
 copyBufferToImage	src/Paracletus/Vulkan/Texture.hs	311;"	f
-createAtlas	src/Paracletus/Vulkan/Atlas.hs	20;"	f
+createAtlas	src/Paracletus/Vulkan/Atlas.hs	19;"	f
 createBuffer	src/Paracletus/Vulkan/Buffer.hs	24;"	f
 createColorAttImgView	src/Paracletus/Vulkan/Texture.hs	359;"	f
 createCommandBuffers	src/Paracletus/Vulkan/Draw.hs	47;"	f
@@ -330,12 +329,12 @@ imageAvailableSems	src/Paracletus/Data.hs	59;"	f
 imageAvailableSems	src/Paracletus/Vulkan/Draw.hs	115;"	f
 imgIndexPtr	src/Paracletus/Data.hs	55;"	f
 imgIndexPtr	src/Paracletus/Vulkan/Draw.hs	112;"	f
-imgview	src/Paracletus/Vulkan/Atlas.hs	17;"	f
+imgview	src/Paracletus/Vulkan/Atlas.hs	16;"	f
 importKeyLayout	src/Paracletus/Oblatum.hs	87;"	f
 inDev	src/Anamnesis/Util.hs	85;"	f
 inFlightFences	src/Paracletus/Data.hs	60;"	f
 inFlightFences	src/Paracletus/Vulkan/Draw.hs	116;"	f
-indexAtlas	src/Paracletus/Vulkan/Atlas.hs	31;"	f
+indexAtlas	src/Paracletus/Vulkan/Atlas.hs	30;"	f
 indices	src/Paracletus/Vulkan/Calc.hs	51;"	f
 initDrawState	src/Anamnesis/Draw.hs	11;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
@@ -451,7 +450,7 @@ runParacVulkan	src/Paracletus/Vulkan.hs	42;"	f
 runParacletus	src/Paracletus.hs	13;"	f
 runVk	src/Paracletus/Vulkan/Foreign.hs	26;"	f
 sRecreate	src/Anamnesis/Data.hs	36;"	f
-sampler	src/Paracletus/Vulkan/Atlas.hs	18;"	f
+sampler	src/Paracletus/Vulkan/Atlas.hs	17;"	f
 scsd	src/Paracletus/Data.hs	48;"	f
 segGrid	src/Epiklesis/World.hs	23;"	f
 selectGraphicsFamily	src/Paracletus/Vulkan/Device.hs	32;"	f
@@ -466,7 +465,7 @@ settingTBPath	src/Anamnesis/Data.hs	41;"	f
 settingTexPath	src/Anamnesis/Data.hs	43;"	f
 shaderFrag	src/Paracletus/Data.hs	54;"	f
 shaderVert	src/Paracletus/Data.hs	53;"	f
-sheight	src/Paracletus/Vulkan/Atlas.hs	16;"	f
+sheight	src/Paracletus/Vulkan/Atlas.hs	15;"	f
 srcAccessMask	src/Paracletus/Vulkan/Texture.hs	213;"	f
 srcStageMask	src/Paracletus/Vulkan/Texture.hs	215;"	f
 status	src/Anamnesis/Data.hs	30;"	f
@@ -479,7 +478,7 @@ swapImgFormat	src/Paracletus/Vulkan/Data.hs	19;"	f
 swapImgs	src/Paracletus/Vulkan/Data.hs	18;"	f
 swapInfo	src/Paracletus/Vulkan/Draw.hs	110;"	f
 swapchain	src/Paracletus/Vulkan/Data.hs	17;"	f
-swidth	src/Paracletus/Vulkan/Atlas.hs	15;"	f
+swidth	src/Paracletus/Vulkan/Atlas.hs	14;"	f
 sysconfdir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 tInd	src/Paracletus/Data.hs	22;"	f
 tMoves	src/Paracletus/Data.hs	25;"	f
@@ -496,7 +495,7 @@ textPos	src/Epiklesis/Data.hs	28;"	f
 textStr	src/Epiklesis/Data.hs	30;"	f
 textureImageInfo	src/Paracletus/Vulkan/Texture.hs	178;"	f
 textureImageInfos	src/Paracletus/Vulkan/Texture.hs	170;"	f
-theight	src/Paracletus/Vulkan/Atlas.hs	14;"	f
+theight	src/Paracletus/Vulkan/Atlas.hs	13;"	f
 tileCont	src/Epiklesis/World.hs	25;"	f
 tileType	src/Epiklesis/World.hs	26;"	f
 touch	src/Anamnesis/Foreign.hs	58;"	f
@@ -506,7 +505,7 @@ transitionImageLayout	src/Paracletus/Vulkan/Texture.hs	248;"	f
 try	src/Anamnesis/Util.hs	68;"	f
 tryReadChan	src/Artos/Queue.hs	31;"	f
 tryReadQueue	src/Artos/Queue.hs	25;"	f
-twidth	src/Paracletus/Vulkan/Atlas.hs	13;"	f
+twidth	src/Paracletus/Vulkan/Atlas.hs	12;"	f
 unAnamnate	src/Anamnesis.hs	24;"	f
 upcase	src/Paracletus/Oblatum/GLFW.hs	94;"	f
 updateTransObj	src/Paracletus/Vulkan/Trans.hs	29;"	f

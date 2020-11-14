@@ -126,6 +126,6 @@ executable abfa
                         ViewPatterns
     if flag (dev)
         cpp-options: -DDEVELOPMENT
-        ghc-options: -O0 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -threaded -eventlog -rtsopts
+        ghc-options: -O0 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -threaded -eventlog -rtsopts -fprof-auto
     else
         ghc-options: -O2 -fexcess-precision -threaded -rtsopts -feager-blackholing
