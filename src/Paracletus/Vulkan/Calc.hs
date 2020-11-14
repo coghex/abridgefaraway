@@ -17,27 +17,24 @@ import Paracletus.Vulkan.Vertex
 -- preformance of dataframe creation seems
 -- to be negligent, regardless, keep other
 -- calcuations to a minimum.
-calcVertices ∷ (Float,Float,Float) → [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
-calcVertices cam ts = (vertices cam ts, indices ts)--runEval $ do
+calcVertices ∷ [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+calcVertices ts = (vertices ts, indices ts)--runEval $ do
   --verts ← rpar $ vertices cam ts
   --inds ← rseq $ indices ts
   --rseq verts
   --return (verts,inds)
 -- combines all GTiles into a dataframe
 -- of vertices, preformed every frame
-vertices ∷ (Float,Float,Float) → [GTile] → DataFrame Vertex '[XN 0]
-vertices (cx,cy,_) ts = fromList $ combineVertices ts
+vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
+vertices ts = fromList $ combineVertices ts
   where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1)
                   , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1)
                   , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1)
                   , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) ]
         combineVertices [] = []
-        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x y 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
+        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
           where (x',y') = tPos tile
                 (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
-                (x, y)  = case (tMoves tile) of
-                  True  → ((x0+(0.1*cx)),(y0+(0.1*cy)))
-                  False → ((x0,y0))
                 (ax', ay') = tInd tile
                 ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
                 (xscale',yscale') = tScale tile

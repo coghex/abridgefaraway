@@ -209,7 +209,7 @@ cmdBuffersPtr	src/Paracletus/Vulkan/Draw.hs	117;"	f
 cmdPool	src/Paracletus/Vulkan/Data.hs	28;"	f
 code	src/Artos/Except.hs	23;"	f
 color	src/Paracletus/Vulkan/Vertex.hs	23;"	f
-combineIndices	src/Paracletus/Vulkan/Calc.hs	53;"	f
+combineIndices	src/Paracletus/Vulkan/Calc.hs	50;"	f
 compileGLSL	src/Paracletus/TH.hs	20;"	f
 convertPixels	src/Paracletus/Oblatum/Event.hs	70;"	f
 copyBuffer	src/Paracletus/Vulkan/Buffer.hs	51;"	f
@@ -335,7 +335,7 @@ inDev	src/Anamnesis/Util.hs	85;"	f
 inFlightFences	src/Paracletus/Data.hs	60;"	f
 inFlightFences	src/Paracletus/Vulkan/Draw.hs	116;"	f
 indexAtlas	src/Paracletus/Vulkan/Atlas.hs	30;"	f
-indices	src/Paracletus/Vulkan/Calc.hs	51;"	f
+indices	src/Paracletus/Vulkan/Calc.hs	48;"	f
 initDrawState	src/Anamnesis/Draw.hs	11;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
 initGLFWWindow	src/Paracletus/Oblatum.hs	20;"	f

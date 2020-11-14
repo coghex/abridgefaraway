@@ -126,7 +126,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   st ← get
   let ds  = drawSt st
-      (verts, inds) = calcVertices (0.0,0.0,(-1.0)) (dsTiles ds)
+      (verts, inds) = calcVertices (dsTiles ds)
   vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
   indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
 
@@ -146,7 +146,10 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   --      -- for now just recreate command
   --      -- buffers every frame
   --      return newCmdBP
-    let rdata = RenderData { dev
+    stNew ← get
+    let lsNew = luaSt stNew
+    let camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+        rdata = RenderData { dev
                            , swapInfo
                            , queues
                            , imgIndexPtr
@@ -156,7 +159,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , inFlightFences
                            , cmdBuffersPtr = cmdBuffersPtr0
                            , memories = transObjMemories
-                           , memoryMutator = updateTransObj (0,0,(-1)) dev (swapExtent swapInfo) }
+                           , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents
     needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
       -- when khr out of date,
