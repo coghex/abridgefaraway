@@ -10,16 +10,21 @@ import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
+import Paracletus.Vulkan.Data
+import Graphics.Vulkan.Core_1_0
 -- possible results of anamnesis
 -- specific utility actions
 data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)
 -- glfw loop status
 data LoopControl = ContinueLoop | AbortLoop deriving Eq
 -- env should only hold pointers/references
-data Env = Env { envEventsChan ∷ Queue Event
-               , envCamChan    ∷ TChan ((Float,Float),(Int,Int))
-               , envSegChan    ∷ TChan [Segment]
-               , envWTimerChan ∷ TChan TState }
+data Env = Env { envEventsChan  ∷ Queue Event
+               , envCamChan     ∷ TChan ((Float,Float),(Int,Int))
+               , envCBChan      ∷ TChan VkCommandBuffer
+               , envCBDChan     ∷ TChan CmdBuffData
+               , envSegChan     ∷ TChan [Segment]
+               , envCBTimerChan ∷ TChan TState
+               , envWTimerChan  ∷ TChan TState }
 -- state holds mutable data, and the
 -- current status of the whole App
 data State = State { status       ∷ AExcept

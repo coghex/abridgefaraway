@@ -25,6 +25,7 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Calc
 import Paracletus.Vulkan.Command
+import Paracletus.Vulkan.Data
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Device
 import Paracletus.Vulkan.Draw

@@ -5,6 +5,7 @@ import Prelude()
 import UPrelude
 import Anamnesis
 import Paracletus.Data
+import Paracletus.Vulkan.Data
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Texture
 import Paracletus.Vulkan.Pipeline

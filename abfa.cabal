@@ -48,6 +48,7 @@ executable abfa
                    Paracletus.Vulkan.Buffer
                    Paracletus.Vulkan.Calc
                    Paracletus.Vulkan.Command
+                   Paracletus.Vulkan.Data
                    Paracletus.Vulkan.Desc
                    Paracletus.Vulkan.Device
                    Paracletus.Vulkan.Draw

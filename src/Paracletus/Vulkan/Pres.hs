@@ -18,6 +18,7 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Paracletus.Data
+import Paracletus.Vulkan.Data
 import Paracletus.Vulkan.Foreign
 
 createSurface ∷ VkInstance → GLFW.Window → Anamnesis ε σ VkSurfaceKHR
@@ -56,13 +57,6 @@ chooseSwapExtent SwapchainSupportDetails {..} = createVk @VkExtent2D
                        (eh $ getField @"currentExtent" capabilities))
   where ew = getField @"width"
         eh = getField @"height"
-
-data SwapchainInfo = SwapchainInfo
-  { swapchain     ∷ VkSwapchainKHR
-  , swapImgs      ∷ [VkImage]
-  , swapImgFormat ∷ VkFormat
-  , swapExtent    ∷ VkExtent2D
-  } deriving (Eq, Show)
 
 createSwapchain ∷ VkDevice → SwapchainSupportDetails → DevQueues → VkSurfaceKHR → Anamnesis ε σ SwapchainInfo
 createSwapchain dev scsd queues surf = do

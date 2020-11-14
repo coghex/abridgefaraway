@@ -7,6 +7,7 @@ import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_surface
 import Artos.Var
+import Paracletus.Vulkan.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
@@ -39,14 +40,6 @@ data TextureData = TextureData
          , nimages        ∷ Int
          , descTexInfo    ∷ [VkDescriptorImageInfo]
          , depthFormat    ∷ VkFormat }
-
--- the data required to create the texture
--- from the graphicsqueue and command pool
-data GQData = GQData
-         { pdev    ∷ VkPhysicalDevice
-         , dev     ∷ VkDevice
-         , cmdPool ∷ VkCommandPool
-         , gqueue  ∷ VkQueue }
 
 -- the main data for the vulkan loop
 data VulkanLoopData = VulkanLoopData

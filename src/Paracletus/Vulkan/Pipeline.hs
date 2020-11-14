@@ -16,8 +16,8 @@ import Numeric.Dimensions
 import Anamnesis
 import Anamnesis.Foreign
 import Anamnesis.Util
+import Paracletus.Vulkan.Data
 import Paracletus.Vulkan.Foreign
-import Paracletus.Vulkan.Pres
 
 createGraphicsPipeline ∷ KnownDim (n ∷ Nat) ⇒ VkDevice → SwapchainInfo → VkVertexInputBindingDescription → Vector VkVertexInputAttributeDescription n → [VkPipelineShaderStageCreateInfo] → VkRenderPass → VkPipelineLayout → VkSampleCountFlagBits → Anamnesis ε σ VkPipeline
 createGraphicsPipeline dev SwapchainInfo{swapExtent} bindDesc attrDescs shaderDescs renderPass pipelineLayout msaaSamples = allocResource
