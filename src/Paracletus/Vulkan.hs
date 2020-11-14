@@ -134,18 +134,18 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
   logDebug $ "created command buffers: " ⧺ show cmdBuffers
   shouldExit ← glfwMainLoop window $ do
-    cmdBP ← do
-        stNew ← get
-        let dsNew = drawSt stNew
-            lsNew = luaSt stNew
-            camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-            (verts0, inds0) = calcVertices camNew $ dsTiles dsNew
-        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
-        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-        newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
-        -- for now just recreate command
-        -- buffers every frame
-        return newCmdBP
+  --  cmdBP ← do
+  --      stNew ← get
+  --      let dsNew = drawSt stNew
+  --          lsNew = luaSt stNew
+  --          camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+  --          (verts0, inds0) = calcVertices camNew $ dsTiles dsNew
+  --      vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
+  --      indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
+  --      newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+  --      -- for now just recreate command
+  --      -- buffers every frame
+  --      return newCmdBP
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -154,7 +154,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , renderFinishedSems
                            , imageAvailableSems
                            , inFlightFences
-                           , cmdBuffersPtr = cmdBP
+                           , cmdBuffersPtr = cmdBuffersPtr0
                            , memories = transObjMemories
                            , memoryMutator = updateTransObj (0,0,(-1)) dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents
