@@ -3,10 +3,6 @@ module Epiklesis.Data where
 -- the interface to the lua state
 -- is instantiated.
 import Epiklesis.World
-import Data.Typeable
-import Data.Data
-import qualified Foreign.Lua.Types.Peekable as Lua.Peekable
-import qualified Foreign.Lua.Types.Pushable as Lua.Pushable
 import qualified Foreign.Lua as Lua
 
 -- window types define behavior
@@ -44,8 +40,8 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
 -- some equalities are more or less arbitrary
 instance Ord WinElem where
   --these compare against themselves
-  compare (WinElemText tp1 _ _) (WinElemText tp2 _ _) = EQ
-  compare (WinElemLink lp1 _ _) (WinElemLink lp2 _ _) = EQ
+  compare (WinElemText _ _ _) (WinElemText _ _ _) = EQ
+  compare (WinElemLink _ _ _) (WinElemLink _ _ _) = EQ
   compare (WinElemBack _) (WinElemBack _)             = EQ
   compare (WinElemWorld _ _ _) (WinElemWorld _ _ _)   = EQ
   compare (WinElemNULL) (WinElemNULL)                 = EQ
@@ -63,7 +59,6 @@ instance Ord WinElem where
   compare (WinElemText _ _ _) _ = GT
   compare _ (WinElemText _ _ _) = LT
   compare (WinElemNULL) _       = LT
-  compare _ (WinElemNULL)       = GT
 
 -- possible actions when links are clicked
 data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Show, Eq)

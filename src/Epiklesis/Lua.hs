@@ -9,7 +9,6 @@ import qualified Foreign.Lua as Lua
 import System.Directory (getDirectoryContents)
 import System.FilePath (combine)
 import Anamnesis.Data
-import Anamnesis.World
 import Artos.Var
 import Artos.Queue
 import Epiklesis.Data

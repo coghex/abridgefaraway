@@ -3,9 +3,7 @@ module Paracletus.Vulkan.Load where
 -- is spun off as a child thread
 import Prelude()
 import UPrelude
-import Control.Monad.State.Class (gets)
 import Anamnesis
-import Anamnesis.Data
 import Paracletus.Data
 import Paracletus.Vulkan.Desc
 import Paracletus.Vulkan.Texture

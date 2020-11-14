@@ -7,9 +7,7 @@ import Control.Monad (when)
 import Control.Monad.State.Class (modify',gets)
 import Anamnesis
 import Anamnesis.Data
-import Anamnesis.Draw
 import Anamnesis.Util
-import Anamnesis.Map
 import Anamnesis.World
 import Artos.Queue
 import Artos.Var
@@ -19,7 +17,7 @@ import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
-evalKey window k ks mk keyLayout = do
+evalKey window k _  _  keyLayout = do
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
 
 -- evaluates mouse input
@@ -64,6 +62,7 @@ evalMouse win mb mbs _  = do
             liftIO $ reloadScreenCursor env sc
             modify' $ \s → s { inputState = newIS }
             --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
+          Nothing → return ()
       else return ()
     else return ()
       
@@ -112,6 +111,7 @@ linkTestFunc (x,y) (link:links) = do
 
 isElemLink ∷ WinElem → Bool
 isElemLink (WinElemLink _ _ _) = True
+isElemLink (WinElemWorld _ _ _) = False
 isElemLink (WinElemText _ _ _) = False
 isElemLink (WinElemBack _ )    = False
 isElemLink (WinElemNULL)       = False
@@ -153,4 +153,4 @@ moveCamWithMouse = do
     Nothing → return ()
 
 moveScreenCursor ∷ (Float,Float,Float) → (Float,Float)
-moveScreenCursor (x,y,z) = (-0.05*x,-0.05*y)
+moveScreenCursor (x,y,_) = (-0.05*x,-0.05*y)

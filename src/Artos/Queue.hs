@@ -12,7 +12,7 @@ data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
            | EventLoaded
            | EventLua !LuaCmd
-           | EventCam !(Float,Float,Float)
+           -- | EventCam !(Float,Float,Float)
            | EventUpdateSegs !SegUpdateData
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
            | EventMouseButton !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys deriving (Show)

@@ -3,8 +3,7 @@ module Anamnesis.Event where
 -- events and exceptions are handled
 import Prelude()
 import UPrelude
-import Control.Monad (when)
-import Control.Monad.State.Class (modify, gets)
+import Control.Monad.State.Class (modify)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -16,7 +15,6 @@ import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.World
-import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Event
@@ -77,8 +75,9 @@ processEvent event = case event of
         currWin = (luaWindows ls) !! (luaCurrWin ls)
     if ((winType currWin) ≡ WinTypeGame) then do
       case (findWorldData currWin) of
-        Just (wp,wd) → do liftIO $ atomically $ writeChan (envWTimerChan env) TStart
-                          liftIO $ atomically $ writeChan (envCamChan env) ((wdCam wd),(wdCSize wd))
+        Just (_,wd) → do 
+          liftIO $ atomically $ writeChan (envWTimerChan env) TStart
+          liftIO $ atomically $ writeChan (envCamChan env) ((wdCam wd),(wdCSize wd))
         Nothing → return ()
     else return ()
     modify $ \s → s { drawSt = newDS

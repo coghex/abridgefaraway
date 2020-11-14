@@ -38,11 +38,11 @@ loadWinElem WinElemNULL = []
 
 -- converts tiles in world data into GTile list
 calcTiles ∷ WorldParams → WorldData → [GTile]
-calcTiles wp (WorldData _   _       [])     = []
+calcTiles _  (WorldData _   _       [])     = []
 calcTiles wp (WorldData cam camSize (z:zs)) = (calcZoneTiles wp cam camSize z) ⧺ (calcTiles wp (WorldData cam camSize zs))
 
 calcZoneTiles ∷ WorldParams → (Float,Float) → (Int,Int) → Zone → [GTile]
-calcZoneTiles wp cam camSize (ZoneNULL)      = []
+calcZoneTiles _  _   _       (ZoneNULL)      = []
 calcZoneTiles wp cam camSize (Zone ind segs) = flatten $ map (calcZoneRows wp cam camSize ind) (zip yinds segs)
   where yinds = take (fst segSize) [0..]
         segSize = wpZSize wp
@@ -59,7 +59,7 @@ calcZoneSpot j wp cam camSize ind (i,seg) = calcSegTiles (i',j) wp roundCam camS
         i' = fromIntegral i
 
 calcSegTiles ∷ (Int,Int) → WorldParams → (Int,Int) → (Int,Int) → (Int,Int) → Segment → [GTile]
-calcSegTiles (i,j) wp cam camSize ind (SegmentNULL) = []
+calcSegTiles _     _  _   _       _   (SegmentNULL) = []
 calcSegTiles (i,j) wp cam camSize ind (Segment grid) = flatten $ calcSegRow cam camSize (x,y) grid
   where (x,y) = (sw*(i + (fst ind)),sh*(j + (snd ind)))
         (sw,sh) = wpSSize wp

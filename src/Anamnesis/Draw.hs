@@ -7,7 +7,6 @@ import Prelude()
 import UPrelude
 import Anamnesis.Data
 import Paracletus.Data
-import Epiklesis.Data
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
