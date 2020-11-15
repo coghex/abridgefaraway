@@ -29,7 +29,7 @@ void main() {
     vec4 col2 = vec4(0.0,0.0,1.0,0.0);
     vec4 col3 = vec4(0.0,0.0,-1.0,1.0);
     mat4 basicI = mat4(col0,col1,col2,col3);
-    mat4 view = (inMove.x > 0.0) ? trans.view : basicI;
+    mat4 view = (inMove.z > 0.0) ? trans.view : basicI;
     gl_Position = trans.proj * view * trans.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord.xy;

@@ -63,4 +63,5 @@ initState = do
                              , drawSt       = ds
                              , luaSt        = ls
                              , inputState   = is
-                             , sRecreate    = False }
+                             , sRecreate    = False
+                             , sTick        = Nothing }

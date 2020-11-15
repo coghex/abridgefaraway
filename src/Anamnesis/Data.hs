@@ -33,7 +33,8 @@ data State = State { status       ∷ AExcept
                    , drawSt       ∷ !DrawState
                    , luaSt        ∷ !LuaState
                    , inputState   ∷ !InputState
-                   , sRecreate    ∷ Bool }
+                   , sRecreate    ∷ Bool
+                   , sTick        ∷ Maybe Double }
 data Settings = Settings
   { settingScreenW   ∷ Int
   , settingScreenH   ∷ Int

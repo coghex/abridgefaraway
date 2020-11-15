@@ -60,7 +60,8 @@ evalMouse win mb mbs _  = do
             let newIS = oldIS { mouse3 = False }
                 sc = ((wdCam wd),(wdCSize wd))
             liftIO $ reloadScreenCursor env sc
-            modify' $ \s → s { inputState = newIS }
+            modify' $ \s → s { inputState = newIS
+                             , sRecreate = True }
             --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
           Nothing → return ()
       else return ()

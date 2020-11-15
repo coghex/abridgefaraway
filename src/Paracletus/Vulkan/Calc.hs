@@ -27,23 +27,27 @@ calcVertices ts = (vertices ts, indices ts)--runEval $ do
 -- of vertices, preformed every frame
 vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
 vertices ts = fromList $ combineVertices ts
-  where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1) (vec3 1 0 0)
-                  , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1) (vec3 1 0 0)
-                  , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1) (vec3 1 0 0)
-                  , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) (vec3 1 0 0) ]
+  where vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1) (vec3 0 0 0)
+                  , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1) (vec3 0 0 0)
+                  , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1) (vec3 0 0 0)
+                  , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) (vec3 0 0 0) ]
         combineVertices [] = []
-        combineVertices (tile:tts) = withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))) ⧺ combineVertices tts
+        combineVertices (tile:tts) = withMove (+ vec3 0 0 m) (withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs)))) ⧺ combineVertices tts
           where (x',y') = tPos tile
                 (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
                 (ax', ay') = tInd tile
                 ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
+                m = case (tMoves tile) of
+                      True  → 1.0
+                      False → 0.0
                 (xscale',yscale') = tScale tile
                 (xscale, yscale)  = (realToFrac xscale', realToFrac yscale')
                 (sx, sy) = tSize tile
                 t = fromIntegral $ tT tile
         withPos f = map (\(S v) → S v { pos = fromHom ∘ f ∘ toHomPoint $ pos v })
         withTC f = map (\(S v) → S v { texCoord = f $ texCoord v })
-        withScale f = map (\(S v) → S v { pos = f $ pos v})
+        withScale f = map (\(S v) → S v { pos = f $ pos v })
+        withMove f = map (\(S v) → S v { move = f $ move v })
 
 indices ∷ [GTile] → DataFrame Word32 '[XN 3]
 indices tiles = atLeastThree $ fromList $ (combineIndices tiles)

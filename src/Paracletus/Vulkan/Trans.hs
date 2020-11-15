@@ -41,8 +41,8 @@ updateTransObj cam device extent uniBuf = do
   -- ortho near far w h
   where view = translate3 (vec3 (unT 1 cam) (unT 2 cam) (unT 3 cam))
         unT ∷ Int → (Float,Float,Float) → Float
-        unT 1 (x,_,_) = x
-        unT 2 (_,y,_) = y
+        unT 1 (x,_,_) = 3.6*x
+        unT 2 (_,y,_) = 3.6*y
         unT 3 (_,_,z) = z
         unT _ _ = 0.0
         proj  = proj' %* clip

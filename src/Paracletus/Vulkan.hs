@@ -6,6 +6,7 @@ import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets, modify)
+import Data.Time.Clock (getCurrentTime, utctDayTime)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -83,6 +84,7 @@ runParacVulkan = do
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
+      firstTick ← liftIO getCurTick
       logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
@@ -95,7 +97,8 @@ runParacVulkan = do
               thiswin     = windows !! (luaCurrWin ls)
               wintextures = findReqTextures thiswin
           newTexData ← loadVulkanTextures gqdata wintextures
-          modify $ \s → s { sRecreate = False }
+          modify $ \s → s { sRecreate  = False
+                          , sTick      = Just firstTick }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }
           vulkLoop vulkLoopData
@@ -134,6 +137,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
   logDebug $ "created command buffers: " ⧺ show cmdBuffers
   shouldExit ← glfwMainLoop window $ do
+    tick ← liftIO getCurTick
   --  cmdBP ← do
   --      stNew ← get
   --      let dsNew = drawSt stNew
@@ -175,8 +179,24 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     processEvents
     -- this is for input calculations
     processInput
-    stateRecreate ← gets sRecreate
     runVk $ vkDeviceWaitIdle dev
+    stateRecreate ← gets sRecreate
+    case (sTick stNew) of
+      Just ftick → do
+        modify $ \s → s { sTick = Nothing }
+      Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/60.0)) <$> getCurTick) (return ())
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
   -- loop ends, now deallocate
   return $ if shouldExit then AbortLoop else ContinueLoop
+
+-- loop for the monad
+whileM_ :: (Monad m) => m Bool -> m () -> m ()
+whileM_ p f = do
+  x <- p
+  when x $ do f >> whileM_ p f
+
+-- gets time in ms
+getCurTick :: IO Double
+getCurTick = do
+  tickUCT <- getCurrentTime
+  return (fromIntegral (round $ utctDayTime tickUCT * 1000000 :: Integer) / 1000000.0 :: Double)

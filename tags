@@ -209,9 +209,9 @@ cmdBuffersPtr	src/Paracletus/Vulkan/Draw.hs	117;"	f
 cmdPool	src/Paracletus/Vulkan/Data.hs	28;"	f
 code	src/Artos/Except.hs	23;"	f
 color	src/Paracletus/Vulkan/Vertex.hs	23;"	f
-combineIndices	src/Paracletus/Vulkan/Calc.hs	50;"	f
+combineIndices	src/Paracletus/Vulkan/Calc.hs	54;"	f
 compileGLSL	src/Paracletus/TH.hs	20;"	f
-convertPixels	src/Paracletus/Oblatum/Event.hs	70;"	f
+convertPixels	src/Paracletus/Oblatum/Event.hs	71;"	f
 copyBuffer	src/Paracletus/Vulkan/Buffer.hs	51;"	f
 copyBufferToImage	src/Paracletus/Vulkan/Texture.hs	311;"	f
 createAtlas	src/Paracletus/Vulkan/Atlas.hs	19;"	f
@@ -301,6 +301,7 @@ frameIndexRef	src/Paracletus/Vulkan/Draw.hs	113;"	f
 genSegs	src/Anamnesis/World.hs	75;"	f
 generateMipmaps	src/Paracletus/Vulkan/Texture.hs	77;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
+getCurTick	src/Paracletus/Vulkan.hs	198;"	f
 getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	47;"	f
 getDynLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
@@ -335,7 +336,7 @@ inDev	src/Anamnesis/Util.hs	85;"	f
 inFlightFences	src/Paracletus/Data.hs	60;"	f
 inFlightFences	src/Paracletus/Vulkan/Draw.hs	116;"	f
 indexAtlas	src/Paracletus/Vulkan/Atlas.hs	30;"	f
-indices	src/Paracletus/Vulkan/Calc.hs	48;"	f
+indices	src/Paracletus/Vulkan/Calc.hs	52;"	f
 initDrawState	src/Anamnesis/Draw.hs	11;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
 initGLFWWindow	src/Paracletus/Oblatum.hs	20;"	f
@@ -344,7 +345,7 @@ initState	src/Anamnesis/Init.hs	42;"	f
 inputState	src/Anamnesis/Data.hs	35;"	f
 isDev	src/Anamnesis/Util.hs	77;"	f
 isDeviceSuitable	src/Paracletus/Vulkan/Device.hs	52;"	f
-isElemLink	src/Paracletus/Oblatum/Event.hs	112;"	f
+isElemLink	src/Paracletus/Oblatum/Event.hs	113;"	f
 keyCallback	src/Paracletus/Oblatum/Callback.hs	9;"	f
 keyCheck	src/Paracletus/Oblatum/GLFW.hs	57;"	f
 klDel	src/Paracletus/Oblatum/Data.hs	7;"	f
@@ -358,8 +359,8 @@ liftIOWith	src/Anamnesis/Foreign.hs	44;"	f
 linkAct	src/Epiklesis/Data.hs	34;"	f
 linkBox	src/Epiklesis/Data.hs	33;"	f
 linkPos	src/Epiklesis/Data.hs	32;"	f
-linkTest	src/Paracletus/Oblatum/Event.hs	80;"	f
-linkTestFunc	src/Paracletus/Oblatum/Event.hs	85;"	f
+linkTest	src/Paracletus/Oblatum/Event.hs	81;"	f
+linkTestFunc	src/Paracletus/Oblatum/Event.hs	86;"	f
 loadDrawState	src/Paracletus/Draw.hs	16;"	f
 loadNTex	src/Paracletus/Vulkan/Texture.hs	41;"	f
 loadNTexs	src/Paracletus/Vulkan/Texture.hs	30;"	f
@@ -402,9 +403,9 @@ mousebutt1	src/Paracletus/Oblatum/GLFW.hs	22;"	f
 mousebutt2	src/Paracletus/Oblatum/GLFW.hs	24;"	f
 mousebutt3	src/Paracletus/Oblatum/GLFW.hs	26;"	f
 move	src/Paracletus/Vulkan/Vertex.hs	25;"	f
-moveCamWithMouse	src/Paracletus/Oblatum/Event.hs	119;"	f
+moveCamWithMouse	src/Paracletus/Oblatum/Event.hs	120;"	f
 moveCursor	src/Anamnesis/Map.hs	9;"	f
-moveScreenCursor	src/Paracletus/Oblatum/Event.hs	155;"	f
+moveScreenCursor	src/Paracletus/Oblatum/Event.hs	156;"	f
 msaaSamples	src/Paracletus/Data.hs	52;"	f
 msg	src/Artos/Except.hs	25;"	f
 newArrayRes	src/Anamnesis/Foreign.hs	52;"	f
@@ -423,7 +424,7 @@ pickPhysicalDevice	src/Paracletus/Vulkan/Device.hs	42;"	f
 pipelineLayout	src/Paracletus/Data.hs	39;"	f
 poke	src/Anamnesis/Foreign.hs	25;"	f
 pos	src/Paracletus/Vulkan/Vertex.hs	22;"	f
-posClose	src/Paracletus/Oblatum/Event.hs	75;"	f
+posClose	src/Paracletus/Oblatum/Event.hs	76;"	f
 prepareDescriptorSet	src/Paracletus/Vulkan/Desc.hs	65;"	f
 presentFamIdx	src/Paracletus/Data.hs	66;"	f
 presentModes	src/Paracletus/Data.hs	72;"	f
@@ -447,7 +448,7 @@ replaceWorldData	src/Anamnesis/World.hs	99;"	f
 reportGlslMsgs	src/Paracletus/TH.hs	48;"	f
 runAnamnesis	src/Anamnesis/Init.hs	21;"	f
 runCommandsOnce	src/Paracletus/Vulkan/Command.hs	30;"	f
-runParacVulkan	src/Paracletus/Vulkan.hs	42;"	f
+runParacVulkan	src/Paracletus/Vulkan.hs	43;"	f
 runParacletus	src/Paracletus.hs	13;"	f
 runVk	src/Paracletus/Vulkan/Foreign.hs	26;"	f
 sRecreate	src/Anamnesis/Data.hs	36;"	f
@@ -518,11 +519,12 @@ vertices	src/Paracletus/Vulkan/Calc.hs	28;"	f
 view	src/Paracletus/Vulkan/Trans.hs	23;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Device.hs	25;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Instance.hs	18;"	f
-vulkLoop	src/Paracletus/Vulkan.hs	106;"	f
+vulkLoop	src/Paracletus/Vulkan.hs	107;"	f
 vulkanSurface	src/Paracletus/Data.hs	50;"	f
 wdCSize	src/Epiklesis/Data.hs	80;"	f
 wdCam	src/Epiklesis/Data.hs	79;"	f
 wdZones	src/Epiklesis/Data.hs	81;"	f
+whileM_	src/Paracletus/Vulkan.hs	192;"	f
 winCursor	src/Epiklesis/Data.hs	14;"	f
 winElems	src/Epiklesis/Data.hs	15;"	f
 winTitle	src/Epiklesis/Data.hs	12;"	f
