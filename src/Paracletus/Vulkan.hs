@@ -181,10 +181,12 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     processInput
     runVk $ vkDeviceWaitIdle dev
     stateRecreate ← gets sRecreate
+    let fps = 120.0
     case (sTick stNew) of
       Just ftick → do
         modify $ \s → s { sTick = Nothing }
-      Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/60.0)) <$> getCurTick) (return ())
+        liftIO $ whileM_ ((\cur → (cur - (ftick)) < (1.0/fps)) <$> getCurTick) (return ())
+      Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/fps)) <$> getCurTick) (return ())
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
   -- loop ends, now deallocate
   return $ if shouldExit then AbortLoop else ContinueLoop
