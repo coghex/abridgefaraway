@@ -39,7 +39,7 @@ updateTransObj cam device extent uniBuf = do
   liftIO $ vkUnmapMemory device uniBuf
   -- these commands are all backwards
   -- ortho near far w h
-  where view  = translate3 (vec3 (unT 1 cam) (unT 2 cam) (unT 3 cam))--(vec3 0 0 (-1))
+  where view = translate3 (vec3 (unT 1 cam) (unT 2 cam) (unT 3 cam))
         unT ∷ Int → (Float,Float,Float) → Float
         unT 1 (x,_,_) = x
         unT 2 (_,y,_) = y

@@ -175,7 +175,7 @@ allocaPeekVk	src/Paracletus/Vulkan/Foreign.hs	36;"	f
 applyKeyLayout	src/Paracletus/Oblatum/GLFW.hs	63;"	f
 applyMod	src/Paracletus/Oblatum/GLFW.hs	91;"	f
 asListVk	src/Paracletus/Vulkan/Foreign.hs	41;"	f
-atLeastThree	src/Paracletus/Vulkan/Vertex.hs	28;"	f
+atLeastThree	src/Paracletus/Vulkan/Vertex.hs	29;"	f
 atomically	src/Artos/Var.hs	23;"	f
 backFP	src/Epiklesis/Data.hs	31;"	f
 bindir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
@@ -258,7 +258,7 @@ descTexInfo	src/Paracletus/Data.hs	41;"	f
 destroyVulkanInstance	src/Paracletus/Vulkan/Instance.hs	49;"	f
 dev	src/Paracletus/Vulkan/Data.hs	27;"	f
 dev	src/Paracletus/Vulkan/Draw.hs	109;"	f
-dfLen	src/Paracletus/Vulkan/Vertex.hs	31;"	f
+dfLen	src/Paracletus/Vulkan/Vertex.hs	32;"	f
 downcase	src/Paracletus/Oblatum/GLFW.hs	117;"	f
 drawFrame	src/Paracletus/Vulkan/Draw.hs	121;"	f
 drawSt	src/Anamnesis/Data.hs	33;"	f
@@ -401,6 +401,7 @@ mouseButtonCallback	src/Paracletus/Oblatum/Callback.hs	11;"	f
 mousebutt1	src/Paracletus/Oblatum/GLFW.hs	22;"	f
 mousebutt2	src/Paracletus/Oblatum/GLFW.hs	24;"	f
 mousebutt3	src/Paracletus/Oblatum/GLFW.hs	26;"	f
+move	src/Paracletus/Vulkan/Vertex.hs	25;"	f
 moveCamWithMouse	src/Paracletus/Oblatum/Event.hs	119;"	f
 moveCursor	src/Anamnesis/Map.hs	9;"	f
 moveScreenCursor	src/Paracletus/Oblatum/Event.hs	155;"	f
@@ -511,8 +512,8 @@ upcase	src/Paracletus/Oblatum/GLFW.hs	94;"	f
 updateTransObj	src/Paracletus/Vulkan/Trans.hs	29;"	f
 updateWorld	src/Anamnesis/World.hs	21;"	f
 version	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	28;"	f
-vertIADs	src/Paracletus/Vulkan/Vertex.hs	41;"	f
-vertIBD	src/Paracletus/Vulkan/Vertex.hs	36;"	f
+vertIADs	src/Paracletus/Vulkan/Vertex.hs	42;"	f
+vertIBD	src/Paracletus/Vulkan/Vertex.hs	37;"	f
 vertices	src/Paracletus/Vulkan/Calc.hs	28;"	f
 view	src/Paracletus/Vulkan/Trans.hs	23;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Device.hs	25;"	f

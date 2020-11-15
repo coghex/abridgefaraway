@@ -13,6 +13,7 @@ layout(binding = 0) uniform TransformationObject {
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec4 inColor;
 layout(location = 2) in vec3 inTexCoord;
+layout(location = 3) in vec3 inMove;
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
@@ -23,7 +24,13 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = trans.proj * trans.view * trans.model * vec4(inPosition, 1.0);
+    vec4 col0 = vec4(1.0,0.0,0.0,0.0);
+    vec4 col1 = vec4(0.0,1.0,0.0,0.0);
+    vec4 col2 = vec4(0.0,0.0,1.0,0.0);
+    vec4 col3 = vec4(0.0,0.0,-1.0,1.0);
+    mat4 basicI = mat4(col0,col1,col2,col3);
+    mat4 view = (inMove.x > 0.0) ? trans.view : basicI;
+    gl_Position = trans.proj * view * trans.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord.xy;
     fragTexIndex = int(inTexCoord.z);

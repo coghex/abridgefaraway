@@ -22,6 +22,7 @@ import Numeric.Dimensions
 data Vertex = Vertex { pos      ∷ Vec3f
                      , color    ∷ Vec4f
                      , texCoord ∷ Vec3f
+                     , move     ∷ Vec3f
                      } deriving (Eq, Ord, Show, Generic)
 instance PrimBytes Vertex
 
@@ -38,7 +39,7 @@ vertIBD = createVk
   $  set @"binding"   0
   &* set @"stride"    (bSizeOf @Vertex undefined)
   &* set @"inputRate" VK_VERTEX_INPUT_RATE_VERTEX
-vertIADs ∷ Vector VkVertexInputAttributeDescription 3
+vertIADs ∷ Vector VkVertexInputAttributeDescription 4
 vertIADs = ST.runST $ do
   mv ← ST.newPinnedDataFrame
   ST.writeDataFrame mv (0 :* Empty) ∘ scalar $ createVk
@@ -56,4 +57,9 @@ vertIADs = ST.runST $ do
     &* set @"binding"  0
     &* set @"format"   VK_FORMAT_R32G32B32_SFLOAT
     &* set @"offset"   (bFieldOffsetOf @"texCoord" @Vertex undefined)
+  ST.writeDataFrame mv (3 :* Empty) ∘ scalar $ createVk
+    $  set @"location" 3
+    &* set @"binding"  0
+    &* set @"format"   VK_FORMAT_R32G32B32_SFLOAT
+    &* set @"offset"   (bFieldOffsetOf @"move" @Vertex undefined)
   ST.unsafeFreezeDataFrame mv
