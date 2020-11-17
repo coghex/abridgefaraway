@@ -127,22 +127,17 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
-  cmdBP ← do
-      stNew ← get
-      let dsNew = drawSt stNew
-          (verts0, inds0) = calcVertices $ dsTiles dsNew
-      vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
-      indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-      newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
-      -- for now just recreate command
-      -- buffers every frame
-      return newCmdBP
+  cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+  modify $ \s → s { sCmdBuff = Just cmdBP }
   shouldExit ← glfwMainLoop window $ do
     tick ← liftIO getCurTick
     stNew ← get
     let lsNew = luaSt stNew
-    let camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-        rdata = RenderData { dev
+        camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+    newCmdBP ← case (sCmdBuff stNew) of
+                      Just cb → return cb
+                      Nothing → genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+    let rdata = RenderData { dev
                            , swapInfo
                            , queues
                            , imgIndexPtr
@@ -150,7 +145,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , renderFinishedSems
                            , imageAvailableSems
                            , inFlightFences
-                           , cmdBuffersPtr = cmdBP
+                           , cmdBuffersPtr = newCmdBP
                            , memories = transObjMemories
                            , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents
@@ -191,3 +186,15 @@ getCurTick :: IO Double
 getCurTick = do
   tickUCT <- getCurrentTime
   return (fromIntegral (round $ utctDayTime tickUCT * 1000000 :: Integer) / 1000000.0 :: Double)
+
+genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
+genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets = do
+      stNew ← get
+      let dsNew = drawSt stNew
+          (verts0, inds0) = calcVertices $ dsTiles dsNew
+      vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
+      indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
+      newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+      -- for now just recreate command
+      -- buffers every frame
+      return newCmdBP
