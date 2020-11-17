@@ -117,15 +117,15 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
   transObjMemories ← newArrayRes transObjMems
   imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
-  logDebug $ "created image views: " ⧺ show imgViews
+  --logDebug $ "created image views: " ⧺ show imgViews
   renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
-  logDebug $ "created renderpass: " ⧺ show renderPass
+  --logDebug $ "created renderpass: " ⧺ show renderPass
   graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
-  logDebug $ "created pipeline: " ⧺ show graphicsPipeline
+  --logDebug $ "created pipeline: " ⧺ show graphicsPipeline
   colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
-  logDebug $ "created framebuffers: " ⧺ show framebuffers
+  --logDebug $ "created framebuffers: " ⧺ show framebuffers
   cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
   shouldExit ← glfwMainLoop window $ do
     stNew ← get

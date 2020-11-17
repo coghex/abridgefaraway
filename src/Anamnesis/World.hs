@@ -34,11 +34,6 @@ updateWorld env n sc _    TStart = do
     Just x  -> return x
   -- logic goes here
   let newsegs = genSegs $ evalScreenCursor sc
-  newn ← if (n > 1000000)
-         then do
-           sendSegs env newsegs
-           return 0
-         else return (n+1)
   -- logic ends here
   end ← getCurrentTime
   let diff  = diffUTCTime end start
@@ -47,7 +42,7 @@ updateWorld env n sc _    TStart = do
   if delay > 0
     then threadDelay delay
     else return ()
-  updateWorld env newn sc newsegs tsnew
+  updateWorld env n sc newsegs tsnew
 updateWorld env _ _  segs TPause = do
   let scchan = envCamChan env
   newSC ← atomically $ readChan scchan

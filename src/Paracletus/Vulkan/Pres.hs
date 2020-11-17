@@ -90,8 +90,8 @@ createSwapchain dev scsd queues surf = do
           &* set @"presentMode" spMode
           &* set @"clipped" VK_TRUE
           &* set @"oldSwapchain" VK_NULL_HANDLE
-  logDebug $ "available present modes: " ⧺ show (presentModes scsd)
-  logDebug $ "using present mode: " ⧺ show spMode
+  --logDebug $ "available present modes: " ⧺ show (presentModes scsd)
+  --logDebug $ "using present mode: " ⧺ show spMode
   swapchain ← allocResource
     (\swapchain → liftIO $ vkDestroySwapchainKHR dev swapchain VK_NULL) $
     withVkPtr swCreateInfo $ \swciPtr → allocaPeek $ runVk ∘ vkCreateSwapchainKHR dev swciPtr VK_NULL

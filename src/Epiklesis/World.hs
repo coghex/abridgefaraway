@@ -5,7 +5,6 @@ module Epiklesis.World where
 -- and go negative, segments are
 -- indexed from bottom left to top right
 -- and dont contain the index in the struct
-
 data World = WorldNULL | World { worldZone ∷ [Zone]
                                , worldSegS ∷ (Int,Int)
                                , worldTex  ∷ String
@@ -25,3 +24,5 @@ data Segment = SegmentNULL | Segment { segGrid ∷ [[Tile]]
 data Tile = TileNULL | Tile { tileCont ∷ Int
                             , tileType ∷ Int
                             } deriving (Show, Eq)
+
+

@@ -125,4 +125,11 @@ processEvent event = case event of
           modify $ \s → s { luaSt = changeCurrWin winNum ls }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
       (LuaError str) → logWarn str
+      (LuaFind lfCommand) → case lfCommand of
+        (LFScreenCursor) → do
+          st ← get
+          let ls = luaSt st
+              currWin = (luaWindows ls) !! (luaCurrWin ls)
+          logInfo $ "screenCursor: " ⧺ (show (winCursor currWin))
+        (LFNULL)         → logError $ "lua NULL query"
       (LuaCmdNULL)   → logError $ "lua NULL command"

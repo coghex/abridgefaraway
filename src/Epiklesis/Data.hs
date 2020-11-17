@@ -67,8 +67,12 @@ data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Sho
 data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewElem String WinElem
             | LuaCmdswitchWindow String
+            | LuaFind LFQuery
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)
+-- possible queryable items in the state
+data LFQuery = LFScreenCursor | LFNULL deriving (Show, Eq)
+
 
 -- world parameters help generate world
 data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
