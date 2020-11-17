@@ -127,67 +127,58 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
-  st ← get
-  let ds  = drawSt st
-      (verts, inds) = calcVertices (dsTiles ds)
-  vertexBuffer ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts
-  indexBuffer ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds
-
-  cmdBuffersPtr0 ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBuffer (dfLen inds, indexBuffer) framebuffers descriptorSets
-  cmdBuffers ← peekArray swapchainLen cmdBuffersPtr0
-  logDebug $ "created command buffers: " ⧺ show cmdBuffers
-  shouldExit ← glfwMainLoop window $ do
-    tick ← liftIO getCurTick
-  --  cmdBP ← do
-  --      stNew ← get
-  --      let dsNew = drawSt stNew
-  --          lsNew = luaSt stNew
-  --          camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-  --          (verts0, inds0) = calcVertices camNew $ dsTiles dsNew
-  --      vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
-  --      indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-  --      newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
-  --      -- for now just recreate command
-  --      -- buffers every frame
-  --      return newCmdBP
-    stNew ← get
-    let lsNew = luaSt stNew
-    let camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-        rdata = RenderData { dev
-                           , swapInfo
-                           , queues
-                           , imgIndexPtr
-                           , frameIndexRef
-                           , renderFinishedSems
-                           , imageAvailableSems
-                           , inFlightFences
-                           , cmdBuffersPtr = cmdBuffersPtr0
-                           , memories = transObjMemories
-                           , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
-    liftIO $ GLFW.pollEvents
-    needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
-      -- when khr out of date,
-      -- recreate swapchain
-      True → do
-        _ ← logDebug $ "vulkan khr out of date"
-        return True
-      _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-    sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-    when sizeChanged $ logDebug "glfw window size callback"
-    -- this is for the vaious events
-    -- such as key input and state changes
-    processEvents
-    -- this is for input calculations
-    processInput
-    runVk $ vkDeviceWaitIdle dev
-    stateRecreate ← gets sRecreate
-    let fps = 120.0
-    case (sTick stNew) of
-      Just ftick → do
-        modify $ \s → s { sTick = Nothing }
-        liftIO $ whileM_ ((\cur → (cur - (ftick)) < (1.0/fps)) <$> getCurTick) (return ())
-      Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/fps)) <$> getCurTick) (return ())
-    return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
+  shouldExit ← drawLoop window $ do
+    cmdBP ← do
+        stNew ← get
+        let dsNew = drawSt stNew
+            (verts0, inds0) = calcVertices $ dsTiles dsNew
+        vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
+        indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
+        newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+        -- for now just recreate command
+        -- buffers every frame
+        return newCmdBP
+    ret ← glfwMainLoop window $ do
+      tick ← liftIO getCurTick
+      stNew ← get
+      let lsNew = luaSt stNew
+      let camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+          rdata = RenderData { dev
+                             , swapInfo
+                             , queues
+                             , imgIndexPtr
+                             , frameIndexRef
+                             , renderFinishedSems
+                             , imageAvailableSems
+                             , inFlightFences
+                             , cmdBuffersPtr = cmdBP
+                             , memories = transObjMemories
+                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
+      liftIO $ GLFW.pollEvents
+      needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+        -- when khr out of date,
+        -- recreate swapchain
+        True → do
+          _ ← logDebug $ "vulkan khr out of date"
+          return True
+        _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
+      sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
+      when sizeChanged $ logDebug "glfw window size callback"
+      -- this is for the vaious events
+      -- such as key input and state changes
+      processEvents
+      -- this is for input calculations
+      processInput
+      runVk $ vkDeviceWaitIdle dev
+      stateRecreate ← gets sRecreate
+      let fps = 120.0
+      case (sTick stNew) of
+        Just ftick → do
+          modify $ \s → s { sTick = Nothing }
+          liftIO $ whileM_ ((\cur → (cur - (ftick)) < (1.0/fps)) <$> getCurTick) (return ())
+        Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/fps)) <$> getCurTick) (return ())
+      return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
+    return ret
   -- loop ends, now deallocate
   return $ if shouldExit then AbortLoop else ContinueLoop
 

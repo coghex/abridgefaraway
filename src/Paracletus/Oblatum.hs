@@ -57,6 +57,16 @@ glfwMainLoop w action = go
             status ← locally action
             if status ≡ ContinueLoop then go else return False
           else return True
+
+drawLoop ∷ GLFW.Window → Anamnesis' ε Bool → Anamnesis ε σ Bool
+drawLoop w action = go
+  where go = do
+          should ← liftIO $ GLFW.windowShouldClose w
+          if not should then do
+            status ← locally action
+            if status ≡ True then go else return False
+          else return True
+
 -- runs glfw in the main thread
 -- waiting for events every second
 glfwWaitEventsMeanwhile ∷ Anamnesis' ε () → Anamnesis ε σ ()
