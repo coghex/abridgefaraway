@@ -34,7 +34,7 @@ updateWorld env n sc _    TStart = do
     Just x  -> return x
   -- logic goes here
   let newsegs = genSegs $ evalScreenCursor sc
-  newn ← if (n > 1000)
+  newn ← if (n > 1000000)
          then do
            sendSegs env newsegs
            return 0

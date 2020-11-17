@@ -111,7 +111,7 @@ hsNewWorld env win zx zy sx sy dp = do
       filterOutPathJunk _    = True
       wp = WorldParams (zx,zy) (sx,sy) $ length dps
       -- TODO: represent aspect ratio
-      wd = WorldData (0.0,0.0) (16,8) [Zone (0,0) (initSegs)]
+      wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
       initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps))
