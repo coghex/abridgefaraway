@@ -64,7 +64,7 @@ glfwMainLoop w action = go
           if not should then do
             status ← locally action
             let fps = 120.0
-            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (return ())
+            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
             if status ≡ ContinueLoop then go else return False
           else return True
 

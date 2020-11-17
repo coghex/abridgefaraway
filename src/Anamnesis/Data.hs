@@ -34,7 +34,6 @@ data State = State { status       ∷ AExcept
                    , luaSt        ∷ !LuaState
                    , inputState   ∷ !InputState
                    , sRecreate    ∷ Bool
-                   , sCmdBuff     ∷ Maybe (Ptr VkCommandBuffer)
                    , sTick        ∷ Maybe Double }
 data Settings = Settings
   { settingScreenW   ∷ Int

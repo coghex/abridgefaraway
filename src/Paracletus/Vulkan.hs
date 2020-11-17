@@ -127,14 +127,10 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   logDebug $ "created framebuffers: " ⧺ show framebuffers
   cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
-  modify $ \s → s { sCmdBuff = Just cmdBP }
   shouldExit ← glfwMainLoop window $ do
     stNew ← get
     let lsNew = luaSt stNew
         camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-    newCmdBP ← case (sCmdBuff stNew) of
-                      Just cb → return cb
-                      Nothing → return cmdBP
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -143,7 +139,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                            , renderFinishedSems
                            , imageAvailableSems
                            , inFlightFences
-                           , cmdBuffersPtr = newCmdBP
+                           , cmdBuffersPtr = cmdBP
                            , memories = transObjMemories
                            , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
     liftIO $ GLFW.pollEvents

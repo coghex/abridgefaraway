@@ -64,5 +64,4 @@ initState = do
                              , luaSt        = ls
                              , inputState   = is
                              , sRecreate    = False
-                             , sCmdBuff     = Nothing
                              , sTick        = Nothing }
