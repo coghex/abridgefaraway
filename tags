@@ -261,7 +261,7 @@ dev	src/Paracletus/Vulkan/Draw.hs	109;"	f
 dfLen	src/Paracletus/Vulkan/Vertex.hs	32;"	f
 downcase	src/Paracletus/Oblatum/GLFW.hs	117;"	f
 drawFrame	src/Paracletus/Vulkan/Draw.hs	121;"	f
-drawLoop	src/Paracletus/Oblatum.hs	61;"	f
+drawLoop	src/Paracletus/Oblatum.hs	83;"	f
 drawSt	src/Anamnesis/Data.hs	33;"	f
 dsTiles	src/Anamnesis/Data.hs	54;"	f
 dstAccessMask	src/Paracletus/Vulkan/Texture.hs	214;"	f
@@ -299,11 +299,11 @@ fontOffset	src/Paracletus/Oblatum/Data.hs	116;"	f
 formats	src/Paracletus/Data.hs	71;"	f
 frameIndexRef	src/Paracletus/Data.hs	57;"	f
 frameIndexRef	src/Paracletus/Vulkan/Draw.hs	113;"	f
-genCommandBuffs	src/Paracletus/Vulkan.hs	190;"	f
+genCommandBuffs	src/Paracletus/Vulkan.hs	173;"	f
 genSegs	src/Anamnesis/World.hs	75;"	f
 generateMipmaps	src/Paracletus/Vulkan/Texture.hs	77;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
-getCurTick	src/Paracletus/Vulkan.hs	185;"	f
+getCurTick	src/Paracletus/Oblatum.hs	78;"	f
 getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	47;"	f
 getDynLibDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
@@ -314,9 +314,9 @@ getLibexecDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/bui
 getMaxUsableSampleCount	src/Paracletus/Vulkan/Device.hs	77;"	f
 getQueueFamilies	src/Paracletus/Vulkan/Device.hs	87;"	f
 getSysconfDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
-glfwMainLoop	src/Paracletus/Oblatum.hs	52;"	f
-glfwWaitEventsMeanwhile	src/Paracletus/Oblatum.hs	72;"	f
-glfwWaitMinimized	src/Paracletus/Oblatum.hs	77;"	f
+glfwMainLoop	src/Paracletus/Oblatum.hs	54;"	f
+glfwWaitEventsMeanwhile	src/Paracletus/Oblatum.hs	94;"	f
+glfwWaitMinimized	src/Paracletus/Oblatum.hs	99;"	f
 gqdata	src/Paracletus/Data.hs	46;"	f
 gqueue	src/Paracletus/Vulkan/Data.hs	29;"	f
 graphicsFamIdx	src/Paracletus/Data.hs	65;"	f
@@ -333,7 +333,7 @@ imageAvailableSems	src/Paracletus/Vulkan/Draw.hs	115;"	f
 imgIndexPtr	src/Paracletus/Data.hs	55;"	f
 imgIndexPtr	src/Paracletus/Vulkan/Draw.hs	112;"	f
 imgview	src/Paracletus/Vulkan/Atlas.hs	16;"	f
-importKeyLayout	src/Paracletus/Oblatum.hs	97;"	f
+importKeyLayout	src/Paracletus/Oblatum.hs	119;"	f
 inDev	src/Anamnesis/Util.hs	85;"	f
 inFlightFences	src/Paracletus/Data.hs	60;"	f
 inFlightFences	src/Paracletus/Vulkan/Draw.hs	116;"	f
@@ -341,7 +341,7 @@ indexAtlas	src/Paracletus/Vulkan/Atlas.hs	30;"	f
 indices	src/Paracletus/Vulkan/Calc.hs	52;"	f
 initDrawState	src/Anamnesis/Draw.hs	11;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
-initGLFWWindow	src/Paracletus/Oblatum.hs	20;"	f
+initGLFWWindow	src/Paracletus/Oblatum.hs	22;"	f
 initLua	src/Epiklesis/Lua.hs	18;"	f
 initState	src/Anamnesis/Init.hs	42;"	f
 inputState	src/Anamnesis/Data.hs	35;"	f
@@ -433,7 +433,7 @@ presentModes	src/Paracletus/Data.hs	72;"	f
 presentQueue	src/Paracletus/Data.hs	63;"	f
 processEvent	src/Anamnesis/Event.hs	34;"	f
 processEvents	src/Anamnesis/Event.hs	24;"	f
-processInput	src/Paracletus/Oblatum.hs	85;"	f
+processInput	src/Paracletus/Oblatum.hs	107;"	f
 proj	src/Paracletus/Vulkan/Trans.hs	24;"	f
 ptrAtIndex	src/Anamnesis/Foreign.hs	55;"	f
 qFamIndices	src/Paracletus/Data.hs	64;"	f
@@ -450,7 +450,7 @@ replaceWorldData	src/Anamnesis/World.hs	99;"	f
 reportGlslMsgs	src/Paracletus/TH.hs	48;"	f
 runAnamnesis	src/Anamnesis/Init.hs	21;"	f
 runCommandsOnce	src/Paracletus/Vulkan/Command.hs	30;"	f
-runParacVulkan	src/Paracletus/Vulkan.hs	43;"	f
+runParacVulkan	src/Paracletus/Vulkan.hs	42;"	f
 runParacletus	src/Paracletus.hs	13;"	f
 runVk	src/Paracletus/Vulkan/Foreign.hs	26;"	f
 sCmdBuff	src/Anamnesis/Data.hs	37;"	f
@@ -523,12 +523,12 @@ vertices	src/Paracletus/Vulkan/Calc.hs	28;"	f
 view	src/Paracletus/Vulkan/Trans.hs	23;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Device.hs	25;"	f
 vkLayerValidation	src/Paracletus/Vulkan/Instance.hs	18;"	f
-vulkLoop	src/Paracletus/Vulkan.hs	109;"	f
+vulkLoop	src/Paracletus/Vulkan.hs	108;"	f
 vulkanSurface	src/Paracletus/Data.hs	50;"	f
 wdCSize	src/Epiklesis/Data.hs	80;"	f
 wdCam	src/Epiklesis/Data.hs	79;"	f
 wdZones	src/Epiklesis/Data.hs	81;"	f
-whileM_	src/Paracletus/Vulkan.hs	179;"	f
+whileM_	src/Paracletus/Oblatum.hs	72;"	f
 winCursor	src/Epiklesis/Data.hs	14;"	f
 winElems	src/Epiklesis/Data.hs	15;"	f
 winTitle	src/Epiklesis/Data.hs	12;"	f

@@ -4,6 +4,8 @@ module Paracletus.Oblatum where
 import Prelude()
 import UPrelude
 import Control.Monad (when, unless, forever)
+import Control.Monad.State.Class (gets, modify)
+import Data.Time.Clock (getCurrentTime, utctDayTime)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -52,11 +54,31 @@ initGLFWWindow w h n windowSizeChanged = do
 glfwMainLoop ∷ GLFW.Window → Anamnesis' ε LoopControl → Anamnesis ε σ Bool
 glfwMainLoop w action = go
   where go = do
+          tick ← liftIO getCurTick
+          stick ← gets sTick
+          let newtick = case stick of
+                Just st → st
+                Nothing → tick
+          modify $ \s → s { sTick = Nothing }
           should ← liftIO $ GLFW.windowShouldClose w
           if not should then do
             status ← locally action
+            let fps = 120.0
+            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (return ())
             if status ≡ ContinueLoop then go else return False
           else return True
+
+-- loop for the monad
+whileM_ :: (Monad m) => m Bool -> m () -> m ()
+whileM_ p f = do
+  x <- p
+  when x $ do f >> whileM_ p f
+
+-- gets time in ms
+getCurTick :: IO Double
+getCurTick = do
+  tickUCT <- getCurrentTime
+  return (fromIntegral (round $ utctDayTime tickUCT * 1000000 :: Integer) / 1000000.0 :: Double)
 
 drawLoop ∷ GLFW.Window → Anamnesis' ε Bool → Anamnesis ε σ Bool
 drawLoop w action = go

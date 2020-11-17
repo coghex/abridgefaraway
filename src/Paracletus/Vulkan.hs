@@ -6,7 +6,6 @@ import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets, modify)
-import Data.Time.Clock (getCurrentTime, utctDayTime)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -130,13 +129,12 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
   modify $ \s → s { sCmdBuff = Just cmdBP }
   shouldExit ← glfwMainLoop window $ do
-    tick ← liftIO getCurTick
     stNew ← get
     let lsNew = luaSt stNew
         camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
     newCmdBP ← case (sCmdBuff stNew) of
                       Just cb → return cb
-                      Nothing → genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+                      Nothing → return cmdBP
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -165,27 +163,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     processInput
     runVk $ vkDeviceWaitIdle dev
     stateRecreate ← gets sRecreate
-    let fps = 120.0
-    case (sTick stNew) of
-      Just ftick → do
-        modify $ \s → s { sTick = Nothing }
-        liftIO $ whileM_ ((\cur → (cur - (ftick)) < (1.0/fps)) <$> getCurTick) (return ())
-      Nothing → liftIO $ whileM_ ((\cur → (cur - (tick)) < (1.0/fps)) <$> getCurTick) (return ())
     return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
   -- loop ends, now deallocate
   return $ if shouldExit then AbortLoop else ContinueLoop
-
--- loop for the monad
-whileM_ :: (Monad m) => m Bool -> m () -> m ()
-whileM_ p f = do
-  x <- p
-  when x $ do f >> whileM_ p f
-
--- gets time in ms
-getCurTick :: IO Double
-getCurTick = do
-  tickUCT <- getCurrentTime
-  return (fromIntegral (round $ utctDayTime tickUCT * 1000000 :: Integer) / 1000000.0 :: Double)
 
 genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
 genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets = do
