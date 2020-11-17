@@ -12,6 +12,7 @@ import Anamnesis.Data
 import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
+import Epiklesis.Shell
 import Epiklesis.World
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
@@ -21,6 +22,7 @@ initLua = do
   return $ LuaState { luaState = ls
                     , luaCurrWin = 0
                     , luaLastWin = 0
+                    , luaShell = initShell
                     , luaModules = []
                     , luaWindows = [] }
 

@@ -32,8 +32,10 @@ executable abfa
                    Anamnesis.Util
                    Anamnesis.World
                    Epiklesis.Data
+                   Epiklesis.Elems
                    Epiklesis.Lua
                    Epiklesis.Module
+                   Epiklesis.Shell
                    Epiklesis.World
                    Paracletus
                    Paracletus.Data

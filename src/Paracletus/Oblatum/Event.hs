@@ -12,14 +12,30 @@ import Anamnesis.World
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
+import Epiklesis.Shell
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
-evalKey window k _  _  keyLayout = do
+evalKey window k ks _  keyLayout = do
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
+  when (GLFW.keyCheck False keyLayout k "SH") $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      env ← ask
+      st  ← get
+      let oldLS  = luaSt st
+          newLS  = oldLS { luaShell = openSh sh on }
+          sh     = luaShell oldLS
+          on     = not $ shOpen sh
+          eventQ = envEventsChan env
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      case on of
+        True → logDebug "on"
+        False → logDebug "off"
 
+    else return ()
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs _  = do

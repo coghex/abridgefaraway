@@ -15,6 +15,12 @@ data Window = Window { winTitle  ∷ String
                      , winElems  ∷ [WinElem]
                      } deriving (Show, Eq)
 
+-- lua shell executes commands in global state
+data Shell = Shell { shPrompt ∷ String
+                   , shOpen   ∷ Bool
+                   , shInpStr ∷ String
+                   , shOutStr ∷ String } deriving (Show, Eq)
+
 -- the windows defined by the lua fies,
 -- they are made up of elements which
 -- can be any number of things, windows
@@ -23,6 +29,7 @@ data Window = Window { winTitle  ∷ String
 data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaCurrWin ∷ Int
                          , luaLastWin ∷ Int
+                         , luaShell   ∷ Shell
                          , luaModules ∷ [Module]
                          , luaWindows ∷ [Window] }
 
