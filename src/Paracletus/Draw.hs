@@ -67,16 +67,12 @@ calcSegTiles (i,j) wp cam camSize ind (Segment grid) = flatten $ calcSegRow cam 
 calcSegRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → [[Tile]] → [[GTile]]
 calcSegRow _       _       _     [[]]         = [[]]
 calcSegRow _       _       _     []           = [[]]
-calcSegRow (cx,cy) (cw,ch) (x,y) (grow:grows)
-  | ((y > (cy + ch)) ∨ (y < (cy - ch))) = calcSegRow (cx,cy) (cw,ch) (x,(y + 1)) grows
-  | otherwise = [rowTiles] ⧺ (calcSegRow (cx,cy) (cw,ch) (x,(y + 1)) grows)
+calcSegRow (cx,cy) (cw,ch) (x,y) (grow:grows) = [rowTiles] ⧺ (calcSegRow (cx,cy) (cw,ch) (x,(y + 1)) grows)
     where rowTiles = calcSegSpot (cx,cy) (cw,ch) (x,y) grow
 
 calcSegSpot ∷ (Int,Int) → (Int,Int) → (Int,Int) → [Tile] → [GTile]
 calcSegSpot _       _       _     [] = []
-calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots)
-  | ((x > (cx + cw)) ∨ (x < (cx - cw))) = calcSegSpot (cx,cy) (cw,ch) ((x + 1),y) gspots
-  | otherwise = [tile] ⧺ (calcSegSpot (cx,cy) (cw,ch) ((x + 1),y) gspots)
+calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,cy) (cw,ch) ((x + 1),y) gspots)
     where tile = GTile { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
                        , tScale = (1,1)
                        , tInd = (ix,iy)
