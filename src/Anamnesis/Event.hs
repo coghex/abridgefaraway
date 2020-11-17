@@ -3,6 +3,7 @@ module Anamnesis.Event where
 -- events and exceptions are handled
 import Prelude()
 import UPrelude
+import Control.Concurrent (forkIO)
 import Control.Monad.State.Class (modify)
 import Anamnesis
 import Anamnesis.Data
@@ -14,6 +15,7 @@ import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
+import Epiklesis.Module
 import Epiklesis.World
 import Paracletus.Draw
 import Paracletus.Oblatum
@@ -107,6 +109,13 @@ processEvent event = case event of
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
           WinElemNULL → logError "null window element"
+      (LuaCmdloadModule str) → do
+        env ← ask
+        st  ← get
+        modNew ← liftIO $ loadModule env st ModuleUser str
+        let oldLS = luaSt st
+            newLS = oldLS { luaModules = (luaModules oldLS) ⧺ [modNew] }
+        modify $ \s → s { luaSt = newLS }
       (LuaCmdswitchWindow winName) → do
         env ← ask
         st  ← get

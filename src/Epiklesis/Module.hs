@@ -11,13 +11,9 @@ import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
 
-data Module = Module { modFP   ∷ String
-                     , modType ∷ ModuleType }
-data ModuleType = ModuleGame | ModuleUser
-
 -- loads lua functions for a module
-loadModule ∷ ModuleType → String → Env → State → IO (Module)
-loadModule ModuleUser fp env st = do
+loadModule ∷ Env → State → ModuleType → String → IO (Module)
+loadModule env st ModuleUser fp = do
   let ls = luaState $ luaSt st
   _ ← Lua.runWith ls $ do
     Lua.openlibs
@@ -26,7 +22,7 @@ loadModule ModuleUser fp env st = do
   let eventQ = envEventsChan env
   atomically $ writeQueue eventQ $ EventLoaded
   return (Module fp ModuleUser)
-loadModule ModuleGame fp env st = do
+loadModule env st ModuleGame fp = do
   let ls = luaState $ luaSt st
   _ ← Lua.runWith ls $ do
     Lua.openlibs

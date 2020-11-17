@@ -55,6 +55,7 @@ function initLua ()
     game1:addWorld (8,8,16,8,"dat/tex/world/")
 
     menu1:switchToWindow ()
+    loadModule ("mod/base/game.lua")
 
     return 0
 end

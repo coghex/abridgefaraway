@@ -21,6 +21,7 @@ initLua = do
   return $ LuaState { luaState = ls
                     , luaCurrWin = 0
                     , luaLastWin = 0
+                    , luaModules = []
                     , luaWindows = [] }
 
 makeKeyLayout ∷ String → String → String → String → String → GLFW.KeyLayout
@@ -41,6 +42,7 @@ loadState env st = do
     Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
+    Lua.registerHaskellFunction "loadModule" (hsLoadModule env)
     Lua.openlibs
     _ ← Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -126,6 +128,11 @@ hsSwitchWindow env name = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow name)
 
+hsLoadModule ∷ Env → String → Lua.Lua ()
+hsLoadModule env fp = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdloadModule fp)
+
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
 findReqTextures win = findTexturesFromElems $ reverse $ sort $ winElems win
@@ -140,7 +147,7 @@ findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
 -- some simple data manipulators
 addWinToLuaState ∷ LuaState → Window → LuaState
-addWinToLuaState ls win = LuaState (luaState ls) (luaCurrWin ls) (luaLastWin ls) $ (luaWindows ls) ⧺ [win]
+addWinToLuaState ls win = ls { luaWindows = (luaWindows ls) ⧺ [win] }
 
 addElemToLuaState ∷ String → WinElem → LuaState → LuaState
 addElemToLuaState thisWin e ls = ls { luaWindows = newWins }

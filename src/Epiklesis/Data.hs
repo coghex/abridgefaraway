@@ -23,6 +23,7 @@ data Window = Window { winTitle  ∷ String
 data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaCurrWin ∷ Int
                          , luaLastWin ∷ Int
+                         , luaModules ∷ [Module]
                          , luaWindows ∷ [Window] }
 
 data WinElem = WinElemText  { textPos ∷ (Double,Double)
@@ -67,12 +68,16 @@ data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Sho
 data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewElem String WinElem
             | LuaCmdswitchWindow String
+            | LuaCmdloadModule String
             | LuaFind LFQuery
             | LuaError String
             | LuaCmdNULL deriving (Show, Eq)
 -- possible queryable items in the state
 data LFQuery = LFScreenCursor | LFNULL deriving (Show, Eq)
 
+data Module = Module { modFP   ∷ String
+                     , modType ∷ ModuleType }
+data ModuleType = ModuleGame | ModuleUser
 
 -- world parameters help generate world
 data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
