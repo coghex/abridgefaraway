@@ -5,6 +5,7 @@ import Prelude()
 import UPrelude
 import Control.Monad (when)
 import Control.Monad.State.Class (modify',gets)
+import qualified Foreign.Lua as Lua
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -18,24 +19,48 @@ import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
-evalKey window k ks _  keyLayout = do
+evalKey window k ks mk keyLayout = do
+  st ← get
+  let oldLS = luaSt st
+      shCap = shOpen $ luaShell oldLS
+      cap   = shCap
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
   when (GLFW.keyCheck False keyLayout k "SH") $ do
     if (ks ≡ GLFW.KeyState'Pressed) then do
       env ← ask
-      st  ← get
-      let oldLS  = luaSt st
-          newLS  = oldLS { luaShell = openSh sh on }
+      let newLS  = oldLS { luaShell = openSh sh on }
           sh     = luaShell oldLS
           on     = not $ shOpen sh
           eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-      case on of
-        True → logDebug "on"
-        False → logDebug "off"
-
     else return ()
+  -- captured keys start here
+  when ((not (GLFW.keyCheck False keyLayout k "SH")) ∧ cap ∧ (ks ≡ GLFW.KeyState'Pressed)) $ do
+    env ← ask
+    if (GLFW.keyCheck False keyLayout k "DEL")
+    then do
+      let newLS = oldLS { luaShell = removeShellString (luaShell oldLS) }
+          eventQ = envEventsChan env
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (GLFW.keyCheck False keyLayout k "SPC") then do
+      let newSh = addShellString ShellInp sh [' ']
+          newLS = oldLS { luaShell = newSh }
+          sh    = luaShell oldLS
+          eventQ = envEventsChan env
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else do
+      ch ← liftIO $ GLFW.calcInpKey k mk
+      let newSh = addShellString ShellInp sh ch
+          newLS = oldLS { luaShell = newSh }
+          sh    = luaShell oldLS
+          eventQ = envEventsChan env
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+evalShell ∷ Lua.State → IO Lua.State
+evalShell ls = return ls
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs _  = do
