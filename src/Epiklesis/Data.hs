@@ -3,6 +3,7 @@ module Epiklesis.Data where
 -- the interface to the lua state
 -- is instantiated.
 import Epiklesis.World
+import Paracletus.Data
 import qualified Foreign.Lua as Lua
 
 -- window types define behavior
@@ -13,6 +14,7 @@ data Window = Window { winTitle  ∷ String
                      , winType   ∷ WinType
                      , winCursor ∷ (Float,Float,Float)
                      , winElems  ∷ [WinElem]
+                     , winCache  ∷ [WinElemCache]
                      } deriving (Show, Eq)
 
 -- lua shell executes commands in global state
@@ -69,12 +71,18 @@ instance Ord WinElem where
   compare _ (WinElemText _ _ _) = LT
   compare (WinElemNULL) _       = LT
 
+-- the cache allows instant gtile
+-- calculation when desired
+data WinElemCache = WECached [GTile]
+                  | WEUncached
+                  | WECacheNULL deriving (Show, Eq)
+
 -- possible actions when links are clicked
 data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Show, Eq)
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
-            | LuaCmdnewElem String WinElem
+            | LuaCmdnewElem String WinElem WinElemCache
             | LuaCmdswitchWindow String
             | LuaCmdloadModule String
             | LuaFind LFQuery

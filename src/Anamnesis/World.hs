@@ -81,7 +81,7 @@ reloadScreenCursor env sc = do
 -- returns the first world element
 -- found on the current window
 findWorldData ∷ Window → (Maybe (WorldParams,WorldData))
-findWorldData (Window _ _ _ elems) = findElemData elems
+findWorldData (Window _ _ _ elems _) = findElemData elems
 findElemData ∷ [WinElem] → (Maybe (WorldParams,WorldData))
 findElemData []                            = Nothing
 findElemData ((WinElemNULL):elems)         = findElemData elems
@@ -92,7 +92,7 @@ findElemData ((WinElemWorld wp wd _):_) = Just (wp,wd)
 
 -- replaces world data in a window
 replaceWorldData ∷ Window → WorldData → Window
-replaceWorldData (Window name wType curs elems) wd = Window name wType curs $ map (replaceElemData wd) elems
+replaceWorldData (Window name wType curs elems cache) wd = Window name wType curs (map (replaceElemData wd) elems) cache
 replaceElemData ∷ WorldData → WinElem → WinElem
 replaceElemData _   (WinElemNULL)           = WinElemNULL
 replaceElemData _   (WinElemText tp tb ts)  = WinElemText tp tb ts
@@ -139,6 +139,6 @@ zoneExists testInd ((Zone ind _):zs)
 
 findAndReplaceWindow ∷ Window → [Window] → [Window]
 findAndReplaceWindow _ [] = []
-findAndReplaceWindow (Window testname a1 a2 a3) ((Window name b1 b2 b3):ws)
-  | testname ≡ name = [Window testname a1 a2 a3] ⧺ findAndReplaceWindow (Window testname a1 a2 a3) ws
-  | otherwise       = [Window name     b1 b2 b3] ⧺ findAndReplaceWindow (Window testname a1 a2 a3) ws
+findAndReplaceWindow (Window testname a1 a2 a3 a4) ((Window name b1 b2 b3 b4):ws)
+  | testname ≡ name = [Window testname a1 a2 a3 a4] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4) ws
+  | otherwise       = [Window name     b1 b2 b3 b4] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4) ws

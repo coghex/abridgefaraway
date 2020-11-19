@@ -5,8 +5,9 @@ module Paracletus.Draw where
 -- vertex translation in seperate modules
 import Prelude()
 import UPrelude
-import Data.List (sort)
+import Data.List (sort, sortBy)
 import Data.List.Split (splitOn)
+import Data.Function (on)
 import Anamnesis.Data
 import Epiklesis.Data
 import Epiklesis.Elems
@@ -24,11 +25,14 @@ loadDrawState ls = DrawState (tiles ⧺ shTiles)
         currWin = (luaWindows ls) !! winInd
   
 loadWindow ∷ Window → [GTile]
-loadWindow win = loadWinElems $ sort $ winElems win
+loadWindow win = loadWinElems $ reverse $ mysort (zip (winCache win) (winElems win))
+mysort ∷ Ord b ⇒ [(a,b)] → [(a,b)]
+mysort = sortBy (flip compare `on` snd)
 
-loadWinElems ∷ [WinElem] → [GTile]
-loadWinElems []           = []
-loadWinElems (e:es) = loadWinElem e ⧺ loadWinElems es
+loadWinElems ∷ ([(WinElemCache,WinElem)]) → [GTile]
+loadWinElems []                    = []
+loadWinElems ((WECached gts,e):es) = gts ⧺ loadWinElems es
+loadWinElems ((ec,e):es)           = loadWinElem e ⧺ loadWinElems es
 
 loadWinElem ∷ WinElem → [GTile]
 loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText (fst pos) pos str

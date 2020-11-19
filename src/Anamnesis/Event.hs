@@ -89,23 +89,23 @@ processEvent event = case event of
       (LuaCmdnewWindow newWin) → do
         st ← get
         modify $ \s → s { luaSt = addWinToLuaState (luaSt st) newWin }
-      (LuaCmdnewElem win e) → do
+      (LuaCmdnewElem win e cache) → do
       -- if you wish to load more textures
       -- sRecreate must be set True
         st ← get
         case e of
           WinElemText _ _ _ → do
-            let newLS = addElemToLuaState win e (luaSt st)
+            let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
           WinElemLink _ _ _ → do
-            let newLS = addElemToLuaState win e (luaSt st)
+            let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
           WinElemBack _ → do
-            let newLS = addElemToLuaState win e (luaSt st)
+            let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
           WinElemWorld _ _ _ → do
-            let newLS = addElemToLuaState win e (luaSt st)
+            let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
           WinElemNULL → logError "null window element"

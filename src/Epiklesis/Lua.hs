@@ -12,6 +12,7 @@ import Anamnesis.Data
 import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
+import Epiklesis.Elems
 import Epiklesis.Shell
 import Epiklesis.World
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -57,11 +58,11 @@ hsNewWindow ∷ Env → String → String → Lua.Lua ()
 hsNewWindow env name "menu" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
-  where win = Window name WinTypeMenu (0,0,(-1)) []
+  where win = Window name WinTypeMenu (0,0,(-1)) [] []
 hsNewWindow env name "game" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
-  where win = Window name WinTypeGame (0,0,(-1)) []
+  where win = Window name WinTypeGame (0,0,(-1)) [] []
 hsNewWindow env _    wintype = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -70,10 +71,14 @@ hsNewWindow env _    wintype = do
 hsNewText ∷ Env → String → Double → Double → String → String → Lua.Lua ()
 hsNewText env win x y text "text" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text) WECacheNULL)
 hsNewText env win x y text "textbox" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text))
+      initCache = WECached $ (addTextBox posOffset size) ⧺ addText x (x,y) text
+      size = calcTextBoxSize text
+      posOffset = (x - 1.0,y + 0.5)
+
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text) initCache)
 hsNewText env _   _ _ _    textType = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -84,12 +89,12 @@ hsNewLink env win x y text "action" "exit" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit) WECacheNULL)
 hsNewLink env win x y text "action" "back" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack) WECacheNULL)
 hsNewLink env _   _ _ _    "action" args   = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -98,7 +103,7 @@ hsNewLink env win x y text "link" args     = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)) WECacheNULL)
 hsNewLink env _   _ _ _    action _        = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -118,12 +123,12 @@ hsNewWorld env win zx zy sx sy dp = do
       wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
       initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) WECacheNULL)
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) WECacheNULL)
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
@@ -151,17 +156,18 @@ findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 addWinToLuaState ∷ LuaState → Window → LuaState
 addWinToLuaState ls win = ls { luaWindows = (luaWindows ls) ⧺ [win] }
 
-addElemToLuaState ∷ String → WinElem → LuaState → LuaState
-addElemToLuaState thisWin e ls = ls { luaWindows = newWins }
-  where newWins = addElemToWindows thisWin e (luaWindows ls)
+addElemToLuaState ∷ String → WinElem → WinElemCache → LuaState → LuaState
+addElemToLuaState thisWin e ec ls = ls { luaWindows = newWins }
+  where newWins = addElemToWindows thisWin e ec (luaWindows ls)
 
-addElemToWindows ∷ String → WinElem → [Window] → [Window]
-addElemToWindows _       _    []         = []
-addElemToWindows thisWin e (win:wins)
-  | (thisWin == (winTitle win)) = [(addElemToWindow e win)] ⧺ addElemToWindows thisWin e wins
-  | otherwise                   = [win] ⧺ addElemToWindows thisWin e wins
-addElemToWindow ∷ WinElem → Window → Window
-addElemToWindow e win = win { winElems = (winElems win) ⧺ [e] }
+addElemToWindows ∷ String → WinElem → WinElemCache → [Window] → [Window]
+addElemToWindows _       _ _  []         = []
+addElemToWindows thisWin e ec (win:wins)
+  | (thisWin == (winTitle win)) = [(addElemToWindow e ec win)] ⧺ addElemToWindows thisWin e ec wins
+  | otherwise                   = [win] ⧺ addElemToWindows thisWin e ec wins
+addElemToWindow ∷ WinElem → WinElemCache → Window → Window
+addElemToWindow e ec win = win { winCache = (winCache win) ⧺ [ec]
+                               , winElems = (winElems win) ⧺ [e] }
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
