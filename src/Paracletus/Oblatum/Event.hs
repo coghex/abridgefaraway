@@ -52,7 +52,7 @@ evalKey window k ks mk keyLayout = do
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else if (GLFW.keyCheck False keyLayout k "RET") then do
-      newLS ← liftIO $ evalShell $ oldLS
+      newLS ← liftIO $ evalShell env $ oldLS
       let eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded

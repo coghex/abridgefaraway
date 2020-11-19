@@ -11,12 +11,17 @@ import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
 
+-- loads functions available in main module
+loadModuleFunctions ∷ Env → Lua.Lua ()
+loadModuleFunctions env = Lua.registerHaskellFunction "findScreenCursor" (hsFindScreenCursor env)
+
 -- loads lua functions for a module
 loadModule ∷ Env → State → ModuleType → String → IO (Module)
 loadModule env st ModuleUser fp = do
   let ls = luaState $ luaSt st
   _ ← Lua.runWith ls $ do
     Lua.openlibs
+    loadModuleFunctions env
     _ ← Lua.dofile fp
     return ()
   let eventQ = envEventsChan env
@@ -26,7 +31,6 @@ loadModule env st ModuleGame fp = do
   let ls = luaState $ luaSt st
   _ ← Lua.runWith ls $ do
     Lua.openlibs
-    Lua.registerHaskellFunction "findScreenCursor" (hsFindScreenCursor env)
     _ ← Lua.dofile fp
     return ()
   let eventQ = envEventsChan env
@@ -34,8 +38,8 @@ loadModule env st ModuleGame fp = do
   return ()
   return (Module fp ModuleGame)
 
-hsFindScreenCursor ∷ Env → String → Lua.Lua ()
-hsFindScreenCursor env str = do
+hsFindScreenCursor ∷ Env → Lua.Lua ()
+hsFindScreenCursor env = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaFind LFScreenCursor)
 

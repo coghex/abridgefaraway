@@ -84,7 +84,7 @@ runParacVulkan = do
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False
     loop $ do
       firstTick ← liftIO getCurTick
-      logDebug "creating new swapchain..."
+      --logDebug "creating new swapchain..."
       scsd ← querySwapchainSupport pdev vulkanSurface
       beforeSwapchainCreation
       rec ← gets sRecreate

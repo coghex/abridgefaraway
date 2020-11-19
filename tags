@@ -179,7 +179,7 @@ _MAX_FRAMES_IN_FLIGHT	src/Paracletus/Vulkan/Draw.hs	28;"	f
 addElemToLuaState	src/Epiklesis/Lua.hs	162;"	f
 addElemToWindow	src/Epiklesis/Lua.hs	171;"	f
 addElemToWindows	src/Epiklesis/Lua.hs	166;"	f
-addShellString	src/Epiklesis/Shell.hs	61;"	f
+addShellString	src/Epiklesis/Shell.hs	65;"	f
 addText	src/Epiklesis/Elems.hs	47;"	f
 addTextBox	src/Epiklesis/Elems.hs	14;"	f
 addTile	src/Anamnesis/Draw.hs	15;"	f
@@ -297,9 +297,9 @@ errorCallback	src/Paracletus/Oblatum/Callback.hs	7;"	f
 evalKey	src/Paracletus/Oblatum/Event.hs	21;"	f
 evalMouse	src/Paracletus/Oblatum/Event.hs	69;"	f
 evalScreenCursor	src/Anamnesis/World.hs	62;"	f
-evalShell	src/Epiklesis/Shell.hs	19;"	f
+evalShell	src/Epiklesis/Shell.hs	21;"	f
 exTy	src/Artos/Except.hs	24;"	f
-execShell	src/Epiklesis/Shell.hs	28;"	f
+execShell	src/Epiklesis/Shell.hs	30;"	f
 finally	src/Anamnesis/Util.hs	62;"	f
 findAndReplaceSegment	src/Anamnesis/World.hs	109;"	f
 findAndReplaceSegmentRow	src/Anamnesis/World.hs	124;"	f
@@ -322,8 +322,8 @@ frameIndexRef	src/Paracletus/Data.hs	57;"	f
 frameIndexRef	src/Paracletus/Vulkan/Draw.hs	113;"	f
 genCommandBuffs	src/Paracletus/Vulkan.hs	166;"	f
 genSegs	src/Anamnesis/World.hs	70;"	f
-genShell	src/Epiklesis/Shell.hs	38;"	f
-genShellStr	src/Epiklesis/Shell.hs	47;"	f
+genShell	src/Epiklesis/Shell.hs	42;"	f
+genShellStr	src/Epiklesis/Shell.hs	51;"	f
 generateMipmaps	src/Paracletus/Vulkan/Texture.hs	77;"	f
 getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.6.5/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getCurTick	src/Paracletus/Oblatum.hs	78;"	f
@@ -345,7 +345,7 @@ gqueue	src/Paracletus/Vulkan/Data.hs	29;"	f
 graphicsFamIdx	src/Paracletus/Data.hs	65;"	f
 graphicsQueue	src/Paracletus/Data.hs	62;"	f
 hasStencilComponent	src/Paracletus/Vulkan/Texture.hs	346;"	f
-hsFindScreenCursor	src/Epiklesis/Module.hs	37;"	f
+hsFindScreenCursor	src/Epiklesis/Module.hs	41;"	f
 hsLoadModule	src/Epiklesis/Lua.hs	141;"	f
 hsNewLink	src/Epiklesis/Lua.hs	90;"	f
 hsNewText	src/Epiklesis/Lua.hs	73;"	f
@@ -368,7 +368,7 @@ initDrawState	src/Anamnesis/Draw.hs	11;"	f
 initEnv	src/Anamnesis/Init.hs	26;"	f
 initGLFWWindow	src/Paracletus/Oblatum.hs	22;"	f
 initLua	src/Epiklesis/Lua.hs	22;"	f
-initShell	src/Epiklesis/Shell.hs	15;"	f
+initShell	src/Epiklesis/Shell.hs	17;"	f
 initState	src/Anamnesis/Init.hs	42;"	f
 inputState	src/Anamnesis/Data.hs	35;"	f
 isDev	src/Anamnesis/Util.hs	77;"	f
@@ -391,7 +391,8 @@ linkTest	src/Paracletus/Oblatum/Event.hs	126;"	f
 linkTestFunc	src/Paracletus/Oblatum/Event.hs	131;"	f
 loadDrawState	src/Paracletus/Draw.hs	20;"	f
 loadModule	src/Epiklesis/Game.hs	11;"	f
-loadModule	src/Epiklesis/Module.hs	15;"	f
+loadModule	src/Epiklesis/Module.hs	19;"	f
+loadModuleFunctions	src/Epiklesis/Module.hs	15;"	f
 loadNTex	src/Paracletus/Vulkan/Texture.hs	41;"	f
 loadNTexs	src/Paracletus/Vulkan/Texture.hs	30;"	f
 loadState	src/Epiklesis/Lua.hs	40;"	f
@@ -405,7 +406,7 @@ logError	src/Anamnesis/Util.hs	106;"	f
 logExcept	src/Anamnesis/Util.hs	109;"	f
 logFunc	src/Anamnesis/Data.hs	31;"	f
 logInfo	src/Anamnesis/Util.hs	100;"	f
-logLuaError	src/Epiklesis/Module.hs	42;"	f
+logLuaError	src/Epiklesis/Module.hs	47;"	f
 logWarn	src/Anamnesis/Util.hs	103;"	f
 loop	src/Anamnesis/Util.hs	71;"	f
 luaCurrWin	src/Epiklesis/Data.hs	33;"	f
@@ -452,7 +453,7 @@ newTVar	src/Artos/Var.hs	12;"	f
 nimages	src/Paracletus/Data.hs	40;"	f
 occupyThreadAndFork	src/Anamnesis/Util.hs	26;"	f
 oldLayout	src/Paracletus/Vulkan/Texture.hs	211;"	f
-openSh	src/Epiklesis/Shell.hs	65;"	f
+openSh	src/Epiklesis/Shell.hs	69;"	f
 parseValidatorMsgs	src/Paracletus/TH.hs	54;"	f
 pdev	src/Paracletus/Vulkan/Data.hs	26;"	f
 peek	src/Anamnesis/Foreign.hs	23;"	f
@@ -478,7 +479,7 @@ queues	src/Paracletus/Vulkan/Draw.hs	111;"	f
 readChan	src/Artos/Queue.hs	28;"	f
 readTVar	src/Artos/Var.hs	14;"	f
 reloadScreenCursor	src/Anamnesis/World.hs	76;"	f
-removeShellString	src/Epiklesis/Shell.hs	58;"	f
+removeShellString	src/Epiklesis/Shell.hs	62;"	f
 renderFinishedSems	src/Paracletus/Data.hs	58;"	f
 renderFinishedSems	src/Paracletus/Vulkan/Draw.hs	114;"	f
 replaceElemData	src/Anamnesis/World.hs	97;"	f

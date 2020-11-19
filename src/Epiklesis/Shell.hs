@@ -5,8 +5,10 @@ module Epiklesis.Shell where
 import Prelude()
 import UPrelude
 import Data.List.Split (splitOn)
+import Anamnesis.Data
 import Epiklesis.Data
 import Epiklesis.Elems
+import Epiklesis.Module
 import Paracletus.Data
 import qualified Data.ByteString.Char8 as BL
 import qualified Foreign.Lua as Lua
@@ -16,18 +18,20 @@ initShell ∷ Shell
 initShell = Shell "$> " False 0 "" ""
 
 -- executes lua command in state
-evalShell ∷ LuaState → IO LuaState
-evalShell ls = do
+evalShell ∷ Env → LuaState → IO LuaState
+evalShell env ls = do
   let oldSh = luaShell ls
-  (ret,outbuff) ← execShell (luaState ls) (shInpStr oldSh)
+  (ret,outbuff) ← execShell env (luaState ls) (shInpStr oldSh)
   let retstring = (shOutStr oldSh) ⧺ (shPrompt oldSh) ⧺ (shInpStr oldSh) ⧺ "\n" ⧺ (show ret) ⧺ " > " ⧺ outbuff ⧺ "\n"
       newSh = oldSh { shInpStr = ""
                     , shOutStr = retstring }
   return ls { luaShell = newSh }
 
-execShell ∷ Lua.State → String → IO (Lua.Status,String)
-execShell ls str = do
-  Lua.runWith ls $ Lua.openlibs
+execShell ∷ Env → Lua.State → String → IO (Lua.Status,String)
+execShell env ls str = do
+  Lua.runWith ls $ do
+    Lua.openlibs
+    loadModuleFunctions env
   luaerror ← Lua.runWith ls $ Lua.loadstring $ BL.pack str
   _   ← Lua.runWith ls $ Lua.pcall 0 1 Nothing
   ret ← Lua.runWith ls $ Lua.tostring' $ Lua.nthFromBottom (-1)
