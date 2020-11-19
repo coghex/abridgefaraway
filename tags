@@ -406,7 +406,7 @@ logError	src/Anamnesis/Util.hs	106;"	f
 logExcept	src/Anamnesis/Util.hs	109;"	f
 logFunc	src/Anamnesis/Data.hs	31;"	f
 logInfo	src/Anamnesis/Util.hs	100;"	f
-logLuaError	src/Epiklesis/Module.hs	47;"	f
+logLuaError	src/Epiklesis/Module.hs	46;"	f
 logWarn	src/Anamnesis/Util.hs	103;"	f
 loop	src/Anamnesis/Util.hs	71;"	f
 luaCurrWin	src/Epiklesis/Data.hs	33;"	f

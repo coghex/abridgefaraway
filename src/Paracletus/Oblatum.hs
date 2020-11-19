@@ -54,16 +54,16 @@ initGLFWWindow w h n windowSizeChanged = do
 glfwMainLoop ∷ GLFW.Window → Anamnesis' ε LoopControl → Anamnesis ε σ Bool
 glfwMainLoop w action = go
   where go = do
-          tick ← liftIO getCurTick
+          --tick ← liftIO getCurTick
           stick ← gets sTick
-          let newtick = case stick of
-                Just st → st
-                Nothing → tick
+          newtick ← case stick of
+                Just st → return st
+                Nothing → liftIO $ getCurTick
           modify $ \s → s { sTick = Nothing }
           should ← liftIO $ GLFW.windowShouldClose w
           if not should then do
             status ← locally action
-            let fps = 120.0
+            let fps = 240.0
             liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
             if status ≡ ContinueLoop then go else return False
           else return True
