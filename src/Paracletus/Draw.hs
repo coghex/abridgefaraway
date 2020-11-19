@@ -86,5 +86,4 @@ calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,c
           ix = (tileType gspot) `mod` 3
           iy = (tileType gspot) `div` 3
 
-flatten ∷ [[α]] → [α]
-flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
+

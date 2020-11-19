@@ -4,6 +4,7 @@ module Epiklesis.Shell where
 -- lua commands is defined
 import Prelude()
 import UPrelude
+import Data.List.Split (splitOn)
 import Epiklesis.Data
 import Epiklesis.Elems
 import Paracletus.Data
@@ -20,8 +21,7 @@ evalShell ls = do
   let oldSh = luaShell ls
   (ret,outbuff) ← execShell (luaState ls) (shInpStr oldSh)
   let retstring = (shOutStr oldSh) ⧺ (shPrompt oldSh) ⧺ (shInpStr oldSh) ⧺ "\n" ⧺ (show ret) ⧺ " > " ⧺ outbuff ⧺ "\n"
-      newSh = oldSh { shCursor = (shCursor oldSh) + 1
-                    , shInpStr = ""
+      newSh = oldSh { shInpStr = ""
                     , shOutStr = retstring }
   return ls { luaShell = newSh }
 
@@ -39,14 +39,21 @@ genShell ∷ Shell → [GTile]
 genShell sh = case (shOpen sh) of
                 True  → (addTextBox posOffset size) ⧺ (addText (fst pos) pos' str)
                 False → []
-  where size = (20,8)
+  where size = (32,18)
         posOffset = ((fst pos) - 1.0, (snd pos) + 0.5)
-        pos = (-4.0,2.0)
-        pos' = (-4.0,2.0+cursor)
-        cursor = fromIntegral $ shCursor sh
+        pos = (-7.0,4)
+        pos' = (-7.0,4)
         str = genShellStr sh--[shPrompt sh]
 genShellStr ∷ Shell → String
-genShellStr (Shell prompt _ _ strsin strsout) = strsout ⧺ prompt ⧺ strsin
+genShellStr (Shell prompt _ _ strsin strsout)
+  | (height > 8) = shortret
+  | otherwise    = retstring
+  where height = length $ filter (≡ '\n') retstring
+        retstring = strsout ⧺ prompt ⧺ strsin
+        shortret = flattenWith '\n' $ drop (height - 8) (splitOn "\n" retstring)
+        flattenWith ∷ Char → [String] → String
+        flattenWith _  []         = ""
+        flattenWith ch (str:strs) = str ⧺ [ch] ⧺ flattenWith ch strs
 
 removeShellString ∷ Shell → Shell
 removeShellString sh = sh { shInpStr = init $ shInpStr sh }

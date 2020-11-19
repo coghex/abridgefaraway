@@ -17,6 +17,10 @@ import qualified System.FilePath as FP
 import Control.Monad.Unicode
 import Control.Applicative.Unicode
 
+-- this function should be in prelude
+flatten ∷ [[α]] → [α]
+flatten xs = (\z n → foldr (\x y → foldr z y x) n xs) (:) []
+
 -- fixity
 infixl 7 ⌃
 infixl 5 ⌄

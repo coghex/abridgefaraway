@@ -69,7 +69,7 @@ processEvent event = case event of
   -- translates the lua draw state
   -- into the engine draw state,
   -- called every window change
-    logDebug $ "loaded event"
+    --logDebug $ "loaded event"
     env ← ask
     st  ← get
     let ls = luaSt st
