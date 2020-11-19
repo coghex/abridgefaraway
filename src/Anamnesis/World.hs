@@ -92,7 +92,8 @@ findElemData ((WinElemWorld wp wd _):_) = Just (wp,wd)
 
 -- replaces world data in a window
 replaceWorldData ∷ Window → WorldData → Window
-replaceWorldData (Window name wType curs elems cache) wd = Window name wType curs (map (replaceElemData wd) elems) cache
+replaceWorldData (Window name wType curs elems cache) wd = Window name wType curs (map (replaceElemData wd) elems) (reloadcache)
+  where reloadcache = take (length cache) (repeat WEUncached)
 replaceElemData ∷ WorldData → WinElem → WinElem
 replaceElemData _   (WinElemNULL)           = WinElemNULL
 replaceElemData _   (WinElemText tp tb ts)  = WinElemText tp tb ts

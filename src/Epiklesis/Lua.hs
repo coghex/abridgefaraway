@@ -15,6 +15,8 @@ import Epiklesis.Data
 import Epiklesis.Elems
 import Epiklesis.Shell
 import Epiklesis.World
+import Paracletus.Data
+import Paracletus.Draw
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
@@ -71,7 +73,8 @@ hsNewWindow env _    wintype = do
 hsNewText ∷ Env → String → Double → Double → String → String → Lua.Lua ()
 hsNewText env win x y text "text" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text) WECacheNULL)
+      initCache = WECached $ addText x (x,y) text
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text) initCache)
 hsNewText env win x y text "textbox" = do
   let eventQ = envEventsChan env
       initCache = WECached $ (addTextBox posOffset size) ⧺ addText x (x,y) text
@@ -89,12 +92,12 @@ hsNewLink env win x y text "action" "exit" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit) WECacheNULL)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit) WEUncached)
 hsNewLink env win x y text "action" "back" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack) WECacheNULL)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack) WEUncached)
 hsNewLink env _   _ _ _    "action" args   = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -103,7 +106,7 @@ hsNewLink env win x y text "link" args     = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
       size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)) WECacheNULL)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)) WEUncached)
 hsNewLink env _   _ _ _    action _        = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -123,12 +126,12 @@ hsNewWorld env win zx zy sx sy dp = do
       wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
       initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) WECacheNULL)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) (WECached (calcTiles wp wd)))
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) WECacheNULL)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTile (0,0) (32,24) (0,0) (1,1) 19 False]))
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
