@@ -18,10 +18,9 @@ data Window = Window { winTitle  ∷ String
 -- lua shell executes commands in global state
 data Shell = Shell { shPrompt ∷ String
                    , shOpen   ∷ Bool
+                   , shCursor ∷ Int
                    , shInpStr ∷ String
                    , shOutStr ∷ String } deriving (Show, Eq)
--- descriminates input from output
-data ShellIO = ShellInp | ShellOut
 
 -- the windows defined by the lua fies,
 -- they are made up of elements which

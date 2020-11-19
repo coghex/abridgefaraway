@@ -31,10 +31,10 @@ loadWinElems []           = []
 loadWinElems (e:es) = loadWinElem e ⧺ loadWinElems es
 
 loadWinElem ∷ WinElem → [GTile]
-loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText pos str
+loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText (fst pos) pos str
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
-loadWinElem (WinElemText pos False str) = addText pos str
+loadWinElem (WinElemText pos False str) = addText (fst pos) pos str
 loadWinElem (WinElemBack _ ) = [GTile (0,0) (32,24) (0,0) (1,1) 19 False]
 loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
 loadWinElem (WinElemLink _ _ _) = []

@@ -45,22 +45,26 @@ evalKey window k ks mk keyLayout = do
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else if (GLFW.keyCheck False keyLayout k "SPC") then do
-      let newSh = addShellString ShellInp sh [' ']
+      let newSh = addShellString sh [' ']
           newLS = oldLS { luaShell = newSh }
           sh    = luaShell oldLS
           eventQ = envEventsChan env
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (GLFW.keyCheck False keyLayout k "RET") then do
+      newLS ← liftIO $ evalShell $ oldLS
+      let eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else do
       ch ← liftIO $ GLFW.calcInpKey k mk
-      let newSh = addShellString ShellInp sh ch
+      let newSh = addShellString sh ch
           newLS = oldLS { luaShell = newSh }
           sh    = luaShell oldLS
           eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-evalShell ∷ Lua.State → IO Lua.State
-evalShell ls = return ls
+
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
 evalMouse win mb mbs _  = do

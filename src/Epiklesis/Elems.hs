@@ -44,8 +44,9 @@ addTextBox (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,top
                                     , tT     = 2 }
 
 
-addText ∷ (Double,Double) → String → [GTile]
-addText _     []     = []
-addText (x,y) (ch:str) = [textTile] ⧺ addText (x + (fontOffset ch),y) str
+addText ∷ Double → (Double,Double) → String → [GTile]
+addText _  _     []         = []
+addText x0 (x,y) ('\n':str) = addText x0 (x0,(y - 1)) str
+addText x0 (x,y) (ch:str)   = [textTile] ⧺ addText x0 (x + (fontOffset ch),y) str
   where textTile = GTile (x,y) (1,1) (fontIndex ch) (16,6) 1 False
 
