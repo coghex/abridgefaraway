@@ -20,11 +20,10 @@ data LoopControl = ContinueLoop | AbortLoop deriving Eq
 -- env should only hold pointers/references
 data Env = Env { envEventsChan  ∷ Queue Event
                , envCamChan     ∷ TChan ((Float,Float),(Int,Int))
-               , envCBChan      ∷ TChan VkCommandBuffer
-               , envCBDChan     ∷ TChan CmdBuffData
                , envSegChan     ∷ TChan [Segment]
-               , envCBTimerChan ∷ TChan TState
-               , envWTimerChan  ∷ TChan TState }
+               , envLCmdChan    ∷ TChan LoadCmd
+               , envWTimerChan  ∷ TChan TState
+               , envLTimerChan  ∷ TChan TState }
 -- state holds mutable data, and the
 -- current status of the whole App
 data State = State { status       ∷ AExcept
@@ -44,10 +43,4 @@ data Settings = Settings
   , settingTexPath   ∷ FilePath
   , settingKeyLayout ∷ GLFW.KeyLayout } deriving (Show, Eq)
 
--- a data structure containing
--- the abstract representation
--- of the general vertex layout
--- any structures here will be
--- decoded every frame so keep
--- them as fundamental as possible
-data DrawState = DrawState { dsTiles ∷ [GTile] }
+

@@ -17,9 +17,11 @@ import Anamnesis.World
 import Artos.Data
 import Artos.Except
 import Artos.Var
+import Artos.Queue
 import Epiklesis.Data
 import Epiklesis.Lua
 import Paracletus.Data
+import Paracletus.Load
 import Paracletus.Oblatum
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Vulkan.Buffer
@@ -79,6 +81,11 @@ runParacVulkan = do
     -- TODO: the aspect ratio should
     -- not be hardcoded
     _ ← liftIO $ forkIO $ updateWorld env 0 ((0.0,0.0),(12,8)) [] TStop
+    -- this thread helps load in new command buffers
+    -- and texture data
+    _ ← liftIO $ forkIO $ loadParacVulkan env
+    liftIO $ atomically $ writeChan (envLTimerChan env) TStart
+    liftIO $ atomically $ writeChan (envLCmdChan env) LoadCmdInit
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False

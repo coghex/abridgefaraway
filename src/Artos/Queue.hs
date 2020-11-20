@@ -2,6 +2,7 @@ module Artos.Queue where
 -- an event queue is defined
 import qualified Control.Concurrent.STM as STM
 import qualified Paracletus.Oblatum.GLFW as GLFW
+import Paracletus.Data
 import Epiklesis.Data
 import Epiklesis.World
 -- type synonym for ease of use
@@ -11,6 +12,7 @@ type TChan = STM.TChan
 data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
            | EventLoaded
+           | EventLoadedLuaState !DrawState
            | EventLua !LuaCmd
            | EventUpdateSegs !SegUpdateData
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys

@@ -1,3 +1,4 @@
+{-# LANGUAGE Strict #-}
 module Paracletus.Vulkan.Load where
 -- loading textures from the lua files
 -- is spun off as a child thread

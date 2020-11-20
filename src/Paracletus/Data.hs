@@ -16,6 +16,14 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
 
+-- a data structure containing
+-- the abstract representation
+-- of the general vertex layout
+-- any structures here will be
+-- decoded every frame so keep
+-- them as fundamental as possible
+data DrawState = DrawState { dsTiles ∷ [GTile] }
+
 -- generic tile translates to verticies
 -- for each graphics layer, pos is position
 -- on the screen, ind is the texture atlas

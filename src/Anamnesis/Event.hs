@@ -4,7 +4,7 @@ module Anamnesis.Event where
 import Prelude()
 import UPrelude
 import Control.Concurrent (forkIO)
-import Control.Monad.State.Class (modify)
+import Control.Monad.State.Class (modify,gets)
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -65,25 +65,32 @@ processEvent event = case event of
         Nothing → logWarn "no world found"
     else return ()
   (EventUpdateSegs (SegUpdateData SegOpDel _       _      _     )) → logDebug "segOpDel"
+  (EventLoadedLuaState ds) → modify $
+    \s → s { drawSt = ds
+           , sRecreate = True }
   (EventLoaded) → do
+    env ← ask
+    let lCmdChan = envLCmdChan env
+    ls ← gets luaSt
+    liftIO $ atomically $ writeChan lCmdChan $ LoadCmdWin ls
   -- translates the lua draw state
   -- into the engine draw state,
   -- called every window change
     --logDebug $ "loaded event"
-    env ← ask
-    st  ← get
-    let ls = luaSt st
-        newDS   = loadDrawState ls
-        currWin = (luaWindows ls) !! (luaCurrWin ls)
-    if ((winType currWin) ≡ WinTypeGame) then do
-      case (findWorldData currWin) of
-        Just (_,wd) → do 
-          liftIO $ atomically $ writeChan (envWTimerChan env) TStart
-          liftIO $ atomically $ writeChan (envCamChan env) ((wdCam wd),(wdCSize wd))
-        Nothing → return ()
-    else return ()
-    modify $ \s → s { drawSt = newDS
-                    , sRecreate = True }
+    --env ← ask
+    --st  ← get
+    --let ls = luaSt st
+    --    newDS   = loadDrawState ls
+    --    currWin = (luaWindows ls) !! (luaCurrWin ls)
+    --if ((winType currWin) ≡ WinTypeGame) then do
+    --  case (findWorldData currWin) of
+    --    Just (_,wd) → do 
+    --      liftIO $ atomically $ writeChan (envWTimerChan env) TStart
+    --      liftIO $ atomically $ writeChan (envCamChan env) ((wdCam wd),(wdCSize wd))
+    --    Nothing → return ()
+    --else return ()
+    --modify $ \s → s { drawSt = newDS
+    --                , sRecreate = True }
   (EventLua command) → do
     case command of
       (LuaCmdnewWindow newWin) → do
