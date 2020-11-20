@@ -50,4 +50,4 @@ data Settings = Settings
 -- any structures here will be
 -- decoded every frame so keep
 -- them as fundamental as possible
-data DrawState = DrawState { dsTiles ∷ [GTile] } deriving (Show, Eq)
+data DrawState = DrawState { dsTiles ∷ [GTile] }

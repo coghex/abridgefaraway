@@ -39,7 +39,7 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem (WinElemText pos False str) = addText (fst pos) pos str
-loadWinElem (WinElemBack _ ) = [GTile (0,0) (32,24) (0,0) (1,1) 19 False]
+loadWinElem (WinElemBack _ ) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False]
 loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
 loadWinElem (WinElemLink _ _ _) = []
 loadWinElem WinElemNULL = []
@@ -81,12 +81,12 @@ calcSegRow (cx,cy) (cw,ch) (x,y) (grow:grows) = [rowTiles] ⧺ (calcSegRow (cx,c
 calcSegSpot ∷ (Int,Int) → (Int,Int) → (Int,Int) → [Tile] → [GTile]
 calcSegSpot _       _       _     [] = []
 calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,cy) (cw,ch) ((x + 1),y) gspots)
-    where tile = GTile { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
-                       , tScale = (1,1)
-                       , tInd = (ix,iy)
-                       , tSize = (3,15)
-                       , tT = 20
-                       , tMoves = True }
+    where tile = GTileUncached { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
+                               , tScale = (1,1)
+                               , tInd = (ix,iy)
+                               , tSize = (3,15)
+                               , tT = 20
+                               , tMoves = True }
           ix = (tileType gspot) `mod` 3
           iy = (tileType gspot) `div` 3
 

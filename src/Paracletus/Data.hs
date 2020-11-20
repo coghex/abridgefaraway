@@ -1,4 +1,6 @@
 {-# LANGUAGE Strict #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE KindSignatures #-}
 module Paracletus.Data where
 -- some general data structures are defined
 import Prelude()
@@ -6,8 +8,10 @@ import UPrelude
 import Graphics.Vulkan
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_surface
+import Numeric.DataFrame
 import Artos.Var
 import Paracletus.Vulkan.Data
+import Paracletus.Vulkan.Vertex
 import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
@@ -17,21 +21,24 @@ data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanS
 -- on the screen, ind is the texture atlas
 -- index, t is the texture index in 2 dimensions
 -- size is the size of the atlas
-data GTile = GTile { tPos   ∷ (Double,Double)
-                   , tScale ∷ (Double,Double)
-                   , tInd   ∷ (Int, Int)
-                   , tSize  ∷ (Int, Int)
-                   , tT     ∷ Int
-                   , tMoves ∷ Bool } deriving (Show, Eq)
+data GTile = GTileCached   { gtData ∷ ([DataFrame Vertex ('[] ∷ [Nat])]) }
+           | GTileUncached { tPos   ∷ (Double,Double)
+                           , tScale ∷ (Double,Double)
+                           , tInd   ∷ (Int,Int)
+                           , tSize  ∷ (Int,Int)
+                           , tT     ∷ Int
+                           , tMoves ∷ Bool }-- deriving (Show, Eq)
+
+
 -- default gtile provides interface similar
 -- to the optional arguments found in C
 defaultGTile ∷ GTile
-defaultGTile = GTile { tPos   = (0,0)
-                     , tScale = (1,1)
-                     , tInd   = (0,0)
-                     , tSize  = (1,1)
-                     , tT     = 0
-                     , tMoves = False }
+defaultGTile = GTileUncached { tPos   = (0,0)
+                             , tScale = (1,1)
+                             , tInd   = (0,0)
+                             , tSize  = (1,1)
+                             , tT     = 0
+                             , tMoves = False }
 
 -- all the data required for a set of textures
 data TextureData = TextureData

@@ -131,7 +131,7 @@ hsNewWorld env win zx zy sx sy dp = do
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTile (0,0) (32,24) (0,0) (1,1) 19 False]))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False]))
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do

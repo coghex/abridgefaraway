@@ -15,7 +15,7 @@ data Window = Window { winTitle  ∷ String
                      , winCursor ∷ (Float,Float,Float)
                      , winElems  ∷ [WinElem]
                      , winCache  ∷ [WinElemCache]
-                     } deriving (Show, Eq)
+                     }
 
 -- lua shell executes commands in global state
 data Shell = Shell { shPrompt ∷ String
@@ -75,7 +75,7 @@ instance Ord WinElem where
 -- calculation when desired
 data WinElemCache = WECached [GTile]
                   | WEUncached
-                  | WECacheNULL deriving (Show, Eq)
+                  | WECacheNULL
 
 -- possible actions when links are clicked
 data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Show, Eq)
@@ -87,7 +87,7 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdloadModule String
             | LuaFind LFQuery
             | LuaError String
-            | LuaCmdNULL deriving (Show, Eq)
+            | LuaCmdNULL-- deriving (Show, Eq)
 -- possible queryable items in the state
 data LFQuery = LFScreenCursor | LFNULL deriving (Show, Eq)
 

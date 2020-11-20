@@ -42,12 +42,12 @@ initEnv = do
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
-  let tile1 = GTile { tPos   = (0,0)
-                    , tScale = (10,10)
-                    , tInd   = (0,0)
-                    , tSize  = (1,1)
-                    , tT     = 0
-                    , tMoves = False }
+  let tile1 = GTileUncached { tPos   = (0,0)
+                            , tScale = (10,10)
+                            , tInd   = (0,0)
+                            , tSize  = (1,1)
+                            , tT     = 0
+                            , tMoves = False }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   ds ← initDrawState [tile1]

@@ -15,9 +15,9 @@ initDrawState tiles = return $ DrawState
 addTile ∷ DrawState → DrawState
 addTile ds = ds { dsTiles = newtiles }
   where newtiles = (dsTiles ds) ⧺
-          [ GTile { tPos   = (3,0)
-                  , tScale = (1,1)
-                  , tInd   = (2,0)
-                  , tSize  = (16,6)
-                  , tT     = 2
-                  , tMoves = False } ]
+          [ GTileUncached { tPos   = (3,0)
+                          , tScale = (1,1)
+                          , tInd   = (2,0)
+                          , tSize  = (16,6)
+                          , tT     = 2
+                          , tMoves = False } ]

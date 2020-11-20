@@ -127,6 +127,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   --logDebug $ "created framebuffers: " ⧺ show framebuffers
   cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+  -- cache any new tiles that have been created
+  oldDS ← gets drawSt
+  modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) } }
   shouldExit ← glfwMainLoop window $ do
     stNew ← get
     let lsNew = luaSt stNew
