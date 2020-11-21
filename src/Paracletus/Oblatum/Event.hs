@@ -23,7 +23,8 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
 evalKey window k ks mk keyLayout = do
-  st ← get
+  env ← ask
+  st  ← get
   let oldLS = luaSt st
       shCap = shOpen $ luaShell oldLS
       cap   = shCap
@@ -50,6 +51,8 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyLeft = False }
         modify' $ \s → s { inputState = newIS }
+        let cmdQueue = envLCmdChan env
+        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -62,6 +65,8 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyDown = False }
         modify' $ \s → s { inputState = newIS }
+        let cmdQueue = envLCmdChan env
+        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -74,6 +79,8 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyRight = False }
         modify' $ \s → s { inputState = newIS }
+        let cmdQueue = envLCmdChan env
+        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -310,9 +317,7 @@ moveCamWithMouse = do
                 newWin  = newWin' { winCursor = newcam }
                 newWins = findAndReplaceWindow newWin (luaWindows ls)
                 newLS = ls { luaWindows = newWins }
-                newDS = loadDrawState newLS
-            modify' $ \s → s { drawSt = newDS
-                             , luaSt = newLS
+            modify' $ \s → s { luaSt = newLS
                              , inputState = newIS }
           Nothing → return ()
       else return ()
