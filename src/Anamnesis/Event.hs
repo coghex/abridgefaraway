@@ -72,7 +72,7 @@ processEvent event = case event of
     env ← ask
     let lCmdChan = envLCmdChan env
     ls ← gets luaSt
-    liftIO $ atomically $ writeChan lCmdChan $ LoadCmdWin ls
+    liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdWin ls
   -- translates the lua draw state
   -- into the engine draw state,
   -- called every window change

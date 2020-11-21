@@ -25,33 +25,22 @@ loadParacletus env _        = atomically $ writeQueue ec $ EventLogDebug "dont k
 
 loadParacVulkan ∷ Env → IO ()
 loadParacVulkan env = do
-  runLoadLoop env LoadCmdNULL TStop
+  runLoadLoop env TStop
 
-runLoadLoop ∷ Env → LoadCmd → TState → IO ()
-runLoadLoop env _ TStop = do
+runLoadLoop ∷ Env → TState → IO ()
+runLoadLoop env TStop = do
   let timerChan = envLTimerChan env
-      lCmdChan  = envLCmdChan   env
   tsnew ← atomically $ readChan timerChan
-  firstCmd ← atomically $ readChan lCmdChan
-  runLoadLoop env firstCmd tsnew
-runLoadLoop env cmd TStart = do
+  runLoadLoop env tsnew
+runLoadLoop env TStart = do
   start ← getCurrentTime
   let timerChan = envLTimerChan env
       eventQ    = envEventsChan env
   timerstate ← atomically $ tryReadChan timerChan
-  tsnew ← case (timerstate) of 
+  tsnew ← case (timerstate) of
     Nothing → return TStart
     Just x  → return x
-  -- logic
-  ret ← case cmd of
-    LoadCmdWin ls → do
-      let newDS = loadDrawState ls
-          currWin = (luaWindows ls) !! (luaCurrWin ls)
-      atomically $ writeQueue eventQ $ EventLoadedLuaState newDS
-      return "success"
-    LoadCmdInit  → runLoadLoop env LoadCmdNULL TPause ≫ return "load loop exiting"
-    LoadCmdNULL  → return "NULL load command"
-  --atomically $ writeQueue eventQ $ EventLogDebug $ "load command returned: " ⧺ ret
+  processCommands env
   end ← getCurrentTime
   let diff  = diffUTCTime end start
       usecs = floor (toRational diff * 1000000) ∷ Int
@@ -59,9 +48,27 @@ runLoadLoop env cmd TStart = do
   if delay > 0
     then threadDelay delay
     else return ()
-  runLoadLoop env LoadCmdNULL TPause
-runLoadLoop env _ TPause = do
-  let lCmdChan = envLCmdChan env
-  newCmd ← atomically $ readChan lCmdChan
-  runLoadLoop env newCmd TStart
-runLoadLoop _   _   TNULL  = return ()
+  runLoadLoop env tsnew
+runLoadLoop env TPause = return ()
+runLoadLoop _   TNULL  = return ()
+
+processCommands ∷ Env → IO ()
+processCommands env = do
+    cmd ← atomically $ tryReadQueue $ envLCmdChan env
+    case cmd of
+      Just cmd → do
+        ret ← processCommand env cmd
+        --atomically $ writeQueue eventQ $ EventLogDebug $ "load command returned: " ⧺ ret
+        processCommands env
+      Nothing → return ()
+processCommand ∷ Env → LoadCmd → IO String 
+processCommand env cmd = do
+  ret ← case cmd of
+    LoadCmdWin ls → do
+      let newDS = loadDrawState ls
+          currWin = (luaWindows ls) !! (luaCurrWin ls)
+      atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
+      return "success"
+    LoadCmdNULL  → return "NULL load command"
+  return ret
+

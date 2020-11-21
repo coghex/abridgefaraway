@@ -85,7 +85,6 @@ runParacVulkan = do
     -- and texture data
     _ ← liftIO $ forkIO $ loadParacVulkan env
     liftIO $ atomically $ writeChan (envLTimerChan env) TStart
-    liftIO $ atomically $ writeChan (envLCmdChan env) LoadCmdInit
         -- wait when minimized
     let beforeSwapchainCreation ∷ Anamnesis ε σ ()
         beforeSwapchainCreation = liftIO $ atomically $ writeTVar windowSizeChanged False

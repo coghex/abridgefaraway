@@ -1,6 +1,7 @@
 module Artos.Queue where
 -- an event queue is defined
 import qualified Control.Concurrent.STM as STM
+import Artos.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Data
 import Epiklesis.Data
@@ -21,6 +22,8 @@ data Event = EventError !GLFW.Error !String
 -- to the STM library
 newQueue ∷ IO (Queue Event)
 newQueue = STM.newTQueueIO
+newCmdQueue ∷ IO (Queue LoadCmd)
+newCmdQueue = STM.newTQueueIO
 writeQueue ∷ Queue α → α → STM.STM ()
 writeQueue = STM.writeTQueue
 tryReadQueue ∷ STM.TQueue α → STM.STM (Maybe α)

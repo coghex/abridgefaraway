@@ -10,5 +10,4 @@ data TState = TStart | TStop | TPause | TNULL deriving (Show, Eq)
 -- cmds that can be asked of
 -- the loading thread
 data LoadCmd = LoadCmdWin LuaState
-             | LoadCmdInit
              | LoadCmdNULL

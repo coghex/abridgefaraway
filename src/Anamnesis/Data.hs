@@ -21,7 +21,7 @@ data LoopControl = ContinueLoop | AbortLoop deriving Eq
 data Env = Env { envEventsChan  ∷ Queue Event
                , envCamChan     ∷ TChan ((Float,Float),(Int,Int))
                , envSegChan     ∷ TChan [Segment]
-               , envLCmdChan    ∷ TChan LoadCmd
+               , envLCmdChan    ∷ Queue LoadCmd
                , envWTimerChan  ∷ TChan TState
                , envLTimerChan  ∷ TChan TState }
 -- state holds mutable data, and the

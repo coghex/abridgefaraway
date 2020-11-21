@@ -25,18 +25,18 @@ runAnamnesis c p = do
   unAnamnate p env st c
 initEnv ∷ IO (TVar Env)
 initEnv = do
-  newQ  ← newQueue
+  newQ1 ← newQueue
+  newQ2 ← newCmdQueue
   newC1 ← newTChan
   newC2 ← newTChan
   newC3 ← newTChan
   newC4 ← newTChan
-  newC5 ← newTChan
-  atomically $ newTVar Env { envEventsChan  = newQ
+  atomically $ newTVar Env { envEventsChan  = newQ1
                            , envCamChan     = newC1
                            , envSegChan     = newC2
-                           , envLCmdChan    = newC3
-                           , envWTimerChan  = newC4
-                           , envLTimerChan  = newC5 }
+                           , envLCmdChan    = newQ2
+                           , envWTimerChan  = newC3
+                           , envLTimerChan  = newC4 }
 initState ∷ IO (TVar State)
 initState = do
   let ref = AExcept (Just AnamnSuccess) ExAnamnesis ""
