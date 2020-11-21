@@ -33,45 +33,6 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
           zoneInd      = (0,0)
   Nothing      → ls
 
---updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()
---updateWorld env n _  segs TStop = do
---  let scchan    = envCamChan env
---      timerChan = envWTimerChan env
---  tsnew ← atomically $ readChan timerChan
---  firstSC ← atomically $ readChan scchan
---  updateWorld env n firstSC segs tsnew
---updateWorld env n sc _    TStart = do
---  start ← getCurrentTime
---  let timerChan = envWTimerChan env
---  timerstate <- atomically $ tryReadChan timerChan
---  tsnew <- case (timerstate) of
---    Nothing -> return TStart
---    Just x  -> return x
---  -- logic goes here
---  let newsegs = genSegs $ evalScreenCursor sc
---  -- logic ends here
---  end ← getCurrentTime
---  let diff  = diffUTCTime end start
---      usecs = floor (toRational diff * 1000000) :: Int
---      delay = 1000 - usecs
---  if delay > 0
---    then threadDelay delay
---    else return ()
---  updateWorld env n sc newsegs tsnew
---updateWorld env _ _  segs TPause = do
---  let scchan = envCamChan env
---  newSC ← atomically $ readChan scchan
---  sendSegs env segs
---  updateWorld env 0 newSC segs TStart
---updateWorld _   _ _  _    TNULL = return ()
---
---sendSegs ∷ Env → [((Int,Int),Segment)] → IO ()
---sendSegs _   []          = return ()
---sendSegs env ((sp,s):ss) = do
---  let eventQ = envEventsChan env
---  atomically $ writeQueue eventQ $ EventUpdateSegs $ SegUpdateData SegOpAdd (0,0) sp s
---  sendSegs env ss
-
 -- returns the list of indecies
 -- of segments to generate
 evalScreenCursor ∷ ((Float,Float),(Int,Int)) → [(Int,Int)]

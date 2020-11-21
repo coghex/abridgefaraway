@@ -89,6 +89,7 @@ processCommand env cmd = do
       if ((winType currWin) ≡ WinTypeGame) then do
         let newLS   = loadWorld ls
             newDS   = loadDrawState newLS
+        atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS
         atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
         return "success"
       else return "not in game window"

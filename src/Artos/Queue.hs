@@ -13,6 +13,7 @@ type TChan = STM.TChan
 data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
            | EventLoaded
+           | EventLoadedWorld !LuaState
            | EventLoadedLuaState !DrawState
            | EventLua !LuaCmd
            -- | EventUpdateSegs !SegUpdateData

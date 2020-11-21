@@ -48,11 +48,15 @@ processEvent event = case event of
     let keyLayout = lcKeyLayout $ luaConfig ls
     evalKey win k ks mk keyLayout
   (EventMouseButton win mb mbs mk) → evalMouse win mb mbs mk
-  -- translates the lua draw state
-  -- into the engine draw state
+  -- callback for a loaded drawState
   (EventLoadedLuaState ds) → modify $
     \s → s { drawSt = ds
            , sRecreate = True }
+  -- callback for a loaded luaState
+  (EventLoadedWorld ls) → modify $
+    \s → s { luaSt = ls }
+  -- translates the lua draw state
+  -- into the engine draw state
   (EventLoaded) → do
     env ← ask
     let lCmdChan = envLCmdChan env

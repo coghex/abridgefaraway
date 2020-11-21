@@ -39,6 +39,8 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyUp = False }
         modify' $ \s → s { inputState = newIS }
+        let cmdQueue = envLCmdChan env
+        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -172,7 +174,6 @@ evalMouse win mb mbs _  = do
                 sc = ((wdCam wd),(wdCSize wd))
             modify' $ \s → s { inputState = newIS }
             liftIO $ atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
-            --                 , sRecreate = True }
             --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
           Nothing → return ()
       else return ()
