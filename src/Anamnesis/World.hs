@@ -26,14 +26,11 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
   Just (wp,wd) → ls { luaWindows = newWins }
     where newWins      = findAndReplaceWindow newWin $ luaWindows ls
           newWin       = replaceWorldData (currentWindow ls) newWorldData
-          --newWorldData = findAndReplaceSegment (wpZSize wp) zoneInd segInd newSeg wd
           newWorldData = findAndReplaceSegments (wpZSize wp) zoneInd newSegs wd
           newSegs      = genSegs $ evalScreenCursor sc
           sc           = ((wdCam wd),(wdCSize wd))
-          -- these all temporary
-          newSeg       = snd $ head newSegs
+          -- this is temporary
           zoneInd      = (0,0)
-          segInd       = fst $ head newSegs
   Nothing      → ls
 
 --updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()

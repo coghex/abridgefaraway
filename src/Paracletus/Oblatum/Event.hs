@@ -26,6 +26,18 @@ evalKey window k ks mk keyLayout = do
       shCap = shOpen $ luaShell oldLS
       cap   = shCap
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
+  when (GLFW.keyCheck cap keyLayout k "UP") $ do
+    let oldIS = inputState st
+    if (keyUp oldIS) then do
+      if (ks ≡ GLFW.KeyState'Released) then do
+        let newIS = oldIS { keyUp = False }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+    else do
+      if (ks ≡ GLFW.KeyState'Pressed) then do
+        let newIS = oldIS { keyUp = True }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
   when (GLFW.keyCheck False keyLayout k "SH") $ do
     if (ks ≡ GLFW.KeyState'Pressed) then do
       env ← ask

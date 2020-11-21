@@ -4,6 +4,7 @@ module Epiklesis.Data where
 -- is instantiated.
 import Epiklesis.World
 import Paracletus.Data
+import Paracletus.Oblatum.Data
 import qualified Foreign.Lua as Lua
 
 -- window types define behavior
@@ -30,11 +31,14 @@ data Shell = Shell { shPrompt ∷ String
 -- are classified into types to provide
 -- different functionality to each window
 data LuaState = LuaState { luaState   ∷ Lua.State
+                         , luaConfig  ∷ LuaConfig
                          , luaCurrWin ∷ Int
                          , luaLastWin ∷ Int
                          , luaShell   ∷ Shell
                          , luaModules ∷ [Module]
                          , luaWindows ∷ [Window] }
+
+data LuaConfig = LuaConfig { lcKeyLayout ∷ KeyLayout }
 
 data WinElem = WinElemText  { textPos ∷ (Double,Double)
                             , textBox ∷ Bool

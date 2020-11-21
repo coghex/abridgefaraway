@@ -17,25 +17,35 @@ import Epiklesis.Shell
 import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
+import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
+  initLC ← initLuaConfig ls "mod/base/config.lua"
   return $ LuaState { luaState = ls
+                    , luaConfig = initLC
                     , luaCurrWin = 0
                     , luaLastWin = 0
                     , luaShell = initShell
                     , luaModules = []
                     , luaWindows = [] }
 
-makeKeyLayout ∷ String → String → String → String → String → GLFW.KeyLayout
-makeKeyLayout esckey retkey delkey spckey shkey =
-  GLFW.KeyLayout { klEsc = esckey
-                 , klRet = retkey
-                 , klDel = delkey
-                 , klSpc = spckey
-                 , klSh  = shkey }
+initLuaConfig ∷ Lua.State → String → IO (LuaConfig)
+initLuaConfig ls fn = Lua.runWith ls $ do
+  Lua.openlibs
+  Lua.dofile $ fn
+  esckey   ← Lua.getglobal "esckey"   *> Lua.peek (-1)
+  retkey   ← Lua.getglobal "retkey"   *> Lua.peek (-1)
+  delkey   ← Lua.getglobal "delkey"   *> Lua.peek (-1)
+  spckey   ← Lua.getglobal "spckey"   *> Lua.peek (-1)
+  upkey    ← Lua.getglobal "upkey"    *> Lua.peek (-1)
+  leftkey  ← Lua.getglobal "leftkey"  *> Lua.peek (-1)
+  downkey  ← Lua.getglobal "downkey"  *> Lua.peek (-1)
+  rightkey ← Lua.getglobal "rightkey" *> Lua.peek (-1)
+  shkey    ← Lua.getglobal "shkey"    *> Lua.peek (-1)
+  return $ LuaConfig $ KeyLayout esckey retkey delkey spckey upkey leftkey downkey rightkey shkey
 
 loadState ∷ Env → State → IO ()
 loadState env st = do
@@ -181,4 +191,4 @@ changeCurrWin n ls = ls { luaCurrWin = n
 -- currwin and wins are created
 -- together, the outcome is known
 currentWindow ∷ LuaState → Window
-currentWindow (LuaState _ currWin _ _ _ wins) = wins !! currWin
+currentWindow (LuaState _ _ currWin _ _ _ wins) = wins !! currWin

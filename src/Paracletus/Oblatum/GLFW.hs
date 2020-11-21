@@ -53,6 +53,10 @@ getGLFWKey "H"   = Key'H
 getGLFWKey "J"   = Key'J
 getGLFWKey "K"   = Key'K
 getGLFWKey "L"   = Key'L
+getGLFWKey "W"   = Key'W
+getGLFWKey "A"   = Key'A
+getGLFWKey "S"   = Key'S
+getGLFWKey "D"   = Key'D
 getGLFWKey _     = Key'Unknown
 
 keyCheck ∷ Bool → KeyLayout → Key → String → Bool

@@ -44,7 +44,8 @@ processEvent event = case event of
       Nothing  → logWarn $ "no glfw window to close"
   (EventLogDebug str) → logDebug str
   (EventKey win k _ ks mk) → do
-    keyLayout ← importKeyLayout
+    ls ← gets luaSt
+    let keyLayout = lcKeyLayout $ luaConfig ls
     evalKey win k ks mk keyLayout
   (EventMouseButton win mb mbs mk) → evalMouse win mb mbs mk
   -- translates the lua draw state

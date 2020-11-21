@@ -6,6 +6,10 @@ data KeyLayout = KeyLayout
   , klRet ∷ String
   , klDel ∷ String
   , klSpc ∷ String
+  , klUp  ∷ String
+  , klLft ∷ String
+  , klDwn ∷ String
+  , klRgt ∷ String
   , klSh  ∷ String } deriving (Show, Eq)
 
 data InputState = InputState { mouse1 ∷ Bool
@@ -14,6 +18,7 @@ data InputState = InputState { mouse1 ∷ Bool
                              , mouse2Cache ∷ (Float,Float)
                              , mouse3 ∷ Bool
                              , mouse3Cache ∷ (Float,Float)
+                             , keyUp ∷ Bool
                              } deriving (Show, Eq)
 -- these pattern matches translate to
 -- a giant case statement where we find

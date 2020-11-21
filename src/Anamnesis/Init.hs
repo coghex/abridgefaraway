@@ -43,12 +43,13 @@ initState = do
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   ds ← initDrawState [tile1]
-  let is = InputState { mouse1 = False
+  let is = InputState { mouse1      = False
                       , mouse1Cache = (0.0,0.0)
-                      , mouse2 = False
+                      , mouse2      = False
                       , mouse2Cache = (0.0,0.0)
-                      , mouse3 = False
-                      , mouse3Cache = (0.0,0.0) }
+                      , mouse3      = False
+                      , mouse3Cache = (0.0,0.0)
+                      , keyUp       = False }
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , windowSt     = Nothing
