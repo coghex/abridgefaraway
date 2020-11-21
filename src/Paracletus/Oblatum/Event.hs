@@ -10,6 +10,7 @@ import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
 import Anamnesis.World
+import Artos.Data
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
@@ -104,8 +105,9 @@ evalMouse win mb mbs _  = do
           Just (_,wd) → do
             let newIS = oldIS { mouse3 = False }
                 sc = ((wdCam wd),(wdCSize wd))
-            modify' $ \s → s { inputState = newIS
-                             , sRecreate = True }
+            modify' $ \s → s { inputState = newIS }
+            liftIO $ atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
+            --                 , sRecreate = True }
             --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
           Nothing → return ()
       else return ()

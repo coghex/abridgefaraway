@@ -26,7 +26,8 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
   Just (wp,wd) → ls { luaWindows = newWins }
     where newWins      = findAndReplaceWindow newWin $ luaWindows ls
           newWin       = replaceWorldData (currentWindow ls) newWorldData
-          newWorldData = findAndReplaceSegment (wpZSize wp) zoneInd segInd newSeg wd
+          --newWorldData = findAndReplaceSegment (wpZSize wp) zoneInd segInd newSeg wd
+          newWorldData = findAndReplaceSegments (wpZSize wp) zoneInd newSegs wd
           newSegs      = genSegs $ evalScreenCursor sc
           sc           = ((wdCam wd),(wdCSize wd))
           -- these all temporary
@@ -111,6 +112,13 @@ replaceElemData _   (WinElemText tp tb ts)  = WinElemText tp tb ts
 replaceElemData wd' (WinElemWorld wp _ wt) = WinElemWorld wp wd' wt
 replaceElemData _   (WinElemLink lp lb la)  = WinElemLink lp lb la
 replaceElemData _   (WinElemBack fp)        = WinElemBack fp
+
+-- finds and replaces mulitiple segemts
+-- in world data, segments zipped with inds
+findAndReplaceSegments ∷ (Int,Int) → (Int,Int) → [((Int,Int),Segment)] → WorldData → WorldData
+findAndReplaceSegments _        _       []         wd = wd
+findAndReplaceSegments zoneSize zoneInd ((segInd,seg):segs) wd = findAndReplaceSegments zoneSize zoneInd (segs) newWD
+  where newWD = findAndReplaceSegment zoneSize zoneInd segInd seg wd
 
 -- finds a segment in world data,
 -- then replace it with a new segment.
