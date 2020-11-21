@@ -71,17 +71,11 @@ applyKeyLayout keyLayout "RET" = klRet keyLayout
 applyKeyLayout keyLayout "DEL" = klDel keyLayout
 applyKeyLayout keyLayout "SPC" = klSpc keyLayout
 applyKeyLayout keyLayout "TAB" = klSpc keyLayout
---applyKeyLayout keyLayout "C"   = keyC   keyLayout
---applyKeyLayout keyLayout "R"   = keyR   keyLayout
+applyKeyLayout keyLayout "LFT" = klLft keyLayout
+applyKeyLayout keyLayout "RGT" = klRgt keyLayout
+applyKeyLayout keyLayout "UP"  = klUp  keyLayout
+applyKeyLayout keyLayout "DWN" = klDwn keyLayout
 applyKeyLayout keyLayout "SH"  = klSh  keyLayout
---applyKeyLayout keyLayout "H"   = keyH   keyLayout
---applyKeyLayout keyLayout "J"   = keyJ   keyLayout
---applyKeyLayout keyLayout "K"   = keyK   keyLayout
---applyKeyLayout keyLayout "L"   = keyL   keyLayout
---applyKeyLayout keyLayout "LFT" = keyLFT keyLayout
---applyKeyLayout keyLayout "RGT" = keyRGT keyLayout
---applyKeyLayout keyLayout "UPP" = keyUPP keyLayout
---applyKeyLayout keyLayout "DWN" = keyDWN keyLayout
 applyKeyLayout _         _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)

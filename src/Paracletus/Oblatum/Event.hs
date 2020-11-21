@@ -8,12 +8,14 @@ import Control.Monad.State.Class (modify',gets)
 import qualified Foreign.Lua as Lua
 import Anamnesis
 import Anamnesis.Data
+import Anamnesis.Map
 import Anamnesis.Util
 import Anamnesis.World
 import Artos.Data
 import Artos.Queue
 import Artos.Var
 import Epiklesis.Data
+import Epiklesis.Lua
 import Epiklesis.Shell
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
@@ -25,7 +27,11 @@ evalKey window k ks mk keyLayout = do
   let oldLS = luaSt st
       shCap = shOpen $ luaShell oldLS
       cap   = shCap
+  -- glfw is parent thread, so this
+  -- will close everything
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
+  -- directional keys move camera in game
+  -- windows, move cursor in menus
   when (GLFW.keyCheck cap keyLayout k "UP") $ do
     let oldIS = inputState st
     if (keyUp oldIS) then do
@@ -38,6 +44,44 @@ evalKey window k ks mk keyLayout = do
         let newIS = oldIS { keyUp = True }
         modify' $ \s → s { inputState = newIS }
       else return ()
+  when (GLFW.keyCheck cap keyLayout k "LFT") $ do
+    let oldIS = inputState st
+    if (keyLeft oldIS) then do
+      if (ks ≡ GLFW.KeyState'Released) then do
+        let newIS = oldIS { keyLeft = False }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+    else do
+      if (ks ≡ GLFW.KeyState'Pressed) then do
+        let newIS = oldIS { keyLeft = True }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+  when (GLFW.keyCheck cap keyLayout k "DWN") $ do
+    let oldIS = inputState st
+    if (keyDown oldIS) then do
+      if (ks ≡ GLFW.KeyState'Released) then do
+        let newIS = oldIS { keyDown = False }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+    else do
+      if (ks ≡ GLFW.KeyState'Pressed) then do
+        let newIS = oldIS { keyDown = True }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+  when (GLFW.keyCheck cap keyLayout k "RGT") $ do
+    let oldIS = inputState st
+    if (keyRight oldIS) then do
+      if (ks ≡ GLFW.KeyState'Released) then do
+        let newIS = oldIS { keyRight = False }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+    else do
+      if (ks ≡ GLFW.KeyState'Pressed) then do
+        let newIS = oldIS { keyRight = True }
+        modify' $ \s → s { inputState = newIS }
+      else return ()
+  -- shell displays over everything else on
+  -- every window, executes in lua state
   when (GLFW.keyCheck False keyLayout k "SH") $ do
     if (ks ≡ GLFW.KeyState'Pressed) then do
       env ← ask
@@ -48,7 +92,8 @@ evalKey window k ks mk keyLayout = do
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else return ()
-  -- captured keys start here
+  -- captured keys allow for typing
+  -- when in the shell or etc...
   when ((not (GLFW.keyCheck False keyLayout k "SH")) ∧ cap ∧ (ks ≡ GLFW.KeyState'Pressed)) $ do
     env ← ask
     if (GLFW.keyCheck False keyLayout k "DEL")
@@ -64,6 +109,7 @@ evalKey window k ks mk keyLayout = do
           eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    -- evaluates lua command in state
     else if (GLFW.keyCheck False keyLayout k "RET") then do
       newLS ← liftIO $ evalShell env $ oldLS
       let eventQ = envEventsChan env
@@ -175,13 +221,74 @@ isElemLink (WinElemText _ _ _) = False
 isElemLink (WinElemBack _ )    = False
 isElemLink (WinElemNULL)       = False
 
+moveCamWithKeys ∷ Anamnesis ε σ ()
+moveCamWithKeys = do
+  st ← get
+  let ls      = luaSt st
+      currWin = currentWindow ls
+  if ((winType currWin) ≡ WinTypeGame) then do
+    case (findWorldData currWin) of
+      Just (_,wd) → do
+        let oldIS = inputState st
+            move = case (findDir oldIS) of
+                     Just dir → moveCamInDir dir
+                     Nothing  → (0.0,0.0)
+        let oldcam  = winCursor currWin
+            newcam  = keyMoveCam move oldcam
+            newSC   = moveScreenCursor newcam
+            newWD   = wd { wdCam = newSC }
+            newWin' = replaceWorldData currWin newWD
+            newWin  = newWin' { winCursor = newcam }
+            newWins = findAndReplaceWindow newWin (luaWindows ls)
+            newLS   = ls { luaWindows = newWins }
+        modify' $ \s → s { luaSt = newLS }
+      Nothing     → return ()
+  else return ()
+
+-- many keys can be held at once,
+-- we define bahavior of all
+-- combinations here
+findDir ∷ InputState → Maybe Cardinal
+findDir is = if      (keyUp    is) ∧ (keyLeft  is) ∧ (keyRight is) ∧ (keyDown  is) then Nothing
+             else if (keyUp    is) ∧ (keyLeft  is) ∧ (keyRight is) then Just North
+             else if (keyUp    is) ∧ (keyLeft  is) ∧ (keyDown  is) then Just West
+             else if (keyUp    is) ∧ (keyRight is) ∧ (keyDown  is) then Just East
+             else if (keyUp    is) ∧ (keyLeft  is) then Just NorthWest
+             else if (keyUp    is) ∧ (keyRight is) then Just NorthEast
+             else if (keyUp    is) ∧ (keyDown  is) then Nothing
+             else if (keyUp    is) then Just North
+             else if (keyDown  is) ∧ (keyLeft  is) ∧ (keyRight is) then Just South
+             else if (keyDown  is) ∧ (keyLeft  is) then Just SouthWest
+             else if (keyDown  is) ∧ (keyRight is) then Just SouthEast
+             else if (keyDown  is) then Just South
+             else if (keyLeft  is) ∧ (keyRight is) then Nothing
+             else if (keyLeft  is) then Just West
+             else if (keyRight is) then Just East
+             else Nothing
+
+-- currently just steps, in future
+-- use input state for acceleration
+moveCamInDir ∷ Cardinal → (Float,Float)
+moveCamInDir North = (0.0,-1.0)
+moveCamInDir West  = (1.0,0.0)
+moveCamInDir South = (0.0,1.0)
+moveCamInDir East  = (-1.0,0.0)
+moveCamInDir NorthWest = (0.6,-0.6)
+moveCamInDir NorthEast = (-0.6,-0.6)
+moveCamInDir SouthWest = (0.6,0.6)
+moveCamInDir SouthEast = (-0.6,0.6)
+moveCamInDir CardNULL  = (0.0,0.0)
+
+keyMoveCam ∷ (Float,Float) → (Float,Float,Float) → (Float,Float,Float)
+keyMoveCam (i,j) (x,y,z) = (x+i,y+j,z)
+
 moveCamWithMouse ∷ Anamnesis ε σ ()
 moveCamWithMouse = do
   st ← get
   let win' = windowSt st
   case win' of
     Just win → do
-      let currWin = (luaWindows ls) ‼ (luaCurrWin ls)
+      let currWin = currentWindow ls
           ls = luaSt st
       if ((winType currWin) ≡ WinTypeGame) then do
         case (findWorldData currWin) of

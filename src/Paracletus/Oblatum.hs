@@ -110,8 +110,11 @@ processInput = do
     let ls      = luaSt st
         windows = luaWindows (ls)
         win     = windows !! (luaCurrWin ls)
+        is      = inputState st
     case (winType win) of
-      WinTypeGame → if (mouse3 (inputState st)) then moveCamWithMouse else return ()
+      WinTypeGame → if (mouse3 is) then moveCamWithMouse
+                    else if ((keyUp is) ∨ (keyLeft is) ∨ (keyDown is) ∨ (keyRight is)) then moveCamWithKeys
+                    else return ()
       WinTypeMenu → return ()
       WinTypeNULL → return ()
 
