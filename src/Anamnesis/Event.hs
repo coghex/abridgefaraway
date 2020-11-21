@@ -47,24 +47,8 @@ processEvent event = case event of
     keyLayout ← importKeyLayout
     evalKey win k ks mk keyLayout
   (EventMouseButton win mb mbs mk) → evalMouse win mb mbs mk
-  (EventUpdateSegs (SegUpdateData SegOpAdd zoneInd segInd segDat)) → do
-    env ← ask
-    st  ← get
-    let ls = luaSt st
-        currWin = (luaWindows ls) !! (luaCurrWin ls)
-    if ((winType currWin) ≡ WinTypeGame) then do
-      case (findWorldData currWin) of
-        Just (wp,wd) → do
-          let newWD = findAndReplaceSegment (wpZSize wp) zoneInd segInd segDat wd
-
-              newWin = replaceWorldData currWin newWD
-              newWins = findAndReplaceWindow newWin (luaWindows ls)
-              newLS = ls { luaWindows = newWins }
-          liftIO $ reloadScreenCursor env ((wdCam newWD),(wdCSize newWD))
-          modify $ \s → s { luaSt  = newLS }
-        Nothing → logWarn "no world found"
-    else return ()
-  (EventUpdateSegs (SegUpdateData SegOpDel _       _      _     )) → logDebug "segOpDel"
+  -- translates the lua draw state
+  -- into the engine draw state
   (EventLoadedLuaState ds) → modify $
     \s → s { drawSt = ds
            , sRecreate = True }
@@ -73,24 +57,6 @@ processEvent event = case event of
     let lCmdChan = envLCmdChan env
     ls ← gets luaSt
     liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdWin ls
-  -- translates the lua draw state
-  -- into the engine draw state,
-  -- called every window change
-    --logDebug $ "loaded event"
-    --env ← ask
-    --st  ← get
-    --let ls = luaSt st
-    --    newDS   = loadDrawState ls
-    --    currWin = (luaWindows ls) !! (luaCurrWin ls)
-    --if ((winType currWin) ≡ WinTypeGame) then do
-    --  case (findWorldData currWin) of
-    --    Just (_,wd) → do 
-    --      liftIO $ atomically $ writeChan (envWTimerChan env) TStart
-    --      liftIO $ atomically $ writeChan (envCamChan env) ((wdCam wd),(wdCSize wd))
-    --    Nothing → return ()
-    --else return ()
-    --modify $ \s → s { drawSt = newDS
-    --                , sRecreate = True }
   (EventLua command) → do
     case command of
       (LuaCmdnewWindow newWin) → do

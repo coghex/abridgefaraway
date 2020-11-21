@@ -80,7 +80,7 @@ runParacVulkan = do
     -- as we change the camera.
     -- TODO: the aspect ratio should
     -- not be hardcoded
-    _ ← liftIO $ forkIO $ updateWorld env 0 ((0.0,0.0),(12,8)) [] TStop
+    -- _ ← liftIO $ forkIO $ updateWorld env 0 ((0.0,0.0),(12,8)) [] TStop
     -- this thread helps load in new command buffers
     -- and texture data
     _ ← liftIO $ forkIO $ loadParacVulkan env
