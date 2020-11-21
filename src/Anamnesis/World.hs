@@ -11,12 +11,29 @@ import Artos.Var
 import Artos.Queue
 import Anamnesis.Data
 import Epiklesis.Data
+import Epiklesis.Lua
 import Epiklesis.World
 
 createWorld ∷ Int → Int → Int → Int → String → World
 createWorld sw sh zw zh texs = World [initZone] (sw,sh) texs
   where initZone = Zone (0,0) $ take zh (repeat (take zw (repeat (seg))))
         seg = SegmentNULL--Segment $ take sh $ repeat $ take sw $ repeat $ Tile 1 1
+
+-- called from loading thread, fills
+-- out the winElemWorld
+loadWorld ∷ LuaState → LuaState
+loadWorld ls = case (findWorldData (currentWindow ls)) of
+  Just (wp,wd) → ls { luaWindows = newWins }
+    where newWins      = findAndReplaceWindow newWin $ luaWindows ls
+          newWin       = replaceWorldData (currentWindow ls) newWorldData
+          newWorldData = findAndReplaceSegment (wpZSize wp) zoneInd segInd newSeg wd
+          newSegs      = genSegs $ evalScreenCursor sc
+          sc           = ((wdCam wd),(wdCSize wd))
+          -- these all temporary
+          newSeg       = snd $ head newSegs
+          zoneInd      = (0,0)
+          segInd       = fst $ head newSegs
+  Nothing      → ls
 
 --updateWorld ∷ Env → Int → ((Float,Float),(Int,Int)) → [((Int,Int),Segment)] → TState → IO ()
 --updateWorld env n _  segs TStop = do

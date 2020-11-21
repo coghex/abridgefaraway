@@ -176,3 +176,9 @@ changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
                         , luaLastWin = n' }
   where n' = luaCurrWin ls
+
+-- its ok to have !! here since
+-- currwin and wins are created
+-- together, the outcome is known
+currentWindow ∷ LuaState → Window
+currentWindow (LuaState _ currWin _ _ _ wins) = wins !! currWin
