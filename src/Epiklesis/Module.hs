@@ -13,7 +13,9 @@ import Epiklesis.Data
 
 -- loads functions available in main module
 loadModuleFunctions ∷ Env → Lua.Lua ()
-loadModuleFunctions env = Lua.registerHaskellFunction "findScreenCursor" (hsFindScreenCursor env)
+loadModuleFunctions env = do
+  Lua.registerHaskellFunction "findScreenCursor" (hsFindScreenCursor env)
+  Lua.registerHaskellFunction "toggleFPS" (hsToggleFPS env)
 
 -- loads lua functions for a module
 loadModule ∷ Env → State → ModuleType → String → IO (Module)
@@ -42,6 +44,11 @@ hsFindScreenCursor ∷ Env → Lua.Lua ()
 hsFindScreenCursor env = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaFind LFScreenCursor)
+
+hsToggleFPS ∷ Env → Lua.Lua ()
+hsToggleFPS env = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua $ LuaToggleFPS
 
 logLuaError ∷ Env -> String → IO ()
 logLuaError env str = do

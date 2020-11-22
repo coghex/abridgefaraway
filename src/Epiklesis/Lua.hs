@@ -18,6 +18,7 @@ import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
+import Paracletus.Vulkan.Calc
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
@@ -163,6 +164,7 @@ findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromE
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemFPS _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
 -- some simple data manipulators
@@ -181,6 +183,15 @@ addElemToWindows thisWin e ec (win:wins)
 addElemToWindow ∷ WinElem → WinElemCache → Window → Window
 addElemToWindow e ec win = win { winCache = (winCache win) ⧺ [ec]
                                , winElems = (winElems win) ⧺ [e] }
+
+cacheAllWindows ∷ [Window] → [Window]
+cacheAllWindows wins = map cacheWindow wins
+cacheWindow ∷ Window → Window
+cacheWindow win = win { winCache = map cacheWinElems (winCache win) }
+cacheWinElems ∷ WinElemCache → WinElemCache
+cacheWinElems (WECached tiles) = WECached (cacheAllGTiles tiles)
+cacheWinElems WEUncached  = WEUncached
+cacheWinElems WECacheNULL = WECacheNULL
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n

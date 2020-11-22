@@ -39,6 +39,7 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem (WinElemText pos False str) = addText (fst pos) pos str
+loadWinElem (WinElemFPS fps) = addText 0 (0,0) (show fps)
 loadWinElem (WinElemBack _ ) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False]
 loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
 loadWinElem (WinElemLink _ _ _) = []

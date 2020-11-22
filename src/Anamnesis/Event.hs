@@ -59,7 +59,8 @@ processEvent event = case event of
     liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdVerts ds
   -- callback for a loaded luaState
   (EventLoadedWorld ls) → modify $
-    \s → s { luaSt = ls }
+    \s → s { luaSt = ls' }
+      where ls' = ls { luaWindows = cacheAllWindows (luaWindows ls) }
   -- translates the lua draw state
   -- into the engine draw state
   (EventLoaded) → do
@@ -91,6 +92,10 @@ processEvent event = case event of
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
           WinElemWorld _ _ _ → do
+            let newLS = addElemToLuaState win e cache (luaSt st)
+            modify $ \s → s { luaSt = newLS
+                            , sRecreate = True }
+          WinElemFPS _ → do
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
@@ -127,4 +132,13 @@ processEvent event = case event of
               currWin = (luaWindows ls) !! (luaCurrWin ls)
           logInfo $ "screenCursor: " ⧺ (show (winCursor currWin))
         (LFNULL)         → logError $ "lua NULL query"
+      (LuaToggleFPS) → do
+        ls ← gets luaSt
+        modify $ \s → s { luaSt = (addFPSToWindows (luaWindows ls) ls)
+                        , sReload = True }
+        where addFPSToWindows ∷ [Window] → LuaState → LuaState
+              addFPSToWindows []         ls = ls
+              addFPSToWindows (win:wins) ls = addFPSToWindows wins newLS
+                where newLS = addElemToLuaState (winTitle win) e WEUncached ls
+                      e     = WinElemFPS 0
       (LuaCmdNULL)   → logError $ "lua NULL command"

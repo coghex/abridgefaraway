@@ -44,6 +44,7 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
                             , textBox ∷ Bool
                             , textStr ∷ String }
              | WinElemBack  { backFP  ∷ String }
+             | WinElemFPS   { fps ∷ Int }
              | WinElemLink  { linkPos ∷ (Double,Double)
                             , linkBox ∷ (Double,Double)
                             , linkAct ∷ LinkAction }
@@ -55,24 +56,31 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
 -- some equalities are more or less arbitrary
 instance Ord WinElem where
   --these compare against themselves
-  compare (WinElemText _ _ _) (WinElemText _ _ _) = EQ
-  compare (WinElemLink _ _ _) (WinElemLink _ _ _) = EQ
+  compare (WinElemFPS _)        (WinElemFPS _)        = EQ
+  compare (WinElemText _ _ _) (WinElemText _ _ _)     = EQ
+  compare (WinElemLink _ _ _) (WinElemLink _ _ _)     = EQ
   compare (WinElemBack _) (WinElemBack _)             = EQ
   compare (WinElemWorld _ _ _) (WinElemWorld _ _ _)   = EQ
   compare (WinElemNULL) (WinElemNULL)                 = EQ
   -- this is where the real definition is
   compare (WinElemBack _) (WinElemWorld _ _ _)        = LT
+  compare (WinElemBack _) (WinElemText _ _ _)         = LT
   compare (WinElemBack _) (WinElemLink _ _ _)         = GT
   compare (WinElemBack _) (WinElemNULL)               = GT
   compare (WinElemWorld _ _ _) (WinElemBack _)        = GT
+  compare (WinElemWorld _ _ _) (WinElemText _ _ _)    = LT
   compare (WinElemWorld _ _ _) (WinElemLink _ _ _)    = GT
   compare (WinElemWorld _ _ _) (WinElemNULL)          = GT
+  compare (WinElemText _ _ _) (WinElemWorld _ _ _)    = GT
+  compare (WinElemText _ _ _) (WinElemBack _)         = GT
+  compare (WinElemText _ _ _) (WinElemLink _ _ _)     = GT
+  compare (WinElemText _ _ _) (WinElemNULL)           = GT
   -- these help cover all cases where we dont
   -- even have textures to compare
   compare (WinElemLink _ _ _) _ = LT
   compare _ (WinElemLink _ _ _) = GT
-  compare (WinElemText _ _ _) _ = GT
-  compare _ (WinElemText _ _ _) = LT
+  compare (WinElemFPS _)     _  = GT
+  compare _     (WinElemFPS _)  = LT
   compare (WinElemNULL) _       = LT
 
 -- the cache allows instant gtile
@@ -90,6 +98,7 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdswitchWindow String
             | LuaCmdloadModule String
             | LuaFind LFQuery
+            | LuaToggleFPS
             | LuaError String
             | LuaCmdNULL-- deriving (Show, Eq)
 -- possible queryable items in the state
