@@ -102,6 +102,7 @@ runParacVulkan = do
               wintextures = findReqTextures thiswin
           newTexData ← loadVulkanTextures gqdata wintextures
           modify $ \s → s { sRecreate  = False
+                          , sVertCache = Nothing
                           , sTick      = Just firstTick }
           let vulkLoopData' = VulkanLoopData {..}
               vulkLoopData  = vulkLoopData' { texData = newTexData }
@@ -134,9 +135,14 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   shouldExit ← loadLoop window $ do
     cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
     -- cache any new tiles that have been created
-    oldDS ← gets drawSt
-    modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) }
-                    , sReload = False }
+    -- currently only caches the first recreate
+    vertcache ← gets sVertCache
+    case vertcache of
+      Just (Verts verts) → modify $ \s → s { sReload = False }
+      Nothing            → do
+        oldDS ← gets drawSt
+        modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) }
+                        , sReload = False }
     shouldLoad ← glfwMainLoop window $ do
       stNew ← get
       let lsNew = luaSt stNew
