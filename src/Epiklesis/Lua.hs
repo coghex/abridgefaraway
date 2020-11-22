@@ -18,7 +18,6 @@ import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
-import Paracletus.Vulkan.Calc
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
@@ -84,11 +83,11 @@ hsNewWindow env _    wintype = do
 hsNewText ∷ Env → String → Double → Double → String → String → Lua.Lua ()
 hsNewText env win x y text "text" = do
   let eventQ = envEventsChan env
-      initCache = WECached $ addText x (x,y) text
+      initCache = WECached $ addText False x (x,y) text
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text) initCache)
 hsNewText env win x y text "textbox" = do
   let eventQ = envEventsChan env
-      initCache = WECached $ (addTextBox posOffset size) ⧺ addText x (x,y) text
+      initCache = WECached $ (addTextBox posOffset size) ⧺ addText False x (x,y) text
       size = calcTextBoxSize text
       posOffset = (x - 1.0,y + 0.5)
 
@@ -142,7 +141,7 @@ hsNewWorld env win zx zy sx sy dp = do
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False]))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]))
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
@@ -164,7 +163,6 @@ findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromE
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
-findTexturesFromElems ((WinElemFPS _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
 -- some simple data manipulators
@@ -183,15 +181,6 @@ addElemToWindows thisWin e ec (win:wins)
 addElemToWindow ∷ WinElem → WinElemCache → Window → Window
 addElemToWindow e ec win = win { winCache = (winCache win) ⧺ [ec]
                                , winElems = (winElems win) ⧺ [e] }
-
-cacheAllWindows ∷ [Window] → [Window]
-cacheAllWindows wins = map cacheWindow wins
-cacheWindow ∷ Window → Window
-cacheWindow win = win { winCache = map cacheWinElems (winCache win) }
-cacheWinElems ∷ WinElemCache → WinElemCache
-cacheWinElems (WECached tiles) = WECached (cacheAllGTiles tiles)
-cacheWinElems WEUncached  = WEUncached
-cacheWinElems WECacheNULL = WECacheNULL
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n

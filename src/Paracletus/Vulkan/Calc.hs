@@ -22,18 +22,21 @@ import Paracletus.Vulkan.Vertex
 -- preformance of dataframe creation seems
 -- to be negligent, regardless, keep other
 -- calcuations to a minimum.
-calcVertices ∷ [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
-calcVertices ts = (vertices ts, indices ts)--runEval $ do
-  --verts ← rpar $ vertices cam ts
-  --inds ← rseq $ indices ts
-  --rseq verts
-  --return (verts,inds)
+calcVertices ∷ Bool → [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+calcVertices til ts = (vertices ts', indices ts')
+  where ts' = filter (filterGT til) ts
+
+filterGT ∷ Bool → GTile → Bool
+filterGT False (GTileUncached _ _ _ _ _ t _) = not t
+filterGT True  (GTileUncached _ _ _ _ _ t _) = t
+filterGT False (GTileCached verts) = True
+filterGT True  (GTileCached verts) = False
 
 cacheAllGTiles ∷ [GTile] → [GTile]
 cacheAllGTiles gts = map cacheGTile gts
 cacheGTile ∷ GTile → GTile
 cacheGTile (GTileCached d) = GTileCached d
-cacheGTile (GTileUncached pos scale ind size t moves) = GTileCached (verts)
+cacheGTile (GTileUncached pos scale ind size t _ moves) = GTileCached (verts)
   where verts = withMove (+ vec3 0 0 m) (withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t') (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))))
         (x',y') = pos
         (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))

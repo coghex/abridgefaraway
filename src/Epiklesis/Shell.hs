@@ -41,7 +41,7 @@ execShell env ls str = do
 -- produce graphics tiles
 genShell ∷ Shell → [GTile]
 genShell sh = case (shOpen sh) of
-                True  → (addTextBox posOffset size) ⧺ (addText (fst pos) pos' str)
+                True  → (addTextBox posOffset size) ⧺ (addText False (fst pos) pos' str)
                 False → []
   where size = (32,18)
         posOffset = ((fst pos) - 1.0, (snd pos) + 0.5)

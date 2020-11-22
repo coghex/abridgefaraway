@@ -39,6 +39,7 @@ initState = do
                             , tInd   = (0,0)
                             , tSize  = (1,1)
                             , tT     = 0
+                            , tTile  = False
                             , tMoves = False }
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua

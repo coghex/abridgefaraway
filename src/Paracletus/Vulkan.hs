@@ -48,24 +48,25 @@ runParacVulkan = do
   modify $ \s → s { windowSt = Just window }
   vulkanInstance ← createGLFWVulkanInstance "paracletus-instance"
   vulkanSurface ← createSurface vulkanInstance window
-  logDebug $ "created surface: " ⧺ show vulkanSurface
+  --logDebug $ "created surface: " ⧺ show vulkanSurface
   -- forks GLFW as parent
   glfwWaitEventsMeanwhile $ do
     (_, pdev) ← pickPhysicalDevice vulkanInstance (Just vulkanSurface)
-    logDebug $ "selected physical device: " ⧺ show pdev
+    --logDebug $ "selected physical device: " ⧺ show pdev
     msaaSamples ← getMaxUsableSampleCount pdev
     (dev, queues) ← createGraphicsDevice pdev vulkanSurface
-    logDebug $ "created device: " ⧺ show dev
-    logDebug $ "created queues: " ⧺ show queues
+    --logDebug $ "created device: " ⧺ show dev
+    --logDebug $ "created queues: " ⧺ show queues
     (shaderVert, shaderFrag) ← makeShader dev
-    logDebug $ "created vertex shader module: " ⧺ show shaderVert
-    logDebug $ "created fragment shader module: " ⧺ show shaderFrag
+    (tshaderVert, tshaderFrag) ← makeTShader dev
+    --logDebug $ "created vertex shader module: " ⧺ show shaderVert
+    --logDebug $ "created fragment shader module: " ⧺ show shaderFrag
     frameIndexRef      ← liftIO $ atomically $ newTVar 0
     renderFinishedSems ← createFrameSemaphores dev
     imageAvailableSems ← createFrameSemaphores dev
     inFlightFences     ← createFrameFences     dev
     commandPool        ← createCommandPool     dev queues
-    logDebug $ "created command pool: " ⧺ show commandPool
+    --logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
     let gqdata = GQData pdev dev commandPool (graphicsQueue queues)
     texData ← loadVulkanTextures gqdata []
@@ -112,28 +113,32 @@ runParacVulkan = do
           vulkLoop vulkLoopData
 
 vulkLoop ∷ VulkanLoopData → Anamnesis ε σ (LoopControl)
-vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
+vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag tshaderVert tshaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
+  (transMatMems, transMatBufs) ← unzip ⊚ createTransMatBuffers pdev dev swapchainLen
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+  descriptorMBufferInfos ← mapM transMatBufferInfo transMatBufs
   descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
   descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
   descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-  forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
+  forM_ (zip3 descriptorBufferInfos descriptorMBufferInfos descriptorSets) $ \(bufInfo, mbufInfo, dSet) → prepareDescriptorSet dev bufInfo mbufInfo (descTexInfo texData) dSet (nimages texData)
   transObjMemories ← newArrayRes transObjMems
+  transMatMemories ← newArrayRes transMatMems
   imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
   --logDebug $ "created image views: " ⧺ show imgViews
   renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
   --logDebug $ "created renderpass: " ⧺ show renderPass
   graphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [shaderVert, shaderFrag] renderPass (pipelineLayout texData) msaaSamples
+  tgraphicsPipeline ← createGraphicsPipeline dev swapInfo vertIBD vertIADs [tshaderVert, tshaderFrag] renderPass (pipelineLayout texData) msaaSamples
   --logDebug $ "created pipeline: " ⧺ show graphicsPipeline
   colorAttImgView ← createColorAttImgView pdev dev commandPool (graphicsQueue queues) (swapImgFormat swapInfo) (swapExtent swapInfo) msaaSamples
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   --logDebug $ "created framebuffers: " ⧺ show framebuffers
   shouldExit ← loadLoop window $ do
-    cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+    cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline tgraphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
     -- cache any new tiles that have been created
     -- currently only caches the first recreate
     vertcache ← gets sVertCache
@@ -182,16 +187,19 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     return $ if shouldLoad ∨ stateRecreate then AbortLoop else ContinueLoop
   return $ if shouldExit then AbortLoop else ContinueLoop
 
-genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
-genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets = do
+genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
+genCommandBuffs dev pdev commandPool queues graphicsPipeline tgraphicsPipeline renderPass texData swapInfo framebuffers descriptorSets = do
       stNew ← get
       let dsNew = drawSt stNew
           (verts0, inds0) = case (sVertCache stNew) of
             Just (Verts verts) → verts
-            Nothing            → calcVertices $ dsTiles dsNew
+            Nothing            → calcVertices False $ dsTiles dsNew
+      let (verts1, inds1) = calcVertices True $ [defaultGTile { tTile = True }] ⧺ (dsTiles dsNew)
       vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
       indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
-      newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
+      vertexBufferNew1 ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts1
+      indexBufferNew1 ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds1
+      newCmdBP ← createCommandBuffers dev graphicsPipeline tgraphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) vertexBufferNew1 (dfLen inds1, indexBufferNew1) framebuffers descriptorSets
       -- for now just recreate command
       -- buffers every frame
       return newCmdBP

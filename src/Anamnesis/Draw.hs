@@ -12,12 +12,13 @@ initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
   { dsTiles = tiles }
 
-addTile ∷ DrawState → DrawState
-addTile ds = ds { dsTiles = newtiles }
-  where newtiles = (dsTiles ds) ⧺
-          [ GTileUncached { tPos   = (3,0)
-                          , tScale = (1,1)
-                          , tInd   = (2,0)
-                          , tSize  = (16,6)
-                          , tT     = 2
-                          , tMoves = False } ]
+--addTile ∷ DrawState → DrawState
+--addTile ds = ds { dsTiles = newtiles }
+--  where newtiles = (dsTiles ds) ⧺
+--          [ GTileUncached { tPos   = (3,0)
+--                          , tScale = (1,1)
+--                          , tInd   = (2,0)
+--                          , tSize  = (16,6)
+--                          , tT     = 2
+--                          , t
+--                          , tMoves = False } ]

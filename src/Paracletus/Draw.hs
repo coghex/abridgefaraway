@@ -35,12 +35,11 @@ loadWinElems ((WECached gts,e):es) = gts ⧺ loadWinElems es
 loadWinElems ((ec,e):es)           = loadWinElem e ⧺ loadWinElems es
 
 loadWinElem ∷ WinElem → [GTile]
-loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText (fst pos) pos str
+loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText False (fst pos) pos str
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
-loadWinElem (WinElemText pos False str) = addText (fst pos) pos str
-loadWinElem (WinElemFPS fps) = addText 0 (0,0) (show fps)
-loadWinElem (WinElemBack _ ) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False]
+loadWinElem (WinElemText pos False str) = addText False (fst pos) pos str
+loadWinElem (WinElemBack _ ) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]
 loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
 loadWinElem (WinElemLink _ _ _) = []
 loadWinElem WinElemNULL = []
@@ -87,6 +86,7 @@ calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,c
                                , tInd = (ix,iy)
                                , tSize = (3,15)
                                , tT = 20
+                               , tTile = False
                                , tMoves = True }
           ix = (tileType gspot) `mod` 3
           iy = (tileType gspot) `div` 3

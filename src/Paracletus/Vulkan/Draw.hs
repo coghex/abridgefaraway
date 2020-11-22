@@ -44,12 +44,14 @@ createFramebuffers dev renderPass SwapchainInfo{swapExtent} swapImgViews depthIm
                 &* set @"layers" 1
            in  allocaPeek $ \fbPtr → withVkPtr fbci $ \fbciPtr → runVk $ vkCreateFramebuffer dev fbciPtr VK_NULL fbPtr
 
-createCommandBuffers ∷ VkDevice → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
-createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) fbs descriptorSets
+createCommandBuffers ∷ VkDevice → VkPipeline → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → VkBuffer → (Word32, VkBuffer) → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
+createCommandBuffers dev pipeline pipeline1 commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) vertexBuffer1 (nIndices1, indexBuffer1) fbs descriptorSets
   | buffersCount ← length fbs = do
   cbsPtr ← mallocArrayRes buffersCount
   vertexBufArr ← newArrayRes [vertexBuffer]
   vertexOffArr ← newArrayRes [0]
+  vertexBufArr1 ← newArrayRes [vertexBuffer1]
+  vertexOffArr1 ← newArrayRes [0]
   allocResource
     (const $ liftIO $ vkFreeCommandBuffers dev commandPool (fromIntegral buffersCount) cbsPtr)
     $ do
@@ -83,12 +85,17 @@ createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo
                    &* set @"stencil" 0 ]
      withVkPtr renderPassBeginInfo $ \rpibPtr → liftIO $ vkCmdBeginRenderPass cmdBuffer rpibPtr VK_SUBPASS_CONTENTS_INLINE
      liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline
-     --liftIO $ vkCmdPushConstants cmdBuffer pipelineLayout VK_SHADER_STAGE_FRAGMENT_BIT 0 4 pcPtr
      liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr vertexOffArr
      liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer 0 VK_INDEX_TYPE_UINT32
      dsPtr ← newArrayRes [descriptorSet]
      liftIO $ vkCmdBindDescriptorSets cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipelineLayout 0 1 dsPtr 0 VK_NULL
      liftIO $ vkCmdDrawIndexed cmdBuffer nIndices 1 0 0 0
+     liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline1
+     liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr1 vertexOffArr1
+     liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer1 0 VK_INDEX_TYPE_UINT32
+     dsPtr ← newArrayRes [descriptorSet]
+     liftIO $ vkCmdBindDescriptorSets cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipelineLayout 0 1 dsPtr 0 VK_NULL
+     liftIO $ vkCmdDrawIndexed cmdBuffer nIndices1 1 0 0 0
      liftIO $ vkCmdEndRenderPass cmdBuffer
      runVk $ vkEndCommandBuffer cmdBuffer
    return cbsPtr

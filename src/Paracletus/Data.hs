@@ -38,6 +38,7 @@ data GTile = GTileCached   { gtData ∷ ([DataFrame Vertex ('[] ∷ [Nat])]) }
                            , tInd   ∷ (Int,Int)
                            , tSize  ∷ (Int,Int)
                            , tT     ∷ Int
+                           , tTile  ∷ Bool
                            , tMoves ∷ Bool }-- deriving (Show, Eq)
 
 
@@ -49,6 +50,7 @@ defaultGTile = GTileUncached { tPos   = (0,0)
                              , tInd   = (0,0)
                              , tSize  = (1,1)
                              , tT     = 0
+                             , tTile  = False
                              , tMoves = False }
 
 -- all the data required for a set of textures
@@ -70,6 +72,8 @@ data VulkanLoopData = VulkanLoopData
          , msaaSamples        ∷ VkSampleCountFlagBits
          , shaderVert         ∷ VkPipelineShaderStageCreateInfo
          , shaderFrag         ∷ VkPipelineShaderStageCreateInfo
+         , tshaderVert        ∷ VkPipelineShaderStageCreateInfo
+         , tshaderFrag        ∷ VkPipelineShaderStageCreateInfo
          , imgIndexPtr        ∷ Ptr Word32
          , windowSizeChanged  ∷ TVar Bool
          , frameIndexRef      ∷ TVar Int
