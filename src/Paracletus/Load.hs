@@ -83,11 +83,7 @@ processCommand env cmd = do
     -- converts luaState to drawState
     LoadCmdWin ls → do
       let newDS = loadDrawState ls
-      --    currWin = currentWindow ls
-      --if ((winType currWin) ≡ WinTypeGame) then do
-      --atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
       atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
-      --else atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
       return "success"
     -- loads a world from a luaState
     -- into a drawState
@@ -95,7 +91,8 @@ processCommand env cmd = do
       let currWin = currentWindow ls
       if ((winType currWin) ≡ WinTypeGame) then do
         let newLS   = loadWorld ls
-            newDS   = loadDrawState newLS
+            newDS'  = loadDrawState newLS
+            newDS   = DrawState { dsTiles = cacheAllGTiles (dsTiles newDS') }
         atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS
         atomically $ writeQueue (envEventsChan env) $ EventLoadedDrawState newDS
         return "success"
