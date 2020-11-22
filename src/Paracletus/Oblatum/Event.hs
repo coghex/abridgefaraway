@@ -39,8 +39,6 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyUp = False }
         modify' $ \s → s { inputState = newIS }
-        let cmdQueue = envLCmdChan env
-        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -53,8 +51,6 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyLeft = False }
         modify' $ \s → s { inputState = newIS }
-        let cmdQueue = envLCmdChan env
-        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -67,8 +63,6 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyDown = False }
         modify' $ \s → s { inputState = newIS }
-        let cmdQueue = envLCmdChan env
-        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
@@ -81,8 +75,6 @@ evalKey window k ks mk keyLayout = do
       if (ks ≡ GLFW.KeyState'Released) then do
         let newIS = oldIS { keyRight = False }
         modify' $ \s → s { inputState = newIS }
-        let cmdQueue = envLCmdChan env
-        liftIO $ atomically $ writeQueue cmdQueue $ LoadCmdWorld oldLS
       else return ()
     else do
       if (ks ≡ GLFW.KeyState'Pressed) then do
