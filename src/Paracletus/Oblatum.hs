@@ -129,7 +129,7 @@ processInput = do
         is      = inputState st
     case (winType win) of
       WinTypeGame → if (mouse3 is) then moveCamWithMouse
-                    else if ((keyUp is) ∨ (keyLeft is) ∨ (keyDown is) ∨ (keyRight is)) then moveCamWithKeys
+                    else if ((keyUp is) ∨ (keyLeft is) ∨ (keyDown is) ∨ (keyRight is) ∨ ((((abs (fst (keyAccel is))) > 0.0) ∨ (abs (snd (keyAccel is)) > 0.0)))) then moveCamWithKeys
                     else return ()
       WinTypeMenu → return ()
       WinTypeNULL → return ()

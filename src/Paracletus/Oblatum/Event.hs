@@ -229,19 +229,23 @@ moveCamWithKeys = do
   if ((winType currWin) ≡ WinTypeGame) then do
     case (findWorldData currWin) of
       Just (_,wd) → do
-        let oldIS = inputState st
-            move = case (findDir oldIS) of
-                     Just dir → moveCamInDir dir
-                     Nothing  → (0.0,0.0)
-        let oldcam  = winCursor currWin
-            newcam  = keyMoveCam move oldcam
-            newSC   = moveScreenCursor newcam
-            newWD   = wd { wdCam = newSC }
-            newWin' = replaceWorldData currWin newWD
-            newWin  = newWin' { winCursor = newcam }
-            newWins = findAndReplaceWindow newWin (luaWindows ls)
+        let oldIS    = inputState st
+            dir      = case (findDir oldIS) of
+                         Just dir → dir
+                         Nothing  → CardNULL
+            oldcam   = winCursor currWin
+            --newcam  = keyMoveCam move oldcam
+            newIS    = oldIS { keyAccel = newaccel }
+            newaccel = decell $ accelIS dir (keyAccel oldIS)
+            newcam   = keyMoveCam newaccel oldcam
+            newSC    = moveScreenCursor newcam
+            newWD    = wd { wdCam = newSC }
+            newWin'  = replaceWorldData currWin newWD
+            newWin   = newWin' { winCursor = newcam }
+            newWins  = findAndReplaceWindow newWin (luaWindows ls)
             newLS   = ls { luaWindows = newWins }
-        modify' $ \s → s { luaSt = newLS }
+        modify' $ \s → s { luaSt = newLS
+                         , inputState = newIS }
       Nothing     → return ()
   else return ()
 
@@ -266,18 +270,24 @@ findDir is = if      (keyUp    is) ∧ (keyLeft  is) ∧ (keyRight is) ∧ (keyD
              else if (keyRight is) then Just East
              else Nothing
 
--- currently just steps, in future
--- use input state for acceleration
-moveCamInDir ∷ Cardinal → (Float,Float)
-moveCamInDir North = (0.0,-1.0)
-moveCamInDir West  = (1.0,0.0)
-moveCamInDir South = (0.0,1.0)
-moveCamInDir East  = (-1.0,0.0)
-moveCamInDir NorthWest = (0.6,-0.6)
-moveCamInDir NorthEast = (-0.6,-0.6)
-moveCamInDir SouthWest = (0.6,0.6)
-moveCamInDir SouthEast = (-0.6,0.6)
-moveCamInDir CardNULL  = (0.0,0.0)
+-- accelerate the inputstate
+accelIS ∷ Cardinal → (Float,Float) → (Float,Float)
+accelIS North (x,y) = (x, 1.1*(y - 0.1))
+accelIS West  (x,y) = (1.1*(x + 0.1), y)
+accelIS South (x,y) = (x, 1.1*(y + 0.1))
+accelIS East  (x,y) = (1.1*(x - 0.1), y)
+accelIS NorthWest (x,y) = (1.1*(x + 0.1), 1.1*(y - 0.1))
+accelIS NorthEast (x,y) = (1.1*(x - 0.1), 1.1*(y - 0.1))
+accelIS SouthWest (x,y) = (1.1*(x + 0.1), 1.1*(y + 0.1))
+accelIS SouthEast (x,y) = (1.1*(x - 0.1), 1.1*(y + 0.1))
+accelIS CardNULL (x,y) = (x,y)
+
+decell ∷ (Float,Float) → (Float,Float)
+decell (x,y)
+  | ((abs x) < 0.01) ∧ ((abs y) < 0.01) = (0.0,0.0)
+  | ((abs x) < 0.01) = (0.0,(y / 1.1))
+  | ((abs y) < 0.01) = ((x / 1.1),0.0)
+  | otherwise = ((x / 1.1),(y / 1.1))
 
 keyMoveCam ∷ (Float,Float) → (Float,Float,Float) → (Float,Float,Float)
 keyMoveCam (i,j) (x,y,z) = (x+i,y+j,z)

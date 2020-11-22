@@ -22,6 +22,7 @@ data InputState = InputState { mouse1      ∷ Bool
                              , keyLeft     ∷ Bool
                              , keyDown     ∷ Bool
                              , keyRight    ∷ Bool
+                             , keyAccel    ∷ (Float,Float)
                              } deriving (Show, Eq)
 -- these pattern matches translate to
 -- a giant case statement where we find
