@@ -223,7 +223,8 @@ isElemLink (WinElemNULL)       = False
 
 moveCamWithKeys ∷ Anamnesis ε σ ()
 moveCamWithKeys = do
-  st ← get
+  env ← ask
+  st ←  get
   let ls      = luaSt st
       currWin = currentWindow ls
   if ((winType currWin) ≡ WinTypeGame) then do
@@ -234,7 +235,6 @@ moveCamWithKeys = do
                          Just dir → dir
                          Nothing  → CardNULL
             oldcam   = winCursor currWin
-            --newcam  = keyMoveCam move oldcam
             newIS    = oldIS { keyAccel = newaccel }
             newaccel = decell $ accelIS dir (keyAccel oldIS)
             newcam   = keyMoveCam newaccel oldcam
@@ -244,6 +244,7 @@ moveCamWithKeys = do
             newWin   = newWin' { winCursor = newcam }
             newWins  = findAndReplaceWindow newWin (luaWindows ls)
             newLS   = ls { luaWindows = newWins }
+        if ((newaccel) ≡ (0.0,0.0)) then liftIO (atomically (writeQueue (envLCmdChan env) (LoadCmdWorld newLS))) else return ()
         modify' $ \s → s { luaSt = newLS
                          , inputState = newIS }
       Nothing     → return ()
