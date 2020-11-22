@@ -59,5 +59,7 @@ initState = do
                              , drawSt       = ds
                              , luaSt        = ls
                              , inputState   = is
+                             , sVertCache   = Nothing
                              , sRecreate    = False
+                             , sReload      = False
                              , sTick        = Nothing }

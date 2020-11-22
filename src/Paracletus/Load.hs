@@ -12,6 +12,7 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Paracletus.Data
 import Paracletus.Draw
+import Paracletus.Vulkan.Calc
 import Control.Concurrent (threadDelay)
 import Data.Time.Clock
 
@@ -75,11 +76,17 @@ processCommands env = do
 processCommand ∷ Env → LoadCmd → IO String 
 processCommand env cmd = do
   ret ← case cmd of
+    LoadCmdVerts ds → do
+      let newVerts = Verts $ calcVertices $ dsTiles ds
+      atomically $ writeQueue (envEventsChan env) $ EventLoadedVerts newVerts
+      return "success"
     -- converts luaState to drawState
     LoadCmdWin ls → do
       let newDS = loadDrawState ls
           currWin = (luaWindows ls) !! (luaCurrWin ls)
-      if ((winType currWin) ≡ WinTypeGame) then atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
+      if ((winType currWin) ≡ WinTypeGame) then do
+        atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
+        atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
       else atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
       return "success"
     -- loads a world from a luaState
@@ -90,7 +97,7 @@ processCommand env cmd = do
         let newLS   = loadWorld ls
             newDS   = loadDrawState newLS
         atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS
-        atomically $ writeQueue (envEventsChan env) $ EventLoadedLuaState newDS
+        atomically $ writeQueue (envEventsChan env) $ EventLoadedDrawState newDS
         return "success"
       else return "not in game window"
     LoadCmdNULL  → return "NULL load command"

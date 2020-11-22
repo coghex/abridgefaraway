@@ -14,7 +14,9 @@ data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
            | EventLoaded
            | EventLoadedWorld !LuaState
+           | EventLoadedDrawState !DrawState
            | EventLoadedLuaState !DrawState
+           | EventLoadedVerts !Verts
            | EventLua !LuaCmd
            -- | EventUpdateSegs !SegUpdateData
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys

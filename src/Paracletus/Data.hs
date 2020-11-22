@@ -16,6 +16,9 @@ import qualified Paracletus.Oblatum.GLFW as GLFW
 data GraphicsLayer = GLUnknown | Vulkan | OpenGL | OpenGLES deriving (Show, Eq)
 data ParacResult = ParacSuccess | ParacError | GLFWSuccess | GLFWError | VulkanSuccess | VulkanError deriving (Show, Eq)
 
+-- the fundamental verteces
+data Verts = Verts (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
+
 -- a data structure containing
 -- the abstract representation
 -- of the general vertex layout

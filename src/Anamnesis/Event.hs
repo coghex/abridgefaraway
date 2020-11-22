@@ -48,10 +48,12 @@ processEvent event = case event of
     let keyLayout = lcKeyLayout $ luaConfig ls
     evalKey win k ks mk keyLayout
   (EventMouseButton win mb mbs mk) → evalMouse win mb mbs mk
-  -- callback for a loaded drawState
   (EventLoadedLuaState ds) → modify $
     \s → s { drawSt = ds
            , sRecreate = True }
+  -- callback for a loaded drawState
+  (EventLoadedDrawState ds) → modify $
+    \s → s { drawSt = ds }
   -- callback for a loaded luaState
   (EventLoadedWorld ls) → modify $
     \s → s { luaSt = ls }
@@ -62,6 +64,9 @@ processEvent event = case event of
     let lCmdChan = envLCmdChan env
     ls ← gets luaSt
     liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdWin ls
+  (EventLoadedVerts verts) → modify $
+    \s → s { sVertCache = Just verts
+           , sReload    = True }
   (EventLua command) → do
     case command of
       (LuaCmdnewWindow newWin) → do

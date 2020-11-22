@@ -3,12 +3,14 @@ module Artos.Data where
 import Prelude()
 import UPrelude
 import Epiklesis.Data
+import Paracletus.Data
 
 -- timer state is used for all the timers
 data TState = TStart | TStop | TPause | TNULL deriving (Show, Eq)
 
 -- cmds that can be asked of
 -- the loading thread
-data LoadCmd = LoadCmdWin LuaState
+data LoadCmd = LoadCmdVerts DrawState
+             | LoadCmdWin LuaState
              | LoadCmdWorld LuaState
              | LoadCmdNULL

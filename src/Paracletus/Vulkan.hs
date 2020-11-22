@@ -13,7 +13,6 @@ import Anamnesis.Data
 import Anamnesis.Event
 import Anamnesis.Foreign
 import Anamnesis.Util
-import Anamnesis.World
 import Artos.Data
 import Artos.Except
 import Artos.Var
@@ -132,7 +131,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   --logDebug $ "created framebuffers: " ⧺ show framebuffers
-  cmdBP ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+  cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
   -- cache any new tiles that have been created
   oldDS ← gets drawSt
   modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) } }
@@ -140,6 +139,10 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     stNew ← get
     let lsNew = luaSt stNew
         camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+    cmdBP ← if (sReload stNew) then do
+                  modify $ \s → s { sReload = False }
+                  genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+                else return cmdBP0
     let rdata = RenderData { dev
                            , swapInfo
                            , queues
@@ -176,7 +179,9 @@ genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueue
 genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets = do
       stNew ← get
       let dsNew = drawSt stNew
-          (verts0, inds0) = calcVertices $ dsTiles dsNew
+          (verts0, inds0) = case (sVertCache stNew) of
+            Just (Verts verts) → verts
+            Nothing            → calcVertices $ dsTiles dsNew
       vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
       indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
       newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets
