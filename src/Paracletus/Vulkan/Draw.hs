@@ -123,7 +123,9 @@ data RenderData = RenderData
   , inFlightFences     ∷ Ptr VkFence
   , cmdBuffersPtr      ∷ Ptr VkCommandBuffer
   , memories           ∷ Ptr VkDeviceMemory
-  , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
+  , memories1          ∷ Ptr VkDeviceMemory
+  , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ ()
+  , memoryMutator1     ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
 
 drawFrame ∷ RenderData → Anamnesis ε σ Bool
 drawFrame RenderData{..} = do
@@ -139,8 +141,11 @@ drawFrame RenderData{..} = do
   imgIndex ← fromIntegral ⊚ peek imgIndexPtr
   let bufPtr  = cmdBuffersPtr `ptrAtIndex` imgIndex
       memPtr  = memories `ptrAtIndex` imgIndex
+      memPtr1 = memories1 `ptrAtIndex` imgIndex
   mem ← peek memPtr
   memoryMutator mem
+  mem1 ← peek memPtr1
+  memoryMutator1 mem1
   let submitInfo = [ createVk @VkSubmitInfo
           $  set @"sType" VK_STRUCTURE_TYPE_SUBMIT_INFO
           &* set @"pNext" VK_NULL

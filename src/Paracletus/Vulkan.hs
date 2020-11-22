@@ -162,7 +162,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , inFlightFences
                              , cmdBuffersPtr = cmdBP0
                              , memories = transObjMemories
-                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
+                             , memories1 = transObjMemories
+                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
+                             , memoryMutator1 = updateTransMat camNew dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
       needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
