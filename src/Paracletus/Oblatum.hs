@@ -60,9 +60,9 @@ loadLoop w action = go
             newtick ← case stick of
                   Just st → return st
                   Nothing → liftIO $ getCurTick
-            modify $ \s → s { sTick = Nothing }
+            modify $ \s → s { sTick = Just newtick }
             status ← locally action
-            let fps = 240.0
+            let fps = 120.0
             liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
             if status ≡ ContinueLoop then go else return False
           else return True
@@ -73,7 +73,14 @@ glfwMainLoop w action = go
   where go = do
           should ← liftIO $ GLFW.windowShouldClose w
           if not should then do
+            stick ← gets sTick
+            newtick ← case stick of
+                  Just st → return st
+                  Nothing → liftIO $ getCurTick
+            modify $ \s → s { sTick = Nothing }
             status ← locally action
+            let fps = 120.0
+            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
             if status ≡ ContinueLoop then go else return False
           else return True
 
