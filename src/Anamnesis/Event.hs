@@ -52,8 +52,11 @@ processEvent event = case event of
     \s → s { drawSt = ds
            , sRecreate = True }
   -- callback for a loaded drawState
-  (EventLoadedDrawState ds) → modify $
-    \s → s { drawSt = ds }
+  (EventLoadedDrawState ds) → do
+    modify $ \s → s { drawSt = ds }
+    env ← ask
+    let lCmdChan = envLCmdChan env
+    liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdVerts ds
   -- callback for a loaded luaState
   (EventLoadedWorld ls) → modify $
     \s → s { luaSt = ls }

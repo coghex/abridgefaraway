@@ -131,48 +131,49 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   --logDebug $ "created framebuffers: " ⧺ show framebuffers
-  cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
-  -- cache any new tiles that have been created
-  oldDS ← gets drawSt
-  modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) } }
-  shouldExit ← glfwMainLoop window $ do
-    stNew ← get
-    let lsNew = luaSt stNew
-        camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-    cmdBP ← if (sReload stNew) then do
-                  modify $ \s → s { sReload = False }
-                  genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
-                else return cmdBP0
-    let rdata = RenderData { dev
-                           , swapInfo
-                           , queues
-                           , imgIndexPtr
-                           , frameIndexRef
-                           , renderFinishedSems
-                           , imageAvailableSems
-                           , inFlightFences
-                           , cmdBuffersPtr = cmdBP
-                           , memories = transObjMemories
-                           , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
-    liftIO $ GLFW.pollEvents
-    needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
-      -- when khr out of date,
-      -- recreate swapchain
-      True → do
-        _ ← logDebug $ "vulkan khr out of date"
-        return True
-      _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-    sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-    when sizeChanged $ logDebug "glfw window size callback"
-    -- this is for the vaious events
-    -- such as key input and state changes
-    processEvents
-    -- this is for input calculations
-    processInput
-    runVk $ vkDeviceWaitIdle dev
+  shouldExit ← loadLoop window $ do
+    cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
+    -- cache any new tiles that have been created
+    oldDS ← gets drawSt
+    modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) }
+                    , sReload = False }
+    shouldLoad ← glfwMainLoop window $ do
+      stNew ← get
+      let lsNew = luaSt stNew
+          camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+      let rdata = RenderData { dev
+                             , swapInfo
+                             , queues
+                             , imgIndexPtr
+                             , frameIndexRef
+                             , renderFinishedSems
+                             , imageAvailableSems
+                             , inFlightFences
+                             , cmdBuffersPtr = cmdBP0
+                             , memories = transObjMemories
+                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
+      liftIO $ GLFW.pollEvents
+      needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+        -- when khr out of date,
+        -- recreate swapchain
+        True → do
+          _ ← logDebug $ "vulkan khr out of date"
+          return True
+        _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
+      sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
+      when sizeChanged $ logDebug "glfw window size callback"
+      -- this is for the vaious events
+      -- such as key input and state changes
+      processEvents
+      -- this is for input calculations
+      processInput
+      runVk $ vkDeviceWaitIdle dev
+      stateRecreate ← gets sRecreate
+      stateReload   ← gets sReload
+      return $ if needRecreation ∨ sizeChanged ∨ stateRecreate ∨ stateReload then AbortLoop else ContinueLoop
+    -- loop ends, now deallocate
     stateRecreate ← gets sRecreate
-    return $ if needRecreation ∨ sizeChanged ∨ stateRecreate then AbortLoop else ContinueLoop
-  -- loop ends, now deallocate
+    return $ if shouldLoad ∨ stateRecreate then AbortLoop else ContinueLoop
   return $ if shouldExit then AbortLoop else ContinueLoop
 
 genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
