@@ -44,14 +44,12 @@ createFramebuffers dev renderPass SwapchainInfo{swapExtent} swapImgViews depthIm
                 &* set @"layers" 1
            in  allocaPeek $ \fbPtr → withVkPtr fbci $ \fbciPtr → runVk $ vkCreateFramebuffer dev fbciPtr VK_NULL fbPtr
 
-createCommandBuffers ∷ VkDevice → VkPipeline → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → VkBuffer → (Word32, VkBuffer) → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
-createCommandBuffers dev pipeline pipeline1 commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) vertexBuffer1 (nIndices1, indexBuffer1) fbs descriptorSets
+createCommandBuffers ∷ VkDevice → VkPipeline → VkCommandPool → VkRenderPass → VkPipelineLayout → SwapchainInfo → VkBuffer → (Word32, VkBuffer) → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
+createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo{swapExtent} vertexBuffer (nIndices, indexBuffer) fbs descriptorSets
   | buffersCount ← length fbs = do
   cbsPtr ← mallocArrayRes buffersCount
   vertexBufArr ← newArrayRes [vertexBuffer]
   vertexOffArr ← newArrayRes [0]
-  vertexBufArr1 ← newArrayRes [vertexBuffer1]
-  vertexOffArr1 ← newArrayRes [0]
   allocResource
     (const $ liftIO $ vkFreeCommandBuffers dev commandPool (fromIntegral buffersCount) cbsPtr)
     $ do
@@ -90,12 +88,6 @@ createCommandBuffers dev pipeline pipeline1 commandPool rpass pipelineLayout Swa
      dsPtr ← newArrayRes [descriptorSet]
      liftIO $ vkCmdBindDescriptorSets cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipelineLayout 0 1 dsPtr 0 VK_NULL
      liftIO $ vkCmdDrawIndexed cmdBuffer nIndices 1 0 0 0
-     liftIO $ vkCmdBindPipeline cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipeline1
-     liftIO $ vkCmdBindVertexBuffers cmdBuffer 0 1 vertexBufArr1 vertexOffArr1
-     liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer1 0 VK_INDEX_TYPE_UINT32
-     dsPtr ← newArrayRes [descriptorSet]
-     liftIO $ vkCmdBindDescriptorSets cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipelineLayout 0 1 dsPtr 0 VK_NULL
-     liftIO $ vkCmdDrawIndexed cmdBuffer nIndices1 1 0 0 0
      liftIO $ vkCmdEndRenderPass cmdBuffer
      runVk $ vkEndCommandBuffer cmdBuffer
    return cbsPtr
@@ -123,9 +115,7 @@ data RenderData = RenderData
   , inFlightFences     ∷ Ptr VkFence
   , cmdBuffersPtr      ∷ Ptr VkCommandBuffer
   , memories           ∷ Ptr VkDeviceMemory
-  , memories1          ∷ Ptr VkDeviceMemory
-  , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ ()
-  , memoryMutator1     ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
+  , memoryMutator      ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
 
 drawFrame ∷ RenderData → Anamnesis ε σ Bool
 drawFrame RenderData{..} = do
@@ -141,11 +131,8 @@ drawFrame RenderData{..} = do
   imgIndex ← fromIntegral ⊚ peek imgIndexPtr
   let bufPtr  = cmdBuffersPtr `ptrAtIndex` imgIndex
       memPtr  = memories `ptrAtIndex` imgIndex
-      memPtr1 = memories1 `ptrAtIndex` imgIndex
   mem ← peek memPtr
   memoryMutator mem
-  mem1 ← peek memPtr1
-  memoryMutator1 mem1
   let submitInfo = [ createVk @VkSubmitInfo
           $  set @"sType" VK_STRUCTURE_TYPE_SUBMIT_INFO
           &* set @"pNext" VK_NULL

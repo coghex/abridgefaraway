@@ -72,8 +72,6 @@ data VulkanLoopData = VulkanLoopData
          , msaaSamples        ∷ VkSampleCountFlagBits
          , shaderVert         ∷ VkPipelineShaderStageCreateInfo
          , shaderFrag         ∷ VkPipelineShaderStageCreateInfo
-         , tshaderVert        ∷ VkPipelineShaderStageCreateInfo
-         , tshaderFrag        ∷ VkPipelineShaderStageCreateInfo
          , imgIndexPtr        ∷ Ptr Word32
          , windowSizeChanged  ∷ TVar Bool
          , frameIndexRef      ∷ TVar Int
