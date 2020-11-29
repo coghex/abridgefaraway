@@ -77,7 +77,7 @@ processCommand ∷ Env → LoadCmd → IO String
 processCommand env cmd = do
   ret ← case cmd of
     LoadCmdVerts ds → do
-      let newVerts = Verts $ calcVertices $ dsTiles ds ⧺ [defaultGTile {tTile = True}]
+      let newVerts = Verts $ calcVertices $ dsTiles ds ⧺ [defaultGTile {tTile = True}, defaultGTile {tTile = True, tPos = (1,1)}]
       atomically $ writeQueue (envEventsChan env) $ EventLoadedVerts newVerts
       return "success"
     -- converts luaState to drawState

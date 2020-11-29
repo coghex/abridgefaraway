@@ -152,6 +152,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       stNew ← get
       let lsNew = luaSt stNew
           camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+          testNew = sTest stNew
+          nDynNew = sNDynObjs stNew
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -164,7 +166,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , memories = transObjMemories
                              , dynMemories = transDynMemories
                              , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
-                             , dynMemoryMutator = updateTransDyn camNew dev (swapExtent swapInfo) }
+                             , dynMemoryMutator = updateTransDyn testNew nDynNew dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
       needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
@@ -195,7 +197,7 @@ genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData 
       let dsNew = drawSt stNew
           (verts0, inds0) = case (sVertCache stNew) of
             Just (Verts verts) → verts
-            Nothing            → calcVertices $ dsTiles dsNew ⧺ [defaultGTile {tTile = True}]
+            Nothing            → calcVertices $ dsTiles dsNew ⧺ [defaultGTile {tTile = True}, defaultGTile {tTile = True, tPos = (1,1)}]
       vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
       indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
       newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets

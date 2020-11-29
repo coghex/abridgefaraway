@@ -76,6 +76,7 @@ applyKeyLayout keyLayout "RGT" = klRgt keyLayout
 applyKeyLayout keyLayout "UP"  = klUp  keyLayout
 applyKeyLayout keyLayout "DWN" = klDwn keyLayout
 applyKeyLayout keyLayout "SH"  = klSh  keyLayout
+applyKeyLayout _         "K"   = "K"
 applyKeyLayout _         _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)

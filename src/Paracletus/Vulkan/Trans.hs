@@ -61,16 +61,20 @@ updateTransObj cam device extent uniBuf = do
         height = getField @"height" extent
         --aspectRatio = fromIntegral width / fromIntegral height
 
-updateTransDyn ∷ (Float,Float,Float) → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
-updateTransDyn cam device extent uniBuf = do
-  uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @DynTransObject undefined) VK_ZERO_FLAGS
+updateTransDyn ∷ Int → Int → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
+updateTransDyn _      0    _      _      _      = return ()
+updateTransDyn dyncam nDyn device extent uniBuf = do
+  let nDyn'   = (fromIntegral nDyn) - 1
+  uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf (nDyn'*(bSizeOf @DynTransObject undefined)) (bSizeOf @DynTransObject undefined) VK_ZERO_FLAGS
   let move = DF4
                 (DF4 1 0 0 0)
                 (DF4 0 1 0 0)
                 (DF4 0 0 1 0)
-                (DF4 0 0 0 1)
+                (DF4 0 dyncam' 0 1)
+      dyncam' = fromIntegral dyncam
   poke (castPtr uboPtr) (scalar $ DynTransObject {..})
   liftIO $ vkUnmapMemory device uniBuf
+  updateTransDyn dyncam (nDyn - 1) device extent uniBuf
 
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransObjBuffers pdev dev n = replicateM n $ createBuffer pdev dev (bSizeOf @TransformationObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
@@ -82,10 +86,12 @@ transObjBufferInfo uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   &* set @"range" (bSizeOf @TransformationObject undefined)
 
 createTransDynBuffers ∷ VkPhysicalDevice → VkDevice → Int → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
-createTransDynBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (bSizeOf @DynTransObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+createTransDynBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (nDyn'*(bSizeOf @DynTransObject undefined)) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+  where nDyn' = fromIntegral nDyn
 
 transDynBufferInfo ∷ Int → VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
 transDynBufferInfo nDyn uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0
-  &* set @"range" (bSizeOf @DynTransObject undefined)
+  &* set @"range" (nDyn'*(bSizeOf @DynTransObject undefined))
+  where nDyn' = fromIntegral nDyn
