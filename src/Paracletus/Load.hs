@@ -96,7 +96,7 @@ processCommand env cmd = do
       if ((winType currWin) ≡ WinTypeGame) then do
         let newLS   = loadWorld ls
             newDS'  = loadDrawState newLS
-            newDS   = DrawState { dsTiles = cacheAllGTiles (dsTiles newDS') }
+            newDS   = newDS'--DrawState { dsTiles = cacheAllGTiles (dsTiles newDS') }
         atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS
         atomically $ writeQueue (envEventsChan env) $ EventLoadedDrawState newDS
         return "success"

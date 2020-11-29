@@ -52,4 +52,4 @@ destroyVulkanInstance vkInstance = liftIO (vkDestroyInstance vkInstance VK_NULL)
 createGLFWVulkanInstance ∷ String → Anamnesis ε σ VkInstance
 createGLFWVulkanInstance progName = do
   glfwReqExts ← liftIO GLFW.getRequiredInstanceExtensions
-  createVulkanInstance progName "paracletus" glfwReqExts []
+  createVulkanInstance progName "paracletus" (glfwReqExts) []

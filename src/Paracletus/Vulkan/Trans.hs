@@ -67,9 +67,9 @@ updateTransDyn dyncam nDyn device extent uniBuf = do
   let nDyn'   = (fromIntegral nDyn) - 1
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf (nDyn'*(bSizeOf @DynTransObject undefined)) (bSizeOf @DynTransObject undefined) VK_ZERO_FLAGS
   let move = DF4
-                (DF4 1 0 0 0)
-                (DF4 0 1 0 0)
-                (DF4 0 0 1 0)
+                (DF4 2 0 0 0)
+                (DF4 0 2 0 0)
+                (DF4 0 0 2 0)
                 (DF4 0 dyncam' 0 1)
       dyncam' = fromIntegral dyncam
   poke (castPtr uboPtr) (scalar $ DynTransObject {..})

@@ -146,8 +146,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       Just (Verts verts) → modify $ \s → s { sReload = False }
       Nothing            → do
         oldDS ← gets drawSt
-        modify $ \s → s { drawSt = oldDS { dsTiles = cacheAllGTiles (dsTiles oldDS) }
-                        , sReload = False }
+        modify $ \s → s { sReload = False }
     shouldLoad ← glfwMainLoop window $ do
       stNew ← get
       let lsNew = luaSt stNew

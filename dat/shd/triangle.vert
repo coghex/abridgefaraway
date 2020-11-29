@@ -11,7 +11,7 @@ layout(binding = 0) uniform TransformationObject {
 } trans;
 
 layout(binding = 2) uniform DynTransObject {
-  mat4 move;
+  mat4 move[32];
 } dyn;
 
 layout(location = 0) in vec3 inPosition;
@@ -34,7 +34,8 @@ void main() {
     vec4 col3 = vec4(0.0,0.0,-1.0,1.0);
     mat4 basicI = mat4(col0,col1,col2,col3);
     mat4 view = (inMove.z > 0.0) ? trans.view : basicI;
-    mat4 dynV = (inMove.y > 0.0) ? (trans.model * dyn.move) : trans.model;
+    int dynI = int(floor (inMove.y - 0.5));
+    mat4 dynV = (inMove.y > 0.0) ? (trans.model * (dyn.move[dynI])) : trans.model;
     gl_Position = trans.proj * view * dynV * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord.xy;

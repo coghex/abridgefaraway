@@ -1,8 +1,7 @@
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE KindSignatures #-}
 module Paracletus.Vulkan.Calc
-  ( calcVertices
-  , cacheAllGTiles )
+  ( calcVertices )
 where
 -- translations from lua state to draw
 -- state are defined, should be run
@@ -25,38 +24,17 @@ import Paracletus.Vulkan.Vertex
 calcVertices ∷ [GTile] →  (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
 calcVertices ts = (vertices ts, indices ts)
 
-cacheAllGTiles ∷ [GTile] → [GTile]
-cacheAllGTiles gts = map cacheGTile gts
-cacheGTile ∷ GTile → GTile
-cacheGTile (GTileCached d) = GTileCached d
-cacheGTile (GTileUncached pos scale ind size t tiles moves) = GTileCached (verts)
-  where verts = withMove (+ vec3 0 dyn m) (withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t') (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs))))
-        (x',y') = pos
-        (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
-        (ax', ay') = ind
-        ( ax,  ay) = (fromIntegral ax', fromIntegral ay')
-        m = case (moves) of
-              True  → 1.0
-              False → 0.0
-        dyn = case (tiles) of
-              True  → 1.0
-              False → 0.0
-        (xscale',yscale') = scale
-        (xscale, yscale)  = (realToFrac xscale', realToFrac yscale')
-        (sx, sy) = size
-        t' = fromIntegral $ t
-
 -- combines all GTiles into a dataframe
 vertices ∷ [GTile] → DataFrame Vertex '[XN 0]
-vertices ts = fromList $ combineVertices ts
+vertices ts = fromList $ combineVertices 1 ts
 vertsqs ∷ [DataFrame Vertex ('[] ∷ [Nat])]
 vertsqs = [ S $ Vertex (vec3 (-1) (-1) 0) (vec4 1 0 0 1) (vec3 0 1 0.1) (vec3 0 0 0)
           , S $ Vertex (vec3   1  (-1) 0) (vec4 0 1 0 1) (vec3 1 1 0.1) (vec3 0 0 0)
           , S $ Vertex (vec3   1    1  0) (vec4 0 0 1 1) (vec3 1 0 0.1) (vec3 0 0 0)
           , S $ Vertex (vec3 (-1)   1  0) (vec4 1 1 1 1) (vec3 0 0 0.1) (vec3 0 0 0) ]
-combineVertices [] = []
-combineVertices ((GTileCached gtdata):tts) = gtdata ⧺ combineVertices tts
-combineVertices (tile:tts) = withMove (+ vec3 0 dyn m) (withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs)))) ⧺ combineVertices tts
+combineVertices _ [] = []
+combineVertices nTile ((GTileCached gtdata):tts) = gtdata ⧺ combineVertices nTile tts
+combineVertices nTile (tile:tts) = withMove (+ vec3 0 dyn m) (withTC (indexAtlas ax ay sx sy) (withTC (+ vec3 0 0 t) (withPos (+ vec4 x0 y0 0 0) (withScale (* vec3 xscale yscale 1) vertsqs)))) ⧺ combineVertices (nextnTile) tts
   where (x',y') = tPos tile
         (x0,y0) = (realToFrac(2*x'), realToFrac(2*y'))
         (ax', ay') = tInd tile
@@ -65,8 +43,11 @@ combineVertices (tile:tts) = withMove (+ vec3 0 dyn m) (withTC (indexAtlas ax ay
               True  → 1.0
               False → 0.0
         dyn = case (tTile tile) of
-              True  → 1.0
+              True  → fromIntegral nTile
               False → 0.0
+        nextnTile = case (tTile tile) of
+              True  → nTile + 1
+              False → nTile
         (xscale',yscale') = tScale tile
         (xscale, yscale)  = (realToFrac xscale', realToFrac yscale')
         (sx, sy) = tSize tile
