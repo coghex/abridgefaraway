@@ -117,12 +117,16 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
+  nDynObjs ← gets sNDynObjs
+  (transDynMems, transDynBufs) ← unzip ⊚ createTransDynBuffers pdev dev swapchainLen nDynObjs
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
+  dynDescBufInfos ← mapM (transDynBufferInfo nDynObjs) transDynBufs
   descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
   descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
   descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-  forM_ (zip descriptorBufferInfos descriptorSets) $ \(bufInfo, dSet) → prepareDescriptorSet dev bufInfo (descTexInfo texData) dSet (nimages texData)
+  forM_ (zip3 descriptorBufferInfos dynDescBufInfos descriptorSets) $ \(bufInfo, dynBufInfo, dSet) → prepareDescriptorSet dev bufInfo dynBufInfo (descTexInfo texData) dSet (nimages texData)
   transObjMemories ← newArrayRes transObjMems
+  transDynMemories ← newArrayRes transDynMems
   imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
   --logDebug $ "created image views: " ⧺ show imgViews
   renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
@@ -158,7 +162,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , inFlightFences
                              , cmdBuffersPtr = cmdBP0
                              , memories = transObjMemories
-                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo) }
+                             , dynMemories = transDynMemories
+                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
+                             , dynMemoryMutator = updateTransDyn camNew dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
       needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
@@ -189,7 +195,7 @@ genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData 
       let dsNew = drawSt stNew
           (verts0, inds0) = case (sVertCache stNew) of
             Just (Verts verts) → verts
-            Nothing            → calcVertices False $ dsTiles dsNew
+            Nothing            → calcVertices $ dsTiles dsNew ⧺ [defaultGTile {tTile = True}]
       vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
       indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
       newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets

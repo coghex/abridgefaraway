@@ -18,6 +18,11 @@ import Anamnesis.Foreign
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Buffer
 
+data DynTransObject = DynTransObject
+  { move ∷ Mat44f
+  } deriving (Show, Generic)
+instance PrimBytes DynTransObject
+
 data TransformationObject = TransformationObject
   { model ∷ Mat44f
   , view  ∷ Mat44f
@@ -56,6 +61,17 @@ updateTransObj cam device extent uniBuf = do
         height = getField @"height" extent
         --aspectRatio = fromIntegral width / fromIntegral height
 
+updateTransDyn ∷ (Float,Float,Float) → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
+updateTransDyn cam device extent uniBuf = do
+  uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf 0 (bSizeOf @DynTransObject undefined) VK_ZERO_FLAGS
+  let move = DF4
+                (DF4 1 0 0 0)
+                (DF4 0 1 0 0)
+                (DF4 0 0 1 0)
+                (DF4 0 0 0 1)
+  poke (castPtr uboPtr) (scalar $ DynTransObject {..})
+  liftIO $ vkUnmapMemory device uniBuf
+
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransObjBuffers pdev dev n = replicateM n $ createBuffer pdev dev (bSizeOf @TransformationObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
 
@@ -64,3 +80,12 @@ transObjBufferInfo uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0
   &* set @"range" (bSizeOf @TransformationObject undefined)
+
+createTransDynBuffers ∷ VkPhysicalDevice → VkDevice → Int → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
+createTransDynBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (bSizeOf @DynTransObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+
+transDynBufferInfo ∷ Int → VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
+transDynBufferInfo nDyn uniformBuffer = return $ createVk @VkDescriptorBufferInfo
+  $  set @"buffer" uniformBuffer
+  &* set @"offset" 0
+  &* set @"range" (bSizeOf @DynTransObject undefined)

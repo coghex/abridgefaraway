@@ -30,6 +30,7 @@ data State = State { status       ∷ AExcept
                    , luaSt        ∷ !LuaState
                    , inputState   ∷ !InputState
                    , sVertCache   ∷ !(Maybe Verts)
+                   , sNDynObjs    ∷ Int
                    , sReload      ∷ Bool
                    , sRecreate    ∷ Bool
                    , sTick        ∷ Maybe Double }

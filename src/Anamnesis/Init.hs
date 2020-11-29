@@ -62,6 +62,7 @@ initState = do
                              , luaSt        = ls
                              , inputState   = is
                              , sVertCache   = Nothing
+                             , sNDynObjs    = 0
                              , sRecreate    = False
                              , sReload      = False
                              , sTick        = Nothing }
