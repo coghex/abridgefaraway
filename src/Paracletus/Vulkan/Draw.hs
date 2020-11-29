@@ -87,6 +87,10 @@ createCommandBuffers dev pipeline commandPool rpass pipelineLayout SwapchainInfo
      liftIO $ vkCmdBindIndexBuffer cmdBuffer indexBuffer 0 VK_INDEX_TYPE_UINT32
      dsPtr ← newArrayRes [descriptorSet]
      liftIO $ vkCmdBindDescriptorSets cmdBuffer VK_PIPELINE_BIND_POINT_GRAPHICS pipelineLayout 0 1 dsPtr 0 VK_NULL
+     -- this code freezes with no messages
+     --let pcData = PushConstantData (vec4 0 0 0 0)
+     --pcPtr ← newArrayRes [pcData]
+     --liftIO $ vkCmdPushConstantsSafe cmdBuffer pipelineLayout VK_SHADER_STAGE_VERTEX_BIT 0 (bSizeOf @PushConstantData undefined) (castPtr pcPtr)
      liftIO $ vkCmdDrawIndexed cmdBuffer nIndices 1 0 0 0
      liftIO $ vkCmdEndRenderPass cmdBuffer
      runVk $ vkEndCommandBuffer cmdBuffer
