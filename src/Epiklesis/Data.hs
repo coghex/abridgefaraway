@@ -31,6 +31,7 @@ data Shell = Shell { shPrompt ∷ String
 -- are classified into types to provide
 -- different functionality to each window
 data LuaState = LuaState { luaState   ∷ Lua.State
+                         , luaFPS     ∷ Maybe Int
                          , luaConfig  ∷ LuaConfig
                          , luaCurrWin ∷ Int
                          , luaLastWin ∷ Int
@@ -89,6 +90,7 @@ data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewElem String WinElem WinElemCache
             | LuaCmdswitchWindow String
             | LuaCmdloadModule String
+            | LuaCmdtoggleFPS
             | LuaFind LFQuery
             | LuaError String
             | LuaCmdNULL-- deriving (Show, Eq)

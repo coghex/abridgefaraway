@@ -1,6 +1,7 @@
 {-# LANGUAGE Strict #-}
 module Anamnesis.Data where
 -- data for continuation monad
+import Data.Time.Clock.System
 import qualified Control.Monad.Logger as Logger
 import Artos.Data
 import Artos.Except
@@ -35,6 +36,7 @@ data State = State { status       ∷ AExcept
                    , sTest        ∷ Int
                    , sReload      ∷ Bool
                    , sRecreate    ∷ Bool
+                   , sStartTime   ∷ SystemTime
                    , sTick        ∷ Maybe Double }
 data Settings = Settings
   { settingScreenW   ∷ Int

@@ -8,6 +8,7 @@ module Anamnesis.Init where
 import Prelude()
 import UPrelude
 import qualified Control.Monad.Logger as Logger
+import Data.Time.Clock.System
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
@@ -44,6 +45,7 @@ initState = do
   lf ← Logger.runStdoutLoggingT $ Logger.LoggingT pure
   ls ← initLua
   ds ← initDrawState [tile1]
+  starttime ← getSystemTime
   let is = InputState { mouse1      = False
                       , mouse1Cache = (0.0,0.0)
                       , mouse2      = False
@@ -63,8 +65,9 @@ initState = do
                              , inputState   = is
                              , sVertCache   = Nothing
                              , sNDynObjs    = 2
-                             , sDynData     = [DynData (0.0,0.0), DynData (0.0,0.0)]
+                             , sDynData     = []
                              , sTest        = 0
                              , sRecreate    = False
                              , sReload      = False
+                             , sStartTime   = starttime
                              , sTick        = Nothing }

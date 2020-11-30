@@ -24,11 +24,12 @@ initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
   initLC ← initLuaConfig ls "mod/base/config.lua"
-  return $ LuaState { luaState = ls
-                    , luaConfig = initLC
+  return $ LuaState { luaState   = ls
+                    , luaFPS     = Nothing
+                    , luaConfig  = initLC
                     , luaCurrWin = 0
                     , luaLastWin = 0
-                    , luaShell = initShell
+                    , luaShell   = initShell
                     , luaModules = []
                     , luaWindows = [] }
 
@@ -58,6 +59,7 @@ loadState env st = do
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.registerHaskellFunction "loadModule" (hsLoadModule env)
+    Lua.registerHaskellFunction "toggleFPS" (hsToggleFPS env)
     Lua.openlibs
     _ ← Lua.dofile $ "mod/base/base.lua"
     ret ← Lua.callFunc "initLua"
@@ -153,6 +155,11 @@ hsLoadModule env fp = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdloadModule fp)
 
+hsToggleFPS ∷ Env → Lua.Lua ()
+hsToggleFPS env = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdtoggleFPS)
+
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
 findReqTextures win = findTexturesFromElems $ reverse $ sort $ winElems win
@@ -191,4 +198,4 @@ changeCurrWin n ls = ls { luaCurrWin = n
 -- currwin and wins are created
 -- together, the outcome is known
 currentWindow ∷ LuaState → Window
-currentWindow (LuaState _ _ currWin _ _ _ wins) = wins !! currWin
+currentWindow (LuaState _ _ _ currWin _ _ _ wins) = wins !! currWin

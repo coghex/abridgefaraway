@@ -20,5 +20,7 @@ writeTVar = STM.writeTVar
 -- requires bangpatterns
 modifyTVar ∷ TVar α → (α → (α, β)) → STM.STM β
 modifyTVar ref f = STM.readTVar ref ⌦ \a → f a & \(!a', !b) → STM.writeTVar ref a' ⚞ b
+modifyTVar' ∷ TVar α → (α → α) → STM.STM ()
+modifyTVar' = STM.modifyTVar'
 atomically ∷ STM.STM α → IO α
 atomically = STM.atomically

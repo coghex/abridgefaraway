@@ -5,6 +5,7 @@ import Prelude()
 import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad.State.Class (modify,gets)
+import Data.Time.Clock.System
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
@@ -119,6 +120,16 @@ processEvent event = case event of
         else do
           modify $ \s → s { luaSt = changeCurrWin winNum ls }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      (LuaCmdtoggleFPS) → do
+        ls ← gets luaSt
+        case (luaFPS ls) of
+          Just _  → modify $ \s → s { luaSt = newLS }
+            where newLS = ls { luaFPS = Nothing }
+          Nothing → do
+            starttime ← liftIO $ getSystemTime
+            modify $ \s → s { sStartTime = starttime
+                            , luaSt = newLS }
+              where newLS = ls { luaFPS = Just 0 }
       (LuaError str) → logWarn str
       (LuaFind lfCommand) → case lfCommand of
         (LFScreenCursor) → do

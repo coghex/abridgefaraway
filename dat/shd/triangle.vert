@@ -14,6 +14,10 @@ layout(binding = 2) uniform DynTransObject {
   mat4 move[32];
 } dyn;
 
+layout(binding = 3) uniform DynTexTransObject {
+  ivec3 dynTexI;
+} dynTex;
+
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec4 inColor;
 layout(location = 2) in vec3 inTexCoord;

@@ -1,4 +1,5 @@
 {-# LANGUAGE Strict #-}
+{-# LANGUAGE TypeApplications #-}
 module Paracletus.Vulkan where
 -- vulkan specific calls are made
 import Prelude()
@@ -6,6 +7,7 @@ import UPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (forM_, when)
 import Control.Monad.State.Class (gets, modify)
+import Data.List (zip4)
 import Graphics.Vulkan.Core_1_0
 import Graphics.Vulkan.Ext.VK_KHR_swapchain
 import Anamnesis
@@ -119,14 +121,17 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
   nDynObjs ← gets sNDynObjs
   (transDynMems, transDynBufs) ← unzip ⊚ createTransDynBuffers pdev dev swapchainLen nDynObjs
+  (transTexMems, transTexBufs) ← unzip ⊚ createTransTexBuffers pdev dev swapchainLen nDynObjs
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
   dynDescBufInfos ← mapM (transDynBufferInfo nDynObjs) transDynBufs
+  dynTexDescBufInfos ← mapM (transTexBufferInfo nDynObjs) transTexBufs
   descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
   descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
   descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-  forM_ (zip3 descriptorBufferInfos dynDescBufInfos descriptorSets) $ \(bufInfo, dynBufInfo, dSet) → prepareDescriptorSet dev bufInfo dynBufInfo (descTexInfo texData) dSet (nimages texData)
+  forM_ (zip4 descriptorBufferInfos dynDescBufInfos dynTexDescBufInfos descriptorSets) $ \(bufInfo, dynBufInfo, dynTexDescBufInfos, dSet) → prepareDescriptorSet dev bufInfo dynBufInfo dynTexDescBufInfos (descTexInfo texData) dSet (nimages texData)
   transObjMemories ← newArrayRes transObjMems
   transDynMemories ← newArrayRes transDynMems
+  transTexMemories ← newArrayRes transTexMems
   imgViews ← mapM (\image → createImageView dev image (swapImgFormat swapInfo) VK_IMAGE_ASPECT_COLOR_BIT 1) (swapImgs swapInfo)
   --logDebug $ "created image views: " ⧺ show imgViews
   renderPass ← createRenderPass dev swapInfo (depthFormat texData) msaaSamples
@@ -137,6 +142,9 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   depthAttImgView ← createDepthAttImgView pdev dev commandPool (graphicsQueue queues) (swapExtent swapInfo) msaaSamples
   framebuffers ← createFramebuffers dev renderPass swapInfo imgViews depthAttImgView colorAttImgView
   --logDebug $ "created framebuffers: " ⧺ show framebuffers
+  -- dumb fps counter
+  frameCount ← liftIO $ atomically $ newTVar @Int 0
+  currentSec ← liftIO $ atomically $ newTVar @Int 0
   shouldExit ← loadLoop window $ do
     cmdBP0 ← genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData swapInfo framebuffers descriptorSets
     -- cache any new tiles that have been created
@@ -165,8 +173,10 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , cmdBuffersPtr = cmdBP0
                              , memories = transObjMemories
                              , dynMemories = transDynMemories
+                             , texMemories = transTexMemories
                              , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
-                             , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo) }
+                             , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo)
+                             , texMemoryMutator = updateTransTex nDynNew nDynData dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
       needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
@@ -182,7 +192,27 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       processEvents
       -- this is for input calculations
       processInput
+      newLS ← gets luaSt
+      -- dumb fps counter
+      case (luaFPS newLS) of
+        Just _ → do
+          seconds ← getTime
+          cur ← liftIO $ atomically $ readTVar currentSec
+          if floor seconds /= cur
+          then do
+            count ← liftIO $ atomically $ readTVar frameCount
+            newLS' ← gets luaSt
+            let newLS' = newLS { luaFPS = Just count }
+            when (cur /= 0) $ modify $ \s → s { luaSt = newLS' }
+            liftIO $ do
+              atomically $ writeTVar currentSec (floor seconds)
+              atomically $ writeTVar frameCount 0
+          else liftIO $ atomically $ modifyTVar' frameCount succ
+        Nothing → return ()
+      -- wait idle because it seems needed
+      -- at least once every frame
       runVk $ vkDeviceWaitIdle dev
+      -- recreation check
       stateRecreate ← gets sRecreate
       stateReload   ← gets sReload
       return $ if needRecreation ∨ sizeChanged ∨ stateRecreate ∨ stateReload then AbortLoop else ContinueLoop
@@ -197,7 +227,7 @@ genCommandBuffs dev pdev commandPool queues graphicsPipeline renderPass texData 
       let dsNew = drawSt stNew
           (verts0, inds0) = case (sVertCache stNew) of
             Just (Verts verts) → verts
-            Nothing            → calcVertices $ dsTiles dsNew ⧺ [defaultGTile {tTile = True}, defaultGTile {tTile = True, tPos = (1,1)}]
+            Nothing            → calcVertices $ dsTiles dsNew
       vertexBufferNew ← createVertexBuffer pdev dev commandPool (graphicsQueue queues) verts0
       indexBufferNew ← createIndexBuffer pdev dev commandPool (graphicsQueue queues) inds0
       newCmdBP ← createCommandBuffers dev graphicsPipeline commandPool renderPass (pipelineLayout texData) swapInfo vertexBufferNew (dfLen inds0, indexBufferNew) framebuffers descriptorSets

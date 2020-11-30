@@ -56,6 +56,7 @@ defaultGTile = GTileUncached { tPos   = (0,0)
 -- data for dynamic object transformations
 data DynData = DynData
          { ddPosition ∷ (Float,Float)
+         , ddTIndex   ∷ (Int,Int)
          } deriving (Show, Eq)
 
 -- all the data required for a set of textures
