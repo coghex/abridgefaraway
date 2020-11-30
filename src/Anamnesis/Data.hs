@@ -31,6 +31,7 @@ data State = State { status       ∷ AExcept
                    , inputState   ∷ !InputState
                    , sVertCache   ∷ !(Maybe Verts)
                    , sNDynObjs    ∷ Int
+                   , sDynData     ∷ [DynData]
                    , sTest        ∷ Int
                    , sReload      ∷ Bool
                    , sRecreate    ∷ Bool

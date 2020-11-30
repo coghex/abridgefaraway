@@ -53,6 +53,11 @@ defaultGTile = GTileUncached { tPos   = (0,0)
                              , tTile  = False
                              , tMoves = False }
 
+-- data for dynamic object transformations
+data DynData = DynData
+         { ddPosition ∷ (Float,Float)
+         } deriving (Show, Eq)
+
 -- all the data required for a set of textures
 data TextureData = TextureData
          { descSetLayout  ∷ VkDescriptorSetLayout

@@ -25,16 +25,6 @@ data SwapchainInfo = SwapchainInfo
          , swapExtent    ∷ VkExtent2D
          } deriving (Eq, Show)
 
--- data passed to the GPU using push constants
-data PushConstantData = PushConstantData
-         { pcMove ∷ Vec4f
-         } deriving (Eq, Show, Generic)
-instance PrimBytes PushConstantData
-instance Storable PushConstantData where
-  sizeOf a    = sizeOf $ pcMove a
-  peek a      = error "peek not implemented"
-  alignment a = alignment $ pcMove a
-
 -- the data required to create the texture
 -- from the graphicsqueue and command pool
 data GQData = GQData

@@ -17,6 +17,7 @@ import Anamnesis
 import Anamnesis.Foreign
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Buffer
+import Paracletus.Data
 
 data DynTransObject = DynTransObject
   { move ∷ Mat44f
@@ -61,20 +62,22 @@ updateTransObj cam device extent uniBuf = do
         height = getField @"height" extent
         --aspectRatio = fromIntegral width / fromIntegral height
 
-updateTransDyn ∷ Int → Int → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
-updateTransDyn _      0    _      _      _      = return ()
-updateTransDyn dyncam nDyn device extent uniBuf = do
+updateTransDyn ∷ Int → [DynData] → VkDevice → VkExtent2D → VkDeviceMemory → Anamnesis ε σ ()
+updateTransDyn _    []       _      _      _      = return ()
+updateTransDyn 0    _        _      _      _      = return ()
+updateTransDyn nDyn (dd:dds) device extent uniBuf = do
   let nDyn'   = (fromIntegral nDyn) - 1
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf (nDyn'*(bSizeOf @DynTransObject undefined)) (bSizeOf @DynTransObject undefined) VK_ZERO_FLAGS
   let move = DF4
                 (DF4 2 0 0 0)
                 (DF4 0 2 0 0)
                 (DF4 0 0 2 0)
-                (DF4 0 dyncam' 0 1)
-      dyncam' = fromIntegral dyncam
+                (DF4 x y 0 1)
+      (x ,y)  = (realToFrac x', realToFrac y')
+      (x',y') = ddPosition dd
   poke (castPtr uboPtr) (scalar $ DynTransObject {..})
   liftIO $ vkUnmapMemory device uniBuf
-  updateTransDyn dyncam (nDyn - 1) device extent uniBuf
+  updateTransDyn (nDyn - 1) dds device extent uniBuf
 
 createTransObjBuffers ∷ VkPhysicalDevice → VkDevice → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransObjBuffers pdev dev n = replicateM n $ createBuffer pdev dev (bSizeOf @TransformationObject undefined) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)

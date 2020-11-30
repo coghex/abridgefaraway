@@ -153,6 +153,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
           camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
           testNew = sTest stNew
           nDynNew = sNDynObjs stNew
+          nDynData = sDynData stNew
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -165,7 +166,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , memories = transObjMemories
                              , dynMemories = transDynMemories
                              , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
-                             , dynMemoryMutator = updateTransDyn testNew nDynNew dev (swapExtent swapInfo) }
+                             , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
       needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,

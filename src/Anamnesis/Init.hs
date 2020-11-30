@@ -63,6 +63,7 @@ initState = do
                              , inputState   = is
                              , sVertCache   = Nothing
                              , sNDynObjs    = 2
+                             , sDynData     = [DynData (0.0,0.0), DynData (0.0,0.0)]
                              , sTest        = 0
                              , sRecreate    = False
                              , sReload      = False

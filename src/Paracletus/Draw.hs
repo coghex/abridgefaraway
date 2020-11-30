@@ -9,6 +9,7 @@ import Data.List (sort, sortBy)
 import Data.List.Split (splitOn)
 import Data.Function (on)
 import Anamnesis.Data
+import Anamnesis.Map
 import Epiklesis.Data
 import Epiklesis.Elems
 import Epiklesis.Shell
@@ -91,4 +92,18 @@ calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,c
           ix = (tileType gspot) `mod` 3
           iy = (tileType gspot) `div` 3
 
+
+moveDynTile ∷ [DynData] → Int → Cardinal → Float → [DynData]
+moveDynTile dd n card dist = moveDynTileF 0 dd n card dist
+moveDynTileF _ []       _ _    _    = []
+moveDynTileF i (dd:dds) n card dist = [dd'] ⧺ moveDynTileF (i+1) dds n card dist
+  where dd'    = if (i ≡ n) then newdd else dd
+        newdd  = dd { ddPosition = newPos }
+        newPos = case card of
+                   North → (x,y + dist)
+                   South → (x,y - dist)
+                   East  → (x + dist,y)
+                   West  → (x - dist,y)
+                   _     → (x,y)
+        (x,y)  = ddPosition dd
 
