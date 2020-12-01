@@ -24,14 +24,16 @@ initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
   initLC ← initLuaConfig ls "mod/base/config.lua"
-  return $ LuaState { luaState   = ls
-                    , luaFPS     = Nothing
-                    , luaConfig  = initLC
-                    , luaCurrWin = 0
-                    , luaLastWin = 0
-                    , luaShell   = initShell
-                    , luaModules = []
-                    , luaWindows = [] }
+  return $ LuaState { luaState    = ls
+                    , luaFPS      = Nothing
+                    , luaConfig   = initLC
+                    , luaCurrWin  = 0
+                    , luaLastWin  = 0
+                    , luaShell    = initShell
+                    , luaNDynObjs = 0
+                    , luaDynData  = []
+                    , luaModules  = []
+                    , luaWindows  = [] }
 
 initLuaConfig ∷ Lua.State → String → IO (LuaConfig)
 initLuaConfig ls fn = Lua.runWith ls $ do
@@ -198,4 +200,4 @@ changeCurrWin n ls = ls { luaCurrWin = n
 -- currwin and wins are created
 -- together, the outcome is known
 currentWindow ∷ LuaState → Window
-currentWindow (LuaState _ _ _ currWin _ _ _ wins) = wins !! currWin
+currentWindow (LuaState _ _ _ currWin _ _ _ _ _ wins) = wins !! currWin

@@ -31,10 +31,6 @@ evalKey window k ks mk keyLayout = do
   -- glfw is parent thread, so this
   -- will close everything
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
-  when (GLFW.keyCheck cap keyLayout k "H") $ modify' $ \s → s { sDynData = moveDynTile (sDynData st) 0 West  0.1 }
-  when (GLFW.keyCheck cap keyLayout k "J") $ modify' $ \s → s { sDynData = moveDynTile (sDynData st) 0 South 0.1 }
-  when (GLFW.keyCheck cap keyLayout k "K") $ modify' $ \s → s { sDynData = moveDynTile (sDynData st) 1 North 0.1 }
-  when (GLFW.keyCheck cap keyLayout k "L") $ modify' $ \s → s { sDynData = moveDynTile (sDynData st) 1 East  0.1 }
   -- directional keys move camera in game
   -- windows, move cursor in menus
   when (GLFW.keyCheck cap keyLayout k "UP") $ do

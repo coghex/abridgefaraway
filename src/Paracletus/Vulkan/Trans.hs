@@ -106,24 +106,28 @@ transObjBufferInfo uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   &* set @"offset" 0
   &* set @"range" (bSizeOf @TransformationObject undefined)
 
+-- vulkan cant create zero size buffers,
+-- so we must check here and make a dummy
+-- 1 size buffer for dyn and tex
 createTransDynBuffers ∷ VkPhysicalDevice → VkDevice → Int → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransDynBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (nDyn'*(bSizeOf @DynTransObject undefined)) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-  where nDyn' = fromIntegral nDyn
+  where nDyn' = max 1 $ fromIntegral nDyn
 
 transDynBufferInfo ∷ Int → VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
+
 transDynBufferInfo nDyn uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0
   &* set @"range" (nDyn'*(bSizeOf @DynTransObject undefined))
-  where nDyn' = fromIntegral nDyn
+  where nDyn' = max 1 $ fromIntegral nDyn
 
 createTransTexBuffers ∷ VkPhysicalDevice → VkDevice → Int → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransTexBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (nDyn'*(bSizeOf @DynTexTransObject undefined)) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-  where nDyn' = fromIntegral nDyn
+  where nDyn' = max 1 $ fromIntegral nDyn
 
 transTexBufferInfo ∷ Int → VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
 transTexBufferInfo nDyn uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0
   &* set @"range" (nDyn'*(bSizeOf @DynTexTransObject undefined))
-  where nDyn' = fromIntegral nDyn
+  where nDyn' = max 1 $ fromIntegral nDyn

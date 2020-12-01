@@ -116,10 +116,11 @@ runParacVulkan = do
 
 vulkLoop ∷ VulkanLoopData → Anamnesis ε σ (LoopControl)
 vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
+  st ← get
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-  nDynObjs ← gets sNDynObjs
+  let nDynObjs = luaNDynObjs $ luaSt st
   (transDynMems, transDynBufs) ← unzip ⊚ createTransDynBuffers pdev dev swapchainLen nDynObjs
   (transTexMems, transTexBufs) ← unzip ⊚ createTransTexBuffers pdev dev swapchainLen nDynObjs
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
@@ -160,8 +161,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       let lsNew = luaSt stNew
           camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
           testNew = sTest stNew
-          nDynNew = sNDynObjs stNew
-          nDynData = sDynData stNew
+          nDynNew = luaNDynObjs lsNew
+          nDynData = luaDynData lsNew
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -178,7 +179,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo)
                              , texMemoryMutator = updateTransTex nDynNew nDynData dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
-      needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+      needRecreation ← drawFrame nDynNew rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
         -- recreate swapchain
         True → do

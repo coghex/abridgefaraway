@@ -30,14 +30,16 @@ data Shell = Shell { shPrompt ∷ String
 -- can be any number of things, windows
 -- are classified into types to provide
 -- different functionality to each window
-data LuaState = LuaState { luaState   ∷ Lua.State
-                         , luaFPS     ∷ Maybe Int
-                         , luaConfig  ∷ LuaConfig
-                         , luaCurrWin ∷ Int
-                         , luaLastWin ∷ Int
-                         , luaShell   ∷ Shell
-                         , luaModules ∷ [Module]
-                         , luaWindows ∷ [Window] }
+data LuaState = LuaState { luaState    ∷ Lua.State
+                         , luaFPS      ∷ Maybe Int
+                         , luaConfig   ∷ LuaConfig
+                         , luaCurrWin  ∷ Int
+                         , luaLastWin  ∷ Int
+                         , luaShell    ∷ Shell
+                         , luaNDynObjs ∷ Int
+                         , luaDynData  ∷ [DynData]
+                         , luaModules  ∷ [Module]
+                         , luaWindows  ∷ [Window] }
 
 data LuaConfig = LuaConfig { lcKeyLayout ∷ KeyLayout }
 
