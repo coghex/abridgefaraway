@@ -10,7 +10,8 @@ import Paracletus.Data
 
 initDrawState ∷ [GTile] → IO DrawState
 initDrawState tiles = return $ DrawState
-  { dsTiles = tiles }
+  { dsTiles = tiles
+  , dsDyns  = [] }
 
 --addTile ∷ DrawState → DrawState
 --addTile ds = ds { dsTiles = newtiles }

@@ -17,6 +17,7 @@ import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Shell
+import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
@@ -31,6 +32,50 @@ evalKey window k ks mk keyLayout = do
   -- glfw is parent thread, so this
   -- will close everything
   when (GLFW.keyCheck False keyLayout k "ESC") $ liftIO $ GLFW.setWindowShouldClose window True
+  when (GLFW.keyCheck False keyLayout k "J") $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      ds ← gets drawSt
+      let incDyns ∷ [DynData] → [DynData]
+          incDyns []       = []
+          incDyns (dd:dds) = [dd'] ⧺ incDyns dds
+            where dd' = dd { ddPosition = pos }
+                  pos = ((fst oPos) + 0.2, snd oPos)
+                  oPos = ddPosition dd
+      modify' $ \s → s { drawSt = ds { dsDyns = incDyns (dsDyns ds) } }
+    else return ()
+  when (GLFW.keyCheck False keyLayout k "K") $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      ds ← gets drawSt
+      let incDyns ∷ [DynData] → [DynData]
+          incDyns []       = []
+          incDyns (dd:dds) = [dd'] ⧺ incDyns dds
+            where dd' = dd { ddPosition = pos }
+                  pos = ((fst oPos) - 0.2, snd oPos)
+                  oPos = ddPosition dd
+      modify' $ \s → s { drawSt = ds { dsDyns = incDyns (dsDyns ds) } }
+    else return ()
+  when (GLFW.keyCheck False keyLayout k "L") $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      ds ← gets drawSt
+      let incDyns ∷ [DynData] → [DynData]
+          incDyns []       = []
+          incDyns (dd:dds) = [dd'] ⧺ incDyns dds
+            where dd' = dd { ddTIndex = ind }
+                  ind = ((fst oInd) + 1, snd oInd)
+                  oInd = ddTIndex dd
+      modify' $ \s → s { drawSt = ds { dsDyns = (incDyns (dsDyns ds)) } }
+    else return ()
+  when (GLFW.keyCheck False keyLayout k "H") $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      ds ← gets drawSt
+      let incDyns ∷ [DynData] → [DynData]
+          incDyns []       = []
+          incDyns (dd:dds) = [dd'] ⧺ incDyns dds
+            where dd' = dd { ddTIndex = ind }
+                  ind = ((fst oInd) - 1, snd oInd)
+                  oInd = ddTIndex dd
+      modify' $ \s → s { drawSt = ds { dsDyns = (incDyns (dsDyns ds)) } }
+    else return ()
   -- directional keys move camera in game
   -- windows, move cursor in menus
   when (GLFW.keyCheck cap keyLayout k "UP") $ do
@@ -219,6 +264,7 @@ isElemLink (WinElemLink _ _ _) = True
 isElemLink (WinElemWorld _ _ _) = False
 isElemLink (WinElemText _ _ _) = False
 isElemLink (WinElemBack _ )    = False
+isElemLink (WinElemDyn _ _)    = False
 isElemLink (WinElemNULL)       = False
 
 moveCamWithKeys ∷ Anamnesis ε σ ()

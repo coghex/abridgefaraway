@@ -19,11 +19,12 @@ import Paracletus.Oblatum.Data
 
 -- shell can be safely drawn over everything
 loadDrawState ∷ LuaState → DrawState
-loadDrawState ls = DrawState (tiles ⧺ shTiles)
+loadDrawState ls = DrawState (tiles ⧺ shTiles) dynData
   where tiles   = loadWindow currWin
         shTiles = genShell $ luaShell ls
         winInd  = luaCurrWin ls
         currWin = (luaWindows ls) !! winInd
+        dynData = calcDynData currWin
   
 loadWindow ∷ Window → [GTile]
 loadWindow win = loadWinElems $ reverse $ mysort (zip (winCache win) (winElems win))
@@ -42,7 +43,9 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
 loadWinElem (WinElemText pos False str) = addText False (fst pos) pos str
 loadWinElem (WinElemBack _ ) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]
 loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
-loadWinElem (WinElemLink _ _ _) = []
+loadWinElem (WinElemLink _ _ _)    = []
+loadWinElem (WinElemDyn DynFPS _)  = calcFPSTiles
+loadWinElem (WinElemDyn DynNULL _) = []
 loadWinElem WinElemNULL = []
 
 -- converts tiles in world data into GTile list
@@ -95,6 +98,7 @@ calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,c
 
 moveDynTile ∷ [DynData] → Int → Cardinal → Float → [DynData]
 moveDynTile dd n card dist = moveDynTileF 0 dd n card dist
+moveDynTileF ∷ Int → [DynData] → Int → Cardinal → Float → [DynData]
 moveDynTileF _ []       _ _    _    = []
 moveDynTileF i (dd:dds) n card dist = [dd'] ⧺ moveDynTileF (i+1) dds n card dist
   where dd'    = if (i ≡ n) then newdd else dd
@@ -106,4 +110,20 @@ moveDynTileF i (dd:dds) n card dist = [dd'] ⧺ moveDynTileF (i+1) dds n card di
                    West  → (x - dist,y)
                    _     → (x,y)
         (x,y)  = ddPosition dd
+
+-- returns dyn data structures from lua state
+calcDynData ∷ Window → [DynData]
+calcDynData win = calcDynDataElems $ winElems win
+calcDynDataElems ∷ [WinElem] → [DynData]
+calcDynDataElems []                      = []
+calcDynDataElems ((WinElemDyn _ dd):wes) = dd ⧺ calcDynDataElems wes
+calcDynDataElems (_:wes)                 = calcDynDataElems wes
+
+-- calculates tiles for fps
+calcFPSTiles ∷ [GTile]
+calcFPSTiles = [tile1,tile2,tile3,tile4]
+  where tile1 = GTileUncached (3,2)   (1,1) (12,4) (16,6) 1 True False
+        tile2 = GTileUncached (3.3,2) (1,1) (12,4) (16,6) 1 True False
+        tile3 = GTileUncached (3.6,2) (1,1) (12,4) (16,6) 1 True False
+        tile4 = GTileUncached (3.9,2) (1,1) (12,4) (16,6) 1 True False
 

@@ -18,7 +18,6 @@ data Event = EventError !GLFW.Error !String
            | EventLoadedLuaState !DrawState
            | EventLoadedVerts !Verts
            | EventLua !LuaCmd
-           -- | EventUpdateSegs !SegUpdateData
            | EventKey !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
            | EventMouseButton !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys-- deriving (Show)
 -- these functions act as synonyms

@@ -32,6 +32,9 @@ end
 function LuaWindow:addWorld (zx,zy,sx,sy,dp)
     newWorld ((self.lwName),zx,zy,sx,sy,dp)
 end
+function LuaWindow:addFPS ()
+    newDynObj ((self.lwName),"fps")
+end
 -- this runs once at the beginning
 function initLua ()
     -- basic UI elements can be in any order
@@ -47,6 +50,7 @@ function initLua ()
     menu2:setBackground ("dat/tex/texture1.png")
     menu2:newButton (-4.0, 0.0, "Create World", "link", "game1")
     menu2:newButton (-4.0, -4.0, "Back", "action", "back")
+    menu2:addFPS ()
 
     local game1 = LuaWindow:new ()
     game1:init("game1","game")

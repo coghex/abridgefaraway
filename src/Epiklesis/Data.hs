@@ -30,16 +30,14 @@ data Shell = Shell { shPrompt ∷ String
 -- can be any number of things, windows
 -- are classified into types to provide
 -- different functionality to each window
-data LuaState = LuaState { luaState    ∷ Lua.State
-                         , luaFPS      ∷ Maybe Int
-                         , luaConfig   ∷ LuaConfig
-                         , luaCurrWin  ∷ Int
-                         , luaLastWin  ∷ Int
-                         , luaShell    ∷ Shell
-                         , luaNDynObjs ∷ Int
-                         , luaDynData  ∷ [DynData]
-                         , luaModules  ∷ [Module]
-                         , luaWindows  ∷ [Window] }
+data LuaState = LuaState { luaState   ∷ Lua.State
+                         , luaFPS     ∷ Maybe Int
+                         , luaConfig  ∷ LuaConfig
+                         , luaCurrWin ∷ Int
+                         , luaLastWin ∷ Int
+                         , luaShell   ∷ Shell
+                         , luaModules ∷ [Module]
+                         , luaWindows ∷ [Window] }
 
 data LuaConfig = LuaConfig { lcKeyLayout ∷ KeyLayout }
 
@@ -53,25 +51,32 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
              | WinElemWorld { worldPars ∷ WorldParams
                             , worldData ∷ WorldData
                             , worldTexs ∷ [String] }
+             | WinElemDyn   { dynType ∷ DynType
+                            , dynData ∷ [DynData] }
              | WinElemNULL deriving (Show, Eq)
 -- define an order so sorting is consistent,
 -- some equalities are more or less arbitrary
 instance Ord WinElem where
   --these compare against themselves
-  compare (WinElemText _ _ _) (WinElemText _ _ _) = EQ
-  compare (WinElemLink _ _ _) (WinElemLink _ _ _) = EQ
+  compare (WinElemText _ _ _) (WinElemText _ _ _)     = EQ
+  compare (WinElemLink _ _ _) (WinElemLink _ _ _)     = EQ
   compare (WinElemBack _) (WinElemBack _)             = EQ
   compare (WinElemWorld _ _ _) (WinElemWorld _ _ _)   = EQ
+  compare (WinElemDyn _ _) (WinElemDyn _ _)           = EQ
   compare (WinElemNULL) (WinElemNULL)                 = EQ
   -- this is where the real definition is
   compare (WinElemBack _) (WinElemWorld _ _ _)        = LT
   compare (WinElemBack _) (WinElemLink _ _ _)         = GT
   compare (WinElemBack _) (WinElemNULL)               = GT
+  compare (WinElemBack _) (WinElemDyn _ _)            = LT
   compare (WinElemWorld _ _ _) (WinElemBack _)        = GT
   compare (WinElemWorld _ _ _) (WinElemLink _ _ _)    = GT
+  compare (WinElemWorld _ _ _) (WinElemDyn _ _)       = LT
   compare (WinElemWorld _ _ _) (WinElemNULL)          = GT
-  -- these help cover all cases where we dont
-  -- even have textures to compare
+  compare (WinElemDyn _ _) (WinElemBack _)            = GT
+  compare (WinElemDyn _ _) (WinElemWorld _ _ _)       = GT
+  compare (WinElemDyn _ _) (WinElemLink _ _ _)        = GT
+  compare (WinElemDyn _ _) (WinElemNULL)              = GT
   compare (WinElemLink _ _ _) _ = LT
   compare _ (WinElemLink _ _ _) = GT
   compare (WinElemText _ _ _) _ = GT

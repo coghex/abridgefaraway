@@ -125,8 +125,8 @@ data RenderData = RenderData
   , dynMemoryMutator   ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ ()
   , texMemoryMutator   ∷ ∀ ε σ. VkDeviceMemory → Anamnesis ε σ () }
 
-drawFrame ∷ Int → RenderData → Anamnesis ε σ Bool
-drawFrame nDynData RenderData{..} = do
+drawFrame ∷ RenderData → Anamnesis ε σ Bool
+drawFrame RenderData{..} = do
   frameIndex ← liftIO $ atomically $ readTVar frameIndexRef
   let inFlightFencePtr = inFlightFences `ptrAtIndex` frameIndex
   runVk $ vkWaitForFences dev 1 inFlightFencePtr VK_TRUE (maxBound ∷ Word64)
@@ -139,16 +139,14 @@ drawFrame nDynData RenderData{..} = do
   imgIndex ← fromIntegral ⊚ peek imgIndexPtr
   let bufPtr  = cmdBuffersPtr `ptrAtIndex` imgIndex
       memPtr  = memories `ptrAtIndex` imgIndex
+      dmemPtr = dynMemories `ptrAtIndex` imgIndex
+      tmemPtr = texMemories `ptrAtIndex` imgIndex
   mem ← peek memPtr
   memoryMutator mem
-  if (nDynData > 0) then do
-    let dmemPtr = dynMemories `ptrAtIndex` imgIndex
-        tmemPtr = texMemories `ptrAtIndex` imgIndex
-    dmem ← peek dmemPtr
-    dynMemoryMutator dmem
-    tmem ← peek tmemPtr
-    texMemoryMutator tmem
-  else return ()
+  dmem ← peek dmemPtr
+  dynMemoryMutator dmem
+  tmem ← peek tmemPtr
+  texMemoryMutator tmem
   let submitInfo = [ createVk @VkSubmitInfo
           $  set @"sType" VK_STRUCTURE_TYPE_SUBMIT_INFO
           &* set @"pNext" VK_NULL

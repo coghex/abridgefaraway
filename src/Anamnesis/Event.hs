@@ -95,6 +95,10 @@ processEvent event = case event of
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
+          WinElemDyn _ _ → do
+            let newLS = addElemToLuaState win e cache (luaSt st)
+            modify $ \s → s { luaSt = newLS
+                            , sRecreate = True }
           WinElemNULL → logError "null window element"
       (LuaCmdloadModule str) → do
         env ← ask

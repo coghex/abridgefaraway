@@ -116,11 +116,12 @@ runParacVulkan = do
 
 vulkLoop ∷ VulkanLoopData → Anamnesis ε σ (LoopControl)
 vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
-  st ← get
+  env ← ask
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-  let nDynObjs = luaNDynObjs $ luaSt st
+  ds ← gets drawSt
+  let nDynObjs = length (dsDyns ds)
   (transDynMems, transDynBufs) ← unzip ⊚ createTransDynBuffers pdev dev swapchainLen nDynObjs
   (transTexMems, transTexBufs) ← unzip ⊚ createTransTexBuffers pdev dev swapchainLen nDynObjs
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
@@ -153,7 +154,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     vertcache ← gets sVertCache
     case vertcache of
       Just (Verts verts) → modify $ \s → s { sReload = False }
-      Nothing            → do
+      Nothing → do
         oldDS ← gets drawSt
         modify $ \s → s { sReload = False }
     shouldLoad ← glfwMainLoop window $ do
@@ -161,8 +162,8 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       let lsNew = luaSt stNew
           camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
           testNew = sTest stNew
-          nDynNew = luaNDynObjs lsNew
-          nDynData = luaDynData lsNew
+          nDynData = dsDyns $ drawSt stNew
+          nDynNew = length nDynData
       let rdata = RenderData { dev
                              , swapInfo
                              , queues
@@ -179,7 +180,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
                              , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo)
                              , texMemoryMutator = updateTransTex nDynNew nDynData dev (swapExtent swapInfo) }
       liftIO $ GLFW.pollEvents
-      needRecreation ← drawFrame nDynNew rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+      needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
         -- when khr out of date,
         -- recreate swapchain
         True → do
@@ -202,9 +203,11 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
           if floor seconds /= cur
           then do
             count ← liftIO $ atomically $ readTVar frameCount
-            newLS' ← gets luaSt
-            let newLS' = newLS { luaFPS = Just count }
-            when (cur /= 0) $ modify $ \s → s { luaSt = newLS' }
+            let cmdQ = envLCmdChan env
+            when (cur /= 0) $ do
+              let newLS' = setFPS newLS count
+              modify $ \s → s { luaSt = newLS' }
+              liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
             liftIO $ do
               atomically $ writeTVar currentSec (floor seconds)
               atomically $ writeTVar frameCount 0

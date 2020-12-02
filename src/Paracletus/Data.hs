@@ -22,10 +22,8 @@ data Verts = Verts (DataFrame Vertex '[XN 0], DataFrame Word32 '[XN 3])
 -- a data structure containing
 -- the abstract representation
 -- of the general vertex layout
--- any structures here will be
--- decoded every frame so keep
--- them as fundamental as possible
-data DrawState = DrawState { dsTiles ∷ [GTile] }
+data DrawState = DrawState { dsTiles ∷ [GTile]
+                           , dsDyns  ∷ [DynData] }
 
 -- generic tile translates to verticies
 -- for each graphics layer, pos is position
@@ -52,6 +50,8 @@ defaultGTile = GTileUncached { tPos   = (0,0)
                              , tT     = 0
                              , tTile  = False
                              , tMoves = False }
+
+data DynType = DynFPS | DynNULL deriving (Show, Eq)
 
 -- data for dynamic object transformations
 data DynData = DynData

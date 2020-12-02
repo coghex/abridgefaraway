@@ -24,16 +24,14 @@ initLua ∷ IO (LuaState)
 initLua = do
   ls ← Lua.newstate
   initLC ← initLuaConfig ls "mod/base/config.lua"
-  return $ LuaState { luaState    = ls
-                    , luaFPS      = Nothing
-                    , luaConfig   = initLC
-                    , luaCurrWin  = 0
-                    , luaLastWin  = 0
-                    , luaShell    = initShell
-                    , luaNDynObjs = 0
-                    , luaDynData  = []
-                    , luaModules  = []
-                    , luaWindows  = [] }
+  return $ LuaState { luaState   = ls
+                    , luaFPS     = Nothing
+                    , luaConfig  = initLC
+                    , luaCurrWin = 0
+                    , luaLastWin = 0
+                    , luaShell   = initShell
+                    , luaModules = []
+                    , luaWindows = [] }
 
 initLuaConfig ∷ Lua.State → String → IO (LuaConfig)
 initLuaConfig ls fn = Lua.runWith ls $ do
@@ -61,6 +59,7 @@ loadState env st = do
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.registerHaskellFunction "loadModule" (hsLoadModule env)
+    Lua.registerHaskellFunction "newDynObj" (hsNewDynObj env)
     Lua.registerHaskellFunction "toggleFPS" (hsToggleFPS env)
     Lua.openlibs
     _ ← Lua.dofile $ "mod/base/base.lua"
@@ -162,6 +161,11 @@ hsToggleFPS env = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdtoggleFPS)
 
+hsNewDynObj ∷ Env → String → String → Lua.Lua ()
+hsNewDynObj env win "fps" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn DynFPS [DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0)]) WEUncached)
+
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
 findReqTextures win = findTexturesFromElems $ reverse $ sort $ winElems win
@@ -172,6 +176,7 @@ findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromE
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemDyn _ _):wes)    = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
 -- some simple data manipulators
@@ -196,8 +201,45 @@ changeCurrWin n ls = ls { luaCurrWin = n
                         , luaLastWin = n' }
   where n' = luaCurrWin ls
 
+-- sets the fps of any fps elements
+-- in the current window
+setFPS ∷ LuaState → Int → LuaState
+setFPS ls fps = ls { luaWindows = replaceWin win (luaWindows ls) }
+  where win = setWinFPS fps $ currentWindow ls
+setWinFPS ∷ Int → Window → Window
+setWinFPS fps win = win { winElems = setElemFPS fps $ winElems win }
+setElemFPS ∷ Int → [WinElem] → [WinElem]
+setElemFPS _   []       = []
+setElemFPS fps ((WinElemDyn DynFPS dd):wes) = [WinElemDyn DynFPS (calcFPSDyn fps)] ⧺ setElemFPS fps wes
+setElemFPS fps (we:wes) = [we] ⧺ setElemFPS fps wes
+
+-- finds the texture offsets needed
+-- for any 4 didget number
+calcFPSDyn ∷ Int → [DynData]
+calcFPSDyn fps
+  | fps < 0 = [nulldd,nulldd,nulldd,nulldd]
+  | fps < 10 = [nulldd,nulldd,nulldd,dd1]
+  | fps < 100 = [nulldd,nulldd,dd2,dd1]
+  | fps < 1000 = [nulldd,dd3,dd2,dd1]
+  | otherwise = [dd4,dd3,dd2,dd1]
+  where nulldd = DynData (0,0) (0,0)
+        dd1 = calcNumDyn $ fps `mod` 10
+        dd2 = calcNumDyn $ (fps `div` 10) `mod` 10
+        dd3 = calcNumDyn $ (fps `div` 100) `mod` 10
+        dd4 = calcNumDyn $ (fps `div` 1000) `mod` 10
+-- finds the offset for a single didget int
+calcNumDyn ∷ Int → DynData
+calcNumDyn n = DynData (0,0) (n,3)
+
+-- replaces specific window in windows
+replaceWin ∷ Window → [Window] → [Window]
+replaceWin _ [] = []
+replaceWin win (w:ws)
+  | (winTitle w) ≡ (winTitle win) = [win] ⧺ (replaceWin win ws)
+  | otherwise = [w] ⧺ (replaceWin win ws)
+
 -- its ok to have !! here since
 -- currwin and wins are created
 -- together, the outcome is known
 currentWindow ∷ LuaState → Window
-currentWindow (LuaState _ _ _ currWin _ _ _ _ _ wins) = wins !! currWin
+currentWindow (LuaState _ _ _ currWin _ _ _ wins) = wins !! currWin

@@ -15,12 +15,13 @@ import Graphics.Vulkan.Marshal.Create
 import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Foreign
+import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Buffer
 import Paracletus.Data
 
 data DynTexTransObject = DynTexTransObject
-  { dtexi ∷ Vec3i
+  { dtexi ∷ Mat44f
   } deriving (Show, Generic)
 instance PrimBytes DynTexTransObject
 
@@ -33,7 +34,6 @@ data TransformationObject = TransformationObject
   { model ∷ Mat44f
   , view  ∷ Mat44f
   , proj  ∷ Mat44f
-  , texi  ∷ Vec3i
   } deriving (Show, Generic)
 instance PrimBytes TransformationObject
 
@@ -45,7 +45,6 @@ updateTransObj cam device extent uniBuf = do
                 (DF4 0 32 0 0)
                 (DF4 0 0 32 0)
                 (DF4 0 0 0  1)
-      texi = DF3 1 1 1
   poke (castPtr uboPtr) (scalar $ TransformationObject {..})
   liftIO $ vkUnmapMemory device uniBuf
   -- these commands are all backwards
@@ -90,7 +89,11 @@ updateTransTex 0    _        _      _      _      = return ()
 updateTransTex nDyn (dd:dds) device extent uniBuf = do
   let nDyn'   = (fromIntegral nDyn) - 1
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf (nDyn'*(bSizeOf @DynTexTransObject undefined)) (bSizeOf @DynTexTransObject undefined) VK_ZERO_FLAGS
-  let dtexi = DF3 x y 0
+  let dtexi = DF4
+                 (DF4 1 0 0 0)
+                 (DF4 0 1 0 0)
+                 (DF4 0 0 1 0)
+                 (DF4 (x/16.0) (y/6.0) 0 1)
       (x ,y)  = (fromIntegral x', fromIntegral y')
       (x',y') = ddTIndex dd
   poke (castPtr uboPtr) (scalar $ DynTexTransObject {..})
@@ -106,15 +109,11 @@ transObjBufferInfo uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   &* set @"offset" 0
   &* set @"range" (bSizeOf @TransformationObject undefined)
 
--- vulkan cant create zero size buffers,
--- so we must check here and make a dummy
--- 1 size buffer for dyn and tex
 createTransDynBuffers ∷ VkPhysicalDevice → VkDevice → Int → Int → Anamnesis ε σ [(VkDeviceMemory, VkBuffer)]
 createTransDynBuffers pdev dev n nDyn = replicateM n $ createBuffer pdev dev (nDyn'*(bSizeOf @DynTransObject undefined)) VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
   where nDyn' = max 1 $ fromIntegral nDyn
 
 transDynBufferInfo ∷ Int → VkBuffer → Anamnesis ε σ VkDescriptorBufferInfo
-
 transDynBufferInfo nDyn uniformBuffer = return $ createVk @VkDescriptorBufferInfo
   $  set @"buffer" uniformBuffer
   &* set @"offset" 0

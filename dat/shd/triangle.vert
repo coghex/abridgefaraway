@@ -7,7 +7,6 @@ layout(binding = 0) uniform TransformationObject {
   mat4 model;
   mat4 view;
   mat4 proj;
-  ivec3 texindex;
 } trans;
 
 layout(binding = 2) uniform DynTransObject {
@@ -15,7 +14,7 @@ layout(binding = 2) uniform DynTransObject {
 } dyn;
 
 layout(binding = 3) uniform DynTexTransObject {
-  ivec3 dynTexI;
+  mat4 dynTexI[32];
 } dynTex;
 
 layout(location = 0) in vec3 inPosition;
@@ -42,6 +41,8 @@ void main() {
     mat4 dynV = (inMove.y > 0.0) ? (trans.model * (dyn.move[dynI])) : trans.model;
     gl_Position = trans.proj * view * dynV * vec4(inPosition, 1.0);
     fragColor = inColor;
-    fragTexCoord = inTexCoord.xy;
+    mat4 dynTC = dynTex.dynTexI[dynI];
+    vec2 dynTexCoord = (inMove.y > 0.0) ? (vec2(inTexCoord.x + dynTC[3][0],inTexCoord.y + dynTC[3][1])) : inTexCoord.xy;
+    fragTexCoord = dynTexCoord;
     fragTexIndex = int(inTexCoord.z);
 }
