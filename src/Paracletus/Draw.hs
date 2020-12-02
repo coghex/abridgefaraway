@@ -122,8 +122,8 @@ calcDynDataElems (_:wes)                 = calcDynDataElems wes
 -- calculates tiles for fps
 calcFPSTiles ∷ [GTile]
 calcFPSTiles = [tile1,tile2,tile3,tile4]
-  where tile1 = GTileUncached (3,2)   (1,1) (12,4) (16,6) 1 True False
-        tile2 = GTileUncached (3.3,2) (1,1) (12,4) (16,6) 1 True False
-        tile3 = GTileUncached (3.6,2) (1,1) (12,4) (16,6) 1 True False
-        tile4 = GTileUncached (3.9,2) (1,1) (12,4) (16,6) 1 True False
+  where tile1 = GTileUncached (3,2)   (1,1) (15,4) (16,6) 1 True False
+        tile2 = GTileUncached (3.3,2) (1,1) (15,4) (16,6) 1 True False
+        tile3 = GTileUncached (3.6,2) (1,1) (15,4) (16,6) 1 True False
+        tile4 = GTileUncached (3.9,2) (1,1) (15,4) (16,6) 1 True False
 

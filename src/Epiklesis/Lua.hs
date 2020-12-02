@@ -218,10 +218,10 @@ setElemFPS fps (we:wes) = [we] ⧺ setElemFPS fps wes
 calcFPSDyn ∷ Int → [DynData]
 calcFPSDyn fps
   | fps < 0 = [nulldd,nulldd,nulldd,nulldd]
-  | fps < 10 = [nulldd,nulldd,nulldd,dd1]
-  | fps < 100 = [nulldd,nulldd,dd2,dd1]
-  | fps < 1000 = [nulldd,dd3,dd2,dd1]
-  | otherwise = [dd4,dd3,dd2,dd1]
+  | fps < 10 = [dd1,nulldd,nulldd,nulldd]
+  | fps < 100 = [dd1,dd2,nulldd,nulldd]
+  | fps < 1000 = [dd1,dd2,dd3,nulldd]
+  | otherwise = [dd1,dd2,dd3,dd4]
   where nulldd = DynData (0,0) (0,0)
         dd1 = calcNumDyn $ fps `mod` 10
         dd2 = calcNumDyn $ (fps `div` 10) `mod` 10
@@ -229,7 +229,17 @@ calcFPSDyn fps
         dd4 = calcNumDyn $ (fps `div` 1000) `mod` 10
 -- finds the offset for a single didget int
 calcNumDyn ∷ Int → DynData
-calcNumDyn n = DynData (0,0) (n,3)
+calcNumDyn 0 = DynData (0,0) (-3,0)
+calcNumDyn 1 = DynData (0,0) (-12,0)
+calcNumDyn 2 = DynData (0,0) (-11,0)
+calcNumDyn 3 = DynData (0,0) (-10,0)
+calcNumDyn 4 = DynData (0,0) (-9,0)
+calcNumDyn 5 = DynData (0,0) (-8,0)
+calcNumDyn 6 = DynData (0,0) (-7,0)
+calcNumDyn 7 = DynData (0,0) (-6,0)
+calcNumDyn 8 = DynData (0,0) (-5,0)
+calcNumDyn 9 = DynData (0,0) (-4,0)
+calcNumDyn _ = DynData (0,0) (0,0)
 
 -- replaces specific window in windows
 replaceWin ∷ Window → [Window] → [Window]
