@@ -84,6 +84,9 @@ processEvent event = case event of
           WinElemText _ _ _ → do
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
+          WinElemMenu _ _ _ → do
+            let newLS = addElemToLuaState win e cache (luaSt st)
+            modify $ \s → s { luaSt = newLS }
           WinElemLink _ _ _ → do
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
@@ -100,6 +103,11 @@ processEvent event = case event of
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
           WinElemNULL → logError "null window element"
+      (LuaCmdnewMenuBit win menu menuBit) → do
+        env ← ask
+        st  ← get
+        let newLS = addMenuBitToLuaState win menu menuBit (luaSt st)
+        modify $ \s → s { luaSt = newLS }
       (LuaCmdloadModule str) → do
         env ← ask
         st  ← get

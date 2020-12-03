@@ -44,6 +44,9 @@ data LuaConfig = LuaConfig { lcKeyLayout ∷ KeyLayout }
 data WinElem = WinElemText  { textPos ∷ (Double,Double)
                             , textBox ∷ Bool
                             , textStr ∷ String }
+             | WinElemMenu  { menuName ∷ String
+                            , menuPos  ∷ (Double,Double)
+                            , menuBits ∷ [MenuBit] }
              | WinElemBack  { backFP  ∷ String }
              | WinElemLink  { linkPos ∷ (Double,Double)
                             , linkBox ∷ (Double,Double)
@@ -59,6 +62,7 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
 instance Ord WinElem where
   --these compare against themselves
   compare (WinElemText _ _ _) (WinElemText _ _ _)     = EQ
+  compare (WinElemMenu _ _ _) (WinElemMenu _ _ _)             = EQ
   compare (WinElemLink _ _ _) (WinElemLink _ _ _)     = EQ
   compare (WinElemBack _) (WinElemBack _)             = EQ
   compare (WinElemWorld _ _ _) (WinElemWorld _ _ _)   = EQ
@@ -77,6 +81,8 @@ instance Ord WinElem where
   compare (WinElemDyn _ _) (WinElemWorld _ _ _)       = GT
   compare (WinElemDyn _ _) (WinElemLink _ _ _)        = GT
   compare (WinElemDyn _ _) (WinElemNULL)              = GT
+  compare (WinElemMenu _ _ _) _ = GT
+  compare _ (WinElemMenu _ _ _) = LT
   compare (WinElemLink _ _ _) _ = LT
   compare _ (WinElemLink _ _ _) = GT
   compare (WinElemText _ _ _) _ = GT
@@ -95,6 +101,7 @@ data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Sho
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
             | LuaCmdnewElem String WinElem WinElemCache
+            | LuaCmdnewMenuBit String String MenuBit
             | LuaCmdswitchWindow String
             | LuaCmdloadModule String
             | LuaCmdtoggleFPS
@@ -108,10 +115,22 @@ data Module = Module { modFP   ∷ String
                      , modType ∷ ModuleType }
 data ModuleType = ModuleGame | ModuleUser
 
+-- possible menu elements
+data MenuBit = MenuText { menuText ∷ String }
+             | MenuNULL deriving (Show, Eq)
+
 -- world parameters help generate world
 data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
                                , wpSSize ∷ (Int,Int)
+                               --, wpNCont ∷ Int
+                               --, wpConts ∷ [(Int,Int)]
+                               --, wpSeeds ∷ [[(Int,Int)]]
+                               --, wpRands ∷ [[(Int,Int)]]
+                               --, wpSizes ∷ [Int]
+                               --, wpTypes ∷ [Biome]
                                , wpNTexs ∷ Int } deriving (Show, Eq)
+
+data Biome = BSea | BShallows | BDeeps | BValley | BCrags | BPlains | BFields | BWastes | BSteeps | BPeaks | BNULL deriving (Show, Eq)
 
 -- camera stored with each world
 data WorldData = WorldData { wdCam   ∷ (Float,Float)

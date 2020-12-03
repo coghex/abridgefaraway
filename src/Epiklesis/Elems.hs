@@ -4,6 +4,7 @@ module Epiklesis.Elems where
 import Prelude ()
 import UPrelude
 import Data.List.Split (splitOn)
+import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Oblatum.Data
 
@@ -50,3 +51,14 @@ addText t x0 (x,y) ('\n':str) = addText t x0 (x0,(y - 1)) str
 addText t x0 (x,y) (ch:str)   = [textTile] ⧺ addText t x0 (x + (fontOffset ch),y) str
   where textTile = GTileUncached (x,y) (1,1) (fontIndex ch) (16,6) 1 t False
 
+-- menus are full of bits
+calcMenu ∷ (Double,Double) → [MenuBit] → [GTile]
+calcMenu pos mbs = addTextBox posOffset size ⧺ calcMenuBits pos mbs
+  where size = (10,length mbs)
+        posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
+calcMenuBits ∷ (Double,Double) → [MenuBit] → [GTile]
+calcMenuBits _   []       = []
+calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos mbs
+calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
+calcMenuBit pos (MenuText str) = addText False (fst pos) pos str
+calcMenuBit _   MenuNULL       = []

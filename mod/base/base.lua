@@ -29,6 +29,12 @@ function LuaWindow:newButton (x,y,text,action,args)
     newText ((self.lwName),x,y,text,"textbox")
     newLink ((self.lwName),x,y,text,action,args)
 end
+function LuaWindow:addMenu (mName,x,y)
+    newMenu ((self.lwName),mName,x,y)
+end
+function LuaWindow:addMenuBit (mName,mbType,mbArgs)
+    newMenuBit ((self.lwName),mName,mbType,mbArgs)
+end
 function LuaWindow:addWorld (zx,zy,sx,sy,dp)
     newWorld ((self.lwName),zx,zy,sx,sy,dp)
 end
@@ -48,15 +54,17 @@ function initLua ()
     local menu2 = LuaWindow:new ()
     menu2:init("menu2","menu")
     menu2:setBackground ("dat/tex/texture1.png")
-    menu2:newButton (-4.0, 0.0, "Create World", "link", "game1")
+    menu2:addMenu ("submenu1",-4.0, 0.0)
+    menu2:addMenuBit ("submenu1","text","World Parameters")
+    menu2:newButton (-4.0, -2.5, "Create World", "link", "game1")
     menu2:newButton (-4.0, -4.0, "Back", "action", "back")
-    menu2:addFPS ()
 
     local game1 = LuaWindow:new ()
     game1:init("game1","game")
     game1:setBackground ("dat/tex/black.png")
     game1:addTextBox (-4.0, 4.0, "blop blop")
     game1:addWorld (8,8,16,8,"dat/tex/world/")
+    game1:addFPS ()
 
     menu1:switchToWindow ()
     loadModule ("mod/base/game.lua")

@@ -54,6 +54,8 @@ loadState env st = do
   _ ← Lua.runWith ls $ do
     Lua.registerHaskellFunction "newWindow" (hsNewWindow env)
     Lua.registerHaskellFunction "newText" (hsNewText env)
+    Lua.registerHaskellFunction "newMenu" (hsNewMenu env)
+    Lua.registerHaskellFunction "newMenuBit" (hsNewMenuBit env)
     Lua.registerHaskellFunction "newLink" (hsNewLink env)
     Lua.registerHaskellFunction "newWorld" (hsNewWorld env)
     Lua.registerHaskellFunction "switchWindow" (hsSwitchWindow env)
@@ -93,12 +95,25 @@ hsNewText env win x y text "textbox" = do
       initCache = WECached $ (addTextBox posOffset size) ⧺ addText False x (x,y) text
       size = calcTextBoxSize text
       posOffset = (x - 1.0,y + 0.5)
-
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text) initCache)
 hsNewText env _   _ _ _    textType = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
   where errorstr = "window type " ⧺ textType ⧺ " not known"
+
+hsNewMenu ∷ Env → String → String → Double → Double → Lua.Lua ()
+hsNewMenu env win name x y = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemMenu name (x,y) []) WEUncached)
+
+hsNewMenuBit ∷ Env → String → String → String → String → Lua.Lua ()
+hsNewMenuBit env win menu "text" args = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuText args))
+hsNewMenuBit env _   _    mbtype _    = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+  where errorstr = "menubit type " ⧺ mbtype ⧺ " not known"
 
 hsNewLink ∷ Env → String → Double → Double → String → String → String → Lua.Lua ()
 hsNewLink env win x y text "action" "exit" = do
@@ -134,11 +149,20 @@ hsNewWorld env win zx zy sx sy dp = do
       filterOutPathJunk "."  = False
       filterOutPathJunk ".." = False
       filterOutPathJunk _    = True
+      --wp = WorldParams (zx,zy) (sx,sy) ncont conts seeds rands sizes types $ length dps
       wp = WorldParams (zx,zy) (sx,sy) $ length dps
       -- TODO: represent aspect ratio
       wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
       initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
+      --ncont = head (withStdGen sgs 1 (randomRs (minnc maxnc)))
+      --conts = tail $ buildList2 ((withStdGen sgs 1 (randomList (f, (gw - f)) ncont)), (withStdGen sgs 2 (randomList (1, (gh - 1)) ncont)))
+      --seeds = tail $ makeSeeds seedsseed nspots sgs f
+      --seedsseed = buildList2 ((withStdGen sgs 3 (randomList (f, (gw - f)) ncont)), (withStdGen sgs 4 (randomList (1, (gh - 1)) ncont)))
+      --rands = tail $ makeSeeds randsseed nspots (splitSGs sgs) f
+      --randsseed = buildList2 ((withStdGen sgs 5 (randomList (f, (gw - f)) ncont)), (withStdGen sgs 6 (randomList (1, (gh - 1)) ncont)))
+      --sizes = withStdGen sgs 1 $ randomList (mins, maxs) ncont
+      --types = withStdGen sgs 2 $ randomBiomeList ncont
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) (WECached (calcTiles wp wd)))
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
@@ -176,6 +200,7 @@ findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromE
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemMenu _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemDyn _ _):wes)    = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
 
@@ -195,6 +220,15 @@ addElemToWindows thisWin e ec (win:wins)
 addElemToWindow ∷ WinElem → WinElemCache → Window → Window
 addElemToWindow e ec win = win { winCache = (winCache win) ⧺ [ec]
                                , winElems = (winElems win) ⧺ [e] }
+
+addMenuBitToLuaState ∷ String → String → MenuBit → LuaState → LuaState
+addMenuBitToLuaState win menu menubit ls = case (findWin win (luaWindows ls)) of
+  Nothing → ls
+  Just w  → ls { luaWindows = replaceWin w' (luaWindows ls) }
+    where w' = addMenuBitToWindow menu menubit w
+addMenuBitToWindow ∷ String → MenuBit → Window → Window
+addMenuBitToWindow menu mb win = win { winElems = addBitToMenu menu mb (winElems win) }
+
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
@@ -247,6 +281,21 @@ replaceWin _ [] = []
 replaceWin win (w:ws)
   | (winTitle w) ≡ (winTitle win) = [win] ⧺ (replaceWin win ws)
   | otherwise = [w] ⧺ (replaceWin win ws)
+
+-- adds to specific menu in winElems
+addBitToMenu ∷ String → MenuBit → [WinElem] → [WinElem]
+addBitToMenu _    _  [] = []
+addBitToMenu menu mb ((WinElemMenu name pos mbs):wes)
+  | (name ≡ menu) = [WinElemMenu name pos (mbs ⧺ [mb])] ⧺ addBitToMenu menu mb wes
+  | otherwise     = [WinElemMenu name pos mbs] ⧺ addBitToMenu menu mb wes
+addBitToMenu menu mb (we:wes) = [we] ⧺ addBitToMenu menu mb wes
+
+-- returns window with name
+findWin ∷ String → [Window] → Maybe Window
+findWin _  []     = Nothing
+findWin wn (w:ws)
+  | winTitle w ≡ wn = Just w
+  | otherwise       = findWin wn ws
 
 -- its ok to have !! here since
 -- currwin and wins are created
