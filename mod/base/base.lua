@@ -56,6 +56,7 @@ function initLua ()
     menu2:setBackground ("dat/tex/texture1.png")
     menu2:addMenu ("submenu1",-4.0, 0.0)
     menu2:addMenuBit ("submenu1","text","World Parameters")
+    menu2:addMenuBit ("submenu1","text","blop blop")
     menu2:newButton (-4.0, -2.5, "Create World", "link", "game1")
     menu2:newButton (-4.0, -4.0, "Back", "action", "back")
 
