@@ -18,6 +18,7 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Module
 import Epiklesis.World
+import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum
 import Paracletus.Oblatum.Event
@@ -106,8 +107,16 @@ processEvent event = case event of
       (LuaCmdnewMenuBit win menu menuBit) → do
         env ← ask
         st  ← get
-        let newLS = addMenuBitToLuaState win menu menuBit (luaSt st)
-        modify $ \s → s { luaSt = newLS }
+        let newLS  = addMenuBitToLuaState win menu menuBit (luaSt st)
+            pos    = findLastMenuBitPos win menu newLS
+            eventQ = envEventsChan env
+        -- some menu bits include other winElems
+        case menuBit of
+          MenuText _ → return ()
+          MenuSlider _ _ → liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos) [DynData (0,0) (0,0)]) WEUncached)
+          MenuNULL → return ()
+        modify $ \s → s { luaSt = newLS
+                        , sRecreate = True }
       (LuaCmdloadModule str) → do
         env ← ask
         st  ← get

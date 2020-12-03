@@ -43,9 +43,10 @@ loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addTex
 loadWinElem (WinElemText pos False str) = addText False (fst pos) pos str
 loadWinElem (WinElemMenu _ pos bits) = calcMenu pos bits
 loadWinElem (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]
-loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd--[GTile (0,0) (1,1) (0,0) (3,15) 20 True]
+loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd
 loadWinElem (WinElemLink _ _ _)    = []
 loadWinElem (WinElemDyn DynFPS _)  = calcFPSTiles
+loadWinElem (WinElemDyn (DynSlider pos) _) = [GTileUncached pos (0.5,0.5) (8,5) (16,6) 1 True False]
 loadWinElem (WinElemDyn DynNULL _) = []
 loadWinElem WinElemNULL = []
 

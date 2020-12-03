@@ -51,7 +51,9 @@ defaultGTile = GTileUncached { tPos   = (0,0)
                              , tTile  = False
                              , tMoves = False }
 
-data DynType = DynFPS | DynNULL deriving (Show, Eq)
+data DynType = DynFPS
+             | DynSlider (Double,Double)
+             | DynNULL deriving (Show, Eq)
 
 -- data for dynamic object transformations
 data DynData = DynData

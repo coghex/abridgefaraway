@@ -70,19 +70,25 @@ instance Ord WinElem where
   compare (WinElemNULL) (WinElemNULL)                 = EQ
   -- this is where the real definition is
   compare (WinElemBack _) (WinElemWorld _ _ _)        = LT
+  compare (WinElemBack _) (WinElemMenu _ _ _)         = GT
   compare (WinElemBack _) (WinElemLink _ _ _)         = GT
   compare (WinElemBack _) (WinElemNULL)               = GT
   compare (WinElemBack _) (WinElemDyn _ _)            = LT
   compare (WinElemWorld _ _ _) (WinElemBack _)        = GT
+  compare (WinElemWorld _ _ _) (WinElemMenu _ _ _)    = GT
   compare (WinElemWorld _ _ _) (WinElemLink _ _ _)    = GT
   compare (WinElemWorld _ _ _) (WinElemDyn _ _)       = LT
   compare (WinElemWorld _ _ _) (WinElemNULL)          = GT
   compare (WinElemDyn _ _) (WinElemBack _)            = GT
   compare (WinElemDyn _ _) (WinElemWorld _ _ _)       = GT
+  compare (WinElemDyn _ _) (WinElemMenu _ _ _)        = GT
   compare (WinElemDyn _ _) (WinElemLink _ _ _)        = GT
   compare (WinElemDyn _ _) (WinElemNULL)              = GT
-  compare (WinElemMenu _ _ _) _ = GT
-  compare _ (WinElemMenu _ _ _) = LT
+  compare (WinElemMenu _ _ _) (WinElemBack _)         = GT
+  compare (WinElemMenu _ _ _) (WinElemDyn _ _)        = LT
+  compare (WinElemMenu _ _ _) (WinElemWorld _ _ _)    = GT
+  compare (WinElemMenu _ _ _) (WinElemLink _ _ _)     = GT
+  compare (WinElemMenu _ _ _) (WinElemNULL)           = GT
   compare (WinElemLink _ _ _) _ = LT
   compare _ (WinElemLink _ _ _) = GT
   compare (WinElemText _ _ _) _ = GT
@@ -117,6 +123,8 @@ data ModuleType = ModuleGame | ModuleUser
 
 -- possible menu elements
 data MenuBit = MenuText { menuText ∷ String }
+             | MenuSlider { sliderText ∷ String
+                          , sliderRange ∷ (Int,Int) }
              | MenuNULL deriving (Show, Eq)
 
 -- world parameters help generate world

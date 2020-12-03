@@ -54,12 +54,13 @@ addText t x0 (x,y) (ch:str)   = [textTile] ⧺ addText t x0 (x + (fontOffset ch)
 -- menus are full of bits
 calcMenu ∷ (Double,Double) → [MenuBit] → [GTile]
 calcMenu pos mbs = addTextBox posOffset size ⧺ calcMenuBits pos mbs
-  where size = (10,(2*(length mbs) - 1))
+  where size = (20,(2*(length mbs) - 1))
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 calcMenuBits ∷ (Double,Double) → [MenuBit] → [GTile]
 calcMenuBits _   []       = []
 calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos' mbs
   where pos' = (fst pos, (snd pos) - 1)
 calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
-calcMenuBit pos (MenuText str) = addText False (fst pos) pos str
-calcMenuBit _   MenuNULL       = []
+calcMenuBit pos (MenuText str)          = addText False (fst pos) pos str
+calcMenuBit pos (MenuSlider text range) = addText False (fst pos) pos (text ⧺ ": " ⧺ (show (fst range)) ⧺ " <-------> " ⧺ (show (snd range)))
+calcMenuBit _   MenuNULL                = []

@@ -5,6 +5,7 @@ import Prelude()
 import UPrelude
 import Data.List (sort)
 import Data.List.Split (splitOn)
+import Text.Read (readMaybe)
 import qualified Foreign.Lua as Lua
 import System.Directory (getDirectoryContents)
 import System.FilePath (combine)
@@ -110,6 +111,25 @@ hsNewMenuBit ∷ Env → String → String → String → String → Lua.Lua ()
 hsNewMenuBit env win menu "text" args = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuText args))
+hsNewMenuBit env win menu "slider" args = do
+  let eventQ = envEventsChan env
+      sargs = splitOn ":" args
+      rargs = splitOn "-" $ last sargs
+  r1 ← case (readMaybe (head rargs)) of
+    Nothing → do
+      let errorstr = "cannot read slider range"
+      Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+      return $ -1
+    Just n → return n
+  r2 ← case (readMaybe (last rargs)) of
+    Nothing → do
+      let errorstr = "cannot read slider range"
+      Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+      return $ -1
+    Just n  → return n
+  let text  = head sargs
+      range = (r1,r2)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range))
 hsNewMenuBit env _   _    mbtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -229,6 +249,12 @@ addMenuBitToLuaState win menu menubit ls = case (findWin win (luaWindows ls)) of
 addMenuBitToWindow ∷ String → MenuBit → Window → Window
 addMenuBitToWindow menu mb win = win { winElems = addBitToMenu menu mb (winElems win) }
 
+findLastMenuBitPos ∷ String → String → LuaState → (Double,Double)
+findLastMenuBitPos win menu ls = case (findWin win (luaWindows ls)) of
+    Nothing → (0,0)
+    Just w  → case (findMenuPos menu (winElems w)) of
+                Nothing → (0,0)
+                Just p  → p
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
@@ -296,6 +322,14 @@ findWin _  []     = Nothing
 findWin wn (w:ws)
   | winTitle w ≡ wn = Just w
   | otherwise       = findWin wn ws
+
+-- returns menu position with name
+findMenuPos ∷ String → [WinElem] → Maybe (Double,Double)
+findMenuPos _  [] = Nothing
+findMenuPos mn ((WinElemMenu name (x,y) bits):wes)
+  | name ≡ mn = Just (x + 4.0, (y + 0.5 - ((fromIntegral (length bits))/2.0)))
+  | otherwise = findMenuPos mn wes
+findMenuPos mn (_:wes) = findMenuPos mn wes
 
 -- its ok to have !! here since
 -- currwin and wins are created
