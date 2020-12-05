@@ -72,6 +72,8 @@ ExParacletus	src/Artos/Except.hs	21;"	C
 ExType	src/Artos/Except.hs	21;"	t
 Except	src/Artos/Except.hs	6;"	m
 Exceptable	src/Artos/Except.hs	20;"	t
+Font	src/Paracletus/Oblatum/Font.hs	1;"	m
+FontTex	src/Paracletus/Oblatum/Font.hs	13;"	t
 Foreign	src/Anamnesis/Foreign.hs	6;"	m
 Foreign	src/Paracletus/Vulkan/Foreign.hs	6;"	m
 GLFW	src/Paracletus/Oblatum/GLFW.hs	1;"	m
@@ -139,6 +141,7 @@ ParacError	src/Paracletus/Data.hs	17;"	C
 ParacResult	src/Paracletus/Data.hs	17;"	t
 ParacSuccess	src/Paracletus/Data.hs	17;"	C
 Paracletus	src/Paracletus.hs	2;"	m
+Paths_abfa	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	4;"	m
 Pipeline	src/Paracletus/Vulkan/Pipeline.hs	6;"	m
 Pres	src/Paracletus/Vulkan/Pres.hs	5;"	m
 Queue	src/Artos/Queue.hs	10;"	t
@@ -242,6 +245,7 @@ asListVk	src/Paracletus/Vulkan/Foreign.hs	41;"	f
 atLeastThree	src/Paracletus/Vulkan/Vertex.hs	29;"	f
 atomically	src/Artos/Var.hs	25;"	f
 backFP	src/Epiklesis/Data.hs	50;"	f
+bindir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 bracket	src/Anamnesis/Util.hs	57;"	f
 calcDynData	src/Paracletus/Draw.hs	117;"	f
 calcDynDataElems	src/Paracletus/Draw.hs	119;"	f
@@ -262,6 +266,7 @@ calcZoneRows	src/Paracletus/Draw.hs	64;"	f
 calcZoneSpot	src/Paracletus/Draw.hs	70;"	f
 calcZoneTiles	src/Paracletus/Draw.hs	58;"	f
 capabilities	src/Paracletus/Data.hs	98;"	f
+catchIO	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	18;"	f
 cbDescSets	src/Paracletus/Vulkan/Data.hs	19;"	f
 cbFramebuffs	src/Paracletus/Vulkan/Data.hs	18;"	f
 cbGQData	src/Paracletus/Vulkan/Data.hs	13;"	f
@@ -323,6 +328,7 @@ createVulkanInstance	src/Paracletus/Vulkan/Instance.hs	25;"	f
 createVulkanShaderModule	src/Paracletus/Vulkan/Shader.hs	42;"	f
 createWorld	src/Anamnesis/World.hs	17;"	f
 currentWindow	src/Epiklesis/Lua.hs	337;"	f
+datadir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 ddPosition	src/Paracletus/Data.hs	60;"	f
 ddTIndex	src/Paracletus/Data.hs	61;"	f
 decell	src/Paracletus/Oblatum/Event.hs	288;"	f
@@ -336,6 +342,7 @@ dev	src/Paracletus/Vulkan/Data.hs	32;"	f
 dev	src/Paracletus/Vulkan/Draw.hs	112;"	f
 dfLen	src/Paracletus/Vulkan/Vertex.hs	32;"	f
 downcase	src/Paracletus/Oblatum/GLFW.hs	121;"	f
+drawBitmap	src/Paracletus/Oblatum/Font.hs	40;"	f
 drawFrame	src/Paracletus/Vulkan/Draw.hs	128;"	f
 drawLoop	src/Paracletus/Oblatum.hs	99;"	f
 drawSt	src/Anamnesis/Data.hs	30;"	f
@@ -348,6 +355,7 @@ dynData	src/Epiklesis/Data.hs	58;"	f
 dynMemories	src/Paracletus/Vulkan/Draw.hs	122;"	f
 dynMemoryMutator	src/Paracletus/Vulkan/Draw.hs	125;"	f
 dynType	src/Epiklesis/Data.hs	57;"	f
+dynlibdir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 envEventsChan	src/Anamnesis/Data.hs	22;"	f
 envLCmdChan	src/Anamnesis/Data.hs	23;"	f
 envLTimerChan	src/Anamnesis/Data.hs	24;"	f
@@ -388,11 +396,18 @@ genSegs	src/Anamnesis/World.hs	46;"	f
 genShell	src/Epiklesis/Shell.hs	42;"	f
 genShellStr	src/Epiklesis/Shell.hs	51;"	f
 generateMipmaps	src/Paracletus/Vulkan/Texture.hs	77;"	f
+getBinDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getCurTick	src/Paracletus/Oblatum.hs	94;"	f
+getDataDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
+getDataFileName	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	47;"	f
+getDynLibDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getGLFWKey	src/Paracletus/Oblatum/GLFW.hs	40;"	f
 getKeyStr	src/Paracletus/Oblatum/GLFW.hs	85;"	f
+getLibDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
+getLibexecDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getMaxUsableSampleCount	src/Paracletus/Vulkan/Device.hs	77;"	f
 getQueueFamilies	src/Paracletus/Vulkan/Device.hs	87;"	f
+getSysconfDir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	39;"	f
 getTime	src/Anamnesis/Util.hs	78;"	f
 glfwMainLoop	src/Paracletus/Oblatum.hs	71;"	f
 glfwWaitEventsMeanwhile	src/Paracletus/Oblatum.hs	110;"	f
@@ -455,6 +470,8 @@ klSh	src/Paracletus/Oblatum/Data.hs	13;"	f
 klSpc	src/Paracletus/Oblatum/Data.hs	8;"	f
 klUp	src/Paracletus/Oblatum/Data.hs	9;"	f
 lcKeyLayout	src/Epiklesis/Data.hs	42;"	f
+libdir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
+libexecdir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 liftIOWith	src/Anamnesis/Foreign.hs	44;"	f
 linkAct	src/Epiklesis/Data.hs	53;"	f
 linkBox	src/Epiklesis/Data.hs	52;"	f
@@ -462,6 +479,7 @@ linkPos	src/Epiklesis/Data.hs	51;"	f
 linkTest	src/Paracletus/Oblatum/Event.hs	186;"	f
 linkTestFunc	src/Paracletus/Oblatum/Event.hs	191;"	f
 loadDrawState	src/Paracletus/Draw.hs	21;"	f
+loadFTChar	src/Paracletus/Oblatum/Font.hs	15;"	f
 loadLoop	src/Paracletus/Oblatum.hs	54;"	f
 loadModule	src/Epiklesis/Module.hs	19;"	f
 loadModuleFunctions	src/Epiklesis/Module.hs	15;"	f
@@ -623,6 +641,7 @@ swapImgs	src/Paracletus/Vulkan/Data.hs	23;"	f
 swapInfo	src/Paracletus/Vulkan/Draw.hs	113;"	f
 swapchain	src/Paracletus/Vulkan/Data.hs	22;"	f
 swidth	src/Paracletus/Vulkan/Atlas.hs	14;"	f
+sysconfdir	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	30;"	f
 tInd	src/Paracletus/Data.hs	36;"	f
 tMoves	src/Paracletus/Data.hs	40;"	f
 tPos	src/Paracletus/Data.hs	34;"	f
@@ -657,6 +676,7 @@ upcase	src/Paracletus/Oblatum/GLFW.hs	98;"	f
 updateTransDyn	src/Paracletus/Vulkan/Trans.hs	69;"	f
 updateTransObj	src/Paracletus/Vulkan/Trans.hs	40;"	f
 updateTransTex	src/Paracletus/Vulkan/Trans.hs	86;"	f
+version	dist-newstyle/build/x86_64-linux/ghc-8.8.1/abfa-4.0.0.1/x/abfa/build/abfa/autogen/Paths_abfa.hs	28;"	f
 vertIADs	src/Paracletus/Vulkan/Vertex.hs	42;"	f
 vertIBD	src/Paracletus/Vulkan/Vertex.hs	37;"	f
 vertices	src/Paracletus/Vulkan/Calc.hs	28;"	f
@@ -679,6 +699,7 @@ window	src/Paracletus/Data.hs	77;"	f
 windowSizeChanged	src/Paracletus/Data.hs	84;"	f
 windowSt	src/Anamnesis/Data.hs	29;"	f
 withArrayLen	src/Paracletus/Vulkan/Foreign.hs	54;"	f
+withBitmap	src/Paracletus/Oblatum/Font.hs	29;"	f
 withMove	src/Paracletus/Vulkan/Calc.hs	58;"	f
 withPos	src/Paracletus/Vulkan/Calc.hs	55;"	f
 withScale	src/Paracletus/Vulkan/Calc.hs	57;"	f
