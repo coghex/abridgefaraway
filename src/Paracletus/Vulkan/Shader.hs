@@ -19,8 +19,8 @@ import Paracletus.Vulkan.Foreign
 
 makeTShader ∷ VkDevice → Anamnesis ε σ (VkPipelineShaderStageCreateInfo, VkPipelineShaderStageCreateInfo)
 makeTShader dev = do
-  shaderVert ← createVkShaderStageCI dev $(compileGLSL ("dat/shd/tile.vert")) VK_SHADER_STAGE_VERTEX_BIT
-  shaderFrag ← createVkShaderStageCI dev $(compileGLSL ("dat/shd/tile.frag")) VK_SHADER_STAGE_FRAGMENT_BIT
+  shaderVert ← createVkShaderStageCI dev $(compileGLSL ("dat/shd/text.vert")) VK_SHADER_STAGE_VERTEX_BIT
+  shaderFrag ← createVkShaderStageCI dev $(compileGLSL ("dat/shd/text.frag")) VK_SHADER_STAGE_FRAGMENT_BIT
   return (shaderVert, shaderFrag)
 
 makeShader ∷ VkDevice → Anamnesis ε σ (VkPipelineShaderStageCreateInfo, VkPipelineShaderStageCreateInfo)
