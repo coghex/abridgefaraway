@@ -7,7 +7,6 @@ layout(binding = 0) uniform TransformationMatrix {
   mat4 model;
   mat4 view;
   mat4 proj;
-  ivec3 texindex;
 } trans;
 
 layout(location = 0) in vec3 inPosition;
@@ -24,13 +23,7 @@ out gl_PerVertex {
 };
 
 void main() {
-    vec4 col0 = vec4(1.0,0.0,0.0,0.0);
-    vec4 col1 = vec4(0.0,1.0,0.0,0.0);
-    vec4 col2 = vec4(0.0,0.0,1.0,0.0);
-    vec4 col3 = vec4(0.0,0.0,-1.0,1.0);
-    mat4 basicI = mat4(col0,col1,col2,col3);
-    mat4 view = (inMove.z > 0.0) ? trans.view : basicI;
-    gl_Position = trans.proj * view * trans.model * vec4(inPosition, 1.0);
+    gl_Position = trans.proj * trans.view * trans.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord.xy;
     fragTexIndex = int(inTexCoord.z);
