@@ -81,6 +81,7 @@ executable abfa
                  , directory
                  , hslua
                  , GLFW-b
+                 , freetype2
                  , vulkan-api >= 1.3
                  , vector
                  , bytestring

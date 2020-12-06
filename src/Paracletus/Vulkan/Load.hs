@@ -15,7 +15,7 @@ import Paracletus.Vulkan.Pipeline
 -- the descriptor sets and pipeline. an
 -- empty string will just load default textures
 -- and filepaths added will be ammended to that
-loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData)
+loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData, TextureData)
 loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   -- the engine reserves the first few
   -- textures for default usage.
@@ -30,6 +30,7 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
       texAlph     = "dat/tex/alph.png"
       texboxPath  = "dat/tex/box"
       texmboxPath = "dat/tex/mbox"
+      texFont     = "dat/font/Lora-Bold.ttf"
       --texAlph = settingFontPath settings
       --texboxPath = settingTBPath settings
       --texmboxPath = settingMTBPath settings
@@ -37,6 +38,7 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   mboxTexs ← loadNTexs pdev dev cmdPool cmdQueue texmboxPath
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
+  fontTexs ← createFontImageViews pdev dev cmdPool cmdQueue texFont 16
   modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
@@ -45,9 +47,17 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
       (mbtexs, mbsamps) = unzip mboxTexs
       texViews = [textureView1, texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ (fst (unzip modTexViews))
       texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ texSamplersMod
+      (ftexs, fmipLvls) = unzip fontTexs
+  fsamps ← createTextureSamplers dev fmipLvls
   descriptorTextureInfo ← textureImageInfos texViews texSamps
+  descriptorFontInfo ← textureImageInfos ftexs fsamps
   depthFormat ← findDepthFormat pdev
   let nimages = length texViews
+      nfonts = length ftexs
   descriptorSetLayout ← createDescriptorSetLayout dev nimages
+  fontDescriptorSetLayout ← createFontDescriptorSetLayout dev nfonts
   pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-  return $ TextureData descriptorSetLayout pipelineLayout nimages descriptorTextureInfo depthFormat
+  fontPipelineLayout ← createPipelineLayout dev fontDescriptorSetLayout
+  let texdata = TextureData descriptorSetLayout pipelineLayout nimages descriptorTextureInfo depthFormat
+      fontdata = TextureData fontDescriptorSetLayout fontPipelineLayout nfonts descriptorFontInfo depthFormat
+  return (texdata, fontdata)

@@ -10,7 +10,7 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Storable
 
-data FontTex = FontTex [Word8]
+data FontTex = FontTex Int Int [Word8]
 
 loadFTChar ∷ FilePath → Char → Int → IO FontTex
 loadFTChar fp char px = do
@@ -24,7 +24,7 @@ loadFTChar fp char px = do
         let bufferSize = fromIntegral $ (bRows bmap) * fromIntegral (bPitch bmap)
         buffr ← peekArray bufferSize $ bBuffer bmap
         --drawBitmap (fromIntegral $ bPitch bmap) buffr
-        return $ FontTex buffr
+        return $ FontTex (fromIntegral (bPitch bmap)) (fromIntegral (bRows bmap)) buffr
 
 withBitmap ∷ FT_Library → FT_Bitmap → (FT_Bitmap → IO a) → IO a
 withBitmap lib source f =

@@ -221,6 +221,7 @@ isElemLink (WinElemWorld _ _ _) = False
 isElemLink (WinElemText _ _ _) = False
 isElemLink (WinElemBack _ )    = False
 isElemLink (WinElemDyn _ _)    = False
+isElemLink (WinElemMenu _ _ _) = False
 isElemLink (WinElemNULL)       = False
 
 moveCamWithKeys ∷ Anamnesis ε σ ()

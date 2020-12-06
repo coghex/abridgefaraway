@@ -77,6 +77,7 @@ data VulkanLoopData = VulkanLoopData
          , window             ∷ GLFW.Window
          , vulkanSurface      ∷ VkSurfaceKHR
          , texData            ∷ TextureData
+         , fontData           ∷ TextureData
          , msaaSamples        ∷ VkSampleCountFlagBits
          , shaderVert         ∷ VkPipelineShaderStageCreateInfo
          , shaderFrag         ∷ VkPipelineShaderStageCreateInfo

@@ -69,6 +69,29 @@ createDescriptorSetLayout dev nimages = allocResource
                 &* set @"stageFlags" VK_SHADER_STAGE_VERTEX_BIT
                 &* set @"pImmutableSamplers" VK_NULL ]
 
+createFontDescriptorSetLayout ∷ VkDevice → Int → Anamnesis ε σ VkDescriptorSetLayout
+createFontDescriptorSetLayout dev nimages = allocResource
+  (\dsl → liftIO $ vkDestroyDescriptorSetLayout dev dsl VK_NULL) $
+  withVkPtr dslCreateInfo $ \dslciPtr → allocaPeek $ runVk ∘ vkCreateDescriptorSetLayout dev dslciPtr VK_NULL
+  where dslCreateInfo = createVk @VkDescriptorSetLayoutCreateInfo
+          $  set @"sType" VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
+          &* set @"pNext" VK_NULL
+          &* set @"flags" VK_ZERO_FLAGS
+          &* setListCountAndRef @"bindingCount" @"pBindings"
+              [ createVk @VkDescriptorSetLayoutBinding
+                $  set @"binding" 0
+                &* set @"descriptorType" VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+                &* set @"descriptorCount" 1
+                &* set @"stageFlags" VK_SHADER_STAGE_VERTEX_BIT
+                &* set @"pImmutableSamplers" VK_NULL
+              , createVk @VkDescriptorSetLayoutBinding
+                $  set @"binding" 1
+                &* set @"descriptorType" VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+                &* set @"descriptorCount" (fromIntegral nimages)
+                &* set @"stageFlags" VK_SHADER_STAGE_FRAGMENT_BIT
+                &* set @"pImmutableSamplers" VK_NULL ]
+
+
 createDescriptorSets ∷ VkDevice → VkDescriptorPool → Int → Ptr VkDescriptorSetLayout → Anamnesis ε σ [VkDescriptorSet]
 createDescriptorSets dev descriptorPool n layoutsPtr = allocaArray n $ \dsPtr → withVkPtr dsai $ \dsaiPtr → do
   runVk $ vkAllocateDescriptorSets dev dsaiPtr dsPtr

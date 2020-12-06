@@ -67,9 +67,11 @@ replaceWorldData (Window name wType curs elems cache) wd = Window name wType cur
 replaceElemData ∷ WorldData → WinElem → WinElem
 replaceElemData _   (WinElemNULL)           = WinElemNULL
 replaceElemData _   (WinElemText tp tb ts)  = WinElemText tp tb ts
+replaceElemData _   (WinElemMenu mn mp mb)  = WinElemMenu mn mp mb
 replaceElemData wd' (WinElemWorld wp _ wt) = WinElemWorld wp wd' wt
 replaceElemData _   (WinElemLink lp lb la)  = WinElemLink lp lb la
 replaceElemData _   (WinElemBack fp)        = WinElemBack fp
+replaceElemData _   (WinElemDyn dt dd)      = WinElemDyn dt dd
 
 -- finds and replaces mulitiple segemts
 -- in world data, segments zipped with inds

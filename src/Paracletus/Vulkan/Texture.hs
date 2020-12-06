@@ -21,6 +21,7 @@ import Anamnesis.Foreign
 import Anamnesis.Util
 import Artos.Except
 import Paracletus.Data
+import Paracletus.Oblatum.Font
 import Paracletus.Vulkan.Buffer
 import Paracletus.Vulkan.Command
 import Paracletus.Vulkan.Foreign
@@ -52,6 +53,39 @@ createTextureImageViews pdev dev cmdPool cmdQueue (path:paths) = do
   lt ← (createTextureImageViews pdev dev cmdPool cmdQueue paths)
   nt ← (createTextureImageView pdev dev cmdPool cmdQueue path)
   return $ lt ⧺ [nt]
+
+-- generates vulkan images for each printable
+-- ascii character
+createFontImageViews ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Int → Anamnesis ε σ ([(VkImageView, Word32)])
+createFontImageViews pdev dev cmdPool cmdQueue fp px = mapM (createFontImageView pdev dev cmdPool cmdQueue fp px) ['!'..'~']
+
+-- loads a specified freetype font, generates
+-- bitmaps, converts to vulkan image
+createFontImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Int → Char → Anamnesis ε σ (VkImageView, Word32)
+createFontImageView pdev dev cmdPool cmdQueue fp px char = do
+  FontTex w h buff ← liftIO $ loadFTChar fp char px
+  let genImg ∷ DynamicImage
+      genImg = ImageRGBA8 (generateImage genFunc w h)
+      genFunc ∷ Int → Int → PixelRGBA8
+      genFunc x y = PixelRGBA8 g g g a
+        where g = buff !! (x + (x*y))
+              a = if (g < 100) then 0 else 1
+  Image { imageWidth, imageHeight, imageData } ← pure $ convertRGBA8 genImg
+  let (imageDataForeignPtr, imageDataLen) = Vec.unsafeToForeignPtr0 imageData
+      bufSize ∷ VkDeviceSize = fromIntegral imageDataLen
+      mipLevels = (floor ∘ logBase (2 ∷ Float) ∘ fromIntegral $ max imageWidth imageHeight) + 1
+  (_, image) ← createImage pdev dev
+    (fromIntegral imageWidth) (fromIntegral imageHeight) mipLevels VK_SAMPLE_COUNT_1_BIT VK_FORMAT_R8G8B8A8_UNORM VK_IMAGE_TILING_OPTIMAL (VK_IMAGE_USAGE_TRANSFER_SRC_BIT ⌄ VK_IMAGE_USAGE_TRANSFER_DST_BIT ⌄ VK_IMAGE_USAGE_SAMPLED_BIT) VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+  runCommandsOnce dev cmdPool cmdQueue $ transitionImageLayout image VK_FORMAT_R8G8B8A8_UNORM Undef_TransDst mipLevels
+  locally $ do
+    (stagingMem, stagingBuf) ← createBuffer pdev dev bufSize VK_BUFFER_USAGE_TRANSFER_SRC_BIT (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ⌄ VK_MEMORY_PROPERTY_HOST_COHERENT_BIT )
+    stagingDataPtr ← allocaPeek $ runVk ∘ vkMapMemory dev stagingMem 0 bufSize VK_ZERO_FLAGS
+    liftIO $ withForeignPtr imageDataForeignPtr $ \imageDataPtr → copyArray (castPtr stagingDataPtr) imageDataPtr imageDataLen
+    liftIO $ vkUnmapMemory dev stagingMem
+    copyBufferToImage dev cmdPool cmdQueue stagingBuf image (fromIntegral imageWidth) (fromIntegral imageHeight)
+  runCommandsOnce dev cmdPool cmdQueue $ generateMipmaps pdev image VK_FORMAT_R8G8B8A8_UNORM (fromIntegral imageWidth) (fromIntegral imageHeight) mipLevels
+  imageView ← createImageView dev image VK_FORMAT_R8G8B8A8_UNORM VK_IMAGE_ASPECT_COLOR_BIT mipLevels
+  return (imageView, mipLevels)
 
 createTextureImageView ∷ VkPhysicalDevice → VkDevice → VkCommandPool → VkQueue → FilePath → Anamnesis ε σ (VkImageView, Word32)
 createTextureImageView pdev dev cmdPool cmdQueue path = do
