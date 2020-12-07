@@ -35,6 +35,7 @@ data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaConfig  ∷ LuaConfig
                          , luaCurrWin ∷ Int
                          , luaLastWin ∷ Int
+                         , luaNDefTex ∷ Int
                          , luaShell   ∷ Shell
                          , luaModules ∷ [Module]
                          , luaWindows ∷ [Window] }

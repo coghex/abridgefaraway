@@ -71,7 +71,7 @@ runParacVulkan = do
     --logDebug $ "created command pool: " ⧺ show commandPool
     imgIndexPtr ← mallocRes
     let gqdata = GQData pdev dev commandPool (graphicsQueue queues)
-    (texData,fontData) ← loadVulkanTextures gqdata []
+    texData ← loadVulkanTextures gqdata []
     -- this is where we load all the lua data
     -- forked as child so that we can continue
     -- to draw the loading screen
@@ -103,7 +103,7 @@ runParacVulkan = do
               windows     = luaWindows ls
               thiswin     = windows !! (luaCurrWin ls)
               wintextures = findReqTextures thiswin
-          (newTexData,newFontData) ← loadVulkanTextures gqdata wintextures
+          newTexData ← loadVulkanTextures gqdata wintextures
           modify $ \s → s { sRecreate  = False
                           , sVertCache = Nothing
                           , sTick      = Just firstTick }
@@ -115,7 +115,7 @@ runParacVulkan = do
           vulkLoop vulkLoopData
 
 vulkLoop ∷ VulkanLoopData → Anamnesis ε σ (LoopControl)
-vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData fontData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
+vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulkanSurface texData msaaSamples shaderVert shaderFrag imgIndexPtr windowSizeChanged frameIndexRef renderFinishedSems imageAvailableSems inFlightFences) = do
   env ← ask
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)

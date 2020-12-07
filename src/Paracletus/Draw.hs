@@ -20,35 +20,36 @@ import Paracletus.Oblatum.Data
 -- shell can be safely drawn over everything
 loadDrawState ∷ LuaState → DrawState
 loadDrawState ls = DrawState (tiles ⧺ shTiles) dynData
-  where tiles   = loadWindow currWin
+  where tiles   = loadWindow nDefTex currWin
         shTiles = genShell $ luaShell ls
         winInd  = luaCurrWin ls
         currWin = (luaWindows ls) !! winInd
         dynData = calcDynData currWin
+        nDefTex = luaNDefTex ls
   
-loadWindow ∷ Window → [GTile]
-loadWindow win = loadWinElems $ reverse $ mysort (zip (winCache win) (winElems win))
+loadWindow ∷ Int → Window → [GTile]
+loadWindow nDefTex win = loadWinElems nDefTex $ reverse $ mysort (zip (winCache win) (winElems win))
 mysort ∷ Ord b ⇒ [(a,b)] → [(a,b)]
 mysort = sortBy (flip compare `on` snd)
 
-loadWinElems ∷ ([(WinElemCache,WinElem)]) → [GTile]
-loadWinElems []                    = []
-loadWinElems ((WECached gts,e):es) = gts ⧺ loadWinElems es
-loadWinElems ((ec,e):es)           = loadWinElem e ⧺ loadWinElems es
+loadWinElems ∷ Int → ([(WinElemCache,WinElem)]) → [GTile]
+loadWinElems _       []                    = []
+loadWinElems nDefTex ((WECached gts,e):es) = gts ⧺ loadWinElems nDefTex es
+loadWinElems nDefTex ((ec,e):es)           = loadWinElem nDefTex e ⧺ loadWinElems nDefTex es
 
-loadWinElem ∷ WinElem → [GTile]
-loadWinElem (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText False (fst pos) pos str
+loadWinElem ∷ Int → WinElem → [GTile]
+loadWinElem nDefTex (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText False (fst pos) pos str
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
-loadWinElem (WinElemText pos False str) = addText False (fst pos) pos str
-loadWinElem (WinElemMenu _ pos bits) = calcMenu pos bits
-loadWinElem (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]
-loadWinElem (WinElemWorld wp wd _) = calcTiles wp wd
-loadWinElem (WinElemLink _ _ _)    = []
-loadWinElem (WinElemDyn DynFPS _)  = calcFPSTiles
-loadWinElem (WinElemDyn (DynSlider pos) _) = [GTileUncached pos (0.5,0.5) (8,5) (16,6) 1 True False]
-loadWinElem (WinElemDyn DynNULL _) = []
-loadWinElem WinElemNULL = []
+loadWinElem nDefTex (WinElemText pos False str) = addText False (fst pos) pos str
+loadWinElem nDefTex (WinElemMenu _ pos bits) = calcMenu pos bits
+loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) nDefTex False False]
+loadWinElem nDefTex (WinElemWorld wp wd _) = calcTiles wp wd
+loadWinElem nDefTex (WinElemLink _ _ _)    = []
+loadWinElem nDefTex (WinElemDyn DynFPS _)  = calcFPSTiles
+loadWinElem nDefTex (WinElemDyn (DynSlider pos) _) = [GTileUncached pos (0.5,0.5) (8,5) (16,6) 1 True False]
+loadWinElem nDefTex (WinElemDyn DynNULL _) = []
+loadWinElem nDefTex WinElemNULL = []
 
 -- converts tiles in world data into GTile list
 calcTiles ∷ WorldParams → WorldData → [GTile]

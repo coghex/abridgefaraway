@@ -30,6 +30,7 @@ initLua = do
                     , luaConfig  = initLC
                     , luaCurrWin = 0
                     , luaLastWin = 0
+                    , luaNDefTex = 0
                     , luaShell   = initShell
                     , luaModules = []
                     , luaWindows = [] }
@@ -188,7 +189,7 @@ hsNewWorld env win zx zy sx sy dp = do
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) (WECached [GTileUncached (0,0) (32,24) (0,0) (1,1) 19 False False]))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemBack fp) WEUncached)
 
 hsSwitchWindow ∷ Env → String → Lua.Lua ()
 hsSwitchWindow env name = do
@@ -335,4 +336,4 @@ findMenuPos mn (_:wes) = findMenuPos mn wes
 -- currwin and wins are created
 -- together, the outcome is known
 currentWindow ∷ LuaState → Window
-currentWindow (LuaState _ _ _ currWin _ _ _ wins) = wins !! currWin
+currentWindow ls = (luaWindows ls) !! (luaCurrWin ls)

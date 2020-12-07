@@ -4,7 +4,11 @@ module Paracletus.Vulkan.Load where
 -- is spun off as a child thread
 import Prelude()
 import UPrelude
+import Control.Monad.State.Class (modify,gets)
 import Anamnesis
+import Anamnesis.Data
+import Anamnesis.Util
+import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Vulkan.Data
 import Paracletus.Vulkan.Desc
@@ -15,7 +19,7 @@ import Paracletus.Vulkan.Pipeline
 -- the descriptor sets and pipeline. an
 -- empty string will just load default textures
 -- and filepaths added will be ammended to that
-loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData, TextureData)
+loadVulkanTextures ∷ GQData → [FilePath] → Anamnesis ε σ (TextureData)
 loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   -- the engine reserves the first few
   -- textures for default usage.
@@ -43,21 +47,19 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
   texSamplersMod  ← createTextureSamplers dev $ snd . unzip $ modTexViews
+  let (ftexs, fmipLvls) = unzip fontTexs
+  fontSamplers ← createTextureSamplers dev fmipLvls
   let (btexs, bsamps) = unzip boxTexs
       (mbtexs, mbsamps) = unzip mboxTexs
-      texViews = [textureView1, texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ (fst (unzip modTexViews))
+      defaultTexs = ([textureView1,texViewAlph] ⧺ btexs ⧺ mbtexs)
+      texViews = defaultTexs ⧺ (fst (unzip modTexViews))
       texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ texSamplersMod
-      (ftexs, fmipLvls) = unzip fontTexs
-  fsamps ← createTextureSamplers dev fmipLvls
+  ls ← gets luaSt
+  modify $ \s → s { luaSt = ls { luaNDefTex = length defaultTexs }}
   descriptorTextureInfo ← textureImageInfos texViews texSamps
-  descriptorFontInfo ← textureImageInfos ftexs fsamps
   depthFormat ← findDepthFormat pdev
   let nimages = length texViews
-      nfonts = length ftexs
   descriptorSetLayout ← createDescriptorSetLayout dev nimages
-  fontDescriptorSetLayout ← createFontDescriptorSetLayout dev nfonts
   pipelineLayout ← createPipelineLayout dev descriptorSetLayout
-  fontPipelineLayout ← createPipelineLayout dev fontDescriptorSetLayout
   let texdata = TextureData descriptorSetLayout pipelineLayout nimages descriptorTextureInfo depthFormat
-      fontdata = TextureData fontDescriptorSetLayout fontPipelineLayout nfonts descriptorFontInfo depthFormat
-  return (texdata, fontdata)
+  return texdata
