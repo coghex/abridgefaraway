@@ -52,7 +52,7 @@ processEvent event = case event of
   (EventMouseButton win mb mbs mk) → evalMouse win mb mbs mk
   (EventLoadedLuaState ds) → modify $
     \s → s { drawSt = ds
-           , sRecreate = True }
+           , sReload = True }
   -- callback for a loaded drawState
   (EventLoadedDrawState ds) → do
     modify $ \s → s { drawSt = ds }
@@ -62,6 +62,7 @@ processEvent event = case event of
   -- callback for a loaded luaState
   (EventLoadedWorld ls) → modify $
     \s → s { luaSt = ls }
+  (EventRecreate) → modify $ \s → s { sRecreate = True }
   -- translates the lua draw state
   -- into the engine draw state
   (EventLoaded) → do

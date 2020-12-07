@@ -3,6 +3,7 @@ module Paracletus.Oblatum where
 -- the input side of GLFW is handled
 import Prelude()
 import UPrelude
+import Control.Concurrent (threadDelay)
 import Control.Monad (when, unless, forever)
 import Control.Monad.State.Class (gets, modify)
 import Data.Time.Clock (getCurrentTime, utctDayTime)
@@ -63,7 +64,7 @@ loadLoop w action = go
             modify $ \s → s { sTick = Just newtick }
             status ← locally action
             let fps = 120.0
-            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
+            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO (threadDelay 1000))
             if status ≡ ContinueLoop then go else return False
           else return True
 
