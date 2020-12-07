@@ -17,6 +17,7 @@ import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Module
+import Epiklesis.Shell
 import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
@@ -123,7 +124,8 @@ processEvent event = case event of
         st  ← get
         modNew ← liftIO $ loadModule env st ModuleUser str
         let oldLS = luaSt st
-            newLS = oldLS { luaModules = (luaModules oldLS) ⧺ [modNew] }
+            newLS = oldLS { luaModules = (luaModules oldLS) ⧺ [modNew]
+                          , luaCmds = (luaCmds oldLS) ⧺ listModuleFunctions }
         modify $ \s → s { luaSt = newLS }
       (LuaCmdswitchWindow winName) → do
         env ← ask
@@ -160,5 +162,6 @@ processEvent event = case event of
           let ls = luaSt st
               currWin = (luaWindows ls) !! (luaCurrWin ls)
           logInfo $ "screenCursor: " ⧺ (show (winCursor currWin))
+          modify $ \s → s { luaSt = ls { luaShell = outputToShell (luaShell ls) (show (winCursor currWin)) }}
         (LFNULL)         → logError $ "lua NULL query"
       (LuaCmdNULL)   → logError $ "lua NULL command"

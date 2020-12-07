@@ -92,3 +92,7 @@ incShTabbed (Just n) = (n+1)
 tabCommand ∷ Int → String → [String] → String
 tabCommand n inpStr cmds = matchedStrings !! (n `mod` (length matchedStrings))
   where matchedStrings = filter (isPrefixOf inpStr) cmds
+
+-- adds lua output of commands to the shell
+outputToShell ∷ Shell → String → Shell
+outputToShell sh str = sh { shOutStr = (init (shOutStr sh)) ⧺ " " ⧺ str ⧺ "\n" }

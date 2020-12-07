@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -fforce-recomp #-}
+-- use force recomp if modifying shader
+-- {-# OPTIONS_GHC -fforce-recomp #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE TemplateHaskell #-}

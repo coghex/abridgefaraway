@@ -11,6 +11,10 @@ import Artos.Var
 import Artos.Queue
 import Epiklesis.Data
 
+-- lists available functions for cmd search
+listModuleFunctions ∷ [String]
+listModuleFunctions = ["findScreenCursor"]
+
 -- loads functions available in main module
 loadModuleFunctions ∷ Env → Lua.Lua ()
 loadModuleFunctions env = Lua.registerHaskellFunction "findScreenCursor" (hsFindScreenCursor env)
