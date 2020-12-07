@@ -142,6 +142,7 @@ processEvent event = case event of
         else do
           modify $ \s → s { luaSt = changeCurrWin winNum ls }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+          liftIO $ atomically $ writeQueue eventQ $ EventRecreate
       (LuaCmdtoggleFPS) → do
         ls ← gets luaSt
         case (luaFPS ls) of

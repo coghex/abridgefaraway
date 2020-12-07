@@ -87,7 +87,6 @@ processCommand env cmd = do
       let currWin = currentWindow ls
       if ((winType currWin) ≡ WinTypeGame) then do
         atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
-        atomically $ writeQueue (envEventsChan env) $ EventRecreate
         return "success"
       else return "success"
     -- loads a world from a luaState
