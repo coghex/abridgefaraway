@@ -21,8 +21,10 @@ data Window = Window { winTitle  ∷ String
 -- lua shell executes commands in global state
 data Shell = Shell { shPrompt ∷ String
                    , shOpen   ∷ Bool
+                   , shTabbed ∷ Maybe Int
                    , shCursor ∷ Int
                    , shInpStr ∷ String
+                   , shCache  ∷ String
                    , shOutStr ∷ String } deriving (Show, Eq)
 
 -- the windows defined by the lua fies,
@@ -37,6 +39,7 @@ data LuaState = LuaState { luaState   ∷ Lua.State
                          , luaLastWin ∷ Int
                          , luaNDefTex ∷ Int
                          , luaShell   ∷ Shell
+                         , luaCmds    ∷ [String]
                          , luaModules ∷ [Module]
                          , luaWindows ∷ [Window] }
 

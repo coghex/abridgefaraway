@@ -4,6 +4,7 @@ module Epiklesis.Shell where
 -- lua commands is defined
 import Prelude()
 import UPrelude
+import Data.List (isPrefixOf)
 import Data.List.Split (splitOn)
 import Anamnesis.Data
 import Epiklesis.Data
@@ -15,7 +16,7 @@ import qualified Foreign.Lua as Lua
 
 -- empty shell
 initShell ∷ Shell
-initShell = Shell "$> " False 0 "" ""
+initShell = Shell "$> " False Nothing 0 "" "" ""
 
 -- executes lua command in state
 evalShell ∷ Env → LuaState → IO LuaState
@@ -24,7 +25,8 @@ evalShell env ls = do
   (ret,outbuff) ← execShell env (luaState ls) (shInpStr oldSh)
   let retstring = (shOutStr oldSh) ⧺ (shPrompt oldSh) ⧺ (shInpStr oldSh) ⧺ "\n" ⧺ (show ret) ⧺ " > " ⧺ outbuff ⧺ "\n"
       newSh = oldSh { shInpStr = ""
-                    , shOutStr = retstring }
+                    , shOutStr = retstring
+                    , shTabbed = Nothing }
   return ls { luaShell = newSh }
 
 execShell ∷ Env → Lua.State → String → IO (Lua.Status,String)
@@ -49,7 +51,7 @@ genShell sh = case (shOpen sh) of
         pos' = (-7.0,4)
         str = genShellStr sh--[shPrompt sh]
 genShellStr ∷ Shell → String
-genShellStr (Shell prompt _ _ strsin strsout)
+genShellStr (Shell prompt _ _ _ strsin _ strsout)
   | (height > 8) = shortret
   | otherwise    = retstring
   where height = length $ filter (≡ '\n') retstring
@@ -60,11 +62,33 @@ genShellStr (Shell prompt _ _ strsin strsout)
         flattenWith ch (str:strs) = str ⧺ [ch] ⧺ flattenWith ch strs
 
 removeShellString ∷ Shell → Shell
-removeShellString sh = sh { shInpStr = init $ shInpStr sh }
+removeShellString sh = sh { shTabbed = Nothing
+                          , shInpStr = init $ shInpStr sh }
 
 addShellString ∷ Shell → String → Shell
-addShellString sh str = sh { shInpStr = (shInpStr sh) ⧺ str }
+addShellString sh str = sh { shTabbed = Nothing
+                           , shInpStr = (shInpStr sh) ⧺ str }
 
 -- reveals on screen
 openSh ∷ Shell → Bool → Shell
 openSh sh on = sh { shOpen = on }
+
+-- cycles through commands with tab
+tabShell ∷ Shell → [String] → Shell
+tabShell sh cmds
+  | shTabbed sh ≡ Nothing =
+      sh { shCache  = shInpStr sh
+         , shInpStr = tabCommand 0 (shInpStr sh) cmds
+         , shTabbed = Just 0 }
+  | otherwise             =
+      sh { shTabbed = Just incSh
+         , shInpStr = tabCommand incSh (shCache sh) cmds }
+    where incSh = incShTabbed $ shTabbed sh
+
+incShTabbed ∷ Maybe Int → Int
+incShTabbed Nothing  = 0
+incShTabbed (Just n) = (n+1)
+
+tabCommand ∷ Int → String → [String] → String
+tabCommand n inpStr cmds = matchedStrings !! (n `mod` (length matchedStrings))
+  where matchedStrings = filter (isPrefixOf inpStr) cmds

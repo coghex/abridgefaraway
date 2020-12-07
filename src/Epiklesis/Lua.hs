@@ -32,6 +32,7 @@ initLua = do
                     , luaLastWin = 0
                     , luaNDefTex = 0
                     , luaShell   = initShell
+                    , luaCmds    = ["newWindow", "newText", "newMenu", "newMenuBit", "newLink", "newWorld", "switchWindow", "setBackground", "luaModule", "newDynObj", "toggleFPS"]
                     , luaModules = []
                     , luaWindows = [] }
 
@@ -43,12 +44,13 @@ initLuaConfig ls fn = Lua.runWith ls $ do
   retkey   ← Lua.getglobal "retkey"   *> Lua.peek (-1)
   delkey   ← Lua.getglobal "delkey"   *> Lua.peek (-1)
   spckey   ← Lua.getglobal "spckey"   *> Lua.peek (-1)
+  tabkey   ← Lua.getglobal "tabkey"   *> Lua.peek (-1)
   upkey    ← Lua.getglobal "upkey"    *> Lua.peek (-1)
   leftkey  ← Lua.getglobal "leftkey"  *> Lua.peek (-1)
   downkey  ← Lua.getglobal "downkey"  *> Lua.peek (-1)
   rightkey ← Lua.getglobal "rightkey" *> Lua.peek (-1)
   shkey    ← Lua.getglobal "shkey"    *> Lua.peek (-1)
-  return $ LuaConfig $ KeyLayout esckey retkey delkey spckey upkey leftkey downkey rightkey shkey
+  return $ LuaConfig $ KeyLayout esckey retkey delkey spckey tabkey upkey leftkey downkey rightkey shkey
 
 loadState ∷ Env → State → IO ()
 loadState env st = do

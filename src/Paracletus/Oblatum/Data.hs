@@ -6,6 +6,7 @@ data KeyLayout = KeyLayout
   , klRet ∷ String
   , klDel ∷ String
   , klSpc ∷ String
+  , klTab ∷ String
   , klUp  ∷ String
   , klLft ∷ String
   , klDwn ∷ String
