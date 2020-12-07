@@ -65,7 +65,6 @@ function initLua ()
     game1:setBackground ("dat/tex/black.png")
     game1:addTextBox (-4.0, 4.0, "blop blop")
     game1:addWorld (8,8,16,8,"dat/tex/world/")
-    game1:addFPS ()
 
     menu1:switchToWindow ()
     loadModule ("mod/base/game.lua")

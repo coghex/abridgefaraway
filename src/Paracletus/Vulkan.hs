@@ -194,25 +194,24 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       processEvents
       -- this is for input calculations
       processInput
-      newLS ← gets luaSt
+      st ← get
+      let newLS = luaSt st
       -- dumb fps counter
-      case (luaFPS newLS) of
-        Just _ → do
-          seconds ← getTime
-          cur ← liftIO $ atomically $ readTVar currentSec
-          if floor seconds /= cur
-          then do
-            count ← liftIO $ atomically $ readTVar frameCount
-            let cmdQ = envLCmdChan env
-            when (cur /= 0) $ do
-              let newLS' = setFPS newLS count
-              modify $ \s → s { luaSt = newLS' }
-              liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
-            liftIO $ do
-              atomically $ writeTVar currentSec (floor seconds)
-              atomically $ writeTVar frameCount 0
-          else liftIO $ atomically $ modifyTVar' frameCount succ
-        Nothing → return ()
+      seconds ← getTime
+      cur ← liftIO $ atomically $ readTVar currentSec
+      if floor seconds /= cur
+      then do
+        count ← liftIO $ atomically $ readTVar frameCount
+        let cmdQ = envLCmdChan env
+        when (cur /= 0) $ do
+          let newLS' = setFPS newLS count
+          modify $ \s → s { luaSt = newLS'
+                          , sFPS  = (fst (sFPS st),count) }
+          liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
+        liftIO $ do
+          atomically $ writeTVar currentSec (floor seconds)
+          atomically $ writeTVar frameCount 0
+      else liftIO $ atomically $ modifyTVar' frameCount succ
       -- wait idle because it seems needed
       -- at least once every frame
       runVk $ vkDeviceWaitIdle dev

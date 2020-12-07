@@ -35,6 +35,7 @@ data State = State { status       ∷ AExcept
                    , sReload      ∷ Bool
                    , sRecreate    ∷ Bool
                    , sStartTime   ∷ SystemTime
+                   , sFPS         ∷ (Double,Int)
                    , sTick        ∷ Maybe Double }
 data Settings = Settings
   { settingScreenW   ∷ Int

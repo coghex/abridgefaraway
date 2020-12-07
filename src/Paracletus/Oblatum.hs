@@ -63,8 +63,6 @@ loadLoop w action = go
                   Nothing → liftIO $ getCurTick
             modify $ \s → s { sTick = Just newtick }
             status ← locally action
-            let fps = 120.0
-            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO (threadDelay 1000))
             if status ≡ ContinueLoop then go else return False
           else return True
 
@@ -80,8 +78,14 @@ glfwMainLoop w action = go
                   Nothing → liftIO $ getCurTick
             modify $ \s → s { sTick = Nothing }
             status ← locally action
-            let fps = 120.0
-            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO $ GLFW.pollEvents)
+            sfps ← gets sFPS
+            let fps = fst sfps
+                dfps = snd sfps
+                deltafps = 0.1
+            liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO (threadDelay 1000))
+            if (dfps > 60) then modify $ \s → s { sFPS = (fps-deltafps, dfps) }
+            else if (dfps < 60) then modify $ \s → s { sFPS = (fps+deltafps, dfps) }
+            else modify $ \s → s { sFPS = (fps, dfps) }
             if status ≡ ContinueLoop then go else return False
           else return True
 

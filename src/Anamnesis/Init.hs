@@ -68,4 +68,5 @@ initState = do
                              , sRecreate    = False
                              , sReload      = False
                              , sStartTime   = starttime
+                             , sFPS         = (60.0,0)
                              , sTick        = Nothing }
