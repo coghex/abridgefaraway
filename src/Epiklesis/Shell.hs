@@ -95,7 +95,9 @@ incShTabbed Nothing  = 0
 incShTabbed (Just n) = (n+1)
 
 tabCommand ∷ Int → String → [String] → String
-tabCommand n inpStr cmds = matchedStrings !! (n `mod` (length matchedStrings))
+tabCommand n inpStr cmds
+  | matchedStrings ≡ [] = inpStr
+  | otherwise           = matchedStrings !! (n `mod` (length matchedStrings))
   where matchedStrings = filter (isPrefixOf inpStr) cmds
 
 -- adds lua output of commands to the shell
@@ -117,3 +119,10 @@ downShell sh
                         , shHistI  = max (-1) ((shHistI sh) - 1) }
   | otherwise      = sh { shInpStr = "" }
 
+-- resets the shell, used for ctrl-c
+resetShell ∷ Shell → Shell
+resetShell sh = sh { shInpStr = ""
+                   , shOutStr = retstring
+                   , shTabbed = Nothing 
+                   , shHistI  = -1 }
+  where retstring = (shOutStr sh) ⧺ (shPrompt sh) ⧺ shInpStr sh ⧺ "\n"

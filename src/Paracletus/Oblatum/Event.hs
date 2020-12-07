@@ -138,6 +138,15 @@ evalKey window k ks mk keyLayout = do
           newLS  = oldLS { luaShell = newSh }
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (GLFW.modifierKeysControl mk) then do
+      if (GLFW.keyCheck False keyLayout k "C") then do
+        let newSh  = resetShell sh
+            newLS  = oldLS { luaShell = newSh }
+            sh     = luaShell oldLS
+            eventQ = envEventsChan env
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else return ()
     else do
       ch ← liftIO $ GLFW.calcInpKey k mk
       let newSh  = addShellString sh ch

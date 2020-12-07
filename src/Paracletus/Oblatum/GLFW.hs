@@ -82,6 +82,7 @@ applyKeyLayout _         "H"   = "H"
 applyKeyLayout _         "J"   = "J"
 applyKeyLayout _         "K"   = "K"
 applyKeyLayout _         "L"   = "L"
+applyKeyLayout _         "C"   = "C"
 applyKeyLayout _         _     = "NULL"
 
 getKeyStr ∷ Key → IO (Maybe String)
