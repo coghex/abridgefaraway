@@ -145,6 +145,13 @@ processEvent event = case event of
           modify $ \s → s { luaSt = changeCurrWin winNum ls }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
           liftIO $ atomically $ writeQueue eventQ $ EventRecreate
+      (LuaCmdresizeWindow x y) → do
+        window ← gets windowSt
+        case window of
+          Just win → do
+            liftIO $ GLFW.setWindowSize win x y
+            logDebug $ "resize cmd " ⧺ (show x) ⧺ ", " ⧺ (show y)
+          Nothing → logWarn $ "no window to resize"
       (LuaCmdtoggleFPS) → do
         ls ← gets luaSt
         case (luaFPS ls) of

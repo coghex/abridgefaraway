@@ -32,7 +32,7 @@ initLua = do
                     , luaLastWin = 0
                     , luaNDefTex = 0
                     , luaShell   = initShell
-                    , luaCmds    = ["newWindow", "newText", "newMenu", "newMenuBit", "newLink", "newWorld", "switchWindow", "setBackground", "luaModule", "newDynObj", "toggleFPS"]
+                    , luaCmds    = ["newWindow", "newText", "newMenu", "newMenuBit", "newLink", "newWorld", "switchWindow", "setBackground", "luaModule", "newDynObj", "resizeWindow", "toggleFPS"]
                     , luaModules = []
                     , luaWindows = [] }
 
@@ -66,6 +66,7 @@ loadState env st = do
     Lua.registerHaskellFunction "setBackground" (hsSetBackground env)
     Lua.registerHaskellFunction "loadModule" (hsLoadModule env)
     Lua.registerHaskellFunction "newDynObj" (hsNewDynObj env)
+    Lua.registerHaskellFunction "resizeWindow" (hsResizeWindow env)
     Lua.registerHaskellFunction "toggleFPS" (hsToggleFPS env)
     Lua.openlibs
     _ ← Lua.dofile $ "mod/base/base.lua"
@@ -202,6 +203,11 @@ hsLoadModule ∷ Env → String → Lua.Lua ()
 hsLoadModule env fp = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdloadModule fp)
+
+hsResizeWindow ∷ Env → Int → Int → Lua.Lua ()
+hsResizeWindow env x y = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdresizeWindow x y)
 
 hsToggleFPS ∷ Env → Lua.Lua ()
 hsToggleFPS env = do

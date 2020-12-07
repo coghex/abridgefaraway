@@ -119,16 +119,30 @@ evalKey window k ks mk keyLayout = do
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else if (GLFW.keyCheck False keyLayout k "TAB") then do
       let eventQ = envEventsChan env
-          newSh = tabShell sh $ luaCmds oldLS
-          newLS = oldLS { luaShell = newSh }
-          sh    = luaShell oldLS
+          newSh  = tabShell sh $ luaCmds oldLS
+          newLS  = oldLS { luaShell = newSh }
+          sh     = luaShell oldLS
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (GLFW.keyCheck False keyLayout k "UPA") then do
+      let eventQ = envEventsChan env
+          newSh  = upShell sh
+          sh     = luaShell oldLS
+          newLS  = oldLS { luaShell = newSh }
+      modify' $ \s → s { luaSt = newLS }
+      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (GLFW.keyCheck False keyLayout k "DNA") then do
+      let eventQ = envEventsChan env
+          newSh  = downShell sh
+          sh     = luaShell oldLS
+          newLS  = oldLS { luaShell = newSh }
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded
     else do
       ch ← liftIO $ GLFW.calcInpKey k mk
-      let newSh = addShellString sh ch
-          newLS = oldLS { luaShell = newSh }
-          sh    = luaShell oldLS
+      let newSh  = addShellString sh ch
+          newLS  = oldLS { luaShell = newSh }
+          sh     = luaShell oldLS
           eventQ = envEventsChan env
       modify' $ \s → s { luaSt = newLS }
       liftIO $ atomically $ writeQueue eventQ $ EventLoaded

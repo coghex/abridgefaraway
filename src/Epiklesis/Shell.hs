@@ -16,7 +16,7 @@ import qualified Foreign.Lua as Lua
 
 -- empty shell
 initShell ∷ Shell
-initShell = Shell "$> " False Nothing 0 "" "" ""
+initShell = Shell "$> " False Nothing 0 "" "" "" (-1) []
 
 -- executes lua command in state
 evalShell ∷ Env → LuaState → IO LuaState
@@ -26,7 +26,9 @@ evalShell env ls = do
   let retstring = (shOutStr oldSh) ⧺ (shPrompt oldSh) ⧺ (shInpStr oldSh) ⧺ "\n" ⧺ (show ret) ⧺ " > " ⧺ outbuff ⧺ "\n"
       newSh = oldSh { shInpStr = ""
                     , shOutStr = retstring
-                    , shTabbed = Nothing }
+                    , shTabbed = Nothing 
+                    , shHistI  = -1
+                    , shHist   = ([shInpStr oldSh] ⧺ shHist oldSh) }
   return ls { luaShell = newSh }
 
 execShell ∷ Env → Lua.State → String → IO (Lua.Status,String)
@@ -51,12 +53,15 @@ genShell sh = case (shOpen sh) of
         pos' = (-7.0,4)
         str = genShellStr sh--[shPrompt sh]
 genShellStr ∷ Shell → String
-genShellStr (Shell prompt _ _ _ strsin _ strsout)
+genShellStr sh
   | (height > 8) = shortret
   | otherwise    = retstring
-  where height = length $ filter (≡ '\n') retstring
+  where prompt    = shPrompt sh
+        strsin    = shInpStr sh
+        strsout   = shOutStr sh
+        height    = length $ filter (≡ '\n') retstring
         retstring = strsout ⧺ prompt ⧺ strsin
-        shortret = flattenWith '\n' $ drop (height - 8) (splitOn "\n" retstring)
+        shortret  = flattenWith '\n' $ drop (height - 8) (splitOn "\n" retstring)
         flattenWith ∷ Char → [String] → String
         flattenWith _  []         = ""
         flattenWith ch (str:strs) = str ⧺ [ch] ⧺ flattenWith ch strs
@@ -96,3 +101,19 @@ tabCommand n inpStr cmds = matchedStrings !! (n `mod` (length matchedStrings))
 -- adds lua output of commands to the shell
 outputToShell ∷ Shell → String → Shell
 outputToShell sh str = sh { shOutStr = (init (shOutStr sh)) ⧺ " " ⧺ str ⧺ "\n" }
+
+-- cycles through the shell history
+upShell ∷ Shell → Shell
+upShell sh
+  | shHist sh ≡ [] = sh
+  | otherwise      = sh { shInpStr = (shHist sh) !! (incShHist `mod` (length (shHist sh)))
+                        , shHistI  = incShHist }
+  where incShHist = (shHistI sh) + 1
+
+downShell ∷ Shell → Shell
+downShell sh
+  | shHist sh ≡ [] = sh
+  | shHistI sh ≥ 0 = sh { shInpStr = (shHist sh) !! ((shHistI sh) `mod` (length (shHist sh)))
+                        , shHistI  = max (-1) ((shHistI sh) - 1) }
+  | otherwise      = sh { shInpStr = "" }
+

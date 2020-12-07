@@ -25,7 +25,9 @@ data Shell = Shell { shPrompt ∷ String
                    , shCursor ∷ Int
                    , shInpStr ∷ String
                    , shCache  ∷ String
-                   , shOutStr ∷ String } deriving (Show, Eq)
+                   , shOutStr ∷ String
+                   , shHistI  ∷ Int
+                   , shHist   ∷ [String] } deriving (Show, Eq)
 
 -- the windows defined by the lua fies,
 -- they are made up of elements which
@@ -110,6 +112,7 @@ data LinkAction = LinkExit | LinkBack | LinkLink String | LinkNULL deriving (Sho
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
+            | LuaCmdresizeWindow Int Int
             | LuaCmdnewElem String WinElem WinElemCache
             | LuaCmdnewMenuBit String String MenuBit
             | LuaCmdswitchWindow String
