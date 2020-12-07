@@ -157,71 +157,74 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
       Nothing → do
         oldDS ← gets drawSt
         modify $ \s → s { sReload = False }
-    shouldLoad ← glfwMainLoop window $ do
-      stNew ← get
-      let lsNew = luaSt stNew
-          camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-          testNew = sTest stNew
-          nDynData = dsDyns $ drawSt stNew
-          nDynNew = length nDynData
-      let rdata = RenderData { dev
-                             , swapInfo
-                             , queues
-                             , imgIndexPtr
-                             , frameIndexRef
-                             , renderFinishedSems
-                             , imageAvailableSems
-                             , inFlightFences
-                             , cmdBuffersPtr = cmdBP0
-                             , memories = transObjMemories
-                             , dynMemories = transDynMemories
-                             , texMemories = transTexMemories
-                             , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
-                             , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo)
-                             , texMemoryMutator = updateTransTex nDynNew nDynData dev (swapExtent swapInfo) }
-      liftIO $ GLFW.pollEvents
-      needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
-        -- when khr out of date,
-        -- recreate swapchain
-        True → do
-          _ ← logDebug $ "vulkan khr out of date"
-          return True
-        _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
-      sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-      when sizeChanged $ logDebug "glfw window size callback"
-      -- this is for the vaious events
-      -- such as key input and state changes
-      processEvents
-      -- this is for input calculations
-      processInput
-      st ← get
-      let newLS = luaSt st
-      -- dumb fps counter
-      seconds ← getTime
-      cur ← liftIO $ atomically $ readTVar currentSec
-      if floor seconds /= cur
-      then do
-        count ← liftIO $ atomically $ readTVar frameCount
-        let cmdQ = envLCmdChan env
-        when (cur /= 0) $ do
-          let newLS' = setFPS newLS count
-          modify $ \s → s { luaSt = newLS'
-                          , sFPS  = (fst (sFPS st),count) }
-          liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
-        liftIO $ do
-          atomically $ writeTVar currentSec (floor seconds)
-          atomically $ writeTVar frameCount 0
-      else liftIO $ atomically $ modifyTVar' frameCount succ
-      -- wait idle because it seems needed
-      -- at least once every frame
-      runVk $ vkDeviceWaitIdle dev
-      -- recreation check
+    -- if the size is changing, halt all draw ops
+    sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
+    if sizeChanged then return AbortLoop
+    else do
+      shouldLoad ← glfwMainLoop window $ do
+        stNew ← get
+        let lsNew = luaSt stNew
+            camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
+            testNew = sTest stNew
+            nDynData = dsDyns $ drawSt stNew
+            nDynNew = length nDynData
+        let rdata = RenderData { dev
+                               , swapInfo
+                               , queues
+                               , imgIndexPtr
+                               , frameIndexRef
+                               , renderFinishedSems
+                               , imageAvailableSems
+                               , inFlightFences
+                               , cmdBuffersPtr = cmdBP0
+                               , memories = transObjMemories
+                               , dynMemories = transDynMemories
+                               , texMemories = transTexMemories
+                               , memoryMutator = updateTransObj camNew dev (swapExtent swapInfo)
+                               , dynMemoryMutator = updateTransDyn nDynNew nDynData dev (swapExtent swapInfo)
+                               , texMemoryMutator = updateTransTex nDynNew nDynData dev (swapExtent swapInfo) }
+        liftIO $ GLFW.pollEvents
+        needRecreation ← drawFrame rdata `catchError` (\err → case (testEx err VK_ERROR_OUT_OF_DATE_KHR) of
+          -- when khr out of date,
+          -- recreate swapchain
+          True → do
+            _ ← logDebug $ "vulkan khr out of date"
+            return True
+          _    → logExcept ParacError ExParacletus "unknown drawFrame error" )
+        sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
+        -- this is for the vaious events
+        -- such as key input and state changes
+        processEvents
+        -- this is for input calculations
+        processInput
+        st ← get
+        let newLS = luaSt st
+        -- dumb fps counter
+        seconds ← getTime
+        cur ← liftIO $ atomically $ readTVar currentSec
+        if floor seconds /= cur
+        then do
+          count ← liftIO $ atomically $ readTVar frameCount
+          let cmdQ = envLCmdChan env
+          when (cur /= 0) $ do
+            let newLS' = setFPS newLS count
+            modify $ \s → s { luaSt = newLS'
+                            , sFPS  = (fst (sFPS st),count) }
+            liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
+          liftIO $ do
+            atomically $ writeTVar currentSec (floor seconds)
+            atomically $ writeTVar frameCount 0
+        else liftIO $ atomically $ modifyTVar' frameCount succ
+        -- wait idle because it seems needed
+        -- at least once every frame
+        runVk $ vkDeviceWaitIdle dev
+        -- recreation check
+        stateRecreate ← gets sRecreate
+        stateReload   ← gets sReload
+        return $ if needRecreation ∨ sizeChanged ∨ stateRecreate ∨ stateReload then AbortLoop else ContinueLoop
+      -- loop ends, now deallocate
       stateRecreate ← gets sRecreate
-      stateReload   ← gets sReload
-      return $ if needRecreation ∨ sizeChanged ∨ stateRecreate ∨ stateReload then AbortLoop else ContinueLoop
-    -- loop ends, now deallocate
-    stateRecreate ← gets sRecreate
-    return $ if shouldLoad ∨ stateRecreate then AbortLoop else ContinueLoop
+      return $ if shouldLoad ∨ stateRecreate then AbortLoop else ContinueLoop
   return $ if shouldExit then AbortLoop else ContinueLoop
 
 genCommandBuffs ∷ VkDevice → VkPhysicalDevice → VkCommandPool → DevQueues → VkPipeline → VkRenderPass → TextureData → SwapchainInfo → [VkFramebuffer] → [VkDescriptorSet] → Anamnesis ε σ (Ptr VkCommandBuffer)
