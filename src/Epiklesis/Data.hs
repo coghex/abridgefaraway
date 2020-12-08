@@ -23,6 +23,7 @@ data Shell = Shell { shPrompt ∷ String
                    , shOpen   ∷ Bool
                    , shTabbed ∷ Maybe Int
                    , shCursor ∷ Int
+                   , shCBlink ∷ Bool
                    , shInpStr ∷ String
                    , shCache  ∷ String
                    , shOutStr ∷ String

@@ -92,65 +92,98 @@ evalKey window k ks mk keyLayout = do
     else return ()
   -- captured keys allow for typing
   -- when in the shell or etc...
-  when ((not (GLFW.keyCheck False keyLayout k "SH")) ∧ cap ∧ (ks ≡ GLFW.KeyState'Pressed)) $ do
-    env ← ask
-    if (GLFW.keyCheck False keyLayout k "DEL")
-    then do
-      let newLS = oldLS { luaShell = removeShellString (luaShell oldLS) }
-          eventQ = envEventsChan env
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    else if (GLFW.keyCheck False keyLayout k "SPC") then do
-      let newSh = addShellString sh [' ']
-          newLS = oldLS { luaShell = newSh }
-          sh    = luaShell oldLS
-          eventQ = envEventsChan env
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    -- evaluates lua command in state
-    else if (GLFW.keyCheck False keyLayout k "RET") then do
-      newLS ← liftIO $ evalShell env $ oldLS
-      let eventQ = envEventsChan env
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    else if (GLFW.keyCheck False keyLayout k "TAB") then do
-      let eventQ = envEventsChan env
-          newSh  = tabShell sh $ luaCmds oldLS
-          newLS  = oldLS { luaShell = newSh }
-          sh     = luaShell oldLS
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    else if (GLFW.keyCheck False keyLayout k "UPA") then do
-      let eventQ = envEventsChan env
-          newSh  = upShell sh
-          sh     = luaShell oldLS
-          newLS  = oldLS { luaShell = newSh }
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    else if (GLFW.keyCheck False keyLayout k "DNA") then do
-      let eventQ = envEventsChan env
-          newSh  = downShell sh
-          sh     = luaShell oldLS
-          newLS  = oldLS { luaShell = newSh }
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-    else if (GLFW.modifierKeysControl mk) then do
-      if (GLFW.keyCheck False keyLayout k "C") then do
-        let newSh  = resetShell sh
+  when ((not (GLFW.keyCheck False keyLayout k "SH")) ∧ cap) $ do
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      env ← ask
+      if (GLFW.keyCheck False keyLayout k "DEL")
+      then do
+        let newLS = oldLS { luaShell = removeShellString (luaShell oldLS) }
+            eventQ = envEventsChan env
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "SPC") then do
+        let newSh = addShellString sh [' ']
+            newLS = oldLS { luaShell = newSh }
+            sh    = luaShell oldLS
+            eventQ = envEventsChan env
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      -- evaluates lua command in state
+      else if (GLFW.keyCheck False keyLayout k "RET") then do
+        newLS ← liftIO $ evalShell env $ oldLS
+        let eventQ = envEventsChan env
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "TAB") then do
+        let eventQ = envEventsChan env
+            newSh  = tabShell sh $ luaCmds oldLS
+            newLS  = oldLS { luaShell = newSh }
+            sh     = luaShell oldLS
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "LFA") then do
+        let eventQ = envEventsChan env
+            newSh  = leftShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "RGA") then do
+        let eventQ = envEventsChan env
+            newSh  = rightShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "UPA") then do
+        let eventQ = envEventsChan env
+            newSh  = upShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "DNA") then do
+        let eventQ = envEventsChan env
+            newSh  = downShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.modifierKeysControl mk) then do
+        if (GLFW.keyCheck False keyLayout k "C") then do
+          let newSh  = resetShell sh
+              newLS  = oldLS { luaShell = newSh }
+              sh     = luaShell oldLS
+              eventQ = envEventsChan env
+          modify' $ \s → s { luaSt = newLS }
+          liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+        else return ()
+      else do
+        ch ← liftIO $ GLFW.calcInpKey k mk
+        let newSh  = addShellString sh ch
             newLS  = oldLS { luaShell = newSh }
             sh     = luaShell oldLS
             eventQ = envEventsChan env
         modify' $ \s → s { luaSt = newLS }
         liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else if (ks ≡ GLFW.KeyState'Repeating) then do
+      env ← ask
+      if (GLFW.keyCheck False keyLayout k "LFA") then do
+        let eventQ = envEventsChan env
+            newSh  = leftShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+      else if (GLFW.keyCheck False keyLayout k "RGA") then do
+        let eventQ = envEventsChan env
+            newSh  = rightShell sh
+            sh     = luaShell oldLS
+            newLS  = oldLS { luaShell = newSh }
+        modify' $ \s → s { luaSt = newLS }
+        liftIO $ atomically $ writeQueue eventQ $ EventLoaded
       else return ()
-    else do
-      ch ← liftIO $ GLFW.calcInpKey k mk
-      let newSh  = addShellString sh ch
-          newLS  = oldLS { luaShell = newSh }
-          sh     = luaShell oldLS
-          eventQ = envEventsChan env
-      modify' $ \s → s { luaSt = newLS }
-      liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+    else return ()
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()

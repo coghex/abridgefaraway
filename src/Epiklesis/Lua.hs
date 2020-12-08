@@ -275,9 +275,14 @@ changeCurrWin n ls = ls { luaCurrWin = n
 
 -- sets the fps of any fps elements
 -- in the current window
+-- since this gets called once every second,
+-- we can use it for other things
 setFPS ∷ LuaState → Int → LuaState
-setFPS ls fps = ls { luaWindows = replaceWin win (luaWindows ls) }
-  where win = setWinFPS fps $ currentWindow ls
+setFPS ls fps = ls { luaWindows = replaceWin win (luaWindows ls)
+                   , luaShell   = newSh }
+  where win   = setWinFPS fps $ currentWindow ls
+        newSh = oldSh { shCBlink = not (shCBlink oldSh) }
+        oldSh = luaShell ls
 setWinFPS ∷ Int → Window → Window
 setWinFPS fps win = win { winElems = setElemFPS fps $ winElems win }
 setElemFPS ∷ Int → [WinElem] → [WinElem]
