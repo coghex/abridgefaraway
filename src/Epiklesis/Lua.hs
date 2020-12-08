@@ -17,7 +17,6 @@ import Epiklesis.Elems
 import Epiklesis.Shell
 import Epiklesis.World
 import Paracletus.Data
-import Paracletus.Draw
 import Paracletus.Oblatum.Data
 
 initLua ∷ IO (LuaState)
@@ -118,13 +117,20 @@ hsNewMenuBit env win menu "slider" args = do
   let eventQ = envEventsChan env
       sargs = splitOn ":" args
       rargs = splitOn "-" $ last sargs
+      targs = splitOn "," $ last rargs
   r1 ← case (readMaybe (head rargs)) of
     Nothing → do
       let errorstr = "cannot read slider range"
       Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
       return $ -1
     Just n → return n
-  r2 ← case (readMaybe (last rargs)) of
+  r2 ← case (readMaybe (head targs)) of
+    Nothing → do
+      let errorstr = "cannot read slider range"
+      Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
+      return $ -1
+    Just n  → return n
+  r3 ← case (readMaybe (last targs)) of
     Nothing → do
       let errorstr = "cannot read slider range"
       Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -132,7 +138,7 @@ hsNewMenuBit env win menu "slider" args = do
     Just n  → return n
   let text  = head sargs
       range = (r1,r2)
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range r3))
 hsNewMenuBit env _   _    mbtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -186,7 +192,7 @@ hsNewWorld env win zx zy sx sy dp = do
       --randsseed = buildList2 ((withStdGen sgs 5 (randomList (f, (gw - f)) ncont)), (withStdGen sgs 6 (randomList (1, (gh - 1)) ncont)))
       --sizes = withStdGen sgs 1 $ randomList (mins, maxs) ncont
       --types = withStdGen sgs 2 $ randomBiomeList ncont
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) (WECached (calcTiles wp wd)))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemWorld wp wd dps) WEUncached)
 
 hsSetBackground ∷ Env → String → String → Lua.Lua ()
 hsSetBackground env win fp = do

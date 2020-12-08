@@ -96,10 +96,12 @@ processEvent event = case event of
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS
                             , sRecreate = True }
-          WinElemDyn _ _ → do
+          WinElemDyn _ dd → do
             let newLS = addElemToLuaState win e cache (luaSt st)
+                oldDS = drawSt st
             modify $ \s → s { luaSt = newLS
-                            , sRecreate = True }
+                            , sRecreate = True
+                            , drawSt = oldDS { dsDyns = (dsDyns oldDS) ⧺ dd}}
           WinElemNULL → logError "null window element"
       (LuaCmdnewMenuBit win menu menuBit) → do
         env ← ask
@@ -110,7 +112,7 @@ processEvent event = case event of
         -- some menu bits include other winElems
         case menuBit of
           MenuText _ → return ()
-          MenuSlider _ _ → liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos) [DynData (0,0) (0,0)]) WEUncached)
+          MenuSlider _ _ _ → liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos) [DynData (0,0) (0,0)]) WEUncached)
           MenuNULL → return ()
         modify $ \s → s { luaSt = newLS
                         , sRecreate = True }

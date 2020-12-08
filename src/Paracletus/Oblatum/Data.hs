@@ -215,4 +215,4 @@ fontOffset '\\' = 0.1
 fontOffset '|'  = 0.1
 fontOffset '<'  = 0.2
 fontOffset '>'  = 0.2
-fontOffset _    = 0.5
+fontOffset _    = 0.2

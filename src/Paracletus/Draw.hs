@@ -41,55 +41,56 @@ loadWinElem _       (WinElemText pos True  str) = (addTextBox posOffset size) �
 loadWinElem _       (WinElemText pos False str) = addText False (fst pos) pos str
 loadWinElem _       (WinElemMenu _ pos bits) = calcMenu pos bits
 loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) nDefTex False False]
-loadWinElem _       (WinElemWorld wp wd _) = calcTiles wp wd
+loadWinElem nDefTex (WinElemWorld wp wd _) = calcTiles nDefTex wp wd
 loadWinElem _       (WinElemLink _ _ _)    = []
 loadWinElem _       (WinElemDyn DynFPS _)  = calcFPSTiles
-loadWinElem _       (WinElemDyn (DynSlider pos) _) = [GTileUncached pos (0.5,0.5) (8,5) (16,6) 1 True False]
+loadWinElem _       (WinElemDyn (DynSlider pos) _) = [GTileUncached posOffset (0.5,0.5) (8,5) (16,6) 1 True False]
+  where posOffset = (fst pos,(snd pos) - 1.0)
 loadWinElem _       (WinElemDyn DynNULL _) = []
 loadWinElem _       WinElemNULL = []
 
 -- converts tiles in world data into GTile list
-calcTiles ∷ WorldParams → WorldData → [GTile]
-calcTiles _  (WorldData _   _       [])     = []
-calcTiles wp (WorldData cam camSize (z:zs)) = (calcZoneTiles wp cam camSize z) ⧺ (calcTiles wp (WorldData cam camSize zs))
+calcTiles ∷ Int → WorldParams → WorldData → [GTile]
+calcTiles _       _  (WorldData _   _       [])     = []
+calcTiles nDefTex wp (WorldData cam camSize (z:zs)) = (calcZoneTiles nDefTex wp cam camSize z) ⧺ (calcTiles nDefTex wp (WorldData cam camSize zs))
 
-calcZoneTiles ∷ WorldParams → (Float,Float) → (Int,Int) → Zone → [GTile]
-calcZoneTiles _  _   _       (ZoneNULL)      = []
-calcZoneTiles wp cam camSize (Zone ind segs) = flatten $ map (calcZoneRows wp cam camSize ind) (zip yinds segs)
+calcZoneTiles ∷ Int → WorldParams → (Float,Float) → (Int,Int) → Zone → [GTile]
+calcZoneTiles _       _  _   _       (ZoneNULL)      = []
+calcZoneTiles nDefTex wp cam camSize (Zone ind segs) = flatten $ map (calcZoneRows nDefTex wp cam camSize ind) (zip yinds segs)
   where yinds = take (fst segSize) [0..]
         segSize = wpZSize wp
 
-calcZoneRows ∷ WorldParams → (Float,Float) → (Int,Int) → (Int,Int) → (Integer,[Segment]) → [GTile]
-calcZoneRows wp cam camSize ind (j,segs) = flatten $ map (calcZoneSpot j' wp cam camSize ind) (zip xinds segs)
+calcZoneRows ∷ Int → WorldParams → (Float,Float) → (Int,Int) → (Int,Int) → (Integer,[Segment]) → [GTile]
+calcZoneRows nDefTex wp cam camSize ind (j,segs) = flatten $ map (calcZoneSpot nDefTex j' wp cam camSize ind) (zip xinds segs)
   where xinds = take (snd segSize) [0..]
         segSize = wpZSize wp
         j' = fromIntegral j
 
-calcZoneSpot ∷ Int → WorldParams → (Float,Float) → (Int,Int) → (Int,Int) → (Integer,Segment) → [GTile]
-calcZoneSpot j wp cam camSize ind (i,seg) = calcSegTiles (i',j) wp roundCam camSize ind seg
+calcZoneSpot ∷ Int → Int → WorldParams → (Float,Float) → (Int,Int) → (Int,Int) → (Integer,Segment) → [GTile]
+calcZoneSpot nDefTex j wp cam camSize ind (i,seg) = calcSegTiles nDefTex (i',j) wp roundCam camSize ind seg
   where roundCam = ((round (fst cam)),(round (snd cam)))
         i' = fromIntegral i
 
-calcSegTiles ∷ (Int,Int) → WorldParams → (Int,Int) → (Int,Int) → (Int,Int) → Segment → [GTile]
-calcSegTiles _     _  _   _       _   (SegmentNULL) = []
-calcSegTiles (i,j) wp cam camSize ind (Segment grid) = flatten $ calcSegRow cam camSize (x,y) grid
+calcSegTiles ∷ Int → (Int,Int) → WorldParams → (Int,Int) → (Int,Int) → (Int,Int) → Segment → [GTile]
+calcSegTiles _       _     _  _   _       _   (SegmentNULL) = []
+calcSegTiles nDefTex (i,j) wp cam camSize ind (Segment grid) = flatten $ calcSegRow nDefTex cam camSize (x,y) grid
   where (x,y) = (sw*(i + (fst ind)),sh*(j + (snd ind)))
         (sw,sh) = wpSSize wp
 
-calcSegRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → [[Tile]] → [[GTile]]
-calcSegRow _       _       _     [[]]         = [[]]
-calcSegRow _       _       _     []           = [[]]
-calcSegRow (cx,cy) (cw,ch) (x,y) (grow:grows) = [rowTiles] ⧺ (calcSegRow (cx,cy) (cw,ch) (x,(y + 1)) grows)
-    where rowTiles = calcSegSpot (cx,cy) (cw,ch) (x,y) grow
+calcSegRow ∷ Int → (Int,Int) → (Int,Int) → (Int,Int) → [[Tile]] → [[GTile]]
+calcSegRow _       _       _       _     [[]]         = [[]]
+calcSegRow _       _       _       _     []           = [[]]
+calcSegRow nDefTex (cx,cy) (cw,ch) (x,y) (grow:grows) = [rowTiles] ⧺ (calcSegRow nDefTex (cx,cy) (cw,ch) (x,(y + 1)) grows)
+    where rowTiles = calcSegSpot nDefTex (cx,cy) (cw,ch) (x,y) grow
 
-calcSegSpot ∷ (Int,Int) → (Int,Int) → (Int,Int) → [Tile] → [GTile]
-calcSegSpot _       _       _     [] = []
-calcSegSpot (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot (cx,cy) (cw,ch) ((x + 1),y) gspots)
+calcSegSpot ∷ Int → (Int,Int) → (Int,Int) → (Int,Int) → [Tile] → [GTile]
+calcSegSpot _       _       _       _     [] = []
+calcSegSpot nDefTex (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSpot nDefTex (cx,cy) (cw,ch) ((x + 1),y) gspots)
     where tile = GTileUncached { tPos = (((fromIntegral x) - 1.0), ((fromIntegral y) - 1.0))
                                , tScale = (1,1)
                                , tInd = (ix,iy)
                                , tSize = (3,15)
-                               , tT = 20
+                               , tT = nDefTex + 1
                                , tTile = False
                                , tMoves = True }
           ix = (tileType gspot) `mod` 3

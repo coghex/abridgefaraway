@@ -131,8 +131,9 @@ data ModuleType = ModuleGame | ModuleUser
 
 -- possible menu elements
 data MenuBit = MenuText { menuText ∷ String }
-             | MenuSlider { sliderText ∷ String
-                          , sliderRange ∷ (Int,Int) }
+             | MenuSlider { sliderText  ∷ String
+                          , sliderRange ∷ (Int,Int)
+                          , sliderValue ∷ Int }
              | MenuNULL deriving (Show, Eq)
 
 -- world parameters help generate world
