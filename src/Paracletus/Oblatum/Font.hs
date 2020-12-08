@@ -38,7 +38,7 @@ withBitmap lib source f =
     else f source
 
 drawBitmap ∷ Int → [Word8] → IO ()
-drawBitmap n [] = return ()
+drawBitmap _ [] = return ()
 drawBitmap n list = do
   putStrLn $ color <$> take n list
   drawBitmap n $ drop n list

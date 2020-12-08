@@ -4,12 +4,6 @@ module Anamnesis.World where
 -- gen faster
 import Prelude()
 import UPrelude
-import Control.Concurrent (threadDelay)
-import Data.Time.Clock
-import Artos.Data
-import Artos.Var
-import Artos.Queue
-import Anamnesis.Data
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.World
@@ -56,6 +50,8 @@ findElemData ∷ [WinElem] → (Maybe (WorldParams,WorldData))
 findElemData []                            = Nothing
 findElemData ((WinElemNULL):elems)         = findElemData elems
 findElemData ((WinElemText _ _ _):elems)   = findElemData elems
+findElemData ((WinElemMenu _ _ _):elems)   = findElemData elems
+findElemData ((WinElemDyn _ _):elems)      = findElemData elems
 findElemData ((WinElemBack _):elems)       = findElemData elems
 findElemData ((WinElemLink _ _ _):elems)   = findElemData elems
 findElemData ((WinElemWorld wp wd _):_) = Just (wp,wd)

@@ -19,7 +19,6 @@ import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Data
-import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initLua ∷ IO (LuaState)
 initLua = do
@@ -39,7 +38,7 @@ initLua = do
 initLuaConfig ∷ Lua.State → String → IO (LuaConfig)
 initLuaConfig ls fn = Lua.runWith ls $ do
   Lua.openlibs
-  Lua.dofile $ fn
+  _ ← Lua.dofile $ fn
   esckey   ← Lua.getglobal "esckey"   *> Lua.peek (-1)
   retkey   ← Lua.getglobal "retkey"   *> Lua.peek (-1)
   delkey   ← Lua.getglobal "delkey"   *> Lua.peek (-1)
@@ -218,6 +217,10 @@ hsNewDynObj ∷ Env → String → String → Lua.Lua ()
 hsNewDynObj env win "fps" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn DynFPS [DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0)]) WEUncached)
+hsNewDynObj env _   dtype = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua $ LuaError errorstr
+  where errorstr = "unknown dynamic object type " ⧺ dtype
 
 -- returns list of textures a window may require
 findReqTextures ∷ Window → [String]
@@ -279,7 +282,7 @@ setWinFPS ∷ Int → Window → Window
 setWinFPS fps win = win { winElems = setElemFPS fps $ winElems win }
 setElemFPS ∷ Int → [WinElem] → [WinElem]
 setElemFPS _   []       = []
-setElemFPS fps ((WinElemDyn DynFPS dd):wes) = [WinElemDyn DynFPS (calcFPSDyn fps)] ⧺ setElemFPS fps wes
+setElemFPS fps ((WinElemDyn DynFPS _):wes) = [WinElemDyn DynFPS (calcFPSDyn fps)] ⧺ setElemFPS fps wes
 setElemFPS fps (we:wes) = [we] ⧺ setElemFPS fps wes
 
 -- finds the texture offsets needed

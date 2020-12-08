@@ -17,7 +17,7 @@ import Paracletus.Data
 import Paracletus.Oblatum.Callback
 import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Event
-import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..),KeyLayout(..))
+import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..))
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initGLFWWindow ∷ Int → Int → String → TVar Bool → Anamnesis ε σ GLFW.Window
@@ -84,7 +84,7 @@ glfwMainLoop w action = go
                 deltafps = 0.1
             liftIO $ whileM_ ((\cur → (cur - (newtick)) < (1.0/fps)) <$> getCurTick) (liftIO (threadDelay 1000))
             if (dfps > 60) then modify $ \s → s { sFPS = (fps-deltafps, dfps) }
-            else if (dfps < 60) then modify $ \s → s { sFPS = (fps+deltafps, dfps) }
+            else if (dfps < 60) then modify $ \s → s { sFPS = (min 200.0 (fps+deltafps), dfps) }
             else modify $ \s → s { sFPS = (fps, dfps) }
             if status ≡ ContinueLoop then go else return False
           else return True
@@ -138,12 +138,3 @@ processInput = do
                     else return ()
       WinTypeMenu → return ()
       WinTypeNULL → return ()
-
--- this is a placeholder
-importKeyLayout ∷ Anamnesis ε σ (KeyLayout)
-importKeyLayout = return $ KeyLayout
-  { klEsc  = "ESC"
-  , klRet  = "RET"
-  , klDel  = "DEL"
-  , klSpc  = "SPC"
-  , klSh   = "SH"}

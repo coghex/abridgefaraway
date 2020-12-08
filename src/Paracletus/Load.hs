@@ -42,7 +42,6 @@ runLoadLoop env TStop = do
 runLoadLoop env TStart = do
   start ← getCurrentTime
   let timerChan = envLTimerChan env
-      eventQ    = envEventsChan env
   timerstate ← atomically $ tryReadChan timerChan
   tsnew ← case (timerstate) of
     Nothing → return TStart
@@ -57,15 +56,15 @@ runLoadLoop env TStart = do
     else return ()
   runLoadLoop env tsnew
 -- pause not needed for this timer
-runLoadLoop env TPause = return ()
+runLoadLoop _   TPause = return ()
 runLoadLoop _   TNULL  = return ()
 
 -- command queue processed every tick,
 -- logging any errors of all commands
 processCommands ∷ Env → IO ()
 processCommands env = do
-    cmd ← atomically $ tryReadQueue $ envLCmdChan env
-    case cmd of
+    mcmd ← atomically $ tryReadQueue $ envLCmdChan env
+    case mcmd of
       Just cmd → do
         ret ← processCommand env cmd
         if (ret ≠ "success") then do

@@ -5,7 +5,6 @@ module Anamnesis.Draw where
 -- for the specific gl
 import Prelude()
 import UPrelude
-import Anamnesis.Data
 import Paracletus.Data
 
 initDrawState ∷ [GTile] → IO DrawState

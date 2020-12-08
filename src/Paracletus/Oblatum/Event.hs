@@ -5,7 +5,6 @@ import Prelude()
 import UPrelude
 import Control.Monad (when)
 import Control.Monad.State.Class (modify',gets)
-import qualified Foreign.Lua as Lua
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Map
@@ -17,14 +16,11 @@ import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Shell
-import Paracletus.Data
-import Paracletus.Draw
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
 evalKey ∷ GLFW.Window → GLFW.Key → GLFW.KeyState → GLFW.ModifierKeys → GLFW.KeyLayout → Anamnesis ε σ ()
 evalKey window k ks mk keyLayout = do
-  env ← ask
   st  ← get
   let oldLS = luaSt st
       shCap = shOpen $ luaShell oldLS
@@ -192,9 +188,8 @@ evalMouse win mb mbs _  = do
     else if ((mbs ≡ GLFW.MouseButtonState'Released) ∧ ((mouse3 oldIS) ≡ True)) then do
       if ((winType thisWin) ≡ WinTypeGame) then do
         case (findWorldData thisWin) of
-          Just (_,wd) → do
+          Just _ → do
             let newIS = oldIS { mouse3 = False }
-                sc = ((wdCam wd),(wdCSize wd))
             modify' $ \s → s { inputState = newIS }
             liftIO $ atomically $ writeQueue (envLCmdChan env) $ LoadCmdWorld ls
             --logDebug $ "mouse 3 unclick: " ⧺ (show (winCursor thisWin))
@@ -265,8 +260,8 @@ moveCamWithKeys = do
       Just (_,wd) → do
         let oldIS    = inputState st
             dir      = case (findDir oldIS) of
-                         Just dir → dir
-                         Nothing  → CardNULL
+                         Just d  → d
+                         Nothing → CardNULL
             oldcam   = winCursor currWin
             newIS    = oldIS { keyAccel = newaccel }
             newaccel = decell $ accelIS dir (keyAccel oldIS)

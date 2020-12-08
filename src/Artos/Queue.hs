@@ -5,7 +5,6 @@ import Artos.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 import Paracletus.Data
 import Epiklesis.Data
-import Epiklesis.World
 -- type synonym for ease of use
 type Queue = STM.TQueue
 type TChan = STM.TChan

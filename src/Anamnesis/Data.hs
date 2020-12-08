@@ -7,12 +7,9 @@ import Artos.Data
 import Artos.Except
 import Artos.Queue
 import Epiklesis.Data
-import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
-import Paracletus.Vulkan.Data
-import Graphics.Vulkan.Core_1_0
 -- possible results of anamnesis
 -- specific utility actions
 data AnamnResult = AnamnSuccess | AnamnError deriving (Show, Eq)

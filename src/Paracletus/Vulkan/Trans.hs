@@ -15,7 +15,6 @@ import Graphics.Vulkan.Marshal.Create
 import Numeric.DataFrame
 import Anamnesis
 import Anamnesis.Foreign
-import Paracletus.Vulkan.Atlas
 import Paracletus.Vulkan.Foreign
 import Paracletus.Vulkan.Buffer
 import Paracletus.Data

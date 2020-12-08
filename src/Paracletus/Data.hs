@@ -42,14 +42,14 @@ data GTile = GTileCached   { gtData ∷ ([DataFrame Vertex ('[] ∷ [Nat])]) }
 
 -- default gtile provides interface similar
 -- to the optional arguments found in C
-defaultGTile ∷ GTile
-defaultGTile = GTileUncached { tPos   = (0,0)
-                             , tScale = (1,1)
-                             , tInd   = (0,0)
-                             , tSize  = (1,1)
-                             , tT     = 0
-                             , tTile  = False
-                             , tMoves = False }
+--defaultGTile ∷ GTile
+--defaultGTile = GTileUncached { tPos   = (0,0)
+--                             , tScale = (1,1)
+--                             , tInd   = (0,0)
+--                             , tSize  = (1,1)
+--                             , tT     = 0
+--                             , tTile  = False
+--                             , tMoves = False }
 
 data DynType = DynFPS
              | DynSlider (Double,Double)

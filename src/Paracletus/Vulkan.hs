@@ -60,7 +60,7 @@ runParacVulkan = do
     --logDebug $ "created device: " ⧺ show dev
     --logDebug $ "created queues: " ⧺ show queues
     (shaderVert, shaderFrag) ← makeShader dev
-    (tshaderVert, tshaderFrag) ← makeTShader dev
+    --(tshaderVert, tshaderFrag) ← makeTShader dev
     --logDebug $ "created vertex shader module: " ⧺ show shaderVert
     --logDebug $ "created fragment shader module: " ⧺ show shaderFrag
     frameIndexRef      ← liftIO $ atomically $ newTVar 0
@@ -130,7 +130,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   descriptorPool ← createDescriptorPool dev swapchainLen (nimages texData)
   descriptorSetLayouts ← newArrayRes $ replicate swapchainLen (descSetLayout texData)
   descriptorSets ← createDescriptorSets dev descriptorPool swapchainLen descriptorSetLayouts
-  forM_ (zip4 descriptorBufferInfos dynDescBufInfos dynTexDescBufInfos descriptorSets) $ \(bufInfo, dynBufInfo, dynTexDescBufInfos, dSet) → prepareDescriptorSet dev bufInfo dynBufInfo dynTexDescBufInfos (descTexInfo texData) dSet (nimages texData)
+  forM_ (zip4 descriptorBufferInfos dynDescBufInfos dynTexDescBufInfos descriptorSets) $ \(bufInfo, dynBufInfo, dynTexDescBufInfo, dSet) → prepareDescriptorSet dev bufInfo dynBufInfo dynTexDescBufInfo (descTexInfo texData) dSet (nimages texData)
   transObjMemories ← newArrayRes transObjMems
   transDynMemories ← newArrayRes transDynMems
   transTexMemories ← newArrayRes transTexMems
@@ -153,19 +153,17 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
     -- currently only caches the first recreate
     vertcache ← gets sVertCache
     case vertcache of
-      Just (Verts verts) → modify $ \s → s { sReload = False }
+      Just (Verts _) → modify $ \s → s { sReload = False }
       Nothing → do
-        oldDS ← gets drawSt
         modify $ \s → s { sReload = False }
     -- if the size is changing, halt all draw ops
-    sizeChanged ← liftIO $ atomically $ readTVar windowSizeChanged
-    if sizeChanged then return AbortLoop
+    sizeChanged0 ← liftIO $ atomically $ readTVar windowSizeChanged
+    if sizeChanged0 then return AbortLoop
     else do
       shouldLoad ← glfwMainLoop window $ do
         stNew ← get
         let lsNew = luaSt stNew
             camNew = if ((luaCurrWin lsNew) > 0) then (winCursor $ (luaWindows lsNew) !! (luaCurrWin lsNew)) else (0.0,0.0,(-1.0))
-            testNew = sTest stNew
             nDynData = dsDyns $ drawSt stNew
             nDynNew = length nDynData
         let rdata = RenderData { dev

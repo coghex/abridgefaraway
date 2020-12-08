@@ -2,10 +2,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 module Paracletus.Vulkan.Data where
 -- some auxillary data structs
-import Numeric.DataFrame
 import Graphics.Vulkan.Core_1_0
-import GHC.Generics (Generic)
-import Foreign.Storable (Storable, sizeOf, poke, peek, alignment)
 
 -- data required to create a command
 -- command buffer from drawState

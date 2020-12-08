@@ -3,13 +3,11 @@ module Anamnesis.Event where
 -- events and exceptions are handled
 import Prelude()
 import UPrelude
-import Control.Concurrent (forkIO)
 import Control.Monad.State.Class (modify,gets)
 import Data.Time.Clock.System
 import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Util
-import Anamnesis.World
 import Artos.Data
 import Artos.Except
 import Artos.Queue
@@ -18,10 +16,7 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Module
 import Epiklesis.Shell
-import Epiklesis.World
 import Paracletus.Data
-import Paracletus.Draw
-import Paracletus.Oblatum
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
