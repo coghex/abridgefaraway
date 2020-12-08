@@ -29,11 +29,11 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   -- texture data, first an array of
   -- generic tiles that can be created,
   -- then the list of world textures
-  let tex1Path    = "dat/tex/texture.jpg"
-      texAlph     = "dat/tex/alph.png"
-      texboxPath  = "dat/tex/box"
-      texmboxPath = "dat/tex/mbox"
-      textMenuboxPath = "dat/tex/menubox.png"
+  let tex1Path     = "dat/tex/texture.jpg"
+      texAlph      = "dat/tex/alph.png"
+      texboxPath   = "dat/tex/box"
+      texmboxPath  = "dat/tex/mbox"
+      textMenuPath = "dat/tex/menu"
       --texFont     = "dat/font/Lora-Bold.ttf"
       --texAlph = settingFontPath settings
       --texboxPath = settingTBPath settings
@@ -42,20 +42,20 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   mboxTexs ← loadNTexs pdev dev cmdPool cmdQueue texmboxPath
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
-  (texViewMB, mipLevelsMB) ← createTextureImageView pdev dev cmdPool cmdQueue textMenuboxPath
+  menuTexs ← loadNTexs pdev dev cmdPool cmdQueue textMenuPath
   --fontTexs ← createFontImageViews pdev dev cmdPool cmdQueue texFont 16
   modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
   texSamplersMod  ← createTextureSamplers dev $ snd . unzip $ modTexViews
-  texSamplerMB   ← createTextureSampler dev mipLevelsMB
   --let (ftexs, fmipLvls) = unzip fontTexs
   --fontSamplers ← createTextureSamplers dev fmipLvls
   let (btexs, bsamps) = unzip boxTexs
       (mbtexs, mbsamps) = unzip mboxTexs
-      defaultTexs = ([textureView1,texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ [texViewMB])
+      (menutexs, menusamps) = unzip menuTexs
+      defaultTexs = ([textureView1,texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ menutexs)
       texViews = defaultTexs ⧺ (fst (unzip modTexViews))
-      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ [texSamplerMB] ⧺ texSamplersMod
+      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ menusamps ⧺ texSamplersMod
   ls ← gets luaSt
   modify $ \s → s { luaSt = ls { luaNDefTex = length defaultTexs }}
   descriptorTextureInfo ← textureImageInfos texViews texSamps

@@ -269,6 +269,10 @@ linkTestFunc (x,y) (link:links) = do
           let newWin  = (luaWindows ls) !! (luaLastWin ls)
           logDebug $ "going back to " ⧺ winTitle newWin
           liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow (winTitle newWin))
+        LinkSelect n menu → do
+          ls ← gets luaSt
+          logDebug $ "selecting menu box"
+          modify' $ \s → s { luaSt = toggleMenuElem n menu ls }
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links

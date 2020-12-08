@@ -98,8 +98,11 @@ calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos' mbs
   where pos' = (fst pos, (snd pos) - 1)
 calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
 calcMenuBit pos (MenuText str)          = addText False (fst pos) pos str
-calcMenuBit pos (MenuSlider text range val) = [boxTile] ⧺ addText False (fst pos) pos ((justifylString 10 (text ⧺ ": ")) ⧺ (show (fst range)) ⧺ " <-------> " ⧺ (justifyr (snd range)) ⧺ " " ⧺ (justifyr val))
-  where boxTile = GTileUncached (((fst pos) + 5.75),(snd pos)) (2.0,1.0) (0,0) (1,1) 19 False False
+calcMenuBit pos (MenuSlider text range val sel) = [boxTile] ⧺ addText False (fst pos) pos ((justifylString 10 (text ⧺ ": ")) ⧺ (show (fst range)) ⧺ " <-------> " ⧺ (justifyr (snd range)) ⧺ " " ⧺ (justifyr val))
+  where boxTile = GTileUncached (((fst pos) + 5.75),(snd pos)) (2.0,1.0) (0,0) (1,1) tex False False
+        tex = case sel of
+                True → 19
+                False → 20
         justifyr n
           | n < 1000  = " " ⧺ (show n)
           | n < 100   = "  " ⧺ (show n)

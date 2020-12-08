@@ -108,11 +108,17 @@ processEvent event = case event of
         st  ← get
         let newLS  = addMenuBitToLuaState win menu menuBit (luaSt st)
             pos    = findLastMenuBitPos win menu newLS
+            n      = findMenuSize win menu $ luaWindows newLS
             eventQ = envEventsChan env
         -- some menu bits include other winElems
         case menuBit of
           MenuText _ → return ()
-          MenuSlider _ _ _ → liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos) [DynData (0,0) (0,0)]) WEUncached)
+          MenuSlider _ _ _ _ → do
+            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos) [DynData (0,0) (0,0)]) WEUncached)
+            if (n > 0) then do
+              let pos' = ((fst pos), (snd pos) - 1.0)
+              liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos') (2.0,1.0) (LinkSelect n menu)) WEUncached)
+            else return ()
           MenuNULL → return ()
         modify $ \s → s { luaSt = newLS
                         , sRecreate = True }

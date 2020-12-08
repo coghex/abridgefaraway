@@ -138,7 +138,7 @@ hsNewMenuBit env win menu "slider" args = do
     Just n  → return n
   let text  = head sargs
       range = (r1,r2)
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range r3))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range r3 False))
 hsNewMenuBit env _   _    mbtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -324,13 +324,6 @@ calcNumDyn 8 = DynData (0,0) (-5,0)
 calcNumDyn 9 = DynData (0,0) (-4,0)
 calcNumDyn _ = DynData (0,0) (0,0)
 
--- replaces specific window in windows
-replaceWin ∷ Window → [Window] → [Window]
-replaceWin _ [] = []
-replaceWin win (w:ws)
-  | (winTitle w) ≡ (winTitle win) = [win] ⧺ (replaceWin win ws)
-  | otherwise = [w] ⧺ (replaceWin win ws)
-
 -- adds to specific menu in winElems
 addBitToMenu ∷ String → MenuBit → [WinElem] → [WinElem]
 addBitToMenu _    _  [] = []
@@ -346,6 +339,14 @@ findWin wn (w:ws)
   | winTitle w ≡ wn = Just w
   | otherwise       = findWin wn ws
 
+-- returns menu with name
+findMenu ∷ String → [WinElem] → Maybe WinElem
+findMenu _  []     = Nothing
+findMenu mn ((WinElemMenu name a1 a2):ms)
+  | name ≡ mn = Just $ WinElemMenu name a1 a2
+  | otherwise = findMenu mn ms
+findMenu mn (_:ms) = findMenu mn ms
+
 -- returns menu position with name
 findMenuPos ∷ String → [WinElem] → Maybe (Double,Double)
 findMenuPos _  [] = Nothing
@@ -354,6 +355,42 @@ findMenuPos mn ((WinElemMenu name (x,y) bits):wes)
   | otherwise = findMenuPos mn wes
 findMenuPos mn (_:wes) = findMenuPos mn wes
 
+-- returns menu size
+findMenuSize ∷ String → String → [Window] → Int
+findMenuSize win menu wins = case (findWin win wins) of
+  Just w  → case (findMenu menu (winElems w)) of
+    Just m  → length (menuBits m)
+    Nothing → (-1)
+  Nothing → (-1)
+
+-- toggles menu element data
+toggleMenuElem ∷ Int → String → LuaState → LuaState
+toggleMenuElem n menu ls = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+  where newWin = toggleMenuWE n menu (currentWindow ls)
+toggleMenuWE ∷ Int → String → Window → Window
+toggleMenuWE n menu win = win { winElems = replaceMenuBit n menu (winElems win) }
+
+-- replaces specific window in windows
+replaceWin ∷ Window → [Window] → [Window]
+replaceWin _   []     = []
+replaceWin win (w:ws)
+  | winTitle win ≡ winTitle w = [win] ⧺ replaceWin win ws
+  | otherwise                 = [w] ⧺ replaceWin win ws
+
+-- replaces specific menuBit in winelems
+replaceMenuBit ∷ Int → String → [WinElem] → [WinElem]
+replaceMenuBit _ _    []       = []
+replaceMenuBit n menu ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos bits'] ⧺ replaceMenuBit n menu wes
+  where bits' = if (menu ≡ name) then newBits else bits
+        newBits = toggleMenuBitBit n 0 bits
+replaceMenuBit n menu (we:wes) = [we] ⧺ replaceMenuBit n menu wes
+
+toggleMenuBitBit ∷ Int → Int → [MenuBit] → [MenuBit]
+toggleMenuBitBit _  _ [] = []
+toggleMenuBitBit n' i (bit:bits) = [bit'] ⧺ toggleMenuBitBit n' (i + 1) bits
+  where bit' = if (n' ≡ i) then toggleBit bit else bit
+        toggleBit (MenuSlider a1 a2 a3 sel) = MenuSlider a1 a2 a3 (not sel)
+        toggleBit b = b
 -- its ok to have !! here since
 -- currwin and wins are created
 -- together, the outcome is known
