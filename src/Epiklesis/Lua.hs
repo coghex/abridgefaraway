@@ -148,12 +148,12 @@ hsNewLink ∷ Env → String → Double → Double → String → String → Str
 hsNewLink env win x y text "action" "exit" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
-      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkExit) WEUncached)
+      size   = (0.25*fromIntegral (fst size') + 1.0, 0.5*fromIntegral (snd size'))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x+1.0,y) size LinkExit) WEUncached)
 hsNewLink env win x y text "action" "back" = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
-      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
+      size   = (0.25*fromIntegral (fst size') + 1.0, 0.5*fromIntegral (snd size'))
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size LinkBack) WEUncached)
 hsNewLink env _   _ _ _    "action" args   = do
   let eventQ = envEventsChan env
@@ -162,7 +162,7 @@ hsNewLink env _   _ _ _    "action" args   = do
 hsNewLink env win x y text "link" args     = do
   let eventQ = envEventsChan env
       size'  = (length (text),length (splitOn ['\n'] text))
-      size   = (fromIntegral (fst size'), fromIntegral (snd size'))
+      size   = (0.25*fromIntegral (fst size') + 1.0, 0.5*fromIntegral (snd size'))
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (x,y) size (LinkLink args)) WEUncached)
 hsNewLink env _   _ _ _    action _        = do
   let eventQ = envEventsChan env
