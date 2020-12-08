@@ -271,8 +271,8 @@ linkTestFunc (x,y) (link:links) = do
           liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdswitchWindow (winTitle newWin))
         LinkSelect n menu → do
           ls ← gets luaSt
-          logDebug $ "selecting menu box"
-          modify' $ \s → s { luaSt = toggleMenuElem n menu ls }
+          modify' $ \s → s { luaSt = toggleMenuElem n menu ls
+                           , sReload = True }
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links

@@ -351,7 +351,7 @@ findMenu mn (_:ms) = findMenu mn ms
 findMenuPos ∷ String → [WinElem] → Maybe (Double,Double)
 findMenuPos _  [] = Nothing
 findMenuPos mn ((WinElemMenu name (x,y) bits):wes)
-  | name ≡ mn = Just (x + 4.0, (y + 0.5 - ((fromIntegral (length bits))/2.0)))
+  | name ≡ mn = Just (x + 5.5, (y + 1.0 - ((fromIntegral (length bits)))))
   | otherwise = findMenuPos mn wes
 findMenuPos mn (_:wes) = findMenuPos mn wes
 
@@ -382,7 +382,7 @@ replaceMenuBit ∷ Int → String → [WinElem] → [WinElem]
 replaceMenuBit _ _    []       = []
 replaceMenuBit n menu ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos bits'] ⧺ replaceMenuBit n menu wes
   where bits' = if (menu ≡ name) then newBits else bits
-        newBits = toggleMenuBitBit n 0 bits
+        newBits = toggleMenuBitBit n 1 bits
 replaceMenuBit n menu (we:wes) = [we] ⧺ replaceMenuBit n menu wes
 
 toggleMenuBitBit ∷ Int → Int → [MenuBit] → [MenuBit]
