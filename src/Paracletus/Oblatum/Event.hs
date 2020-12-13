@@ -278,13 +278,14 @@ linkTestFunc (x,y) (link:links) = do
     False → linkTest (x,y) links
 
 isElemLink ∷ WinElem → Bool
-isElemLink (WinElemLink _ _ _) = True
+isElemLink (WinElemLink _ _ _)  = True
 isElemLink (WinElemWorld _ _ _) = False
-isElemLink (WinElemText _ _ _) = False
-isElemLink (WinElemBack _ )    = False
-isElemLink (WinElemDyn _ _)    = False
-isElemLink (WinElemMenu _ _ _) = False
-isElemLink (WinElemNULL)       = False
+isElemLink (WinElemText _ _ _)  = False
+isElemLink (WinElemTTF _ _ _)   = False
+isElemLink (WinElemBack _ )     = False
+isElemLink (WinElemDyn _ _)     = False
+isElemLink (WinElemMenu _ _ _)  = False
+isElemLink (WinElemNULL)        = False
 
 moveCamWithKeys ∷ Anamnesis ε σ ()
 moveCamWithKeys = do

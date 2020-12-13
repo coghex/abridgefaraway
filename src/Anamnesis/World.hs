@@ -50,6 +50,7 @@ findElemData ∷ [WinElem] → (Maybe (WorldParams,WorldData))
 findElemData []                            = Nothing
 findElemData ((WinElemNULL):elems)         = findElemData elems
 findElemData ((WinElemText _ _ _):elems)   = findElemData elems
+findElemData ((WinElemTTF _ _ _):elems)    = findElemData elems
 findElemData ((WinElemMenu _ _ _):elems)   = findElemData elems
 findElemData ((WinElemDyn _ _):elems)      = findElemData elems
 findElemData ((WinElemBack _):elems)       = findElemData elems
@@ -63,8 +64,9 @@ replaceWorldData (Window name wType curs elems cache) wd = Window name wType cur
 replaceElemData ∷ WorldData → WinElem → WinElem
 replaceElemData _   (WinElemNULL)           = WinElemNULL
 replaceElemData _   (WinElemText tp tb ts)  = WinElemText tp tb ts
+replaceElemData _   (WinElemTTF tp tb ts)   = WinElemTTF tp tb ts
 replaceElemData _   (WinElemMenu mn mp mb)  = WinElemMenu mn mp mb
-replaceElemData wd' (WinElemWorld wp _ wt) = WinElemWorld wp wd' wt
+replaceElemData wd' (WinElemWorld wp _ wt)  = WinElemWorld wp wd' wt
 replaceElemData _   (WinElemLink lp lb la)  = WinElemLink lp lb la
 replaceElemData _   (WinElemBack fp)        = WinElemBack fp
 replaceElemData _   (WinElemDyn dt dd)      = WinElemDyn dt dd

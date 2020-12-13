@@ -99,6 +99,9 @@ hsNewText env win x y text "textbox" = do
       size = calcTextBoxSize text
       posOffset = (x - 1.0,y + 0.5)
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text) initCache)
+hsNewText env win x y text "ttf" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) False text) WEUncached)
 hsNewText env _   _ _ _    textType = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -238,6 +241,7 @@ findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromE
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
 findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemTTF _ _ _):wes)  = findTexturesFromElems wes
 findTexturesFromElems ((WinElemMenu _ _ _):wes) = findTexturesFromElems wes
 findTexturesFromElems ((WinElemDyn _ _):wes)    = findTexturesFromElems wes
 findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes

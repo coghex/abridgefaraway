@@ -51,3 +51,33 @@ drawBitmap n list = do
            | a < 170   -> '▒'
            | a < 255   -> '▓'
            | otherwise -> '█'
+
+-- return index of character font
+indexTTF ∷ Char → Int
+indexTTF 'a' = 85
+indexTTF 'b' = 86
+indexTTF 'c' = 87
+indexTTF 'd' = 88
+indexTTF 'e' = 89
+indexTTF 'f' = 90
+indexTTF 'g' = 91
+indexTTF 'h' = 92
+indexTTF 'i' = 93
+indexTTF 'j' = 94
+indexTTF 'k' = 95
+indexTTF 'l' = 96
+indexTTF 'm' = 97
+indexTTF 'n' = 98
+indexTTF 'o' = 99
+indexTTF 'p' = 100
+indexTTF 'q' = 101
+indexTTF 'r' = 102
+indexTTF 's' = 103
+indexTTF 't' = 104
+indexTTF 'u' = 105
+indexTTF 'v' = 106
+indexTTF 'w' = 107
+indexTTF 'x' = 108
+indexTTF 'y' = 109
+indexTTF 'z' = 110
+indexTTF _ = 0

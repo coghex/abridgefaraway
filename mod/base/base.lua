@@ -16,6 +16,9 @@ end
 function LuaWindow:addText (x,y,text)
     newText ((self.lwName),x,y,text,"text")
 end
+function LuaWindow:addTTF (x,y,text)
+    newText ((self.lwName),x,y,text,"ttf")
+end
 function LuaWindow:addTextBox (x,y,text)
     newText ((self.lwName),x,y,text,"textbox")
 end
@@ -50,6 +53,8 @@ function initLua ()
     menu1:addText (-4.0, 4.0, "A Bridge Far Away")
     menu1:newButton (-4.0, 2.0, "Create World", "link", "menu2")
     menu1:newButton (-4.0, -2.0, "Escape", "action", "exit")
+    menu1:addTTF (-6.0,0.0,"abcdefghijklm")
+    menu1:addTTF (-6.0,1.0,"nopqrstuvwxyz")
 
     local menu2 = LuaWindow:new ()
     menu2:init("menu2","menu")

@@ -39,6 +39,7 @@ loadWinElem _       (WinElemText pos True  str) = (addTextBox posOffset size) â§
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem _       (WinElemText pos False str) = addText False (fst pos) pos str
+loadWinElem _       (WinElemTTF pos _ str) = addTTF False (fst pos) pos str
 loadWinElem _       (WinElemMenu _ pos bits) = calcMenu pos bits
 loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) nDefTex False False]
 loadWinElem nDefTex (WinElemWorld wp wd _) = calcTiles nDefTex wp wd

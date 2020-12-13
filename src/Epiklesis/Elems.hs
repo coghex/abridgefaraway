@@ -7,6 +7,7 @@ import Data.List.Split (splitOn)
 import Epiklesis.Data
 import Paracletus.Data
 import Paracletus.Oblatum.Data
+import Paracletus.Oblatum.Font
 
 -- figure out what size the textbox should be
 calcTextBoxSize ∷ String → (Int,Int)
@@ -80,6 +81,11 @@ addTextBox (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,top
                                      , tTile  = False
                                      , tMoves = False }
 
+addTTF ∷ Bool → Double → (Double,Double) → String → [GTile]
+addTTF _ _  _     []         = []
+addTTF t x0 (_,y) ('\n':str) = addTTF t x0 (x0,(y - 1)) str
+addTTF t x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t x0 (x + 1.0, y) str
+  where textTile = GTileUncached (x,y) (1,1) (0,0) (1,1) (indexTTF ch) t False
 
 addText ∷ Bool → Double → (Double,Double) → String → [GTile]
 addText _ _  _     []         = []

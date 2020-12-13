@@ -120,8 +120,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
   swapInfo ← createSwapchain dev scsd queues vulkanSurface
   let swapchainLen = length (swapImgs swapInfo)
   (transObjMems, transObjBufs) ← unzip ⊚ createTransObjBuffers pdev dev swapchainLen
-  ds ← gets drawSt
-  let nDynObjs = 32--length (dsDyns ds)
+  let nDynObjs = 32
   (transDynMems, transDynBufs) ← unzip ⊚ createTransDynBuffers pdev dev swapchainLen nDynObjs
   (transTexMems, transTexBufs) ← unzip ⊚ createTransTexBuffers pdev dev swapchainLen nDynObjs
   descriptorBufferInfos ← mapM transObjBufferInfo transObjBufs
