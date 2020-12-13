@@ -25,6 +25,16 @@ data InputState = InputState { mouse1      ∷ Bool
                              , keyRight    ∷ Bool
                              , keyAccel    ∷ (Float,Float)
                              } deriving (Show, Eq)
+
+-- TTF characters come in different sizes
+-- and offsets, this is that data
+data TTFData = TTFData
+  { chIndex ∷ Int
+  , chW     ∷ Double
+  , chH     ∷ Double
+  , chX     ∷ Double
+  , chY     ∷ Double
+  } deriving (Show, Eq)
 -- these pattern matches translate to
 -- a giant case statement where we find
 -- the index and horizontal offset of

@@ -9,6 +9,7 @@ import Data.Word
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import Paracletus.Oblatum.Data
 
 data FontTex = FontTex Int Int [Word8]
 
@@ -52,32 +53,36 @@ drawBitmap n list = do
            | a < 255   -> '▓'
            | otherwise -> '█'
 
--- return index of character font
-indexTTF ∷ Char → Int
-indexTTF 'a' = 85
-indexTTF 'b' = 86
-indexTTF 'c' = 87
-indexTTF 'd' = 88
-indexTTF 'e' = 89
-indexTTF 'f' = 90
-indexTTF 'g' = 91
-indexTTF 'h' = 92
-indexTTF 'i' = 93
-indexTTF 'j' = 94
-indexTTF 'k' = 95
-indexTTF 'l' = 96
-indexTTF 'm' = 97
-indexTTF 'n' = 98
-indexTTF 'o' = 99
-indexTTF 'p' = 100
-indexTTF 'q' = 101
-indexTTF 'r' = 102
-indexTTF 's' = 103
-indexTTF 't' = 104
-indexTTF 'u' = 105
-indexTTF 'v' = 106
-indexTTF 'w' = 107
-indexTTF 'x' = 108
-indexTTF 'y' = 109
-indexTTF 'z' = 110
-indexTTF _ = 0
+-- specific font data encoded here
+chXUnit ∷ Double
+chXUnit = 1.0 / 9.0
+chYUnit ∷ Double
+chYUnit = 1.0 / 7.0
+indexTTF ∷ Char → TTFData
+indexTTF 'a' = TTFData 85  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'b' = TTFData 86  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'c' = TTFData 87  (3.0*chXUnit) (5.0*chYUnit) (4.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'd' = TTFData 88  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'e' = TTFData 89  (3.0*chXUnit) (5.0*chYUnit) (4.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'f' = TTFData 90  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'g' = TTFData 91  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (-2.0*chYUnit)
+indexTTF 'h' = TTFData 92  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'i' = TTFData 93  (1.0*chXUnit) (6.0*chYUnit) (2.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'j' = TTFData 94  (2.0*chXUnit) (7.0*chYUnit) (3.0*chXUnit)  (-2.0*chYUnit)
+indexTTF 'k' = TTFData 95  (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'l' = TTFData 96  (1.0*chXUnit) (6.0*chYUnit) (2.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'm' = TTFData 97  (9.0*chXUnit) (5.0*chYUnit) (10.0*chXUnit) (-0.5*chYUnit)
+indexTTF 'n' = TTFData 98  (5.0*chXUnit) (5.0*chYUnit) (6.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'o' = TTFData 99  (4.0*chXUnit) (5.0*chYUnit) (5.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'p' = TTFData 100 (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (-2.0*chYUnit)
+indexTTF 'q' = TTFData 101 (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (-2.0*chYUnit)
+indexTTF 'r' = TTFData 102 (3.0*chXUnit) (5.0*chYUnit) (4.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 's' = TTFData 103 (4.0*chXUnit) (5.0*chYUnit) (5.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 't' = TTFData 104 (3.0*chXUnit) (6.0*chYUnit) (4.0*chXUnit)  (0.0*chYUnit)
+indexTTF 'u' = TTFData 105 (4.0*chXUnit) (5.0*chYUnit) (5.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'v' = TTFData 106 (5.0*chXUnit) (5.0*chYUnit) (6.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'w' = TTFData 107 (9.0*chXUnit) (5.0*chYUnit) (10.0*chXUnit) (-0.5*chYUnit)
+indexTTF 'x' = TTFData 108 (4.0*chXUnit) (5.0*chYUnit) (5.0*chXUnit)  (-0.5*chYUnit)
+indexTTF 'y' = TTFData 109 (4.0*chXUnit) (6.0*chYUnit) (5.0*chXUnit)  (-2.0*chYUnit)
+indexTTF 'z' = TTFData 110 (4.0*chXUnit) (5.0*chYUnit) (5.0*chXUnit)  (-0.5*chYUnit)
+indexTTF _   = TTFData 0   (1.0*chXUnit) (1.0*chYUnit) (2.0*chXUnit)  (0.0*chYUnit)

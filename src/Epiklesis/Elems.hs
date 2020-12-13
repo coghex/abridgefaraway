@@ -84,8 +84,9 @@ addTextBox (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,top
 addTTF ∷ Bool → Double → (Double,Double) → String → [GTile]
 addTTF _ _  _     []         = []
 addTTF t x0 (_,y) ('\n':str) = addTTF t x0 (x0,(y - 1)) str
-addTTF t x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t x0 (x + 1.0, y) str
-  where textTile = GTileUncached (x,y) (1,1) (0,0) (1,1) (indexTTF ch) t False
+addTTF t x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t x0 (x + chX, y) str
+  where textTile = GTileUncached (x + (chX / 2.0),y + chY) (chW,chH) (0,0) (1,1) (chIndex) t False
+        TTFData chIndex chW chH chX chY = indexTTF ch
 
 addText ∷ Bool → Double → (Double,Double) → String → [GTile]
 addText _ _  _     []         = []
