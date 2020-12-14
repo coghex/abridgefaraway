@@ -67,9 +67,9 @@ createFontImageView pdev dev cmdPool cmdQueue fp px char = do
   let genImg ∷ DynamicImage
       genImg = ImageRGBA8 (generateImage genFunc w h)
       genFunc ∷ Int → Int → PixelRGBA8
-      genFunc x y = PixelRGBA8 255 255 255 g
+      genFunc x y = PixelRGBA8 g g g a
         where g = buff !! ((x + (y*w)))
-              a = if (g < 250) then 0 else 255
+              a = if (g < 170) then 0 else 255
   Image { imageWidth, imageHeight, imageData } ← pure $ convertRGBA8 genImg
   let (imageDataForeignPtr, imageDataLen) = Vec.unsafeToForeignPtr0 imageData
       bufSize ∷ VkDeviceSize = fromIntegral imageDataLen

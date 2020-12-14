@@ -43,7 +43,7 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
   menuTexs ← loadNTexs pdev dev cmdPool cmdQueue textMenuPath
-  fontTexs ← createFontImageViews pdev dev cmdPool cmdQueue texFont 32
+  fontTexs ← createFontImageViews pdev dev cmdPool cmdQueue texFont 30
   modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
