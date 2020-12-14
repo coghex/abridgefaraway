@@ -51,9 +51,10 @@ data LuaConfig = LuaConfig { lcKeyLayout ∷ KeyLayout }
 data WinElem = WinElemText  { textPos ∷ (Double,Double)
                             , textBox ∷ Bool
                             , textStr ∷ String }
-             | WinElemTTF   { textPos ∷ (Double,Double)
-                            , textBox ∷ Bool
-                            , textStr ∷ String }
+             | WinElemTTF   { textPos  ∷ (Double,Double)
+                            , textSize ∷ TextSize
+                            , textBox  ∷ Bool
+                            , textStr  ∷ String }
              | WinElemMenu  { menuName ∷ String
                             , menuPos  ∷ (Double,Double)
                             , menuBits ∷ [MenuBit] }
@@ -72,7 +73,7 @@ data WinElem = WinElemText  { textPos ∷ (Double,Double)
 instance Ord WinElem where
   --these compare against themselves
   compare (WinElemText _ _ _) (WinElemText _ _ _)     = EQ
-  compare (WinElemTTF _ _ _) (WinElemTTF _ _ _)     = EQ
+  compare (WinElemTTF _ _ _ _) (WinElemTTF _ _ _ _)     = EQ
   compare (WinElemMenu _ _ _) (WinElemMenu _ _ _)             = EQ
   compare (WinElemLink _ _ _) (WinElemLink _ _ _)     = EQ
   compare (WinElemBack _) (WinElemBack _)             = EQ
@@ -100,13 +101,13 @@ instance Ord WinElem where
   compare (WinElemMenu _ _ _) (WinElemWorld _ _ _)    = GT
   compare (WinElemMenu _ _ _) (WinElemLink _ _ _)     = GT
   compare (WinElemMenu _ _ _) (WinElemNULL)           = GT
-  compare (WinElemLink _ _ _) _ = LT
-  compare _ (WinElemLink _ _ _) = GT
-  compare (WinElemTTF _ _ _) _ = GT
-  compare _ (WinElemTTF _ _ _) = LT
-  compare (WinElemText _ _ _) _ = GT
-  compare _ (WinElemText _ _ _) = LT
-  compare (WinElemNULL) _       = LT
+  compare (WinElemLink _ _ _) _  = LT
+  compare _ (WinElemLink _ _ _)  = GT
+  compare (WinElemTTF _ _ _ _) _ = GT
+  compare _ (WinElemTTF _ _ _ _) = LT
+  compare (WinElemText _ _ _) _  = GT
+  compare _ (WinElemText _ _ _)  = LT
+  compare (WinElemNULL) _        = LT
 
 -- the cache allows instant gtile
 -- calculation when desired

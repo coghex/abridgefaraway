@@ -95,13 +95,19 @@ hsNewText env win x y text "text" = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) False text) initCache)
 hsNewText env win x y text "textbox" = do
   let eventQ = envEventsChan env
-      initCache = WECached $ (addTextBox posOffset size) ⧺ addText False x (x,y) text
+      initCache = WECached $ (addTextBox TextSize16px posOffset size) ⧺ addText False x (x,y) text
       size = calcTextBoxSize text
       posOffset = (x - 1.0,y + 0.5)
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text) initCache)
 hsNewText env win x y text "ttf" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) False text) WEUncached)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize16px False text) WEUncached)
+hsNewText env win x y text "ttfbox" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize16px True text) WEUncached)
+hsNewText env win x y text "title" = do
+  let eventQ = envEventsChan env
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize30px True text) WEUncached)
 hsNewText env _   _ _ _    textType = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -235,16 +241,16 @@ hsNewDynObj env _   dtype = do
 findReqTextures ∷ Window → [String]
 findReqTextures win = findTexturesFromElems $ reverse $ sort $ winElems win
 findTexturesFromElems ∷ [WinElem] → [String]
-findTexturesFromElems []                        = []
-findTexturesFromElems ((WinElemBack fp):wes)    = elemTexs ⧺ findTexturesFromElems wes
+findTexturesFromElems []                         = []
+findTexturesFromElems ((WinElemBack fp):wes)     = elemTexs ⧺ findTexturesFromElems wes
   where elemTexs = [fp]
 findTexturesFromElems ((WinElemWorld _ _ dps):wes)  = dps ⧺ findTexturesFromElems wes
-findTexturesFromElems ((WinElemLink _ _ _):wes) = findTexturesFromElems wes
-findTexturesFromElems ((WinElemText _ _ _):wes) = findTexturesFromElems wes
-findTexturesFromElems ((WinElemTTF _ _ _):wes)  = findTexturesFromElems wes
-findTexturesFromElems ((WinElemMenu _ _ _):wes) = findTexturesFromElems wes
-findTexturesFromElems ((WinElemDyn _ _):wes)    = findTexturesFromElems wes
-findTexturesFromElems ((WinElemNULL):wes)       = findTexturesFromElems wes
+findTexturesFromElems ((WinElemLink _ _ _):wes)  = findTexturesFromElems wes
+findTexturesFromElems ((WinElemText _ _ _):wes)  = findTexturesFromElems wes
+findTexturesFromElems ((WinElemTTF _ _ _ _):wes) = findTexturesFromElems wes
+findTexturesFromElems ((WinElemMenu _ _ _):wes)  = findTexturesFromElems wes
+findTexturesFromElems ((WinElemDyn _ _):wes)     = findTexturesFromElems wes
+findTexturesFromElems ((WinElemNULL):wes)        = findTexturesFromElems wes
 
 -- some simple data manipulators
 addWinToLuaState ∷ LuaState → Window → LuaState

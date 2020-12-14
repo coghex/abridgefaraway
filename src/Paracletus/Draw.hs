@@ -13,6 +13,7 @@ import Epiklesis.Elems
 import Epiklesis.Shell
 import Epiklesis.World
 import Paracletus.Data
+import Paracletus.Oblatum.Data
 
 -- shell can be safely drawn over everything
 loadDrawState ∷ LuaState → DrawState
@@ -35,11 +36,14 @@ loadWinElems nDefTex ((WECached gts,_):es) = gts ⧺ loadWinElems nDefTex es
 loadWinElems nDefTex ((_,e):es)           = loadWinElem nDefTex e ⧺ loadWinElems nDefTex es
 
 loadWinElem ∷ Int → WinElem → [GTile]
-loadWinElem _       (WinElemText pos True  str) = (addTextBox posOffset size) ⧺ addText False (fst pos) pos str
+loadWinElem _       (WinElemText pos True  str) = (addTextBox TextSize16px posOffset size) ⧺ addText False (fst pos) pos str
   where size = calcTextBoxSize str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem _       (WinElemText pos False str) = addText False (fst pos) pos str
-loadWinElem _       (WinElemTTF pos _ str) = addTTF False (fst pos) pos str
+loadWinElem _       (WinElemTTF pos size True str) = (addTextBox size posOffset s) ⧺ addTTF False size (fst pos) pos str
+  where s = calcTextBoxSize str
+        posOffset = ((fst pos) - 1.0, (snd pos) + 0.5)
+loadWinElem _       (WinElemTTF pos size False str) = addTTF False size (fst pos) pos str
 loadWinElem _       (WinElemMenu _ pos bits) = calcMenu pos bits
 loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) nDefTex False False]
 loadWinElem nDefTex (WinElemWorld wp wd _) = calcTiles nDefTex wp wd

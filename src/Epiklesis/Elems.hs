@@ -13,9 +13,11 @@ import Paracletus.Oblatum.Font
 calcTextBoxSize ∷ String → (Int,Int)
 calcTextBoxSize str = (length str, (length (splitOn ['\n'] str)))
 -- create a textbox of arbitrary size
-addTextBox ∷ (Double,Double) → (Int,Int) → [GTile]
-addTextBox (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,topLeftTile,topRightTile,botLeftTile,botRightTile]
-  where sx'          = fromIntegral sx
+addTextBox ∷ TextSize → (Double,Double) → (Int,Int) → [GTile]
+addTextBox size (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,topLeftTile,topRightTile,botLeftTile,botRightTile]
+  where sx'          = case size of
+                         TextSize16px → fromIntegral sx
+                         TextSize30px → 2*fromIntegral sx
         sy'          = fromIntegral sy
         topLeftTile  = GTileUncached { tPos   = (x,y)
                                      , tInd   = (0,0)
@@ -81,12 +83,24 @@ addTextBox (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,top
                                      , tTile  = False
                                      , tMoves = False }
 
-addTTF ∷ Bool → Double → (Double,Double) → String → [GTile]
-addTTF _ _  _     []         = []
-addTTF t x0 (_,y) ('\n':str) = addTTF t x0 (x0,(y - 1)) str
-addTTF t x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t x0 (x + chX, y) str
-  where textTile = GTileUncached (x + (chX / 2.0),y + chY) (chW,chH) (0,0) (1,1) (chIndex) t False
-        TTFData chIndex chW chH chX chY = indexTTF ch
+addTTF ∷ Bool → TextSize → Double → (Double,Double) → String → [GTile]
+addTTF _ _    _  _     []         = []
+addTTF t size x0 (_,y) ('\n':str) = addTTF t size x0 (x0,(y - 1)) str
+addTTF t size x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t size x0 (x + chX', y) str
+  where textTile = GTileUncached (x + (chX' / 2.0),y + chY') (chW',chH') (0,0) (1,1) (chIndex) t False
+        TTFData chIndex chW chH chX chY = indexTTF size ch
+        chW' = case size of
+                 TextSize16px → 0.5*chW
+                 TextSize30px → chW
+        chH' = case size of
+                 TextSize16px → 0.5*chH
+                 TextSize30px → chH
+        chX' = case size of
+                 TextSize16px → 0.5*chX
+                 TextSize30px → chX
+        chY' = case size of
+                 TextSize16px → 0.5*chY
+                 TextSize30px → chY
 
 addText ∷ Bool → Double → (Double,Double) → String → [GTile]
 addText _ _  _     []         = []
@@ -96,7 +110,7 @@ addText t x0 (x,y) (ch:str)   = [textTile] ⧺ addText t x0 (x + (fontOffset ch)
 
 -- menus are full of bits
 calcMenu ∷ (Double,Double) → [MenuBit] → [GTile]
-calcMenu pos mbs = addTextBox posOffset size ⧺ calcMenuBits pos mbs
+calcMenu pos mbs = addTextBox TextSize16px posOffset size ⧺ calcMenuBits pos mbs
   where size = (20,(2*(length mbs) - 1))
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 calcMenuBits ∷ (Double,Double) → [MenuBit] → [GTile]

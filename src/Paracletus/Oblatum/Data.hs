@@ -26,6 +26,9 @@ data InputState = InputState { mouse1      ∷ Bool
                              , keyAccel    ∷ (Float,Float)
                              } deriving (Show, Eq)
 
+-- no need to load in every concievable size
+data TextSize = TextSize16px | TextSize30px deriving (Show, Eq)
+
 -- TTF characters come in different sizes
 -- and offsets, this is that data
 data TTFData = TTFData

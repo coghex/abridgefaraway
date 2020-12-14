@@ -82,7 +82,7 @@ processEvent event = case event of
           WinElemText _ _ _ → do
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
-          WinElemTTF _ _ _ → do
+          WinElemTTF _ _ _ _ → do
             let newLS = addElemToLuaState win e cache (luaSt st)
             modify $ \s → s { luaSt = newLS }
           WinElemMenu _ _ _ → do

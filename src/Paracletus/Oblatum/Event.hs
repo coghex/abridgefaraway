@@ -281,7 +281,7 @@ isElemLink ∷ WinElem → Bool
 isElemLink (WinElemLink _ _ _)  = True
 isElemLink (WinElemWorld _ _ _) = False
 isElemLink (WinElemText _ _ _)  = False
-isElemLink (WinElemTTF _ _ _)   = False
+isElemLink (WinElemTTF _ _ _ _)   = False
 isElemLink (WinElemBack _ )     = False
 isElemLink (WinElemDyn _ _)     = False
 isElemLink (WinElemMenu _ _ _)  = False

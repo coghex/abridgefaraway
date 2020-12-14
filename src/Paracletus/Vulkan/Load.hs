@@ -43,19 +43,22 @@ loadVulkanTextures (GQData pdev dev cmdPool cmdQueue) fps = do
   (textureView1, mipLevels1) ← createTextureImageView pdev dev cmdPool cmdQueue tex1Path
   (texViewAlph, mipLevelsAlph) ← createTextureImageView pdev dev cmdPool cmdQueue texAlph
   menuTexs ← loadNTexs pdev dev cmdPool cmdQueue textMenuPath
-  fontTexs ← createFontImageViews pdev dev cmdPool cmdQueue texFont 30
+  fontTexs16 ← createFontImageViews pdev dev cmdPool cmdQueue texFont 16
+  fontTexs30 ← createFontImageViews pdev dev cmdPool cmdQueue texFont 30
   modTexViews ← createTextureImageViews pdev dev cmdPool cmdQueue fps
   textureSampler1 ← createTextureSampler dev mipLevels1
   texSamplerAlph  ← createTextureSampler dev mipLevelsAlph
   texSamplersMod  ← createTextureSamplers dev $ snd . unzip $ modTexViews
-  let (ftexs, fmipLvls) = unzip fontTexs
-  fontSamplers ← createTextureSamplers dev fmipLvls
+  let (ftexs16, fmipLvls16) = unzip fontTexs16
+  let (ftexs30, fmipLvls30) = unzip fontTexs30
+  font16Samplers ← createTextureSamplers dev fmipLvls16
+  font30Samplers ← createTextureSamplers dev fmipLvls30
   let (btexs, bsamps) = unzip boxTexs
       (mbtexs, mbsamps) = unzip mboxTexs
       (menutexs, menusamps) = unzip menuTexs
-      defaultTexs = ([textureView1,texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ menutexs ⧺ ftexs)
+      defaultTexs = ([textureView1,texViewAlph] ⧺ btexs ⧺ mbtexs ⧺ menutexs ⧺ ftexs30 ⧺ ftexs16)
       texViews = defaultTexs ⧺ (fst (unzip modTexViews))
-      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ menusamps ⧺ fontSamplers ⧺ texSamplersMod
+      texSamps = [textureSampler1, texSamplerAlph] ⧺ bsamps ⧺ mbsamps ⧺ menusamps ⧺ font30Samplers ⧺ font16Samplers ⧺ texSamplersMod
   ls ← gets luaSt
   modify $ \s → s { luaSt = ls { luaNDefTex = length defaultTexs }}
   descriptorTextureInfo ← textureImageInfos texViews texSamps
