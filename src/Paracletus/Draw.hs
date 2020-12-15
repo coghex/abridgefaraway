@@ -37,12 +37,12 @@ loadWinElems nDefTex ((_,e):es)           = loadWinElem nDefTex e ⧺ loadWinEle
 
 loadWinElem ∷ Int → WinElem → [GTile]
 loadWinElem _       (WinElemText pos True  str) = (addTextBox TextSize16px posOffset size) ⧺ addText False (fst pos) pos str
-  where size = calcTextBoxSize str
+  where size = calcTextBoxSize TextSize16px str
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 loadWinElem _       (WinElemText pos False str) = addText False (fst pos) pos str
 loadWinElem _       (WinElemTTF pos size True str) = (addTextBox size posOffset s) ⧺ addTTF False size (fst pos) pos str
-  where s = calcTextBoxSize str
-        posOffset = ((fst pos) - 1.0, (snd pos) + 0.5)
+  where s = calcTextBoxSize size str
+        posOffset = ((fst pos) - 0.5, (snd pos) + 0.5)
 loadWinElem _       (WinElemTTF pos size False str) = addTTF False size (fst pos) pos str
 loadWinElem _       (WinElemMenu _ pos bits) = calcMenu pos bits
 loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) nDefTex False False]

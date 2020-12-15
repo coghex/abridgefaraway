@@ -10,8 +10,12 @@ import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Font
 
 -- figure out what size the textbox should be
-calcTextBoxSize ∷ String → (Int,Int)
-calcTextBoxSize str = (length str, (length (splitOn ['\n'] str)))
+calcTextBoxSize ∷ TextSize → String → (Int,Int)
+calcTextBoxSize size str = (max 0 (round (calcTBWidth size str)), (length (splitOn ['\n'] str)))
+calcTBWidth ∷ TextSize → String → Double
+calcTBWidth _    []       = -1.0
+calcTBWidth size (ch:str) = chWidth + calcTBWidth size str
+  where chWidth = 2.0*(chW $ indexTTF size ch)
 -- create a textbox of arbitrary size
 addTextBox ∷ TextSize → (Double,Double) → (Int,Int) → [GTile]
 addTextBox size (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTile,topLeftTile,topRightTile,botLeftTile,botRightTile]
@@ -86,6 +90,7 @@ addTextBox size (x,y) (sx,sy) = [middleTile,rightTile,leftTile,topTile,bottomTil
 addTTF ∷ Bool → TextSize → Double → (Double,Double) → String → [GTile]
 addTTF _ _    _  _     []         = []
 addTTF t size x0 (_,y) ('\n':str) = addTTF t size x0 (x0,(y - 1)) str
+addTTF t size x0 (x,y) (' ':str)  = addTTF t size x0 (x + 0.5, y) str
 addTTF t size x0 (x,y) (ch:str)   = [textTile] ⧺ addTTF t size x0 (x + chX', y) str
   where textTile = GTileUncached (x + (chX' / 2.0),y + chY') (chW',chH') (0,0) (1,1) (chIndex) t False
         TTFData chIndex chW chH chX chY = indexTTF size ch

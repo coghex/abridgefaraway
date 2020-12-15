@@ -32,7 +32,7 @@ function LuaWindow:switchToWindow ()
     switchWindow (self.lwName)
 end
 function LuaWindow:newButton (x,y,text,action,args)
-    newText ((self.lwName),x,y,text,"textbox")
+    newText ((self.lwName),x,y,text,"ttfbox")
     newLink ((self.lwName),x,y,text,action,args)
 end
 function LuaWindow:addMenu (mName,x,y)
@@ -56,8 +56,6 @@ function initLua ()
     menu1:addText (-4.0, 4.0, "A Bridge Far Away")
     menu1:newButton (-4.0, 2.0, "Create World", "link", "menu2")
     menu1:newButton (-4.0, -2.0, "Escape", "action", "exit")
-    menu1:addTitle (-6.0,0.5,"asdfghj")
-    menu1:addTTF (-6.0,-0.5,"asdfghj")
 
     local menu2 = LuaWindow:new ()
     menu2:init("menu2","menu")

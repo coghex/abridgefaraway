@@ -96,7 +96,7 @@ hsNewText env win x y text "text" = do
 hsNewText env win x y text "textbox" = do
   let eventQ = envEventsChan env
       initCache = WECached $ (addTextBox TextSize16px posOffset size) ⧺ addText False x (x,y) text
-      size = calcTextBoxSize text
+      size = calcTextBoxSize TextSize16px text
       posOffset = (x - 1.0,y + 0.5)
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemText (x,y) True text) initCache)
 hsNewText env win x y text "ttf" = do
