@@ -49,8 +49,8 @@ loadWinElem nDefTex (WinElemBack _) = [GTileUncached (0,0) (32,24) (0,0) (1,1) n
 loadWinElem nDefTex (WinElemWorld wp wd _) = calcTiles nDefTex wp wd
 loadWinElem _       (WinElemLink _ _ _)    = []
 loadWinElem _       (WinElemDyn DynFPS _)  = calcFPSTiles
-loadWinElem _       (WinElemDyn (DynSlider pos) _) = [GTileUncached posOffset (0.5,0.5) (8,5) (16,6) 1 True False]
-  where posOffset = (fst pos,(snd pos) - 1.0)
+loadWinElem _       (WinElemDyn (DynSlider pos) _) = [GTileUncached posOffset (0.05,0.3) (0,0) (1,1) 206 True False]
+  where posOffset = ((fst pos) - 1.0,(snd pos) - 1.0)
 loadWinElem _       (WinElemDyn DynNULL _) = []
 loadWinElem _       WinElemNULL = []
 

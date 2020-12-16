@@ -116,7 +116,7 @@ data WinElemCache = WECached [GTile]
                   | WECacheNULL
 
 -- possible actions when links are clicked
-data LinkAction = LinkExit | LinkBack | LinkLink String | LinkSelect Int String | LinkNULL deriving (Show, Eq)
+data LinkAction = LinkExit | LinkBack | LinkLink String | LinkSelect Int String | LinkSlider | LinkNULL deriving (Show, Eq)
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window

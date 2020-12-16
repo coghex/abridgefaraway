@@ -53,7 +53,7 @@ function initLua ()
     local menu1 = LuaWindow:new ()
     menu1:init("menu1","menu")
     menu1:setBackground ("dat/tex/texture1.png")
-    menu1:addText (-4.0, 4.0, "A Bridge Far Away")
+    menu1:addTitle (-4.0, 4.0, "A Bridge Far Away")
     menu1:newButton (-4.0, 2.0, "Create World", "link", "menu2")
     menu1:newButton (-4.0, -2.0, "Escape", "action", "exit")
 

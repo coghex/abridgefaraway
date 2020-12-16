@@ -107,7 +107,7 @@ hsNewText env win x y text "ttfbox" = do
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize16px True text) WEUncached)
 hsNewText env win x y text "title" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize30px True text) WEUncached)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemTTF (x,y) TextSize30px False text) WEUncached)
 hsNewText env _   _ _ _    textType = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)

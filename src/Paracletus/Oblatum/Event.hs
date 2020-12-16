@@ -273,6 +273,9 @@ linkTestFunc (x,y) (link:links) = do
           ls ← gets luaSt
           modify' $ \s → s { luaSt = toggleMenuElem n menu ls
                            , sReload = True }
+        LinkSlider → do
+          ls ← gets luaSt
+          modify' $ \s → s { luaSt = ls }
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links

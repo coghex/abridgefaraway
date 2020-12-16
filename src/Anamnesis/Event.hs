@@ -117,8 +117,9 @@ processEvent event = case event of
         case menuBit of
           MenuText _ → return ()
           MenuSlider _ _ _ _ → do
-            let pos' = ((fst pos) - 2.0, 0.5*(snd pos) + 1.0)
+            let pos' = ((fst pos), 0.5*(snd pos) + 1.0)
             liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos') [DynData (0,0) (0,0)]) WEUncached)
+            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos') (0.5,0.5) (LinkSlider)) WEUncached)
             if (n > 0) then do
               liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos) (1.0,0.5) (LinkSelect n menu)) WEUncached)
             else return ()

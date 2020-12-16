@@ -116,24 +116,21 @@ addText t x0 (x,y) (ch:str)   = [textTile] ⧺ addText t x0 (x + (fontOffset ch)
 -- menus are full of bits
 calcMenu ∷ (Double,Double) → [MenuBit] → [GTile]
 calcMenu pos mbs = addTextBox TextSize16px posOffset size ⧺ calcMenuBits pos mbs
-  where size = (20,(2*(length mbs) - 1))
+  where size = (24,(2*(length mbs) - 1))
         posOffset = ((fst pos) - 1.0,(snd pos) + 0.5)
 calcMenuBits ∷ (Double,Double) → [MenuBit] → [GTile]
 calcMenuBits _   []       = []
 calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos' mbs
   where pos' = (fst pos, (snd pos) - 1)
 calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
-calcMenuBit pos (MenuText str)          = addText False (fst pos) pos str
-calcMenuBit pos (MenuSlider text range val sel) = [boxTile] ⧺ addText False (fst pos) pos ((justifylString 10 (text ⧺ ": ")) ⧺ (show (fst range)) ⧺ " <-------> " ⧺ (justifyr (snd range)) ⧺ " " ⧺ (justifyr val))
-  where boxTile = GTileUncached (((fst pos) + 5.75),(snd pos)) (2.0,1.0) (0,0) (1,1) tex False False
+calcMenuBit pos (MenuText str)          = addTTF False TextSize16px (fst pos) pos str
+calcMenuBit pos (MenuSlider text range val sel) = [boxTile] ⧺ (addTTF False TextSize16px (fst pos) pos (text ⧺ ":")) ⧺ (addTTF False TextSize16px (fst pos) pos2 (show (fst range))) ⧺ (addTTF False TextSize16px (fst pos) pos3 "<-------->") ⧺ (addTTF False TextSize16px (fst pos) pos4 (show (snd range))) ⧺ (addTTF False TextSize16px (fst pos) pos5 (show val))
+  where boxTile = GTileUncached (((fst pos) + 10.0),(snd pos)) (2.0,1.0) (0,0) (1,1) tex False False
         tex = case sel of
                 True → 19
                 False → 20
-        justifyr n
-          | n < 1000  = " " ⧺ (show n)
-          | n < 100   = "  " ⧺ (show n)
-          | n < 10    = "   " ⧺ (show n)
-          | otherwise = show n
-        justifylString n s = s ⧺ spaces
-          where spaces = take (n - (length s)) $ repeat ' '
+        pos2 = ((fst pos) + 3.0, (snd pos))
+        pos3 = ((fst pos) + 4.0, (snd pos))
+        pos4 = ((fst pos) + 7.5, (snd pos))
+        pos5 = ((fst pos) + 9.5, (snd pos))
 calcMenuBit _   MenuNULL                = []
