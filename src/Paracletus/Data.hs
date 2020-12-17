@@ -57,9 +57,13 @@ data DynType = DynFPS
 
 -- data for dynamic object transformations
 data DynData = DynData
-         { ddPosition ∷ (Float,Float)
+         { ddRef      ∷ DDRef
+         , ddPosition ∷ (Float,Float)
          , ddTIndex   ∷ (Int,Int)
          } deriving (Show, Eq)
+
+-- corresponding reference to luast
+data DDRef = DDSlider Int | DDNULL deriving (Show, Eq)
 
 -- all the data required for a set of textures
 data TextureData = TextureData

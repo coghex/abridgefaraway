@@ -147,7 +147,7 @@ hsNewMenuBit env win menu "slider" args = do
     Just n  → return n
   let text  = head sargs
       range = (r1,r2)
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider text range r3 False))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider (-1) text range r3 False))
 hsNewMenuBit env _   _    mbtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -231,7 +231,7 @@ hsToggleFPS env = do
 hsNewDynObj ∷ Env → String → String → Lua.Lua ()
 hsNewDynObj env win "fps" = do
   let eventQ = envEventsChan env
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn DynFPS [DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0), DynData (0,0) (0,0)]) WEUncached)
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn DynFPS [DynData DDNULL (0,0) (0,0), DynData DDNULL (0,0) (0,0), DynData DDNULL (0,0) (0,0), DynData DDNULL (0,0) (0,0)]) WEUncached)
 hsNewDynObj env _   dtype = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua $ LuaError errorstr
@@ -315,24 +315,24 @@ calcFPSDyn fps
   | fps < 100 = [dd1,dd2,nulldd,nulldd]
   | fps < 1000 = [dd1,dd2,dd3,nulldd]
   | otherwise = [dd1,dd2,dd3,dd4]
-  where nulldd = DynData (0,0) (0,0)
+  where nulldd = DynData DDNULL (0,0) (0,0)
         dd1 = calcNumDyn $ fps `mod` 10
         dd2 = calcNumDyn $ (fps `div` 10) `mod` 10
         dd3 = calcNumDyn $ (fps `div` 100) `mod` 10
         dd4 = calcNumDyn $ (fps `div` 1000) `mod` 10
 -- finds the offset for a single didget int
 calcNumDyn ∷ Int → DynData
-calcNumDyn 0 = DynData (0,0) (-3,0)
-calcNumDyn 1 = DynData (0,0) (-12,0)
-calcNumDyn 2 = DynData (0,0) (-11,0)
-calcNumDyn 3 = DynData (0,0) (-10,0)
-calcNumDyn 4 = DynData (0,0) (-9,0)
-calcNumDyn 5 = DynData (0,0) (-8,0)
-calcNumDyn 6 = DynData (0,0) (-7,0)
-calcNumDyn 7 = DynData (0,0) (-6,0)
-calcNumDyn 8 = DynData (0,0) (-5,0)
-calcNumDyn 9 = DynData (0,0) (-4,0)
-calcNumDyn _ = DynData (0,0) (0,0)
+calcNumDyn 0 = DynData DDNULL (0,0) (-3,0)
+calcNumDyn 1 = DynData DDNULL (0,0) (-12,0)
+calcNumDyn 2 = DynData DDNULL (0,0) (-11,0)
+calcNumDyn 3 = DynData DDNULL (0,0) (-10,0)
+calcNumDyn 4 = DynData DDNULL (0,0) (-9,0)
+calcNumDyn 5 = DynData DDNULL (0,0) (-8,0)
+calcNumDyn 6 = DynData DDNULL (0,0) (-7,0)
+calcNumDyn 7 = DynData DDNULL (0,0) (-6,0)
+calcNumDyn 8 = DynData DDNULL (0,0) (-5,0)
+calcNumDyn 9 = DynData DDNULL (0,0) (-4,0)
+calcNumDyn _ = DynData DDNULL (0,0) (0,0)
 
 -- adds to specific menu in winElems
 addBitToMenu ∷ String → MenuBit → [WinElem] → [WinElem]
@@ -341,6 +341,10 @@ addBitToMenu menu mb ((WinElemMenu name pos mbs):wes)
   | (name ≡ menu) = [WinElemMenu name pos (mbs ⧺ [mb])] ⧺ addBitToMenu menu mb wes
   | otherwise     = [WinElemMenu name pos mbs] ⧺ addBitToMenu menu mb wes
 addBitToMenu menu mb (we:wes) = [we] ⧺ addBitToMenu menu mb wes
+
+numberSlider ∷ Int → MenuBit → MenuBit
+numberSlider n (MenuSlider _ text range val sel) = MenuSlider n text range val sel
+numberSlider _ mb = mb
 
 -- returns window with name
 findWin ∷ String → [Window] → Maybe Window
@@ -399,7 +403,7 @@ toggleMenuBitBit ∷ Int → Int → [MenuBit] → [MenuBit]
 toggleMenuBitBit _  _ [] = []
 toggleMenuBitBit n' i (bit:bits) = [bit'] ⧺ toggleMenuBitBit n' (i + 1) bits
   where bit' = if (n' ≡ i) then toggleBit bit else bit
-        toggleBit (MenuSlider a1 a2 a3 sel) = MenuSlider a1 a2 a3 (not sel)
+        toggleBit (MenuSlider a1 a2 a3 a4 sel) = MenuSlider a1 a2 a3 a4 (not sel)
         toggleBit b = b
 -- its ok to have !! here since
 -- currwin and wins are created

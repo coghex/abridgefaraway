@@ -17,6 +17,7 @@ import Epiklesis.Lua
 import Epiklesis.Module
 import Epiklesis.Shell
 import Paracletus.Data
+import Paracletus.Draw
 import Paracletus.Oblatum.Event
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
@@ -109,17 +110,19 @@ processEvent event = case event of
       (LuaCmdnewMenuBit win menu menuBit) → do
         env ← ask
         st  ← get
-        let newLS  = addMenuBitToLuaState win menu menuBit (luaSt st)
+        let newLS  = addMenuBitToLuaState win menu menuBit' (luaSt st)
+            menuBit' = numberSlider n menuBit
             pos    = findLastMenuBitPos win menu newLS
             n      = findMenuSize win menu $ luaWindows newLS
             eventQ = envEventsChan env
         -- some menu bits include other winElems
         case menuBit of
           MenuText _ → return ()
-          MenuSlider _ _ _ _ → do
-            let pos' = ((fst pos), 0.5*(snd pos) + 1.0)
-            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos') [DynData (0,0) (0,0)]) WEUncached)
-            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos') (0.5,0.5) (LinkSlider)) WEUncached)
+          MenuSlider _ _ range val _ → do
+            let pos' = ((fst pos) - 0.4, 0.5*(snd pos) + 1.0)
+                sliderPos = (calcSliderPos range val,0)
+            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos') [DynData (DDSlider n) sliderPos (0,0)]) WEUncached)
+            liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos) (2.0,0.5) (LinkSlider n)) WEUncached)
             if (n > 0) then do
               liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos) (1.0,0.5) (LinkSelect n menu)) WEUncached)
             else return ()

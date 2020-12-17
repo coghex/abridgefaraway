@@ -116,7 +116,7 @@ data WinElemCache = WECached [GTile]
                   | WECacheNULL
 
 -- possible actions when links are clicked
-data LinkAction = LinkExit | LinkBack | LinkLink String | LinkSelect Int String | LinkSlider | LinkNULL deriving (Show, Eq)
+data LinkAction = LinkExit | LinkBack | LinkLink String | LinkSelect Int String | LinkSlider Int | LinkNULL deriving (Show, Eq)
 
 -- possible lua commands, including errors
 data LuaCmd = LuaCmdnewWindow Window
@@ -138,7 +138,8 @@ data ModuleType = ModuleGame | ModuleUser
 
 -- possible menu elements
 data MenuBit = MenuText { menuText ∷ String }
-             | MenuSlider { sliderText  ∷ String
+             | MenuSlider { sliderInd   ∷ Int
+                          , sliderText  ∷ String
                           , sliderRange ∷ (Int,Int)
                           , sliderValue ∷ Int
                           , sliderSel   ∷ Bool }

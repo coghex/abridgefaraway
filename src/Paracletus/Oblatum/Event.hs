@@ -16,6 +16,7 @@ import Artos.Var
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Shell
+import Paracletus.Data
 import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- user key strings from getKey function
@@ -273,12 +274,57 @@ linkTestFunc (x,y) (link:links) = do
           ls ← gets luaSt
           modify' $ \s → s { luaSt = toggleMenuElem n menu ls
                            , sReload = True }
-        LinkSlider → do
-          ls ← gets luaSt
-          modify' $ \s → s { luaSt = ls }
+        LinkSlider n → do
+          st ← get
+          let ds = drawSt st
+              ls = luaSt st
+          logDebug $ "pos: " ⧺ (show x)
+          modify' $ \s → s { drawSt = moveSlider n ds
+                           , luaSt = moveLSSlider x n ls}
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links
+
+moveSlider ∷ Int → DrawState → DrawState
+moveSlider n ds = ds { dsDyns = dyns }
+  where dyns = moveSliderDyn n (dsDyns ds)
+moveSliderDyn ∷ Int → [DynData] → [DynData]
+moveSliderDyn _ []       = []
+moveSliderDyn n (dd:dds)
+  | ddRef dd == DDSlider n = [dd'] ⧺ (moveSliderDyn n dds)
+  | otherwise     = [dd]  ⧺ (moveSliderDyn n dds)
+  where dd' = dd { ddPosition = ((fst (ddPosition dd)) + 0.5, snd (ddPosition dd)) }
+
+moveLSSlider ∷ Double → Int → LuaState → LuaState
+moveLSSlider x n ls = ls { luaWindows = replaceWin w' (luaWindows ls) }
+  where w' = moveLSSliderWin x n $ currentWindow ls
+moveLSSliderWin ∷ Double → Int → Window → Window
+moveLSSliderWin x n win = win { winElems = moveLSSliderWinElems x n (winElems win) }
+moveLSSliderWinElems ∷ Double → Int → [WinElem] → [WinElem]
+moveLSSliderWinElems _ _ []       = []
+moveLSSliderWinElems x n ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos bits'] ⧺ moveLSSliderWinElems x n wes
+  where bits' = moveLSSliderMenuBits (x + (fst pos)) n bits
+moveLSSliderWinElems x n ((WinElemDyn (DynSlider pos) dd):wes) = [WinElemDyn (DynSlider pos) (moveLSSliderDD n dd)] ⧺ moveLSSliderWinElems x n wes
+moveLSSliderWinElems x n (we:wes) = [we] ⧺ moveLSSliderWinElems x n wes
+moveLSSliderDD ∷ Int → [DynData] → [DynData]
+moveLSSliderDD _ []       = []
+moveLSSliderDD n (dd:dds)
+  | ddRef dd == DDSlider n = [dd'] ⧺ moveLSSliderDD n dds
+  | otherwise     = [dd]  ⧺ moveLSSliderDD n dds
+  where dd' = dd { ddPosition = ((fst (ddPosition dd)) + 0.5, snd (ddPosition dd)) }
+moveLSSliderMenuBits ∷ Double → Int → [MenuBit] → [MenuBit]
+moveLSSliderMenuBits _ _ []       = []
+moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
+  | n == i = [mb'] ⧺ moveLSSliderMenuBits x n mbs
+  | otherwise = [mb] ⧺ moveLSSliderMenuBits x n mbs
+  where mb'   = MenuSlider i text range val'' sel
+        val'' = min (snd range) $ max (fst range) val'
+        val'  = round $ (mx - mn)*(0.25*(x+4.0))
+        mn    = fromIntegral $ fst range
+        mx    = fromIntegral $ snd range
+        mb    = MenuSlider i text range val sel
+moveLSSliderMenuBits x n (mb:mbs) = [mb] ⧺ moveLSSliderMenuBits x n mbs
+
 
 isElemLink ∷ WinElem → Bool
 isElemLink (WinElemLink _ _ _)  = True

@@ -124,7 +124,7 @@ calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos' mbs
   where pos' = (fst pos, (snd pos) - 1)
 calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
 calcMenuBit pos (MenuText str)          = addTTF False TextSize16px (fst pos) pos str
-calcMenuBit pos (MenuSlider text range val sel) = [boxTile] ⧺ (addTTF False TextSize16px (fst pos) pos (text ⧺ ":")) ⧺ (addTTF False TextSize16px (fst pos) pos2 (show (fst range))) ⧺ (addTTF False TextSize16px (fst pos) pos3 "<-------->") ⧺ (addTTF False TextSize16px (fst pos) pos4 (show (snd range))) ⧺ (addTTF False TextSize16px (fst pos) pos5 (show val))
+calcMenuBit pos (MenuSlider _ text range val sel) = [boxTile] ⧺ (addTTF False TextSize16px (fst pos) pos (text ⧺ ":")) ⧺ (addTTF False TextSize16px (fst pos) pos2 (show (fst range))) ⧺ (addTTF False TextSize16px (fst pos) pos3 "<-------->") ⧺ (addTTF False TextSize16px (fst pos) pos4 (show (snd range))) ⧺ (addTTF False TextSize16px (fst pos) pos5 (show val))
   where boxTile = GTileUncached (((fst pos) + 10.0),(snd pos)) (2.0,1.0) (0,0) (1,1) tex False False
         tex = case sel of
                 True → 19
