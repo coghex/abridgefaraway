@@ -293,7 +293,7 @@ moveSliderDyn x n (dd:dds)
   | ddRef dd == DDSlider n = [dd'] ⧺ (moveSliderDyn x n dds)
   | otherwise     = [dd]  ⧺ (moveSliderDyn x n dds)
   where dd' = dd { ddPosition = (x', snd (ddPosition dd)) }
-        x' = 2.0*(realToFrac x) - 0.4
+        x' = min 5.4 $ max 0.0 $ 2.0*(realToFrac x) - 0.4
 
 moveLSSlider ∷ Double → Int → LuaState → LuaState
 moveLSSlider x n ls = ls { luaWindows = replaceWin w' (luaWindows ls) }
@@ -312,7 +312,7 @@ moveLSSliderDD x n (dd:dds)
   | ddRef dd == DDSlider n = [dd'] ⧺ moveLSSliderDD x n dds
   | otherwise     = [dd]  ⧺ moveLSSliderDD x n dds
   where dd' = dd { ddPosition = (x', snd (ddPosition dd)) }
-        x' = 2.0*(realToFrac x) - 0.4
+        x' = min 5.4 $ max 0.0 $ 2.0*(realToFrac x) - 0.4
 moveLSSliderMenuBits ∷ Double → Int → [MenuBit] → [MenuBit]
 moveLSSliderMenuBits _ _ []       = []
 moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
