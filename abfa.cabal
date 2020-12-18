@@ -47,6 +47,7 @@ executable abfa
                    Paracletus.Oblatum.Event
                    Paracletus.Oblatum.Font
                    Paracletus.Oblatum.GLFW
+                   Paracletus.Oblatum.Input
                    Paracletus.TH
                    Paracletus.Vulkan
                    Paracletus.Vulkan.Atlas

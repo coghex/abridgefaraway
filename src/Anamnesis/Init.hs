@@ -13,6 +13,7 @@ import Anamnesis
 import Anamnesis.Data
 import Anamnesis.Draw
 import Paracletus.Data
+import Paracletus.Oblatum
 import Paracletus.Oblatum.Data
 import Artos.Except
 import Artos.Queue
@@ -46,18 +47,7 @@ initState = do
   ls ← initLua
   ds ← initDrawState [tile1]
   starttime ← getSystemTime
-  let is = InputState { mouse1      = False
-                      , mouse1Cache = (0.0,0.0)
-                      , mouse2      = False
-                      , mouse2Cache = (0.0,0.0)
-                      , mouse3      = False
-                      , mouse3Cache = (0.0,0.0)
-                      , isElems     = []
-                      , keyUp       = False
-                      , keyLeft     = False
-                      , keyDown     = False
-                      , keyRight    = False
-                      , keyAccel    = (0.0,0.0) }
+  let is = initInputState
   atomically $ newTVar State { status       = ref
                              , logFunc      = lf
                              , windowSt     = Nothing

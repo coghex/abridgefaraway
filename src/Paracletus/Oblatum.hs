@@ -18,6 +18,7 @@ import Paracletus.Oblatum.Callback
 import Paracletus.Oblatum.Data
 import Paracletus.Oblatum.Event
 import Paracletus.Oblatum.GLFW (WindowHint(..),ClientAPI(..))
+import Paracletus.Oblatum.Input
 import qualified Paracletus.Oblatum.GLFW as GLFW
 
 initGLFWWindow ∷ Int → Int → String → TVar Bool → Anamnesis ε σ GLFW.Window
@@ -139,6 +140,23 @@ processInput = do
       WinTypeMenu → if (mouse1 is) then
                       if ((sliderPressed is) > 0) then do
                         moveSliderWithMouse (sliderPressed is)
+                      --else if ((selectedBox is) > 0) then do
+                      --  typeInBox (selectedBox is)
                       else return ()
                     else return ()
       WinTypeNULL → return ()
+
+initInputState ∷ InputState
+initInputState = InputState { mouse1      = False
+                            , mouse1Cache = (0.0,0.0)
+                            , mouse2      = False
+                            , mouse2Cache = (0.0,0.0)
+                            , mouse3      = False
+                            , mouse3Cache = (0.0,0.0)
+                            , isElems     = []
+                            , inpCap      = False
+                            , keyUp       = False
+                            , keyLeft     = False
+                            , keyDown     = False
+                            , keyRight    = False
+                            , keyAccel    = (0.0,0.0) }

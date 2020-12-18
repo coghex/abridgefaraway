@@ -379,10 +379,30 @@ findMenuSize win menu wins = case (findWin win wins) of
 
 -- toggles menu element data
 toggleMenuElem ∷ Int → String → LuaState → LuaState
+-- (-1) resets all menu elems
+toggleMenuElem (-1) name ls = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+  where newWin = resetMenuElems name (currentWindow ls)
+-- "NULL" works for all menus
+toggleMenuElem _    "NULL" ls = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+  where newWin = resetMenuElems "NULL" (currentWindow ls)
 toggleMenuElem n menu ls = ls { luaWindows = replaceWin newWin (luaWindows ls) }
   where newWin = toggleMenuWE n menu (currentWindow ls)
 toggleMenuWE ∷ Int → String → Window → Window
 toggleMenuWE n menu win = win { winElems = replaceMenuBit n menu (winElems win) }
+resetMenuElems ∷ String → Window → Window
+resetMenuElems name win = win { winElems = resetWinElems name (winElems win) }
+resetWinElems ∷ String → [WinElem] → [WinElem]
+resetWinElems _    []       = []
+resetWinElems name (WinElemMenu n pos bits:wes)
+  | (name ≡ n)      = [we'] ⧺ resetWinElems name wes
+  | (name ≡ "NULL") = [we'] ⧺ resetWinElems name wes
+  | otherwise       = [WinElemMenu n pos bits] ⧺ resetWinElems name wes
+  where we' = WinElemMenu n pos $ resetMenuBits bits
+resetWinElems name (we:wes) = [we] ⧺ resetWinElems name wes
+resetMenuBits ∷ [MenuBit] → [MenuBit]
+resetMenuBits []       = []
+resetMenuBits ((MenuSlider a1 a2 a3 a4 _):mbs) = [MenuSlider a1 a2 a3 a4 False] ⧺ resetMenuBits mbs
+resetMenuBits (mb:mbs) = [mb] ⧺ resetMenuBits mbs
 
 -- replaces specific window in windows
 replaceWin ∷ Window → [Window] → [Window]
@@ -402,9 +422,12 @@ replaceMenuBit n menu (we:wes) = [we] ⧺ replaceMenuBit n menu wes
 toggleMenuBitBit ∷ Int → Int → [MenuBit] → [MenuBit]
 toggleMenuBitBit _  _ [] = []
 toggleMenuBitBit n' i (bit:bits) = [bit'] ⧺ toggleMenuBitBit n' (i + 1) bits
-  where bit' = if (n' ≡ i) then toggleBit bit else bit
+  where bit' = if (n' ≡ i) then toggleBit bit else zeroBit bit
         toggleBit (MenuSlider a1 a2 a3 a4 sel) = MenuSlider a1 a2 a3 a4 (not sel)
         toggleBit b = b
+        -- all non selected bits go off
+        zeroBit (MenuSlider a1 a2 a3 a4 _) = MenuSlider a1 a2 a3 a4 False
+        zeroBit b = b
 -- its ok to have !! here since
 -- currwin and wins are created
 -- together, the outcome is known
