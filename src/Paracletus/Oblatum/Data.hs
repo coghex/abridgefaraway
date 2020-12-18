@@ -19,12 +19,16 @@ data InputState = InputState { mouse1      ∷ Bool
                              , mouse2Cache ∷ (Float,Float)
                              , mouse3      ∷ Bool
                              , mouse3Cache ∷ (Float,Float)
+                             , isElems     ∷ [InputElem]
                              , keyUp       ∷ Bool
                              , keyLeft     ∷ Bool
                              , keyDown     ∷ Bool
                              , keyRight    ∷ Bool
                              , keyAccel    ∷ (Float,Float)
                              } deriving (Show, Eq)
+
+-- input state related to various winelems
+data InputElem = IESlider Bool Int | IENULL deriving (Show, Eq)
 
 -- no need to load in every concievable size
 data TextSize = TextSize16px | TextSize30px deriving (Show, Eq)

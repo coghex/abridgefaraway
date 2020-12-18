@@ -19,6 +19,7 @@ import Epiklesis.Shell
 import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Event
+import Paracletus.Oblatum.Data
 import qualified Paracletus.Oblatum.GLFW as GLFW
 -- reads event channel, then
 -- executes events in order
@@ -121,14 +122,17 @@ processEvent event = case event of
           MenuSlider _ _ range val _ → do
             let pos' = ((fst pos) - 0.4, 0.5*(snd pos) + 1.0)
                 sliderPos = (calcSliderPos range val,0)
+                newIS  = addISElem (IESlider False n) $ inputState st
+            modify $ \s → s { luaSt = newLS
+                            , inputState = newIS
+                            , sRecreate = True }
             liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemDyn (DynSlider pos') [DynData (DDSlider n) sliderPos (0,0)]) WEUncached)
             liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos) (2.0,0.5) (LinkSlider n)) WEUncached)
             if (n > 0) then do
-              liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos) (1.0,0.5) (LinkSelect n menu)) WEUncached)
+              let pos'' = (fst pos + 4.0, snd pos)
+              liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewElem win (WinElemLink (pos'') (2.0,0.5) (LinkSelect n menu)) WEUncached)
             else return ()
           MenuNULL → return ()
-        modify $ \s → s { luaSt = newLS
-                        , sRecreate = True }
       (LuaCmdloadModule str) → do
         env ← ask
         st  ← get

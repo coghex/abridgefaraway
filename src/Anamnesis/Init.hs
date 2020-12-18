@@ -52,6 +52,7 @@ initState = do
                       , mouse2Cache = (0.0,0.0)
                       , mouse3      = False
                       , mouse3Cache = (0.0,0.0)
+                      , isElems     = []
                       , keyUp       = False
                       , keyLeft     = False
                       , keyDown     = False

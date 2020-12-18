@@ -199,14 +199,15 @@ evalMouse win mb mbs _  = do
     if (mbs ≡ GLFW.MouseButtonState'Pressed) then do
       pos' ← liftIO $ GLFW.getCursorPos win
       let pos = convertPixels pos'
-      linkTest pos (winElems thisWin)
       -- save cache as raw pixels, not units
       let newIS = oldIS { mouse1      = True
                         , mouse1Cache = (realToFrac (fst pos'), realToFrac (snd pos')) }
       modify' $ \s → s { inputState = newIS }
+      linkTest pos (winElems thisWin)
   -- mouse button 1 release
     else if (mbs ≡ GLFW.MouseButtonState'Released) then do
-      let newIS = oldIS { mouse1 = False }
+      let newIS = oldIS { mouse1 = False
+                        , isElems = turnOffISElems (isElems oldIS) }
       modify' $ \s → s { inputState = newIS }
     else return ()
   -- mouse button 3 press
@@ -278,8 +279,10 @@ linkTestFunc (x,y) (link:links) = do
           st ← get
           let ds = drawSt st
               ls = luaSt st
-          modify' $ \s → s { drawSt = moveSlider x n ds
-                           , luaSt = moveLSSlider x n ls}
+              is = inputState st
+          modify' $ \s → s { inputState = toggleSliderIS n True is
+                           , drawSt     = moveSlider x n ds
+                           , luaSt      = moveLSSlider x n ls}
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links
@@ -336,16 +339,19 @@ isElemLink (WinElemDyn _ _)     = False
 isElemLink (WinElemMenu _ _ _)  = False
 isElemLink (WinElemNULL)        = False
 
-moveSliderWithMouse ∷ Anamnesis ε σ ()
-moveSliderWithMouse = do
+moveSliderWithMouse ∷ Int → Anamnesis ε σ ()
+moveSliderWithMouse n = do
   st ← get
   case (windowSt st) of
     Just win → do
       pos' ← liftIO $ GLFW.getCursorPos win
       let ls = luaSt st
           thisWin = currentWindow ls
-          pos = convertPixels pos'
-      linkTest pos (winElems thisWin)
+          (x,_) = convertPixels pos'
+          ds = drawSt st
+      modify' $ \s → s { drawSt     = moveSlider x n ds
+                       , luaSt      = moveLSSlider x n ls}
+      return ()
     Nothing → return ()
 
 moveCamWithKeys ∷ Anamnesis ε σ ()
@@ -456,3 +462,31 @@ moveCamWithMouse = do
 
 moveScreenCursor ∷ (Float,Float,Float) → (Float,Float)
 moveScreenCursor (x,y,_) = (-0.05*x,-0.05*y)
+
+-- input state elems persist and must be deleted
+addISElem ∷ InputElem → InputState → InputState
+addISElem (IESlider b n) is = is { isElems = (isElems is) ⧺ [IESlider b n] }
+addISElem IENULL       is = is
+
+toggleSliderIS ∷ Int → Bool → InputState → InputState
+toggleSliderIS n s is = is { isElems = (testSliderIS n s (isElems is)) }
+testSliderIS ∷ Int → Bool → [InputElem] → [InputElem]
+testSliderIS _ _ []       = []
+testSliderIS n s ((IESlider b i):ies)
+  | n ≡ i = [IESlider s i] ⧺ testSliderIS n s ies
+  | otherwise = [IESlider b i] ⧺ testSliderIS n s ies
+testSliderIS n s (ie:ies) = [ie] ⧺ testSliderIS n s ies
+
+turnOffISElems ∷ [InputElem] → [InputElem]
+turnOffISElems []       = []
+turnOffISElems (ie:ies) = [ie'] ⧺ turnOffISElems ies
+  where ie' = case ie of
+                IESlider b n → IESlider False n
+                IENULL       → IENULL
+
+sliderPressed ∷ InputState → Int
+sliderPressed is = sliderPressedF $ isElems is
+sliderPressedF ∷ [InputElem] → Int
+sliderPressedF [] = -1
+sliderPressedF ((IESlider b n):ies) = if b then n else sliderPressedF ies
+sliderPressedF (ie:ies) = sliderPressedF ies
