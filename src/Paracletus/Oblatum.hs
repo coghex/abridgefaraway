@@ -136,5 +136,5 @@ processInput = do
       WinTypeGame → if (mouse3 is) then moveCamWithMouse
                     else if ((keyUp is) ∨ (keyLeft is) ∨ (keyDown is) ∨ (keyRight is) ∨ ((((abs (fst (keyAccel is))) > 0.0) ∨ (abs (snd (keyAccel is)) > 0.0)))) then moveCamWithKeys
                     else return ()
-      WinTypeMenu → return ()
+      WinTypeMenu → if (mouse1 is) then moveSliderWithMouse else return ()
       WinTypeNULL → return ()

@@ -278,7 +278,6 @@ linkTestFunc (x,y) (link:links) = do
           st ← get
           let ds = drawSt st
               ls = luaSt st
-          logDebug $ "pos: " ⧺ (show x)
           modify' $ \s → s { drawSt = moveSlider x n ds
                            , luaSt = moveLSSlider x n ls}
         LinkNULL → logError "linkNULL clicked"
@@ -327,7 +326,6 @@ moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
         mb    = MenuSlider i text range val sel
 moveLSSliderMenuBits x n (mb:mbs) = [mb] ⧺ moveLSSliderMenuBits x n mbs
 
-
 isElemLink ∷ WinElem → Bool
 isElemLink (WinElemLink _ _ _)  = True
 isElemLink (WinElemWorld _ _ _) = False
@@ -337,6 +335,18 @@ isElemLink (WinElemBack _ )     = False
 isElemLink (WinElemDyn _ _)     = False
 isElemLink (WinElemMenu _ _ _)  = False
 isElemLink (WinElemNULL)        = False
+
+moveSliderWithMouse ∷ Anamnesis ε σ ()
+moveSliderWithMouse = do
+  st ← get
+  case (windowSt st) of
+    Just win → do
+      pos' ← liftIO $ GLFW.getCursorPos win
+      let ls = luaSt st
+          thisWin = currentWindow ls
+          pos = convertPixels pos'
+      linkTest pos (winElems thisWin)
+    Nothing → return ()
 
 moveCamWithKeys ∷ Anamnesis ε σ ()
 moveCamWithKeys = do
