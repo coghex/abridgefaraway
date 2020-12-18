@@ -279,21 +279,22 @@ linkTestFunc (x,y) (link:links) = do
           let ds = drawSt st
               ls = luaSt st
           logDebug $ "pos: " ⧺ (show x)
-          modify' $ \s → s { drawSt = moveSlider n ds
+          modify' $ \s → s { drawSt = moveSlider x n ds
                            , luaSt = moveLSSlider x n ls}
         LinkNULL → logError "linkNULL clicked"
       linkTest (x,y) links
     False → linkTest (x,y) links
 
-moveSlider ∷ Int → DrawState → DrawState
-moveSlider n ds = ds { dsDyns = dyns }
-  where dyns = moveSliderDyn n (dsDyns ds)
-moveSliderDyn ∷ Int → [DynData] → [DynData]
-moveSliderDyn _ []       = []
-moveSliderDyn n (dd:dds)
-  | ddRef dd == DDSlider n = [dd'] ⧺ (moveSliderDyn n dds)
-  | otherwise     = [dd]  ⧺ (moveSliderDyn n dds)
-  where dd' = dd { ddPosition = ((fst (ddPosition dd)) + 0.5, snd (ddPosition dd)) }
+moveSlider ∷ Double → Int → DrawState → DrawState
+moveSlider x n ds = ds { dsDyns = dyns }
+  where dyns = moveSliderDyn x n (dsDyns ds)
+moveSliderDyn ∷ Double → Int → [DynData] → [DynData]
+moveSliderDyn _ _ []       = []
+moveSliderDyn x n (dd:dds)
+  | ddRef dd == DDSlider n = [dd'] ⧺ (moveSliderDyn x n dds)
+  | otherwise     = [dd]  ⧺ (moveSliderDyn x n dds)
+  where dd' = dd { ddPosition = (x', snd (ddPosition dd)) }
+        x' = 2.0*(realToFrac x) - 0.4
 
 moveLSSlider ∷ Double → Int → LuaState → LuaState
 moveLSSlider x n ls = ls { luaWindows = replaceWin w' (luaWindows ls) }
@@ -304,14 +305,15 @@ moveLSSliderWinElems ∷ Double → Int → [WinElem] → [WinElem]
 moveLSSliderWinElems _ _ []       = []
 moveLSSliderWinElems x n ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos bits'] ⧺ moveLSSliderWinElems x n wes
   where bits' = moveLSSliderMenuBits (x + (fst pos)) n bits
-moveLSSliderWinElems x n ((WinElemDyn (DynSlider pos) dd):wes) = [WinElemDyn (DynSlider pos) (moveLSSliderDD n dd)] ⧺ moveLSSliderWinElems x n wes
+moveLSSliderWinElems x n ((WinElemDyn (DynSlider pos) dd):wes) = [WinElemDyn (DynSlider pos) (moveLSSliderDD x n dd)] ⧺ moveLSSliderWinElems x n wes
 moveLSSliderWinElems x n (we:wes) = [we] ⧺ moveLSSliderWinElems x n wes
-moveLSSliderDD ∷ Int → [DynData] → [DynData]
-moveLSSliderDD _ []       = []
-moveLSSliderDD n (dd:dds)
-  | ddRef dd == DDSlider n = [dd'] ⧺ moveLSSliderDD n dds
-  | otherwise     = [dd]  ⧺ moveLSSliderDD n dds
-  where dd' = dd { ddPosition = ((fst (ddPosition dd)) + 0.5, snd (ddPosition dd)) }
+moveLSSliderDD ∷ Double → Int → [DynData] → [DynData]
+moveLSSliderDD _ _ []       = []
+moveLSSliderDD x n (dd:dds)
+  | ddRef dd == DDSlider n = [dd'] ⧺ moveLSSliderDD x n dds
+  | otherwise     = [dd]  ⧺ moveLSSliderDD x n dds
+  where dd' = dd { ddPosition = (x', snd (ddPosition dd)) }
+        x' = 2.0*(realToFrac x) - 0.4
 moveLSSliderMenuBits ∷ Double → Int → [MenuBit] → [MenuBit]
 moveLSSliderMenuBits _ _ []       = []
 moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
@@ -319,7 +321,7 @@ moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
   | otherwise = [mb] ⧺ moveLSSliderMenuBits x n mbs
   where mb'   = MenuSlider i text range val'' sel
         val'' = min (snd range) $ max (fst range) val'
-        val'  = round $ (mx - mn)*(0.25*(x+4.0))
+        val'  = round $ (mx - mn)*(0.4*(x+4.0))
         mn    = fromIntegral $ fst range
         mx    = fromIntegral $ snd range
         mb    = MenuSlider i text range val sel
