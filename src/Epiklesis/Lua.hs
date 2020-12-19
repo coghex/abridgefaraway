@@ -147,7 +147,7 @@ hsNewMenuBit env win menu "slider" args = do
     Just n  → return n
   let text  = head sargs
       range = (r1,r2)
-  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider (-1) text range r3 False))
+  Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider (-1) text range r3 False False))
 hsNewMenuBit env _   _    mbtype _    = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -304,7 +304,15 @@ setWinFPS fps win = win { winElems = setElemFPS fps $ winElems win }
 setElemFPS ∷ Int → [WinElem] → [WinElem]
 setElemFPS _   []       = []
 setElemFPS fps ((WinElemDyn DynFPS _):wes) = [WinElemDyn DynFPS (calcFPSDyn fps)] ⧺ setElemFPS fps wes
+setElemFPS fps ((WinElemMenu name pos bits):wes) = [we] ⧺ setElemFPS fps wes
+  where we = WinElemMenu name pos $ setBitFPS bits
 setElemFPS fps (we:wes) = [we] ⧺ setElemFPS fps wes
+setBitFPS ∷ [MenuBit] → [MenuBit]
+setBitFPS []       = []
+setBitFPS ((MenuSlider a1 a2 a3 a4 sel curs):mbs)
+  | sel       = [MenuSlider a1 a2 a3 a4 sel (not curs)] ⧺ setBitFPS mbs
+  | otherwise = [MenuSlider a1 a2 a3 a4 sel False] ⧺ setBitFPS mbs
+setBitFPS (mb:mbs) = [mb] ⧺ setBitFPS mbs
 
 -- finds the texture offsets needed
 -- for any 4 didget number
@@ -343,7 +351,7 @@ addBitToMenu menu mb ((WinElemMenu name pos mbs):wes)
 addBitToMenu menu mb (we:wes) = [we] ⧺ addBitToMenu menu mb wes
 
 numberSlider ∷ Int → MenuBit → MenuBit
-numberSlider n (MenuSlider _ text range val sel) = MenuSlider n text range val sel
+numberSlider n (MenuSlider _ text range val sel curs) = MenuSlider n text range val sel curs
 numberSlider _ mb = mb
 
 -- returns window with name
@@ -401,7 +409,7 @@ resetWinElems name (WinElemMenu n pos bits:wes)
 resetWinElems name (we:wes) = [we] ⧺ resetWinElems name wes
 resetMenuBits ∷ [MenuBit] → [MenuBit]
 resetMenuBits []       = []
-resetMenuBits ((MenuSlider a1 a2 a3 a4 _):mbs) = [MenuSlider a1 a2 a3 a4 False] ⧺ resetMenuBits mbs
+resetMenuBits ((MenuSlider a1 a2 a3 a4 _ _):mbs) = [MenuSlider a1 a2 a3 a4 False False] ⧺ resetMenuBits mbs
 resetMenuBits (mb:mbs) = [mb] ⧺ resetMenuBits mbs
 
 -- replaces specific window in windows
@@ -423,10 +431,10 @@ toggleMenuBitBit ∷ Int → Int → [MenuBit] → [MenuBit]
 toggleMenuBitBit _  _ [] = []
 toggleMenuBitBit n' i (bit:bits) = [bit'] ⧺ toggleMenuBitBit n' (i + 1) bits
   where bit' = if (n' ≡ i) then toggleBit bit else zeroBit bit
-        toggleBit (MenuSlider a1 a2 a3 a4 sel) = MenuSlider a1 a2 a3 a4 (not sel)
+        toggleBit (MenuSlider a1 a2 a3 a4 sel _) = MenuSlider a1 a2 a3 a4 (not sel) False
         toggleBit b = b
         -- all non selected bits go off
-        zeroBit (MenuSlider a1 a2 a3 a4 _) = MenuSlider a1 a2 a3 a4 False
+        zeroBit (MenuSlider a1 a2 a3 a4 _ _) = MenuSlider a1 a2 a3 a4 False False
         zeroBit b = b
 -- its ok to have !! here since
 -- currwin and wins are created

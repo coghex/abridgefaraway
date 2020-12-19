@@ -62,15 +62,15 @@ moveLSSliderDD x n (dd:dds)
         x' = min 5.4 $ max 0.0 $ 2.0*(realToFrac x) - 0.4
 moveLSSliderMenuBits ∷ Double → Int → [MenuBit] → [MenuBit]
 moveLSSliderMenuBits _ _ []       = []
-moveLSSliderMenuBits x n ((MenuSlider i text range val sel):mbs)
+moveLSSliderMenuBits x n ((MenuSlider i text range val sel curs):mbs)
   | n == i = [mb'] ⧺ moveLSSliderMenuBits x n mbs
   | otherwise = [mb] ⧺ moveLSSliderMenuBits x n mbs
-  where mb'   = MenuSlider i text range val'' sel
+  where mb'   = MenuSlider i text range val'' sel curs
         val'' = min (snd range) $ max (fst range) val'
         val'  = round $ (mx - mn)*(0.4*(x+4.0))
         mn    = fromIntegral $ fst range
         mx    = fromIntegral $ snd range
-        mb    = MenuSlider i text range val sel
+        mb    = MenuSlider i text range val sel curs
 moveLSSliderMenuBits x n (mb:mbs) = [mb] ⧺ moveLSSliderMenuBits x n mbs
 
 isElemLink ∷ WinElem → Bool
