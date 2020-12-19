@@ -120,7 +120,7 @@ processEvent event = case event of
         -- some menu bits include other winElems
         case menuBit of
           MenuText _ → return ()
-          MenuSlider _ _ range val _ _ → do
+          MenuSlider _ _ range val _ _ _ → do
             let pos' = ((fst pos) - 0.4, 0.5*(snd pos) + 1.0)
                 sliderPos = (calcSliderPos range val,0)
                 newIS  = addISElem (IESelect False n) $ addISElem (IESlider False n) $ inputState st

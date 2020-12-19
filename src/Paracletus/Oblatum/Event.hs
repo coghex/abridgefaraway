@@ -178,7 +178,7 @@ evalKey window k ks mk keyLayout = do
             newLS  = oldLS { luaShell = newSh }
         modify' $ \s → s { luaSt = newLS }
         liftIO $ atomically $ writeQueue eventQ $ EventLoaded
-      else if (GLFW.keyCheck False keyLayout k "RGA") then do
+      else if (GLFW.keyCheck False keyLayout k "RTA") then do
         let eventQ = envEventsChan env
             newSh  = rightShell sh
             sh     = luaShell oldLS
@@ -187,8 +187,25 @@ evalKey window k ks mk keyLayout = do
         liftIO $ atomically $ writeQueue eventQ $ EventLoaded
       else return ()
     else return ()
+  -- input for selected objects
   when (selCap) $ do
-    return ()
+    if (ks ≡ GLFW.KeyState'Pressed) then do
+      if (GLFW.keyCheck False keyLayout k "RTA") then do
+        st ← get
+        let ls      = luaSt st
+            currWin = currentWindow ls
+            newWin  = currWin { winElems = (inpSelectedElems IEDRight (winElems currWin)) }
+            newLS   = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+        modify' $ \s → s { luaSt = newLS }
+      else if (GLFW.keyCheck False keyLayout k "LFA") then do
+        st ← get
+        let ls      = luaSt st
+            currWin = currentWindow ls
+            newWin  = currWin { winElems = (inpSelectedElems IEDLeft (winElems currWin)) }
+            newLS   = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+        modify' $ \s → s { luaSt = newLS }
+      else return ()
+    else return ()
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()

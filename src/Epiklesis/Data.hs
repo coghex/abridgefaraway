@@ -143,7 +143,8 @@ data MenuBit = MenuText { menuText ∷ String }
                           , sliderRange ∷ (Int,Int)
                           , sliderValue ∷ Int
                           , sliderSel   ∷ Bool
-                          , sliderCurs  ∷ Bool }
+                          , sliderCurs  ∷ Bool
+                          , sliderCursI ∷ Int }
              | MenuNULL deriving (Show, Eq)
 
 -- world parameters help generate world

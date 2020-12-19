@@ -62,15 +62,15 @@ moveLSSliderDD x n (dd:dds)
         x' = min 5.4 $ max 0.0 $ 2.0*(realToFrac x) - 0.4
 moveLSSliderMenuBits ∷ Double → Int → [MenuBit] → [MenuBit]
 moveLSSliderMenuBits _ _ []       = []
-moveLSSliderMenuBits x n ((MenuSlider i text range val sel curs):mbs)
+moveLSSliderMenuBits x n ((MenuSlider i text range val sel curs ci):mbs)
   | n == i = [mb'] ⧺ moveLSSliderMenuBits x n mbs
   | otherwise = [mb] ⧺ moveLSSliderMenuBits x n mbs
-  where mb'   = MenuSlider i text range val'' sel curs
+  where mb'   = MenuSlider i text range val'' sel curs ci
         val'' = min (snd range) $ max (fst range) val'
         val'  = round $ (mx - mn)*(0.4*(x+4.0))
         mn    = fromIntegral $ fst range
         mx    = fromIntegral $ snd range
-        mb    = MenuSlider i text range val sel curs
+        mb    = MenuSlider i text range val sel curs ci
 moveLSSliderMenuBits x n (mb:mbs) = [mb] ⧺ moveLSSliderMenuBits x n mbs
 
 isElemLink ∷ WinElem → Bool
@@ -257,4 +257,24 @@ selectedBoxF []       = -1
 selectedBoxF ((IESelect b n):ies) = if b then n else selectedBoxF ies
 selectedBoxF (ie:ies) = selectedBoxF ies
 
+-- provides input to the selected element
+inpSelectedElems ∷ InpElemData → [WinElem] → [WinElem]
+inpSelectedElems _   []       = []
+inpSelectedElems ied ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos bits'] ⧺ inpSelectedElems ied wes
+  where bits' = inpSelectedBits ied bits
+inpSelectedElems ied (we:wes) = [we] ⧺ inpSelectedElems ied wes
+inpSelectedBits ∷ InpElemData → [MenuBit] → [MenuBit]
+inpSelectedBits _   []       = []
+inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSlider ind text range val True curs ci'] ⧺ inpSelectedBits ied mbs
+  where ci' = case ied of
+                  IEDLeft  → max 0 $ min cursMax (ci + 1)
+                  IEDRight → max 0 $ min cursMax (ci - 1)
+                  IEDNULL  → ci
+        cursMax
+          | (val > 999) = 4
+          | (val > 99)  = 3
+          | (val > 9)   = 2
+          | otherwise   = 1
+inpSelectedBits ied ((MenuSlider ind text range val False curs ci):mbs) = [MenuSlider ind text range val False curs ci] ⧺ inpSelectedBits ied mbs
+inpSelectedBits ied (mb:mbs) = [mb] ⧺ inpSelectedBits ied mbs
 

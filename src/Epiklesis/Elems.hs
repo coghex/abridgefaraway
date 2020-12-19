@@ -124,10 +124,11 @@ calcMenuBits pos (mb:mbs) = calcMenuBit pos mb ⧺ calcMenuBits pos' mbs
   where pos' = (fst pos, (snd pos) - 1)
 calcMenuBit ∷ (Double,Double) → MenuBit → [GTile]
 calcMenuBit pos (MenuText str)          = addTTF False TextSize16px (fst pos) pos str
-calcMenuBit pos (MenuSlider _ text range val sel curs) = [boxTile] ⧺ cursTile ⧺ (addTTF False TextSize16px (fst pos) pos (text ⧺ ":")) ⧺ (addTTF False TextSize16px (fst pos) pos2 (show (fst range))) ⧺ (addTTF False TextSize16px (fst pos) pos3 "<-------->") ⧺ (addTTF False TextSize16px (fst pos) pos4 (show (snd range))) ⧺ (addTTF False TextSize16px (fst pos) pos5 (show val))
+calcMenuBit pos (MenuSlider _ text range val sel curs ci) = [boxTile] ⧺ cursTile ⧺ (addTTF False TextSize16px (fst pos) pos (text ⧺ ":")) ⧺ (addTTF False TextSize16px (fst pos) pos2 (show (fst range))) ⧺ (addTTF False TextSize16px (fst pos) pos3 "<-------->") ⧺ (addTTF False TextSize16px (fst pos) pos4 (show (snd range))) ⧺ (addTTF False TextSize16px (fst pos) pos5 (show val))
   where boxTile = GTileUncached (((fst pos) + 10.0),(snd pos)) (2.0,1.0) (0,0) (1,1) tex False False
-        cursTile = case (sel ∧ curs) of
-                     True  → [GTileUncached (((fst pos) + 10.0), (snd pos)) (0.05,0.6) (0,0) (1,1) 206 False False]
+        ttfCurs = indexTTF TextSize16px '|'
+        cursTile = case (curs ∧ sel) of
+                     True  → [GTileUncached (((fst pos) + (cursOffset ci val)), (snd pos)) (0.5*(chW ttfCurs), 0.5*(chH ttfCurs)) (0,0) (1,1) (chIndex ttfCurs) False False]
                      False → []
         tex = case sel of
                 True  → 19
@@ -136,4 +137,11 @@ calcMenuBit pos (MenuSlider _ text range val sel curs) = [boxTile] ⧺ cursTile 
         pos3 = ((fst pos) + 4.0, (snd pos))
         pos4 = ((fst pos) + 7.5, (snd pos))
         pos5 = ((fst pos) + 9.5, (snd pos))
+        cursOffset ∷ Int → Int → Double
+        cursOffset k n
+          | (n > 999) = 10.8 - k'
+          | (n > 99)  = 10.5 - k'
+          | (n > 9)   = 10.2 - k'
+          | otherwise = 9.9 - k'
+          where k' = 0.3*(fromIntegral k)
 calcMenuBit _   MenuNULL                = []
