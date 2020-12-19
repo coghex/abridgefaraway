@@ -141,7 +141,7 @@ data MenuBit = MenuText { menuText ∷ String }
              | MenuSlider { sliderInd   ∷ Int
                           , sliderText  ∷ String
                           , sliderRange ∷ (Int,Int)
-                          , sliderValue ∷ Int
+                          , sliderValue ∷ Maybe Int
                           , sliderSel   ∷ Bool
                           , sliderCurs  ∷ Bool
                           , sliderCursI ∷ Int }

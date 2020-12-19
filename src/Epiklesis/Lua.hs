@@ -139,12 +139,7 @@ hsNewMenuBit env win menu "slider" args = do
       Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
       return $ -1
     Just n  → return n
-  r3 ← case (readMaybe (last targs)) of
-    Nothing → do
-      let errorstr = "cannot read slider range"
-      Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
-      return $ -1
-    Just n  → return n
+  let r3 = readMaybe (last targs)
   let text  = head sargs
       range = (r1,r2)
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewMenuBit win menu (MenuSlider (-1) text range r3 False False 0))

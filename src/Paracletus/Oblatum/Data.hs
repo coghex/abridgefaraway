@@ -35,7 +35,7 @@ data InputElem = IESlider Bool Int | IESelect Bool Int | IENULL deriving (Show, 
 data TextSize = TextSize16px | TextSize30px deriving (Show, Eq)
 
 -- types of input that can be passed to an element
-data InpElemData = IEDLeft | IEDRight | IEDNULL deriving (Show, Eq)
+data InpElemData = IEDLeft | IEDRight | IEDDel | IEDNULL deriving (Show, Eq)
 
 -- TTF characters come in different sizes
 -- and offsets, this is that data

@@ -66,7 +66,7 @@ moveLSSliderMenuBits x n ((MenuSlider i text range val sel curs ci):mbs)
   | n == i = [mb'] ⧺ moveLSSliderMenuBits x n mbs
   | otherwise = [mb] ⧺ moveLSSliderMenuBits x n mbs
   where mb'   = MenuSlider i text range val'' sel curs ci
-        val'' = min (snd range) $ max (fst range) val'
+        val'' = Just $ min (snd range) $ max (fst range) val'
         val'  = round $ (mx - mn)*(0.4*(x+4.0))
         mn    = fromIntegral $ fst range
         mx    = fromIntegral $ snd range
@@ -265,16 +265,35 @@ inpSelectedElems ied ((WinElemMenu name pos bits):wes) = [WinElemMenu name pos b
 inpSelectedElems ied (we:wes) = [we] ⧺ inpSelectedElems ied wes
 inpSelectedBits ∷ InpElemData → [MenuBit] → [MenuBit]
 inpSelectedBits _   []       = []
-inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSlider ind text range val True curs ci'] ⧺ inpSelectedBits ied mbs
+inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSlider ind text range val' True curs ci'] ⧺ inpSelectedBits ied mbs
   where ci' = case ied of
-                  IEDLeft  → max 0 $ min cursMax (ci + 1)
-                  IEDRight → max 0 $ min cursMax (ci - 1)
-                  IEDNULL  → ci
-        cursMax
-          | (val > 999) = 4
-          | (val > 99)  = 3
-          | (val > 9)   = 2
+                  IEDLeft  → case val of
+                               Nothing → 0
+                               Just v0 → max 0 $ min (cursMax v0) (ci + 1)
+                  IEDRight → case val of
+                               Nothing → 0
+                               Just v0 → max 0 $ min (cursMax v0) (ci - 1)
+                  _        → ci
+        val' = case ied of
+                  IEDDel   → case val of
+                               Nothing → Nothing
+                               Just v0 → delDecVal ((cursMax v0) - ci) val
+                  _        → val
+        cursMax ∷ Int → Int
+        cursMax v
+          | (v > 999) = 4
+          | (v > 99)  = 3
+          | (v > 9)   = 2
           | otherwise   = 1
+        delDecVal ∷ Int → Maybe Int → Maybe Int
+        delDecVal _ Nothing  = Nothing
+        delDecVal i (Just n) = case (delVal i (show n)) of
+                                 ""  → Nothing
+                                 str → Just $ read str
+        delVal ∷ Int → String → String
+        delVal i s = retl ⧺ retr
+          where retl = init $ take i s
+                retr = drop i s
 inpSelectedBits ied ((MenuSlider ind text range val False curs ci):mbs) = [MenuSlider ind text range val False curs ci] ⧺ inpSelectedBits ied mbs
 inpSelectedBits ied (mb:mbs) = [mb] ⧺ inpSelectedBits ied mbs
 

@@ -134,8 +134,9 @@ calcFPSTiles = [tile1,tile2,tile3,tile4]
         tile4 = GTileUncached (3.9,2) (1,1) (15,4) (16,6) 1 True False
 
 -- finds the position of the slider for dyndata
-calcSliderPos ∷ (Int, Int) → Int → Float
-calcSliderPos (mn,mx) val = 6.0*(val' / (mx' - mn'))
+calcSliderPos ∷ (Int, Int) → Maybe Int → Float
+calcSliderPos (mn,mx) Nothing    = 0.0
+calcSliderPos (mn,mx) (Just val) = 6.0*(val' / (mx' - mn'))
   where val' = fromIntegral val
         mx'  = fromIntegral mx
         mn'  = fromIntegral mn
