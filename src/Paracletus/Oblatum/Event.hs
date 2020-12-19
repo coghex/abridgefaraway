@@ -187,6 +187,8 @@ evalKey window k ks mk keyLayout = do
         liftIO $ atomically $ writeQueue eventQ $ EventLoaded
       else return ()
     else return ()
+  when (selCap) $ do
+    return ()
 
 -- evaluates mouse input
 evalMouse ∷ GLFW.Window → GLFW.MouseButton → GLFW.MouseButtonState → GLFW.ModifierKeys → Anamnesis ε σ ()
@@ -244,12 +246,16 @@ linkTestFunc ∷ Bool → (Double,Double) → [WinElem] → Anamnesis ε σ ()
 linkTestFunc False  _     []           = do
   oldIS ← gets inputState
   oldLS ← gets luaSt
+  env   ← ask
+  let eventQ = envEventsChan env
     -- selecting -1 resets all boxes to false
   modify' $ \s → s { luaSt      = toggleMenuElem (-1) "NULL" oldLS
                    , inputState = oldIS
           { isElems = toggleSelectISF (-1) (isElems oldIS)
           , inpCap = False } }
-linkTestFunc True   _     []           = return ()
+  liftIO $ atomically $ writeQueue eventQ $ EventLoaded
+--linkTestFunc True   _     []           = return ()
+linkTestFunc True   _     _            = return ()
 linkTestFunc linked (x,y) (link:links) = do
   let (buttWidth,buttHeight) = linkBox link
   case (posClose (buttWidth,buttHeight) (linkPos link) (x,y)) of
@@ -276,8 +282,8 @@ linkTestFunc linked (x,y) (link:links) = do
           let ls = luaSt st
               is = inputState st
           modify' $ \s → s { inputState = toggleSelectIS n is
-                           , luaSt      = toggleMenuElem n menu ls
-                           , sReload    = True }
+                           , luaSt      = toggleMenuElem n menu ls }
+          liftIO $ atomically $ writeQueue eventQ $ EventLoaded
         LinkSlider n → do
           st ← get
           let ds = drawSt st
