@@ -211,6 +211,13 @@ evalKey window k ks mk keyLayout = do
             newWin  = currWin { winElems = (inpSelectedElems IEDDel (winElems currWin)) }
             newLS   = ls { luaWindows = replaceWin newWin (luaWindows ls) }
         modify' $ \s → s { luaSt = newLS }
+      else if (GLFW.numCheck k > (-1)) then do
+        st ← get
+        let ls      = luaSt st
+            currWin = currentWindow ls
+            newWin  = currWin { winElems = (inpSelectedElems (IEDAdd (GLFW.numCheck k)) (winElems currWin)) }
+            newLS   = ls { luaWindows = replaceWin newWin (luaWindows ls) }
+        modify' $ \s → s { luaSt = newLS }
       else return ()
     else return ()
 

@@ -2,6 +2,7 @@ module Paracletus.Oblatum.GLFW
   ( module Graphics.UI.GLFW
   , KeyLayout (..)
   , keyCheck
+  , numCheck
   , calcInpKey
   , mousebutt1
   , mousebutt2
@@ -64,6 +65,19 @@ keyCheck cap keyLayout k str
   | cap       = False
   | otherwise = (k ≡ (getGLFWKey nk))
   where nk = applyKeyLayout keyLayout str
+
+numCheck ∷ Key → Int
+numCheck Key'0 = 0
+numCheck Key'1 = 1
+numCheck Key'2 = 2
+numCheck Key'3 = 3
+numCheck Key'4 = 4
+numCheck Key'5 = 5
+numCheck Key'6 = 6
+numCheck Key'7 = 7
+numCheck Key'8 = 8
+numCheck Key'9 = 9
+numCheck _     = -1
 
 applyKeyLayout ∷ KeyLayout → String → String
 applyKeyLayout keyLayout "ESC" = klEsc keyLayout

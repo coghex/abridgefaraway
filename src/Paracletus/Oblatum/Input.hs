@@ -267,6 +267,9 @@ inpSelectedBits ∷ InpElemData → [MenuBit] → [MenuBit]
 inpSelectedBits _   []       = []
 inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSlider ind text range val' True curs ci'] ⧺ inpSelectedBits ied mbs
   where ci' = case ied of
+                  IEDAdd _ → case val of
+                               Nothing → ci
+                               Just v0 → if (v0 > 999) then ci else max 0 $ min (cursMax v0) (ci - 1)
                   IEDLeft  → case val of
                                Nothing → 0
                                Just v0 → max 0 $ min (cursMax v0) (ci + 1)
@@ -275,6 +278,9 @@ inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSl
                                Just v0 → max 0 $ min (cursMax v0) (ci - 1)
                   _        → ci
         val' = case ied of
+                  IEDAdd n → case val of
+                               Nothing → Just n
+                               Just v0 → addDecVal n ((cursMax v0) - ci) val
                   IEDDel   → case val of
                                Nothing → Nothing
                                Just v0 → delDecVal ((cursMax v0) - ci) val
@@ -284,12 +290,22 @@ inpSelectedBits ied ((MenuSlider ind text range val True curs ci):mbs) = [MenuSl
           | (v > 999) = 4
           | (v > 99)  = 3
           | (v > 9)   = 2
-          | otherwise   = 1
+          | otherwise = 1
+        addDecVal ∷ Int → Int → Maybe Int → Maybe Int
+        addDecVal _  _ Nothing  = Nothing
+        addDecVal n0 i (Just n) = Just $ read $ addVal n0 i $ show n
         delDecVal ∷ Int → Maybe Int → Maybe Int
         delDecVal _ Nothing  = Nothing
         delDecVal i (Just n) = case (delVal i (show n)) of
                                  ""  → Nothing
                                  str → Just $ read str
+        addVal ∷ Int → Int → String → String
+        addVal n0 i s
+          | (length s > 3) = s
+          | otherwise      = retl ⧺ retn ⧺ retr
+          where retl = take i s
+                retn = show n0
+                retr = drop i s
         delVal ∷ Int → String → String
         delVal i s = retl ⧺ retr
           where retl = init $ take i s
