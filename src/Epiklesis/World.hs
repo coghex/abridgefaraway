@@ -34,4 +34,3 @@ data Segment = SegmentNULL | Segment { segGrid ∷ [[Tile]]
 data Tile = TileNULL | Tile { tileCont ∷ Int
                             , tileType ∷ Int
                             } deriving (Show, Eq)
-

@@ -182,8 +182,7 @@ hsNewWorld env win zx zy sx sy dp = do
       filterOutPathJunk "."  = False
       filterOutPathJunk ".." = False
       filterOutPathJunk _    = True
-      --wp = WorldParams (zx,zy) (sx,sy) ncont conts seeds rands sizes types $ length dps
-      wp = WorldParams (zx,zy) (sx,sy) $ length dps
+      wp = WorldParams (zx,zy) (sx,sy) (length dps) Nothing
       -- TODO: represent aspect ratio
       wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
@@ -253,7 +252,18 @@ addWinToLuaState ls win = ls { luaWindows = (luaWindows ls) ⧺ [win] }
 
 addElemToLuaState ∷ String → WinElem → WinElemCache → LuaState → LuaState
 addElemToLuaState thisWin e ec ls = ls { luaWindows = newWins }
-  where newWins = addElemToWindows thisWin e ec (luaWindows ls)
+  where newWins = addElemToWindows thisWin e' ec (luaWindows ls)
+        e' = case (winArgV (currentWindow ls)) of
+          WinArgNULL     → e
+          WinArgUWP uwp0 → loadUserParams uwp0 e
+loadUserParams ∷ UserWorldParams → WinElem → WinElem
+loadUserParams uwp (WinElemWorld wp wd wt) = WinElemWorld wp' wd wt
+  where wp' = loadUserParamsF uwp wp
+loadUserParams _   we                 = we
+loadUserParamsF ∷ UserWorldParams → WorldParams → WorldParams
+loadUserParamsF uwp wp = case (wpUWP wp) of
+  Nothing  → wp { wpUWP = Just uwp }
+  Just wp0 → wp
 
 addElemToWindows ∷ String → WinElem → WinElemCache → [Window] → [Window]
 addElemToWindows _       _ _  []         = []

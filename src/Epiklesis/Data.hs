@@ -163,7 +163,8 @@ data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
                                --, wpRands ∷ [[(Int,Int)]]
                                --, wpSizes ∷ [Int]
                                --, wpTypes ∷ [Biome]
-                               , wpNTexs ∷ Int } deriving (Show, Eq)
+                               , wpNTexs ∷ Int
+                               , wpUWP   ∷ Maybe UserWorldParams } deriving (Show, Eq)
 
 data Biome = BSea | BShallows | BDeeps | BValley | BCrags | BPlains | BFields | BWastes | BSteeps | BPeaks | BNULL deriving (Show, Eq)
 
