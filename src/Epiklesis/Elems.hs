@@ -143,9 +143,9 @@ calcMenuBit pos (MenuSlider _ text range val sel curs ci) = [boxTile] ⧺ cursTi
         cursOffset ∷ Int → Maybe Int → Double
         cursOffset _ Nothing = 9.6
         cursOffset k (Just n)
-          | (n > 999) = 10.8 - k'
+          | (n > 999) = 10.85 - k'
           | (n > 99)  = 10.5 - k'
-          | (n > 9)   = 10.2 - k'
-          | otherwise = 9.9 - k'
-          where k' = 0.3*(fromIntegral k)
+          | (n > 9)   = 10.15 - k'
+          | otherwise = 9.8 - k'
+          where k' = 0.35*(fromIntegral k)
 calcMenuBit _   MenuNULL                = []
