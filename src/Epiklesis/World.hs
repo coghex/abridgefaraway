@@ -1,6 +1,16 @@
 module Epiklesis.World where
 -- data and functions for a
 -- world object in the lua state
+
+-- user defined parameters
+data UserWorldParams = UserWorldParams
+ { uwpNConts ∷ Int
+ , uwpNSpots ∷ Int
+ , uwpSeed   ∷ Int
+ , uwpWidth  ∷ Int
+ , uwpHeight ∷ Int
+ } deriving (Show, Eq)
+
 -- zones are indexed from the middle
 -- and go negative, segments are
 -- indexed from bottom left to top right
@@ -24,5 +34,4 @@ data Segment = SegmentNULL | Segment { segGrid ∷ [[Tile]]
 data Tile = TileNULL | Tile { tileCont ∷ Int
                             , tileType ∷ Int
                             } deriving (Show, Eq)
-
 

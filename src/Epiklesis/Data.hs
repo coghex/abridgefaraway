@@ -10,9 +10,12 @@ import qualified Foreign.Lua as Lua
 -- window types define behavior
 data WinType = WinTypeMenu | WinTypeGame | WinTypeNULL deriving (Show, Eq)
 
--- windows contain their own camera
+-- windows contain their own camera,
+-- a collection of elements with a cache,
+-- and an envioronment from the last window
 data Window = Window { winTitle  ∷ String
                      , winType   ∷ WinType
+                     , winArgV   ∷ WinArgV
                      , winCursor ∷ (Float,Float,Float)
                      , winElems  ∷ [WinElem]
                      , winCache  ∷ [WinElemCache]
@@ -29,6 +32,10 @@ data Shell = Shell { shPrompt ∷ String
                    , shOutStr ∷ String
                    , shHistI  ∷ Int
                    , shHist   ∷ [String] } deriving (Show, Eq)
+
+-- possible arguments can be provided from
+-- the previous window
+data WinArgV = WinArgUWP UserWorldParams | WinArgNULL deriving (Show, Eq)
 
 -- the windows defined by the lua fies,
 -- they are made up of elements which

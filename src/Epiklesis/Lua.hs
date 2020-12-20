@@ -78,11 +78,11 @@ hsNewWindow ∷ Env → String → String → Lua.Lua ()
 hsNewWindow env name "menu" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
-  where win = Window name WinTypeMenu (0,0,(-1)) [] []
+  where win = Window name WinTypeMenu WinArgNULL (0,0,(-1)) [] []
 hsNewWindow env name "game" = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaCmdnewWindow win)
-  where win = Window name WinTypeGame (0,0,(-1)) [] []
+  where win = Window name WinTypeGame WinArgNULL (0,0,(-1)) [] []
 hsNewWindow env _    wintype = do
   let eventQ = envEventsChan env
   Lua.liftIO $ atomically $ writeQueue eventQ $ EventLua (LuaError errorstr)
@@ -281,8 +281,45 @@ findLastMenuBitPos win menu ls = case (findWin win (luaWindows ls)) of
 
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
-                        , luaLastWin = n' }
+                        , luaLastWin = n'
+                        , luaWindows = setArgV n n' (luaWindows ls) }
   where n' = luaCurrWin ls
+
+setArgV ∷ Int → Int → [Window] → [Window]
+setArgV cw lw wins = replaceWin win wins
+  where win = (wins !! cw) { winArgV = calcArgV (wins !! lw) }
+calcArgV ∷ Window → WinArgV
+calcArgV win = calcElemArgV $ winElems win
+calcElemArgV ∷ [WinElem] → WinArgV
+calcElemArgV []       = WinArgNULL
+calcElemArgV (we:wes) = case we of
+  WinElemMenu n _ b
+    | n ≡ "wparams" → calcMenuArgV b
+    | otherwise     → WinArgNULL
+  _                 → calcElemArgV wes
+
+calcMenuArgV ∷ [MenuBit] → WinArgV
+calcMenuArgV mbs = case a1 of
+  Nothing  → WinArgNULL
+  Just a1' → case a2 of
+    Nothing  → WinArgNULL
+    Just a2' → case a3 of
+      Nothing  → WinArgNULL
+      Just a3' → case a4 of
+        Nothing  → WinArgNULL
+        Just a4' → case a5 of
+          Nothing  → WinArgNULL
+          Just a5' → WinArgUWP $ UserWorldParams a1' a2' a3' a4' a5'
+  where a1 = calcUWP $ mbs !! 0
+        a2 = calcUWP $ mbs !! 1
+        a3 = calcUWP $ mbs !! 2
+        a4 = calcUWP $ mbs !! 3
+        a5 = calcUWP $ mbs !! 4
+calcUWP ∷ MenuBit → Maybe Int
+calcUWP mb = case mb of
+  MenuSlider _ _ _ v _ _ _ → v
+  _                        → Nothing
+
 
 -- sets the fps of any fps elements
 -- in the current window

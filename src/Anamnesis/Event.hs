@@ -145,10 +145,10 @@ processEvent event = case event of
       (LuaCmdswitchWindow winName) → do
         env ← ask
         st  ← get
-        let eventQ = envEventsChan env
-            ls     = luaSt st
-            lwins  = luaWindows ls
-            winNum = winToNum 0 lwins winName
+        let eventQ  = envEventsChan env
+            ls      = luaSt st
+            lwins   = luaWindows ls
+            winNum  = winToNum 0 lwins winName
             winToNum ∷ Int → [Window] → String → Int
             winToNum _ []      _   = -1
             winToNum n (win:wins) name
@@ -157,7 +157,8 @@ processEvent event = case event of
         if (winNum < 0) then do
           logWarn $ "window " ⧺ winName ⧺ " not defined"
         else do
-          modify $ \s → s { luaSt = changeCurrWin winNum ls }
+          let newLS = changeCurrWin winNum ls
+          modify $ \s → s { luaSt = newLS }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
           liftIO $ atomically $ writeQueue eventQ $ EventRecreate
       (LuaCmdresizeWindow x y) → do

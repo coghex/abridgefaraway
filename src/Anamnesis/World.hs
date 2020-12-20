@@ -45,7 +45,7 @@ genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
 -- returns the first world element
 -- found on the current window
 findWorldData ∷ Window → (Maybe (WorldParams,WorldData))
-findWorldData (Window _ _ _ elems _) = findElemData elems
+findWorldData (Window _ _ _ _ elems _) = findElemData elems
 findElemData ∷ [WinElem] → (Maybe (WorldParams,WorldData))
 findElemData []                            = Nothing
 findElemData ((WinElemNULL):elems)         = findElemData elems
@@ -59,7 +59,7 @@ findElemData ((WinElemWorld wp wd _):_) = Just (wp,wd)
 
 -- replaces world data in a window
 replaceWorldData ∷ Window → WorldData → Window
-replaceWorldData (Window name wType curs elems cache) wd = Window name wType curs (map (replaceElemData wd) elems) (reloadcache)
+replaceWorldData (Window name wType wArgV curs elems cache) wd = Window name wType wArgV curs (map (replaceElemData wd) elems) (reloadcache)
   where reloadcache = take (length cache) (repeat WEUncached)
 replaceElemData ∷ WorldData → WinElem → WinElem
 replaceElemData _   (WinElemNULL)            = WinElemNULL
@@ -117,6 +117,6 @@ zoneExists testInd ((Zone ind _):zs)
 
 findAndReplaceWindow ∷ Window → [Window] → [Window]
 findAndReplaceWindow _ [] = []
-findAndReplaceWindow (Window testname a1 a2 a3 a4) ((Window name b1 b2 b3 b4):ws)
-  | testname ≡ name = [Window testname a1 a2 a3 a4] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4) ws
-  | otherwise       = [Window name     b1 b2 b3 b4] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4) ws
+findAndReplaceWindow (Window testname a1 a2 a3 a4 a5) ((Window name b1 b2 b3 b4 b5):ws)
+  | testname ≡ name = [Window testname a1 a2 a3 a4 a5] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4 a5) ws
+  | otherwise       = [Window name     b1 b2 b3 b4 b5] ⧺ findAndReplaceWindow (Window testname a1 a2 a3 a4 a5) ws
