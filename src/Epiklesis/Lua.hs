@@ -187,7 +187,7 @@ hsNewWorld env win zx zy sx sy dp = do
       sgs = [mkStdGen 0, mkStdGen 1]
       wp = WorldParams (zx,zy) (sx,sy) [] [] sgs (length dps) Nothing
       -- TODO: represent aspect ratio
-      wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
+      wd = WorldData (1.0,1.0) (sx,sy) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))
       initSeg  = SegmentNULL--Segment $ take sy (repeat (take sx (repeat (Tile 1 1))))
       --ncont = head (withStdGen sgs 1 (randomRs (minnc maxnc)))

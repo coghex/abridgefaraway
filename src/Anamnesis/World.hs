@@ -87,17 +87,16 @@ genSegs wp (pos:poss) = [(pos,seg)] ⧺ (genSegs wp poss)
 
 -- generates tile list for single segment
 seedSeg ∷ WorldParams → (Int,Int) → [[Tile]]
-seedSeg wp pos = seedConts pos conts rands zeroSeg
+seedSeg wp pos = seedConts (sw,sh) pos conts rands zeroSeg
   where rands   = wpRands wp
         conts   = wpConts wp
         zeroSeg = take sh (zip [0..] (repeat (take sw (zip [0..] (repeat (Tile 2 2))))))
         (sw,sh) = wpSSize wp
-seedConts ∷ (Int,Int) → [(Int,Int)] → [((Int,Int),(Int,Int))] → [(Int,[(Int,Tile)])] → [[Tile]]
-seedConts _   _      []     seg = flattenSeg seg
-seedConts _   []     _      seg = flattenSeg seg
-seedConts pos (c:cs) (r:rs) seg = seedConts pos cs rs seg'
+seedConts ∷ (Int,Int) → (Int,Int) → [(Int,Int)] → [((Int,Int),(Int,Int))] → [(Int,[(Int,Tile)])] → [[Tile]]
+seedConts _    _   _      []     seg = flattenSeg seg
+seedConts _    _   []     _      seg = flattenSeg seg
+seedConts size pos (c:cs) (r:rs) seg = seedConts size pos cs rs seg'
   where seg' = seedCont size pos c r seg
-        size = (length (head seg), length seg)
 flattenSeg ∷ [(Int,[(Int,Tile)])] → [[Tile]]
 flattenSeg [] = []
 flattenSeg ((_,row):gs) = [flattenRow row] ⧺ flattenSeg gs
@@ -111,7 +110,7 @@ seedTileRow size pos conts rands (j,row) = (j,map (seedTile size pos conts rands
 seedTile ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → Int → (Int,Tile) → (Int,Tile)
 seedTile (width,height) pos (_,s) ((w,x),(y,z)) j (i,t)
   | seedDistance i' j' w x y z < (s*100000) = (i,t')
-  | otherwise                                = (i,t)
+  | otherwise                               = (i,t)
   where t' = Tile 3 1
         i' = i + ((fst pos)*width)
         j' = j + ((snd pos)*height)
