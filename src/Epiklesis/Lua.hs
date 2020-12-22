@@ -9,6 +9,7 @@ import Text.Read (readMaybe)
 import qualified Foreign.Lua as Lua
 import System.Directory (getDirectoryContents)
 import System.FilePath (combine)
+import System.Random
 import Anamnesis.Data
 import Artos.Var
 import Artos.Queue
@@ -182,7 +183,8 @@ hsNewWorld env win zx zy sx sy dp = do
       filterOutPathJunk "."  = False
       filterOutPathJunk ".." = False
       filterOutPathJunk _    = True
-      wp = WorldParams (zx,zy) (sx,sy) (length dps) Nothing
+      sgs = [mkStdGen 0, mkStdGen 1]
+      wp = WorldParams (zx,zy) (sx,sy) [] [] sgs (length dps) Nothing
       -- TODO: represent aspect ratio
       wd = WorldData (1.0,1.0) (16,8) [Zone (0,0) (initSegs)]
       initSegs = take zy (repeat (take zx (repeat (initSeg))))

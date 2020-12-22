@@ -4,6 +4,7 @@ module Anamnesis.World where
 -- gen faster
 import Prelude()
 import UPrelude
+import System.Random
 import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.World
@@ -21,7 +22,8 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
     where newWins      = findAndReplaceWindow newWin $ luaWindows ls
           newWin       = replaceWorldData (currentWindow ls) newWorldData
           newWorldData = findAndReplaceSegments (wpZSize wp) zoneInd newSegs wd
-          newSegs      = genSegs $ evalScreenCursor sc
+          newSegs      = genSegs wpGen $ evalScreenCursor sc
+          wpGen        = genWorldParams wp
           sc           = ((wdCam wd),(wdCSize wd))
           -- this is temporary
           zoneInd      = (0,0)
@@ -35,12 +37,86 @@ evalScreenCursor ((cx,cy),_) = [pos]
         x = floor $ cx / 16
         y = floor $ cy / 8
 
+-- creates rands out of world params
+genWorldParams ∷ WorldParams → WorldParams
+genWorldParams wp = wp { wpRands = rands
+                       , wpConts = conts }
+  where rands = genRands sg0 sg1 ncont w h
+        conts = genConts sg0 ncont
+        sg0   = (wpStdGs wp) !! 0
+        sg1   = (wpStdGs wp) !! 1
+        (w,h) = case (wpUWP wp) of
+                  Nothing  → (10,8)
+                  Just uwp → (uwpWidth uwp, uwpHeight uwp)
+        ncont = case (wpUWP wp) of
+                  Nothing  → 1
+                  Just uwp → uwpNConts uwp
+
+genRands ∷ StdGen → StdGen → Int → Int → Int → [((Int,Int),(Int,Int))]
+genRands sg0 sg1 n w h = buildList2 (xl,yl)
+  where xl  = buildList2 (xxl,xyl)
+        yl  = buildList2 (yxl,yyl)
+        xxl = randomList (0,w) n sg0
+        xyl = randomList (0,h) n sg0
+        yxl = randomList (0,w) n sg1
+        yyl = randomList (0,h) n sg1
+genConts ∷ StdGen → Int → [(Int,Int)]
+genConts sg n = buildList2 (xl,yl)
+  where xl = randomList (0,3) n sg
+        yl = randomList (0,3) n sg
+
+randomList ∷ (Random α) ⇒ (α,α) → Int → StdGen → [α]
+randomList bnds n = do
+  take n ∘ randomRs bnds
+
+buildList2 ∷ ([α],[α]) → [(α,α)]
+buildList2 (_,[]) = []
+buildList2 ([],_) = []
+buildList2 (a:as,b:bs) = [(a,b)] ⧺ buildList2 (as,bs)
+
 -- generates the segments that are
 -- required by evalScreenCursor
-genSegs ∷ [(Int,Int)] → [((Int,Int),Segment)]
-genSegs []             = []
-genSegs (pos:poss) = [(pos,seg)] ⧺ (genSegs poss)
-  where seg = Segment $ take 8 (repeat (take 16 (repeat (Tile 2 1))))
+genSegs ∷ WorldParams → [(Int,Int)] → [((Int,Int),Segment)]
+genSegs _  []             = []
+genSegs wp (pos:poss) = [(pos,seg)] ⧺ (genSegs wp poss)
+  where seg = Segment $ seedSeg wp pos
+
+-- generates tile list for single segment
+seedSeg ∷ WorldParams → (Int,Int) → [[Tile]]
+seedSeg wp pos = seedConts pos conts rands zeroSeg
+  where rands   = wpRands wp
+        conts   = wpConts wp
+        zeroSeg = take sh (zip [0..] (repeat (take sw (zip [0..] (repeat (Tile 2 2))))))
+        (sw,sh) = wpSSize wp
+seedConts ∷ (Int,Int) → [(Int,Int)] → [((Int,Int),(Int,Int))] → [(Int,[(Int,Tile)])] → [[Tile]]
+seedConts _   _      []     seg = flattenSeg seg
+seedConts _   []     _      seg = flattenSeg seg
+seedConts pos (c:cs) (r:rs) seg = seedConts pos cs rs seg'
+  where seg' = seedCont size pos c r seg
+        size = (length (head seg), length seg)
+flattenSeg ∷ [(Int,[(Int,Tile)])] → [[Tile]]
+flattenSeg [] = []
+flattenSeg ((_,row):gs) = [flattenRow row] ⧺ flattenSeg gs
+flattenRow ∷ [(Int,Tile)] → [Tile]
+flattenRow [] = []
+flattenRow ((_,g):gs) = [g] ⧺ flattenRow gs
+seedCont ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → [(Int,[(Int,Tile)])] → [(Int,[(Int,Tile)])]
+seedCont size pos conts rands seg = map (seedTileRow size pos conts rands) seg
+seedTileRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → (Int,[(Int,Tile)]) → (Int,[(Int,Tile)])
+seedTileRow size pos conts rands (j,row) = (j,map (seedTile size pos conts rands j) row)
+seedTile ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → Int → (Int,Tile) → (Int,Tile)
+seedTile (width,height) pos cont ((w,x),(y,z)) j (i,t)
+  | seedDistance i' j' w x y z < (8000) = (i,t')
+  | otherwise                           = (i,t)
+  where t' = Tile 4 1
+        i' = i + ((fst pos)*width)
+        j' = j + ((snd pos)*height)
+
+seedDistance ∷ Int → Int → Int → Int → Int → Int → Int
+seedDistance x1 y1 x2 y2 x3 y3 = do
+  let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
+      p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
+  100*p1*p2
 
 -- returns the first world element
 -- found on the current window

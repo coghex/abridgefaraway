@@ -81,6 +81,7 @@ executable abfa
                  , parallel
                  , filepath
                  , directory
+                 , random
                  , hslua
                  , GLFW-b
                  , freetype2

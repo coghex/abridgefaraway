@@ -95,11 +95,12 @@ calcSegSpot nDefTex (cx,cy) (cw,ch) (x,y) (gspot:gspots) = [tile] ⧺ (calcSegSp
                                , tScale = (1,1)
                                , tInd = (ix,iy)
                                , tSize = (3,15)
-                               , tT = nDefTex + 1
+                               , tT = nDefTex + c
                                , tTile = False
                                , tMoves = True }
           ix = (tileType gspot) `mod` 3
           iy = (tileType gspot) `div` 3
+          c  = (tileCont gspot)
 
 
 moveDynTile ∷ [DynData] → Int → Cardinal → Float → [DynData]

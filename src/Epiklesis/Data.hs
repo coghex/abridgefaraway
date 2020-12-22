@@ -6,6 +6,7 @@ import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Oblatum.Data
 import qualified Foreign.Lua as Lua
+import System.Random
 
 -- window types define behavior
 data WinType = WinTypeMenu | WinTypeGame | WinTypeNULL deriving (Show, Eq)
@@ -157,7 +158,9 @@ data MenuBit = MenuText { menuText ∷ String }
 -- world parameters help generate world
 data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
                                , wpSSize ∷ (Int,Int)
-                               --, wpNCont ∷ Int
+                               , wpRands ∷ [((Int,Int),(Int,Int))]
+                               , wpConts ∷ [(Int,Int)]
+                               , wpStdGs ∷ [StdGen]
                                --, wpConts ∷ [(Int,Int)]
                                --, wpSeeds ∷ [[(Int,Int)]]
                                --, wpRands ∷ [[(Int,Int)]]

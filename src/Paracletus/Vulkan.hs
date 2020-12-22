@@ -207,7 +207,7 @@ vulkLoop (VulkanLoopData (GQData pdev dev commandPool _) queues scsd window vulk
             let newLS' = setFPS newLS count
             modify $ \s → s { luaSt = newLS'
                             , sFPS  = (fst (sFPS st),count) }
-            liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
+            --liftIO $ atomically $ writeQueue cmdQ $ LoadCmdWin newLS'
           liftIO $ do
             atomically $ writeTVar currentSec (floor seconds)
             atomically $ writeTVar frameCount 0
