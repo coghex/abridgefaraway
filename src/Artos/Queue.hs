@@ -13,7 +13,7 @@ data Event = EventError !GLFW.Error !String
            | EventLogDebug !String
            | EventLoaded
            | EventRecreate
-           | EventLoadedWorld !LuaState
+           | EventLoadedWorld !LuaState !DrawState !Verts
            | EventLoadedDrawState !DrawState
            | EventLoadedLuaState !DrawState
            | EventLoadedVerts !Verts

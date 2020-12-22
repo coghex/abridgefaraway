@@ -88,6 +88,8 @@ updateTransTex 0    _        _      _      _      = return ()
 updateTransTex nDyn (dd:dds) device extent uniBuf = do
   let nDyn'   = (fromIntegral nDyn) - 1
   uboPtr ← allocaPeek $ runVk ∘ vkMapMemory device uniBuf (nDyn'*(bSizeOf @DynTexTransObject undefined)) (bSizeOf @DynTexTransObject undefined) VK_ZERO_FLAGS
+  -- TODO: dyndata should have atlas size,
+  -- right now only works for text
   let dtexi = DF4
                  (DF4 1 0 0 0)
                  (DF4 0 1 0 0)

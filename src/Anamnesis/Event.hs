@@ -60,7 +60,11 @@ processEvent event = case event of
     let lCmdChan = envLCmdChan env
     liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdVerts ds
   -- callback for a loaded luaState
-  (EventLoadedWorld ls) → modify $ \s → s { luaSt = ls }
+  (EventLoadedWorld ls ds verts) → do
+    modify $ \s → s { luaSt      = ls
+                    , drawSt     = ds
+                    , sVertCache = Just verts
+                    , sReload    = True }
   (EventRecreate) → modify $ \s → s { sRecreate = True }
   -- translates the lua draw state
   -- into the engine draw state

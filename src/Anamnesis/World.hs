@@ -22,7 +22,8 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
     where newWins      = findAndReplaceWindow newWin $ luaWindows ls
           newWin       = replaceWorldData (currentWindow ls) newWorldData
           newWorldData = findAndReplaceSegments (wpZSize wp) zoneInd newSegs wd
-          newSegs      = genSegs wpGen $ evalScreenCursor sc
+          newSegs      = genSegs wpGen $ evalScreenCursor (w,h) sc
+          (w,h)        = ((fst (wpSSize wp)), (snd (wpSSize wp)))
           wpGen        = genWorldParams wp
           sc           = ((wdCam wd),(wdCSize wd))
           -- this is temporary
@@ -31,11 +32,13 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
 
 -- returns the list of indecies
 -- of segments to generate
-evalScreenCursor ∷ ((Float,Float),(Int,Int)) → [(Int,Int)]
-evalScreenCursor ((cx,cy),_) = [pos]
+evalScreenCursor ∷ (Int,Int) → ((Float,Float),(Int,Int)) → [(Int,Int)]
+evalScreenCursor (w,h) ((cx,cy),_) = [pos]
   where pos = (x,y)
-        x = floor $ cx / 16
-        y = floor $ cy / 8
+        x   = floor $ cx / w'
+        y   = floor $ cy / h'
+        w'  = fromIntegral w
+        h'  = fromIntegral h
 
 -- creates rands out of world params
 genWorldParams ∷ WorldParams → WorldParams
@@ -106,8 +109,8 @@ seedCont size pos conts rands seg = map (seedTileRow size pos conts rands) seg
 seedTileRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → (Int,[(Int,Tile)]) → (Int,[(Int,Tile)])
 seedTileRow size pos conts rands (j,row) = (j,map (seedTile size pos conts rands j) row)
 seedTile ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → Int → (Int,Tile) → (Int,Tile)
-seedTile (width,height) pos cont ((w,x),(y,z)) j (i,t)
-  | seedDistance i' j' w x y z < (10000) = (i,t')
+seedTile (width,height) pos (_,s) ((w,x),(y,z)) j (i,t)
+  | seedDistance i' j' w x y z < (s*100000) = (i,t')
   | otherwise                                = (i,t)
   where t' = Tile 3 1
         i' = i + ((fst pos)*width)

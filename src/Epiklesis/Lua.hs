@@ -18,6 +18,7 @@ import Epiklesis.Elems
 import Epiklesis.Shell
 import Epiklesis.World
 import Paracletus.Data
+import Paracletus.Draw
 import Paracletus.Oblatum.Data
 
 initLua ∷ IO (LuaState)
@@ -276,6 +277,17 @@ addElemToWindows thisWin e ec (win:wins)
 addElemToWindow ∷ WinElem → WinElemCache → Window → Window
 addElemToWindow e ec win = win { winCache = (winCache win) ⧺ [ec]
                                , winElems = (winElems win) ⧺ [e] }
+
+-- sets the cache for all elements
+cacheElems ∷ LuaState → LuaState
+cacheElems ls = ls { luaWindows = replaceWin win' (luaWindows ls) }
+  where win'    = (currentWindow ls) { winCache = cacheEachElem nDefTex (winElems (currentWindow ls)) (winCache (currentWindow ls)) }
+        nDefTex = luaNDefTex ls
+cacheEachElem ∷ Int → [WinElem] → [WinElemCache] → [WinElemCache]
+cacheEachElem nDefTex []       []                   = []
+cacheEachElem nDefTex (we:wes) ((WECached g):wecs)  = [WECached g] ⧺ cacheEachElem nDefTex wes wecs
+cacheEachElem nDefTex (we:wes) ((WECacheNULL):wecs) = [WECacheNULL] ⧺ cacheEachElem nDefTex wes wecs
+cacheEachElem nDefTex (we:wes) ((WEUncached):wecs)  = [WECached (loadWinElem nDefTex we)] ⧺ cacheEachElem nDefTex wes wecs
 
 addMenuBitToLuaState ∷ String → String → MenuBit → LuaState → LuaState
 addMenuBitToLuaState win menu menubit ls = case (findWin win (luaWindows ls)) of

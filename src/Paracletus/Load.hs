@@ -1,3 +1,4 @@
+{-# LANGUAGE Strict #-}
 module Paracletus.Load where
 -- we define the thread that helps
 -- recreate the swapchain
@@ -93,12 +94,16 @@ processCommand env cmd = do
     LoadCmdWorld ls → do
       let currWin = currentWindow ls
       if ((winType currWin) ≡ WinTypeGame) then do
-        let newLS   = loadWorld ls
-            newDS'  = loadDrawState newLS
-            newDS   = newDS'--DrawState { dsTiles = cacheAllGTiles (dsTiles newDS') }
-        atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS
-        atomically $ writeQueue (envEventsChan env) $ EventLoadedDrawState newDS
-        return "success"
+        let newLS = cacheElems $ loadWorld ls
+            newDS = loadDrawState newLS
+            oldDS = loadDrawState ls
+            newVerts = Verts $ calcVertices $ dsTiles newDS
+            oldTiles = dsTiles oldDS
+            newTiles = dsTiles newDS
+        if (length (oldTiles)) ≠ (length (newTiles)) then do
+          atomically $ writeQueue (envEventsChan env) $ EventLoadedWorld newLS newDS newVerts
+          return "success"
+        else return "success"
       else return "not in game window"
     LoadCmdNULL  → return "NULL load command"
   return ret
