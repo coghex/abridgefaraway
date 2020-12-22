@@ -41,11 +41,12 @@ evalScreenCursor ((cx,cy),_) = [pos]
 genWorldParams ∷ WorldParams → WorldParams
 genWorldParams wp = wp { wpRands = rands
                        , wpConts = conts }
-  where rands = genRands sg0 sg1 ncont w h
-        conts = genConts sg0 ncont
-        sg0   = (wpStdGs wp) !! 0
-        sg1   = (wpStdGs wp) !! 1
-        (w,h) = case (wpUWP wp) of
+  where rands   = genRands sg0 sg1 ncont w h
+        conts   = genConts sg0 ncont
+        sg0     = (wpStdGs wp) !! 0
+        sg1     = (wpStdGs wp) !! 1
+        (w,h)   = ((fst (wpSSize wp))*w', (snd (wpSSize wp))*h')
+        (w',h') = case (wpUWP wp) of
                   Nothing  → (10,8)
                   Just uwp → (uwpWidth uwp, uwpHeight uwp)
         ncont = case (wpUWP wp) of
@@ -106,9 +107,9 @@ seedTileRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) 
 seedTileRow size pos conts rands (j,row) = (j,map (seedTile size pos conts rands j) row)
 seedTile ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → Int → (Int,Tile) → (Int,Tile)
 seedTile (width,height) pos cont ((w,x),(y,z)) j (i,t)
-  | seedDistance i' j' w x y z < (8000) = (i,t')
-  | otherwise                           = (i,t)
-  where t' = Tile 4 1
+  | seedDistance i' j' w x y z < (10000) = (i,t')
+  | otherwise                                = (i,t)
+  where t' = Tile 3 1
         i' = i + ((fst pos)*width)
         j' = j + ((snd pos)*height)
 
@@ -116,7 +117,7 @@ seedDistance ∷ Int → Int → Int → Int → Int → Int → Int
 seedDistance x1 y1 x2 y2 x3 y3 = do
   let p1 = (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
       p2 = (((x1-x3)*(x1-x3))+((y1-y3)*(y1-y3)))
-  100*p1*p2
+  p1*p2
 
 -- returns the first world element
 -- found on the current window

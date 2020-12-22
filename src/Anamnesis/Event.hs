@@ -16,6 +16,7 @@ import Epiklesis.Data
 import Epiklesis.Lua
 import Epiklesis.Module
 import Epiklesis.Shell
+import Epiklesis.World
 import Paracletus.Data
 import Paracletus.Draw
 import Paracletus.Oblatum.Event
@@ -59,8 +60,7 @@ processEvent event = case event of
     let lCmdChan = envLCmdChan env
     liftIO $ atomically $ writeQueue lCmdChan $ LoadCmdVerts ds
   -- callback for a loaded luaState
-  (EventLoadedWorld ls) → modify $
-    \s → s { luaSt = ls }
+  (EventLoadedWorld ls) → modify $ \s → s { luaSt = ls }
   (EventRecreate) → modify $ \s → s { sRecreate = True }
   -- translates the lua draw state
   -- into the engine draw state
@@ -158,7 +158,7 @@ processEvent event = case event of
           logWarn $ "window " ⧺ winName ⧺ " not defined"
         else do
           let newLS = changeCurrWin winNum ls
-          modify $ \s → s { luaSt = newLS }
+          modify $ \s → s { luaSt = evalArgVs $ newLS }
           liftIO $ atomically $ writeQueue eventQ $ EventLoaded
           liftIO $ atomically $ writeQueue eventQ $ EventRecreate
       (LuaCmdresizeWindow x y) → do

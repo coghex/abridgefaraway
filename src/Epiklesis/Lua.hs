@@ -254,18 +254,19 @@ addWinToLuaState ls win = ls { luaWindows = (luaWindows ls) ⧺ [win] }
 
 addElemToLuaState ∷ String → WinElem → WinElemCache → LuaState → LuaState
 addElemToLuaState thisWin e ec ls = ls { luaWindows = newWins }
-  where newWins = addElemToWindows thisWin e' ec (luaWindows ls)
-        e' = case (winArgV (currentWindow ls)) of
-          WinArgNULL     → e
-          WinArgUWP uwp0 → loadUserParams uwp0 e
-loadUserParams ∷ UserWorldParams → WinElem → WinElem
-loadUserParams uwp (WinElemWorld wp wd wt) = WinElemWorld wp' wd wt
-  where wp' = loadUserParamsF uwp wp
-loadUserParams _   we                 = we
-loadUserParamsF ∷ UserWorldParams → WorldParams → WorldParams
-loadUserParamsF uwp wp = case (wpUWP wp) of
-  Nothing  → wp { wpUWP = Just uwp }
-  Just wp0 → wp
+  where newWins = addElemToWindows thisWin e ec (luaWindows ls)
+  --where newWins = addElemToWindows thisWin e' ec (luaWindows ls)
+--        e' = case (winArgV (currentWindow ls)) of
+--          WinArgNULL     → e
+--          WinArgUWP uwp0 → loadUserParams uwp0 e
+--loadUserParams ∷ UserWorldParams → WinElem → WinElem
+--loadUserParams uwp (WinElemWorld wp wd wt) = WinElemWorld wp' wd wt
+--  where wp' = loadUserParamsF uwp wp
+--loadUserParams _   we                 = we
+--loadUserParamsF ∷ UserWorldParams → WorldParams → WorldParams
+--loadUserParamsF uwp wp = case (wpUWP wp) of
+--  Nothing  → wp { wpUWP = Just uwp }
+--  Just wp0 → wp
 
 addElemToWindows ∷ String → WinElem → WinElemCache → [Window] → [Window]
 addElemToWindows _       _ _  []         = []
@@ -291,6 +292,7 @@ findLastMenuBitPos win menu ls = case (findWin win (luaWindows ls)) of
                 Nothing → (0,0)
                 Just p  → p
 
+-- takes argVs from last window and sets them
 changeCurrWin ∷ Int → LuaState → LuaState
 changeCurrWin n ls = ls { luaCurrWin = n
                         , luaLastWin = n'
@@ -331,6 +333,20 @@ calcUWP ∷ MenuBit → Maybe Int
 calcUWP mb = case mb of
   MenuSlider _ _ _ v _ _ _ → v
   _                        → Nothing
+
+-- sets required data from argVs
+evalArgVs ∷ LuaState → LuaState
+evalArgVs ls = ls { luaWindows = replaceWin win' (luaWindows ls) }
+  where win' = evalWinArgVs $ currentWindow ls
+evalWinArgVs ∷ Window → Window
+evalWinArgVs win = win { winElems = evalElemArgVs args (winElems win) }
+  where args = winArgV win
+evalElemArgVs ∷ WinArgV → [WinElem] → [WinElem]
+evalElemArgVs WinArgNULL      we = we
+evalElemArgVs (WinArgUWP uwp) ((WinElemWorld wp wd wt):wes) = [WinElemWorld wp' wd wt] ⧺ wes
+  where wp' = wp { wpUWP = Just uwp }
+evalElemArgVs arg (we:wes) = [we] ⧺ evalElemArgVs arg wes
+evalElemArgVs _ []       = []
 
 
 -- sets the fps of any fps elements
