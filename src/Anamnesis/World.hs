@@ -23,7 +23,7 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
           newWin       = replaceWorldData (currentWindow ls) newWorldData
           newWorldData = findAndReplaceSegments (wpZSize wp) zoneInd newSegs wd
           newSegs      = genSegs wpGen $ evalScreenCursor (w,h) sc
-          (w,h)        = ((fst (wpSSize wp)), (snd (wpSSize wp)))
+          (w,h)        = wpSSize wp
           wpGen        = genWorldParams wp
           sc           = ((wdCam wd),(wdCSize wd))
           -- this is temporary
@@ -45,7 +45,7 @@ genWorldParams ∷ WorldParams → WorldParams
 genWorldParams wp = wp { wpRands = rands
                        , wpConts = conts }
   where rands   = genRands sg0 sg1 ncont w h
-        conts   = genConts sg0 ncont
+        conts   = genConts sg0 sg1 ncont
         sg0     = (wpStdGs wp) !! 0
         sg1     = (wpStdGs wp) !! 1
         (w,h)   = ((fst (wpSSize wp))*w', (snd (wpSSize wp))*h')
@@ -64,10 +64,10 @@ genRands sg0 sg1 n w h = buildList2 (xl,yl)
         xyl = randomList (0,h) n sg0
         yxl = randomList (0,w) n sg1
         yyl = randomList (0,h) n sg1
-genConts ∷ StdGen → Int → [(Int,Int)]
-genConts sg n = buildList2 (xl,yl)
-  where xl = randomList (0,3) n sg
-        yl = randomList (0,3) n sg
+genConts ∷ StdGen → StdGen → Int → [(Int,Int)]
+genConts sg0 sg1 n = buildList2 (xl,yl)
+  where xl = randomList (1,3) n sg0
+        yl = randomList (1,3) n sg1
 
 randomList ∷ (Random α) ⇒ (α,α) → Int → StdGen → [α]
 randomList bnds n = do
