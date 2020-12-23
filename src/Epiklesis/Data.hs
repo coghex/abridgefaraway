@@ -169,8 +169,8 @@ data WorldParams = WorldParams { wpZSize ∷ (Int,Int)
                                , wpNTexs ∷ Int
                                , wpUWP   ∷ Maybe UserWorldParams } deriving (Show, Eq)
 
-instance Eq StdGen where
-  (==) _ _ = False
+--instance Eq StdGen where
+--  (==) _ _ = False
 
 data Biome = BSea | BShallows | BDeeps | BValley | BCrags | BPlains | BFields | BWastes | BSteeps | BPeaks | BNULL deriving (Show, Eq)
 
