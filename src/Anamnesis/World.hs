@@ -33,12 +33,20 @@ loadWorld ls = case (findWorldData (currentWindow ls)) of
 -- returns the list of indecies
 -- of segments to generate
 evalScreenCursor ∷ (Int,Int) → ((Float,Float),(Int,Int)) → [(Int,Int)]
-evalScreenCursor (w,h) ((cx,cy),_) = [pos]
-  where pos = (x,y)
-        x   = floor $ cx / w'
-        y   = floor $ cy / h'
-        w'  = fromIntegral w
-        h'  = fromIntegral h
+evalScreenCursor (w,h) ((cx,cy),_) = [pos,posn,poss,pose,posw,posnw,posne,posse,possw]
+  where pos   = (x,y)
+        posn  = (x,y + 1)
+        poss  = (x,y - 1)
+        posw  = (x - 1,y)
+        pose  = (x + 1,y)
+        posnw = (x - 1,y - 1)
+        posne = (x + 1,y - 1)
+        possw = (x - 1,y + 1)
+        posse = (x + 1,y + 1)
+        x     = floor $ cx / w'
+        y     = floor $ cy / h'
+        w'    = fromIntegral w
+        h'    = fromIntegral h
 
 -- creates rands out of world params
 genWorldParams ∷ WorldParams → WorldParams
@@ -167,7 +175,7 @@ findAndReplaceSegment ∷ (Int,Int) → (Int,Int) → (Int,Int) → Segment → 
 findAndReplaceSegment zoneSize zoneInd segInd newSeg (WorldData cam camSize zones) = WorldData cam camSize zones'
   where zones' = case (zoneExists zoneInd zones) of
           True  → findAndReplaceZone zoneSize zoneInd segInd newSeg zones
-          False → zones ⧺ [(Zone zoneInd [])]
+          False → zones ⧺ [genNewZone zoneSize zoneInd segInd newSeg]--zones ⧺ [(Zone zoneInd [])]
 findAndReplaceZone ∷ (Int,Int) → (Int,Int) → (Int,Int) → Segment → [Zone] → [Zone]
 findAndReplaceZone _        _       _      _      [] = []
 findAndReplaceZone zoneSize testInd segInd newSeg ((ZoneNULL):zs) = [ZoneNULL] ⧺ findAndReplaceZone zoneSize testInd segInd newSeg zs
@@ -194,6 +202,23 @@ zoneExists testInd ((ZoneNULL):zs) = zoneExists testInd zs
 zoneExists testInd ((Zone ind _):zs)
   | (testInd ≡ ind) = True
   | otherwise       = zoneExists testInd zs
+
+-- if no zone exists we generate a new one
+genNewZone ∷ (Int,Int) → (Int,Int) → (Int,Int) → Segment → Zone
+genNewZone (zw,zh) zoneInd segInd newSeg = Zone zoneInd segs
+  where segs' = take zh (repeat (take zw (repeat (SegmentNULL))))
+        segs  = findAndReplaceSegmentSpot (zw,zh) segInd' segs' newSeg
+        segInd' = offsetInd (zw,zh) segInd
+
+-- change segInd when out of bounds
+offsetInd ∷ (Int,Int) → (Int,Int) → (Int,Int)
+offsetInd (zw,zh) (sx,sy) = (si,sj)
+  where si = if (sx < 0) then (sx + zw)
+             else if (sx > zw) then (sx - zw)
+             else sx
+        sj = if (sy < 0) then (sy + zh)
+             else if (sy > zh) then (sy - zh)
+             else sy
 
 findAndReplaceWindow ∷ Window → [Window] → [Window]
 findAndReplaceWindow _ [] = []
