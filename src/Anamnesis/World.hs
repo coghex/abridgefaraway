@@ -66,8 +66,8 @@ genRands sg0 sg1 n w h = buildList2 (xl,yl)
         yyl = randomList (0,h) n sg1
 genConts ∷ StdGen → StdGen → Int → [(Int,Int)]
 genConts sg0 sg1 n = buildList2 (xl,yl)
-  where xl = randomList (1,3) n sg0
-        yl = randomList (1,3) n sg1
+  where xl = randomList (1,30) n sg0
+        yl = randomList (1,30) n sg1
 
 randomList ∷ (Random α) ⇒ (α,α) → Int → StdGen → [α]
 randomList bnds n = do
@@ -109,11 +109,12 @@ seedTileRow ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) 
 seedTileRow size pos conts rands (j,row) = (j,map (seedTile size pos conts rands j) row)
 seedTile ∷ (Int,Int) → (Int,Int) → (Int,Int) → ((Int,Int),(Int,Int)) → Int → (Int,Tile) → (Int,Tile)
 seedTile (width,height) pos (_,s) ((w,x),(y,z)) j (i,t)
-  | seedDistance i' j' w x y z < (s*100000) = (i,t')
-  | otherwise                               = (i,t)
-  where t' = Tile 3 1
-        i' = i + ((fst pos)*width)
-        j' = j + ((snd pos)*height)
+  | seedDistance i' j' w x y z < (s*maxsize) = (i,t')
+  | otherwise                                = (i,t)
+  where t'      = Tile 3 1
+        i'      = i + ((fst pos)*width)
+        j'      = j + ((snd pos)*height)
+        maxsize = (max width height)*(max width height)
 
 seedDistance ∷ Int → Int → Int → Int → Int → Int → Int
 seedDistance x1 y1 x2 y2 x3 y3 = do
